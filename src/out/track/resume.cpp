@@ -13,7 +13,7 @@ namespace out::track {
 /// TODO
 esp_err_t init_rmt(rmt_tx_done_callback_t rmt_cb) {
   rmt_tx_event_callbacks_t cbs{.on_trans_done = rmt_cb};
-  return rmt_tx_register_event_callbacks(channels[0uz], &cbs, NULL);
+  return rmt_tx_register_event_callbacks(channel, &cbs, NULL);
 }
 
 /// TODO

@@ -15,19 +15,22 @@
 #include "sys/init.hpp"
 #include "trace.hpp"
 #include "usb/init.hpp"
+#include "utility.hpp"
 #include "wifi/init.hpp"
 #include "zusi/init.hpp"
+
+#include "log.h"
 
 /// ESP-IDF application entry point
 extern "C" void app_main() {
   // Don't change initialization order
-  ESP_ERROR_CHECK(trace::init());
-  ESP_ERROR_CHECK(mem::init());
-  ESP_ERROR_CHECK(wifi::init());
+  ESP_ERROR_CHECK(invoke_on_core(0, trace::init));
+  ESP_ERROR_CHECK(invoke_on_core(0, mem::init));
+  ESP_ERROR_CHECK(invoke_on_core(0, wifi::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, analog::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, out::init));
 
   /*
-    ESP_ERROR_CHECK(analog::init());
-    ESP_ERROR_CHECK(out::init());
     ESP_ERROR_CHECK(usb::init());
     ESP_ERROR_CHECK(http::init());
 
@@ -39,6 +42,9 @@ extern "C" void app_main() {
     ESP_ERROR_CHECK(settings::init());
     ESP_ERROR_CHECK(zusi::init());
   */
+
+  vTaskDelay(pdMS_TO_TICKS(2000u));
+  LOGI_TASK_RESUME(out::track::dcc::task.handle);
 
   for (;;) {
     vTaskDelay(pdMS_TO_TICKS(5000u));

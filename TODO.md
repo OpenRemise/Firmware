@@ -101,3 +101,11 @@ I don't like Espressifs CMake build system and their component manager, yet it's
 - DCC cutout is too long, we'd have to jump some serious loops to make this compliant. The next RMT packet would need to be issued before the end of channel 2. There is a delay of AT LEAST 50µs before a packet sent to RMT gets actually transmitted.
 - Should WebSockets handle PING/PONG?
 - Disable heartbeat fetch for MDU/ZUSI?
+
+# RMT
+There's a small delay between two consecutive packets... https://github.com/espressif/esp-idf/issues/13003
+Problem is that this delay depends on compiler optimizations :/
+I've measured:
+- -O2 78.8us
+- -Os 80us
+- -Og 82us

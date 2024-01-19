@@ -76,6 +76,8 @@ inline constexpr auto d10_gpio_num{GPIO_NUM_39};
 inline constexpr auto d11_gpio_num{GPIO_NUM_40};
 inline constexpr auto d12_gpio_num{GPIO_NUM_41};
 inline constexpr auto d13_gpio_num{GPIO_NUM_42};
+inline constexpr auto d20_gpio_num{GPIO_NUM_2};
+inline constexpr auto d21_gpio_num{GPIO_NUM_1};
 
 inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
@@ -118,19 +120,14 @@ namespace analog {
 
 inline constexpr auto r1{14300};
 inline constexpr auto r2{470};
-inline constexpr auto r13{374};
-inline constexpr auto r14{3300};
-inline constexpr auto aipropi{450};  // µA/A
 
 inline constexpr auto vref{1000};
 inline constexpr auto max_measurement{smath::pow(2, SOC_ADC_DIGI_MAX_BITWIDTH) -
                                       1};
-inline constexpr auto current_high_gpio_num{GPIO_NUM_13};
-inline constexpr auto current_low_gpio_num{GPIO_NUM_14};
+inline constexpr auto current_channel{ADC_CHANNEL_4};
 inline constexpr auto voltage_channel{ADC_CHANNEL_7};
-inline constexpr auto current_channel{ADC_CHANNEL_9};
 inline constexpr auto attenuation{ADC_ATTEN_DB_0};
-inline constexpr std::array channels{voltage_channel, current_channel};
+inline constexpr std::array channels{current_channel, voltage_channel};
 
 inline constexpr auto conversion_frame_samples{20uz};
 inline constexpr auto conversion_frame_size{conversion_frame_samples *
@@ -141,18 +138,6 @@ static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
 
 /// Sample frequency [Hz] (sample takes 1ms, conversion frame 20ms)
 inline constexpr auto sample_freq_hz{1000u};
-
-/// Sample frequency during MDU (sample takes 12µs, conversion frame 240µs)
-inline constexpr auto mdu_sample_freq_hz{SOC_ADC_SAMPLE_FREQ_THRES_HIGH};
-
-/// Sampling time per channel [s]
-inline constexpr float sample_time_per_channel_s{
-  size(channels) / static_cast<float>(mdu_sample_freq_hz)};
-
-/// Sampling time per channel [µs]
-inline constexpr float sample_time_per_channel_us{
-  static_cast<float>(sample_time_per_channel_s * 1e6)};
-static_assert(std::roundf(sample_time_per_channel_us) == 24);
 
 ///
 inline struct AdcTask {
@@ -294,10 +279,16 @@ inline struct TxMessageBuffer {
 
 namespace track {
 
-inline constexpr auto in1_gpio_num{GPIO_NUM_45};
-inline constexpr auto in2_gpio_num{GPIO_NUM_21};
-inline constexpr auto fault_gpio_num{GPIO_NUM_38};
-inline constexpr auto enable_gpio_num{GPIO_NUM_47};
+/// Continuous transmission requires at least a depth of 2
+inline constexpr auto trans_queue_depth{2uz};
+
+inline constexpr auto nsleep_gpio_num{d5_gpio_num};
+inline constexpr auto isel0_gpio_num{d7_gpio_num};
+inline constexpr auto isel1_gpio_num{d8_gpio_num};
+inline constexpr auto in_gpio_num{d10_gpio_num};
+inline constexpr auto force_low_gpio_num{d11_gpio_num};
+inline constexpr auto fault_gpio_num{d6_gpio_num};
+inline constexpr auto enable_gpio_num{d12_gpio_num};
 
 ///
 inline struct RxQueue {
@@ -306,14 +297,13 @@ inline struct RxQueue {
   QueueHandle_t handle{};
 } rx_queue;
 
-inline rmt_sync_manager_handle_t synchro{};
-inline std::array<rmt_channel_handle_t, 2uz> channels{};
-inline std::array<rmt_encoder_handle_t, 2uz> encoders{};
+inline rmt_channel_handle_t channel{};
+inline rmt_encoder_handle_t encoder{};
 
 namespace dcc {
 
-inline constexpr auto bidi_rx_gpio_num{GPIO_NUM_11};
-inline constexpr auto bidi_en_gpio_num{GPIO_NUM_12};
+inline constexpr auto bidi_rx_gpio_num{d9_gpio_num};
+inline constexpr auto bidi_en_gpio_num{d13_gpio_num};
 
 ///
 inline struct Task {
@@ -327,9 +317,6 @@ inline struct Task {
 }  // namespace dcc
 
 namespace mdu {
-
-///
-inline constexpr analog::Current ack_threshold{1200};
 
 ///
 inline struct Task {

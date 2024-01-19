@@ -9,10 +9,8 @@
 
 namespace analog {
 
-namespace {
-
 ///
-void loop() {
+void adc_task_function(void*) {
   std::array<uint8_t, conversion_frame_size> conversion_frame{};
 
   // Start and stop must be called from the same task because the handle uses a
@@ -20,8 +18,6 @@ void loop() {
   ESP_ERROR_CHECK(adc_continuous_start(adc1_handle));
 
   for (;;) {
-    if (ulTaskNotifyTakeIndexed(pdTRUE, default_notify_index, 0u)) break;
-
     uint32_t bytes_received;
     if (auto const err{adc_continuous_read(adc1_handle,
                                            data(conversion_frame),
@@ -57,16 +53,6 @@ void loop() {
   // Start and stop must be called from the same task because the handle uses a
   // FreeRTOS mutex for internal locking
   ESP_ERROR_CHECK(adc_continuous_stop(adc1_handle));
-}
-
-}  // namespace
-
-///
-void adc_task_function(void*) {
-  for (;;) {
-    loop();
-    LOGI_TASK_SUSPEND(adc_task.handle);
-  }
 }
 
 }  // namespace analog

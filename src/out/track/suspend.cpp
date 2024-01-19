@@ -18,20 +18,13 @@ esp_err_t deinit_gpio() { return gpio_set_level(enable_gpio_num, false); }
 /// TODO
 esp_err_t deinit_rmt() {
   rmt_tx_event_callbacks_t cbs{};
-  return rmt_tx_register_event_callbacks(channels[0uz], &cbs, NULL);
+  return rmt_tx_register_event_callbacks(channel, &cbs, NULL);
 }
 
 }  // namespace
 
 /// TODO
-esp_err_t deinit_encoder() {
-  std::ranges::for_each(encoders, [](auto&& e) {
-    assert(e);
-    ESP_ERROR_CHECK(rmt_del_encoder(e));
-    e = NULL;
-  });
-  return ESP_OK;
-}
+esp_err_t deinit_encoder() { return rmt_del_encoder(encoder); }
 
 /// TODO
 esp_err_t suspend() {

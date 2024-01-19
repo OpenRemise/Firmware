@@ -160,7 +160,7 @@ std::optional<ServiceService::key_type>
 ServiceService::jsonString2key(JsonString const& str) const {
   auto const first{str.c_str()};
   auto const last{first + str.size()};
-  key_type cv_number;
+  key_type cv_number{};
   auto const [ptr, ec]{std::from_chars(first, last, cv_number)};
   if (ec != std::errc{} || ptr != last || !cv_number) return std::nullopt;
   return cv_number;

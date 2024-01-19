@@ -15,12 +15,14 @@ esp_err_t init_gptimer() {
   static constexpr gptimer_config_t timer_config{
     .clk_src = GPTIMER_CLK_SRC_DEFAULT,
     .direction = GPTIMER_COUNT_UP,
-    .resolution_hz = 1'000'000u  // 1 MHz
+    .resolution_hz = 1'000'000u,  // 1 MHz
+    .intr_priority = 2            // Priority 3 is taken by RMT!
   };
-
   ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
 
-  return ESP_OK;
+  // Install interrupt (nullptr argument doesn't matter)
+  gptimer_event_callbacks_t cbs{.on_alarm = nullptr};
+  return gptimer_register_event_callbacks(gptimer, &cbs, NULL);
 }
 
 /// TODO

@@ -5,9 +5,8 @@ include(FetchContent)
 FetchContent_Declare(
   CMakeModules
   GIT_REPOSITORY https://github.com/ZIMO-Elektronik/CMakeModules
-  GIT_TAG v0.6.1)
+  GIT_TAG v0.7.0)
 FetchContent_MakeAvailable(CMakeModules)
-get_cpm()
 
 set(EXTRA_COMPONENT_DIRS src)
 if(IDF_TARGET STREQUAL linux)
@@ -25,15 +24,16 @@ add_subdirectory(docs)
 
 if(IDF_TARGET STREQUAL linux)
   include(CTest)
-  file(
-    DOWNLOAD
-    https://raw.githubusercontent.com/ZIMO-Elektronik/.clang-format/master/.clang-format
-    ${CMAKE_CURRENT_LIST_DIR}/.clang-format)
-  file(GLOB_RECURSE SRC src/*.[ch]pp tests/*.[ch]pp)
-  add_clang_format_target(FirmwareFormat OPTIONS -i FILES ${SRC})
 endif()
 
 if(BUILD_TESTING AND IDF_TARGET STREQUAL linux)
   idf_build_get_property(TGT EXECUTABLE)
   gtest_discover_tests(${TGT})
 endif()
+
+file(
+  DOWNLOAD
+  https://raw.githubusercontent.com/ZIMO-Elektronik/.clang-format/master/.clang-format
+  ${CMAKE_CURRENT_LIST_DIR}/.clang-format)
+file(GLOB_RECURSE SRC src/*.[ch]pp tests/*.[ch]pp)
+add_clang_format_target(FirmwareFormat OPTIONS -i FILES ${SRC})

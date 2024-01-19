@@ -38,7 +38,7 @@ bool validate_json(std::string_view json) {
 
 ///
 std::optional<dcc::Address::value_type> uri2address(std::string_view uri) {
-  dcc::Address::value_type addr;
+  dcc::Address::value_type addr{};
   auto const pos{uri.find_last_of('/')};
   if (pos == std::string_view::npos) return std::nullopt;
   auto const last{cend(uri)};

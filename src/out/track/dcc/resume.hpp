@@ -7,7 +7,7 @@
 #pragma once
 
 #include <driver/gptimer.h>
-#include <rmt_dcc_encoder.h>
+#include "rmt_dcc_encoder.h"
 
 namespace out::track::dcc {
 

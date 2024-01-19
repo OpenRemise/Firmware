@@ -15,11 +15,8 @@ namespace {
 
 ///
 esp_err_t init_encoder(dcc_encoder_config_t const& encoder_config) {
-  std::ranges::for_each(encoders, [&encoder_config](auto&& e) {
-    assert(!e);
-    ESP_ERROR_CHECK(rmt_new_dcc_encoder(&encoder_config, &e));
-  });
-  return ESP_OK;
+  assert(!encoder);
+  return rmt_new_dcc_encoder(&encoder_config, &encoder);
 }
 
 ///
@@ -36,13 +33,11 @@ esp_err_t init_bidi() {
   ESP_ERROR_CHECK(uart_driver_install(
     UART_NUM_1, SOC_UART_FIFO_LEN * 2, 0, 0, NULL, ESP_INTR_FLAG_IRAM));
   ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_config));
-  ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1,
-                               UART_PIN_NO_CHANGE,
-                               bidi_rx_gpio_num,
-                               UART_PIN_NO_CHANGE,
-                               UART_PIN_NO_CHANGE));
-
-  return ESP_OK;
+  return uart_set_pin(UART_NUM_1,
+                      UART_PIN_NO_CHANGE,
+                      bidi_rx_gpio_num,
+                      UART_PIN_NO_CHANGE,
+                      UART_PIN_NO_CHANGE);
 }
 
 }  // namespace

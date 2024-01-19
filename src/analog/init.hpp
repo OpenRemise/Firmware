@@ -16,6 +16,6 @@ namespace analog {
 inline adc_continuous_handle_t adc1_handle{};
 inline temperature_sensor_handle_t temp_sensor{};
 
-esp_err_t init(uint32_t sample_freq_hz = sample_freq_hz);
+esp_err_t init();
 
 }  // namespace analog

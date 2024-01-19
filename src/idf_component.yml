@@ -10,14 +10,14 @@ dependencies:
     version: ">=1.2.0"
     rules:
       - if: "target != linux"
-  alpha:
-    version: master
-    rules:
-      - if: "target != linux"
-    git: https://github.com/higaski/Alpha
-  dcc:
-    version: v0.30.0
-    git: https://github.com/ZIMO-Elektronik/DCC.git
+  # alpha:
+  #   version: master
+  #   rules:
+  #     - if: "target != linux"
+  #   git: https://github.com/higaski/Alpha
+  # dcc:
+  #   version: v0.30.0
+  #   git: https://github.com/ZIMO-Elektronik/DCC.git
   mdu:
     version: v0.14.0
     git: https://github.com/ZIMO-Elektronik/MDU.git
