@@ -81,7 +81,10 @@ void task_function(void*) {
                                         .bit1_duration = 58u,
                                         .bit0_duration = 100u,
                                         .endbit_duration = 58u - 24u,
-                                        .flags = {.zimo0 = false}};
+                                        .flags{
+                                          .cutout = true,
+                                          // .zimo0 = true,
+                                        }};
 
     ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, gptimer_callback));
 

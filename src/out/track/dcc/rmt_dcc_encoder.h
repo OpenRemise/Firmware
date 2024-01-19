@@ -33,6 +33,7 @@ typedef struct {
 
   struct {
     bool invert : 1;  /// Invert
+    bool cutout : 1;  /// Cutout
     bool zimo0 : 1;   /// ZIMO 0
   } flags;
 } dcc_encoder_config_t;
