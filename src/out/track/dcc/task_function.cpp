@@ -57,7 +57,7 @@ void operations_loop() {
   }
 
   for (;;) {
-    auto packet{reset_packet};
+    Packet packet{0b00001111u, 0b00111100u, 0b11110000u};
 
     ESP_ERROR_CHECK(transmit_packet(packet));
     ESP_ERROR_CHECK(gpio_set_level(d21_gpio_num, d21_state = !d21_state));
@@ -80,7 +80,8 @@ void task_function(void*) {
     dcc_encoder_config_t encoder_config{.num_preamble = 17u,
                                         .bit1_duration = 58u,
                                         .bit0_duration = 100u,
-                                        .endbit_duration = 58u - 24u};
+                                        .endbit_duration = 58u - 24u,
+                                        .flags = {.zimo0 = false}};
 
     ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, gptimer_callback));
 

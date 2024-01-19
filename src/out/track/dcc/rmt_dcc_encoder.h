@@ -28,11 +28,12 @@ typedef struct {
   /// Duration of 0 bit [90, 119]
   uint8_t bit0_duration;
 
-  /// Duration of 1 bit [0, 64]
+  /// Duration of end bit [0, 64]
   uint8_t endbit_duration;
 
   struct {
     bool invert : 1;  /// Invert
+    bool zimo0 : 1;   /// ZIMO 0
   } flags;
 } dcc_encoder_config_t;
 

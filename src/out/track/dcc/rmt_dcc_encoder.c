@@ -29,14 +29,18 @@ typedef struct {
   rmt_symbol_word_t end_symbol;
   size_t num_preamble_symbols;
   size_t num_symbols;
-  enum { Preamble, Start, Data, End } state;
+  enum { Zimo0, Preamble, Start, Data, End } state;
+  struct {
+    bool bidi : 1;   ///
+    bool zimo0 : 1;  ///
+  } flags;
 } rmt_dcc_encoder_t;
 
 /// Encode single bit
 ///
 /// \param  dcc_encoder   DCC encoder handle
 /// \param  channel       RMT TX channel handle
-/// \param  ret_state     Returned current encoder’s state
+/// \param  ret_state     Returned current encoder state
 /// \param  symbol        Symbol representing current bit
 /// \return Number of RMT symbols that the primary data has been encoded into
 static size_t IRAM_ATTR rmt_encode_dcc_bit(rmt_dcc_encoder_t* dcc_encoder,
@@ -52,11 +56,31 @@ static size_t IRAM_ATTR rmt_encode_dcc_bit(rmt_dcc_encoder_t* dcc_encoder,
   return encoded_symbols;
 }
 
+/// Encode ZIMO 0
+///
+/// \param  dcc_encoder   DCC encoder handle
+/// \param  channel       RMT TX channel handle
+/// \param  ret_state     Returned current encoder state
+/// \return Number of RMT symbols that the primary data has been encoded into
+static size_t IRAM_ATTR rmt_encode_dcc_zimo0(rmt_dcc_encoder_t* dcc_encoder,
+                                             rmt_channel_handle_t channel,
+                                             rmt_encode_state_t* ret_state) {
+  size_t encoded_symbols = 0u;
+  rmt_encode_state_t state = 0;
+  if (!dcc_encoder->flags.zimo0) state |= RMT_ENCODING_COMPLETE;
+  else
+    encoded_symbols += rmt_encode_dcc_bit(
+      dcc_encoder, channel, &state, &dcc_encoder->zero_symbol);
+  if (state & RMT_ENCODING_COMPLETE) dcc_encoder->state = Preamble;
+  *ret_state = state;
+  return encoded_symbols;
+}
+
 /// Encode preamble
 ///
 /// \param  dcc_encoder   DCC encoder handle
 /// \param  channel       RMT TX channel handle
-/// \param  ret_state     Returned current encoder’s state
+/// \param  ret_state     Returned current encoder state
 /// \return Number of RMT symbols that the primary data has been encoded into
 static size_t IRAM_ATTR rmt_encode_dcc_preamble(rmt_dcc_encoder_t* dcc_encoder,
                                                 rmt_channel_handle_t channel,
@@ -93,7 +117,7 @@ out:
 ///
 /// \param  dcc_encoder   DCC encoder handle
 /// \param  channel       RMT TX channel handle
-/// \param  ret_state     Returned current encoder’s state
+/// \param  ret_state     Returned current encoder state
 /// \return Number of RMT symbols that the primary data has been encoded into
 static size_t IRAM_ATTR rmt_encode_dcc_start(rmt_dcc_encoder_t* dcc_encoder,
                                              rmt_channel_handle_t channel,
@@ -113,7 +137,7 @@ static size_t IRAM_ATTR rmt_encode_dcc_start(rmt_dcc_encoder_t* dcc_encoder,
 /// \param  channel       RMT TX channel handle
 /// \param  primary_data  App data to be encoded into RMT symbols
 /// \param  data_size     Size of primary_data, in bytes
-/// \param  ret_state     Returned current encoder’s state
+/// \param  ret_state     Returned current encoder state
 /// \return Number of RMT symbols that the primary data has been encoded into
 static size_t IRAM_ATTR rmt_encode_dcc_data(rmt_dcc_encoder_t* dcc_encoder,
                                             rmt_channel_handle_t channel,
@@ -148,7 +172,7 @@ static size_t IRAM_ATTR rmt_encode_dcc_data(rmt_dcc_encoder_t* dcc_encoder,
 ///
 /// \param  dcc_encoder   DCC encoder handle
 /// \param  channel       RMT TX channel handle
-/// \param  ret_state     Returned current encoder’s state
+/// \param  ret_state     Returned current encoder state
 /// \return Number of RMT symbols that the primary data has been encoded into
 static size_t IRAM_ATTR rmt_encode_dcc_end(rmt_dcc_encoder_t* dcc_encoder,
                                            rmt_channel_handle_t channel,
@@ -168,7 +192,7 @@ static size_t IRAM_ATTR rmt_encode_dcc_end(rmt_dcc_encoder_t* dcc_encoder,
 /// \param  channel       RMT TX channel handle
 /// \param  primary_data  App data to be encoded into RMT symbols
 /// \param  data_size     Size of primary_data, in bytes
-/// \param  ret_state     Returned current encoder’s state
+/// \param  ret_state     Returned current encoder state
 /// \return Number of RMT symbols that the primary data has been encoded into
 static size_t IRAM_ATTR rmt_encode_dcc(rmt_encoder_t* encoder,
                                        rmt_channel_handle_t channel,
@@ -182,6 +206,15 @@ static size_t IRAM_ATTR rmt_encode_dcc(rmt_encoder_t* encoder,
     __containerof(encoder, rmt_dcc_encoder_t, base);
 
   switch (dcc_encoder->state) {
+    case Zimo0:
+      encoded_symbols +=
+        rmt_encode_dcc_zimo0(dcc_encoder, channel, &session_state);
+      if (session_state & RMT_ENCODING_MEM_FULL) {
+        state |= RMT_ENCODING_MEM_FULL;
+        goto out;
+      }
+      // fallthrough
+
     case Preamble:
       encoded_symbols +=
         rmt_encode_dcc_preamble(dcc_encoder, channel, &session_state);
@@ -216,7 +249,7 @@ static size_t IRAM_ATTR rmt_encode_dcc(rmt_encoder_t* encoder,
         rmt_encode_dcc_end(dcc_encoder, channel, &session_state);
       if (session_state & RMT_ENCODING_COMPLETE) {
         dcc_encoder->num_symbols = 0u;
-        dcc_encoder->state = Preamble;
+        dcc_encoder->state = Zimo0;
         state |= RMT_ENCODING_COMPLETE;
       }
       if (session_state & RMT_ENCODING_MEM_FULL) {
@@ -262,7 +295,7 @@ static esp_err_t rmt_dcc_encoder_reset(rmt_encoder_t* encoder) {
   rmt_encoder_reset(dcc_encoder->copy_encoder);
   rmt_encoder_reset(dcc_encoder->bytes_encoder);
   dcc_encoder->num_symbols = 0u;
-  dcc_encoder->state = Preamble;
+  dcc_encoder->state = Zimo0;
   return ESP_OK;
 }
 
@@ -328,6 +361,12 @@ esp_err_t rmt_new_dcc_encoder(dcc_encoder_config_t const* config,
 
   // We can only transmit multiples of 2
   dcc_encoder->num_preamble_symbols = (config->num_preamble + 1u) / 2u;
+
+  // Initial state
+  dcc_encoder->state = Zimo0;
+
+  // Flags
+  dcc_encoder->flags.zimo0 = config->flags.zimo0;
 
   rmt_bytes_encoder_config_t bytes_encoder_config = {
     .bit1 = dcc_encoder->one_symbol,
