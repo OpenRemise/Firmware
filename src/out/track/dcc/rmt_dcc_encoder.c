@@ -26,10 +26,10 @@ typedef struct {
   rmt_encoder_t* bytes_encoder;
   rmt_symbol_word_t one_symbol;
   rmt_symbol_word_t zero_symbol;
-  rmt_symbol_word_t bidi_symbol;
+  rmt_symbol_word_t end_symbol;
   size_t num_preamble_symbols;
   size_t num_symbols;
-  enum { Preamble, Start, Data, End, BiDi } state;
+  enum { Preamble, Start, Data, End } state;
 } rmt_dcc_encoder_t;
 
 /// Encode single bit
@@ -156,29 +156,8 @@ static size_t IRAM_ATTR rmt_encode_dcc_end(rmt_dcc_encoder_t* dcc_encoder,
   size_t encoded_symbols = 0u;
   rmt_encode_state_t state = 0;
   encoded_symbols +=
-    rmt_encode_dcc_bit(dcc_encoder, channel, &state, &dcc_encoder->one_symbol);
-  if (state & RMT_ENCODING_COMPLETE) dcc_encoder->state = BiDi;
-  *ret_state = state;
-  return encoded_symbols;
-}
-
-/// Encode BiDi (half of a 1 bit) at the end of a packet in case BiDi is enabled
-///
-/// \param  dcc_encoder   DCC encoder handle
-/// \param  channel       RMT TX channel handle
-/// \param  ret_state     Returned current encoder’s state
-/// \return Number of RMT symbols that the primary data has been encoded into
-static size_t IRAM_ATTR rmt_encode_dcc_bidi(rmt_dcc_encoder_t* dcc_encoder,
-                                            rmt_channel_handle_t channel,
-                                            rmt_encode_state_t* ret_state) {
-  size_t encoded_symbols = 0u;
-  rmt_encode_state_t state = 0;
-  if (dcc_encoder->bidi_symbol.duration0 == 0u) state |= RMT_ENCODING_COMPLETE;
-  else {
-    encoded_symbols += rmt_encode_dcc_bit(
-      dcc_encoder, channel, &state, &dcc_encoder->bidi_symbol);
-    if (state & RMT_ENCODING_COMPLETE) dcc_encoder->state = Preamble;
-  }
+    rmt_encode_dcc_bit(dcc_encoder, channel, &state, &dcc_encoder->end_symbol);
+  if (state & RMT_ENCODING_COMPLETE) dcc_encoder->state = Preamble;
   *ret_state = state;
   return encoded_symbols;
 }
@@ -235,15 +214,6 @@ static size_t IRAM_ATTR rmt_encode_dcc(rmt_encoder_t* encoder,
     case End:
       encoded_symbols +=
         rmt_encode_dcc_end(dcc_encoder, channel, &session_state);
-      if (session_state & RMT_ENCODING_MEM_FULL) {
-        state |= RMT_ENCODING_MEM_FULL;
-        goto out;
-      }
-      // fallthrough
-
-    case BiDi:
-      encoded_symbols +=
-        rmt_encode_dcc_bidi(dcc_encoder, channel, &session_state);
       if (session_state & RMT_ENCODING_COMPLETE) {
         dcc_encoder->num_symbols = 0u;
         dcc_encoder->state = Preamble;
@@ -312,10 +282,11 @@ esp_err_t rmt_new_dcc_encoder(dcc_encoder_config_t const* config,
   esp_err_t ret = ESP_OK;
   rmt_dcc_encoder_t* dcc_encoder = NULL;
   ESP_GOTO_ON_FALSE(
-    config && ret_encoder &&                                           //
-      config->num_preamble >= 17u &&                                   //
-      config->bit1_duration >= 52u && config->bit1_duration <= 64u &&  //
-      config->bit0_duration >= 90u && config->bit0_duration <= 119u,   //
+    config && ret_encoder &&                                            //
+      config->num_preamble >= 17u &&                                    //
+      config->bit1_duration >= 52u && config->bit1_duration <= 64u &&   //
+      config->bit0_duration >= 90u && config->bit0_duration <= 119u &&  //
+      config->endbit_duration <= 64u,                                   //
     ESP_ERR_INVALID_ARG,
     err,
     TAG,
@@ -337,21 +308,23 @@ esp_err_t rmt_new_dcc_encoder(dcc_encoder_config_t const* config,
 
   dcc_encoder->one_symbol = (rmt_symbol_word_t){
     .duration0 = config->bit1_duration,
-    .level0 = 0u,
+    .level0 = 0u ^ config->flags.invert,
     .duration1 = config->bit1_duration,
-    .level1 = 1u,
+    .level1 = 1u ^ config->flags.invert,
   };
   dcc_encoder->zero_symbol = (rmt_symbol_word_t){
     .duration0 = config->bit0_duration,
-    .level0 = 0u,
+    .level0 = 0u ^ config->flags.invert,
     .duration1 = config->bit0_duration,
-    .level1 = 1u,
+    .level1 = 1u ^ config->flags.invert,
   };
-  if (config->bidi)
-    dcc_encoder->bidi_symbol = (rmt_symbol_word_t){
-      .duration0 = config->bit1_duration / 2u,
-      .level0 = 0u,
-    };
+  dcc_encoder->end_symbol = (rmt_symbol_word_t){
+    .duration0 = config->bit1_duration,
+    .level0 = 0u ^ config->flags.invert,
+    .duration1 =
+      config->endbit_duration ? config->endbit_duration : config->bit1_duration,
+    .level1 = 1u ^ config->flags.invert,
+  };
 
   // We can only transmit multiples of 2
   dcc_encoder->num_preamble_symbols = (config->num_preamble + 1u) / 2u;

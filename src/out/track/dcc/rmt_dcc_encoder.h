@@ -28,8 +28,12 @@ typedef struct {
   /// Duration of 0 bit [90, 119]
   uint8_t bit0_duration;
 
-  /// Enable BiDi
-  bool bidi;
+  /// Duration of 1 bit [0, 64]
+  uint8_t endbit_duration;
+
+  struct {
+    bool invert : 1;  /// Invert
+  } flags;
 } dcc_encoder_config_t;
 
 /// Create RMT DCC encoder which encodes DCC byte stream into RMT symbols

@@ -39,7 +39,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
 
 /// TODO
 esp_err_t transmit_packet(Packet const& packet) {
-  static constexpr rmt_transmit_config_t config{};
+  static constexpr rmt_transmit_config_t config{.flags = {.eot_level = 1u}};
   return rmt_transmit(channel, encoder, data(packet), size(packet), &config);
 }
 
@@ -77,8 +77,10 @@ void task_function(void*) {
   for (;;) {
     LOGI_TASK_SUSPEND(task.handle);
 
-    dcc_encoder_config_t encoder_config{
-      .num_preamble = 17u, .bit1_duration = 58u, .bit0_duration = 100u};
+    dcc_encoder_config_t encoder_config{.num_preamble = 17u,
+                                        .bit1_duration = 58u,
+                                        .bit0_duration = 100u,
+                                        .endbit_duration = 58u - 24u};
 
     ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, gptimer_callback));
 
