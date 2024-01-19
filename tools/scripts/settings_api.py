@@ -1,0 +1,30 @@
+import json, requests
+
+
+run_get_requests = True
+run_post_requests = True
+
+valid = '{"sta_mdns":"some DNS","sta_ssid":"some SSID","sta_pass":"some PASS","dcc_preamble":42,"dcc_1_duration":43,"dcc_0_duration":44,"dcc_bidi":true}'
+valid_no_sta = (
+    '{"dcc_preamble":42,"dcc_1_duration":43,"dcc_0_duration":44,"dcc_bidi":true}'
+)
+
+# Open session
+s = requests.Session()
+
+"""
+GET
+"""
+if run_get_requests:
+    r = s.get("http://wulf.local/settings/")
+    print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))
+    if len(r.content) and r.headers.get("content-type") == "application/json":
+        print(r.json())
+
+
+"""
+POST
+"""
+if run_post_requests:
+    r = s.post("http://wulf.local/settings/", data=valid_no_sta)
+    print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))

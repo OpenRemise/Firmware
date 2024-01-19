@@ -1,0 +1,10 @@
+# ESP-IDF NVS Partition
+key,type,encoding,value
+settings,namespace,,
+sta_mdns,data,binary,"wulf"
+http_rx_timeout,data,u16,5
+http_tx_timeout,data,u16,5
+dcc_preamble,data,u8,21
+dcc_1_duration,data,u8,58
+dcc_0_duration,data,u8,100
+dcc_bidi,data,u8,1

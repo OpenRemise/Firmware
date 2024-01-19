@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "gdb",
+      "request": "attach",
+      "name": "Debug",
+      "executable": "./build/ESP32Playground.elf",
+      "cwd": "${workspaceFolder}",
+      "gdbpath": "/home/vinci/.espressif/tools/xtensa-esp32s3-elf/esp-2022r1-RC1-11.2.0/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gdb",
+      "target": ":3333",
+      "remote": true,
+      "stopAtEntry": "app_main",
+      "autorun": [
+        "mon reset halt",
+        "thb app_main",
+        "flushregs"
+      ],
+      "preLaunchTask": "Run openocd JLINK"
+    },
+    {
+      "name": "Debug FirmwareTests",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/Firmware.elf",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": false
+        }
+      ]
+    }
+  ]
+}

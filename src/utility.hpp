@@ -1,0 +1,145 @@
+/// Utility functions
+///
+/// \file   utility.hpp
+/// \author Vincent Hamp
+/// \date   09/02/2023
+
+#pragma once
+
+#include <esp_heap_caps.h>
+#include <bit>
+#include <charconv>
+#include <dcc/dcc.hpp>
+#include <functional>
+#include <iterator>
+#include <memory>
+#include <numeric>
+#include <span>
+#include <string_view>
+
+template<typename>
+struct signature;
+
+template<typename R, typename... Args>
+struct signature<std::function<R(Args...)>> {
+  using type = R(Args...);
+  using return_type = R;
+  using args = std::tuple<Args...>;
+};
+
+template<typename R, typename T, typename... Args>
+struct signature<R (T::*)(Args...)> {
+  using type = R(Args...);
+  using return_type = R;
+  using args = std::tuple<Args...>;
+};
+
+template<[[maybe_unused]] auto Unique = [] {}, typename F>
+auto make_tramp(F&& f) {
+  using Args =
+    typename signature<decltype(std::function{std::declval<F>()})>::args;
+  static auto f_{f};
+  return []<size_t... Is>(std::index_sequence<Is...>) {
+    return [](std::tuple_element_t<Is, Args>... args) {
+      return std::invoke(f_, std::forward<decltype(args)>(args)...);
+    };
+  }(std::make_index_sequence<std::tuple_size_v<Args>>{});
+}
+
+template<[[maybe_unused]] auto Unique = [] {}, typename Self, typename F>
+auto make_tramp(Self&& self, F&& f) {
+  using Args = typename signature<F>::args;
+  static auto self_{self};
+  static auto f_{f};
+  return []<size_t... Is>(std::index_sequence<Is...>) {
+    return [](std::tuple_element_t<Is, Args>... args) {
+      return std::invoke(f_, self_, std::forward<decltype(args)>(args)...);
+    };
+  }(std::make_index_sequence<std::tuple_size_v<Args>>{});
+}
+
+void esp_delayed_restart();
+
+bool validate_json(std::string_view json);
+
+// https://stackoverflow.com/questions/81870/is-it-possible-to-print-a-variables-type-in-standard-c
+template<typename T>
+consteval std::string_view type_name() {
+  using namespace std;
+#if defined(__clang__)
+  string_view p{__PRETTY_FUNCTION__};
+  return string_view(data(p) + 34, size(p) - 34 - 1);
+#elif defined(__GNUC__)
+  string_view p{__PRETTY_FUNCTION__};
+#  if __cplusplus < 201402
+  return string_view(data(p) + 36, size(p) - 36 - 1);
+#  else
+  return string_view(data(p) + 49, p.find(';', 49) - 49);
+#  endif
+#elif defined(_MSC_VER)
+  string_view p{__FUNCSIG__};
+  return string_view(data(p) + 84, size(p) - 84 - 7);
+#endif
+}
+
+namespace detail {
+
+template<std::unsigned_integral T>
+constexpr T prime{sizeof(T) <= 4uz ? 16777619ull : 1099511628211ull};
+
+template<std::unsigned_integral T>
+constexpr T offset{sizeof(T) <= 4uz ? 2166136261ull : 14695981039346656037ull};
+
+}  // namespace detail
+
+// http://www.isthe.com/chongo/tech/comp/fnv/index.html
+template<std::unsigned_integral T = uint32_t>
+constexpr T fnv1a(uint8_t byte, T hash = ::detail::offset<T>) {
+  return (hash ^ byte) * ::detail::prime<T>;
+}
+
+template<std::unsigned_integral T = uint32_t>
+constexpr T fnv1a(std::span<char const> str) {
+  return std::accumulate(cbegin(str),
+                         cend(str),
+                         ::detail::offset<T>,
+                         [](T a, char b) { return fnv1a(b, a); });
+}
+
+std::optional<dcc::Address::value_type> uri2address(std::string_view uri);
+
+std::optional<dcc::Address> uri2loco_address(std::string_view uri);
+
+/// https://rosettacode.org/wiki/URL_decoding#C
+template<std::output_iterator<char> OutputIt>
+OutputIt decode_uri(std::string_view uri, OutputIt out) {
+  auto first{begin(uri)};
+  auto const last{cend(uri)};
+  while (first < last) {
+    auto c{*first++};
+    if (c == '+') c = ' ';
+    else if (c == '%') {
+      std::from_chars(first, first + 2, c, 16);
+      first += 2;
+    }
+    *out++ = c;
+  }
+  return out;
+}
+
+///
+template<typename T>
+using unique_caps_ptr = std::unique_ptr<T, decltype(heap_caps_free)*>;
+
+///
+template<typename T>
+constexpr auto make_unique_caps(size_t size, uint32_t caps) {
+  return unique_caps_ptr<T>{std::bit_cast<T*>(heap_caps_malloc(size, caps)),
+                            heap_caps_free};
+}
+
+///
+void bug_led(bool on);
+
+///
+uint16_t get_http_receive_timeout();

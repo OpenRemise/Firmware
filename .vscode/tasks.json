@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake Firmware",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0",
+    },
+    {
+      "label": "CMake FirmwareTests",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0"
+    },
+    { 
+      "label": "Ninja Firmware",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && ninja -C build"
+    },
+    {
+      "label": "Ninja FirmwareTests",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && ninja -C build"
+    },
+    {
+      "label": "Ninja FirmwareDocs",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && ninja -C build FirmwareDocs"
+    },
+    {
+      "label": "Ninja FirmwareLst",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && ninja -C build FirmwareLst"
+    },
+    {
+      "label": "Run FirmwareTests",
+      "type": "shell",
+      "isBackground": true,
+      "command": "./build/Firmware.elf"
+    },
+    {
+      "label": "Run FirmwareTests Valgrind",
+      "type": "shell",
+      "isBackground": true,
+      "command": "valgrind --error-exitcode=1 --leak-check=yes --errors-for-leak-kinds=definite,indirect ./build/Firmware.elf"
+    }
+  ]
+}
