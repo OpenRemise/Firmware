@@ -29,20 +29,18 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, wifi::init));
   ESP_ERROR_CHECK(invoke_on_core(1, analog::init));
   ESP_ERROR_CHECK(invoke_on_core(1, out::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, usb::init));
+  ESP_ERROR_CHECK(invoke_on_core(0, http::init));
 
-  /*
-    ESP_ERROR_CHECK(usb::init());
-    ESP_ERROR_CHECK(http::init());
+  // Those rely on http::init
+  ESP_ERROR_CHECK(invoke_on_core(0, sys::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, dcc::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, mdu::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, ota::init));
+  ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
+  ESP_ERROR_CHECK(invoke_on_core(1, zusi::init));
 
-    // Those rely on http::init
-    ESP_ERROR_CHECK(sys::init());
-    ESP_ERROR_CHECK(dcc::init());
-    ESP_ERROR_CHECK(mdu::init());
-    ESP_ERROR_CHECK(ota::init());
-    ESP_ERROR_CHECK(settings::init());
-    ESP_ERROR_CHECK(zusi::init());
-  */
-
+  //
   vTaskDelay(pdMS_TO_TICKS(2000u));
   LOGI_TASK_RESUME(out::track::dcc::task.handle);
 

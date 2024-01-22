@@ -11,10 +11,19 @@
 #include "rmt_dcc_encoder.h"
 #include <esp_attr.h>
 #include <esp_check.h>
+#include <esp_heap_caps.h>
 #include <limits.h>
 
 #if __has_include(<esp_linux_helper.h>)
 #  include <esp_linux_helper.h>
+#endif
+
+#if !defined(RMT_MEM_ALLOC_CAPS)
+#  if CONFIG_RMT_ISR_IRAM_SAFE || CONFIG_RMT_RECV_FUNC_IN_IRAM
+#    define RMT_MEM_ALLOC_CAPS (MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
+#  else
+#    define RMT_MEM_ALLOC_CAPS MALLOC_CAP_DEFAULT
+#  endif
 #endif
 
 static char const* TAG = "rmt";
@@ -373,7 +382,8 @@ esp_err_t rmt_new_dcc_encoder(dcc_encoder_config_t const* config,
     err,
     TAG,
     "invalid argument");
-  dcc_encoder = calloc(1, sizeof(rmt_dcc_encoder_t));
+  dcc_encoder =
+    heap_caps_calloc(1, sizeof(rmt_dcc_encoder_t), RMT_MEM_ALLOC_CAPS);
   ESP_GOTO_ON_FALSE(
     dcc_encoder, ESP_ERR_NO_MEM, err, TAG, "no mem for dcc encoder");
 

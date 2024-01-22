@@ -97,6 +97,18 @@ endif()
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
 
+if(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-Og")
+elseif(CONFIG_COMPILER_OPTIMIZATION_SIZE)
+  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-Os")
+elseif(CONFIG_COMPILER_OPTIMIZATION_PERF)
+  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-O2")
+elseif(CONFIG_COMPILER_OPTIMIZATION_NONE)
+  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-O0")
+else()
+  message(FATAL_ERROR "Unknown optimization setting")
+endif()
+
 target_common_warnings(${COMPONENT_LIB} PRIVATE)
 
 target_compile_options(
@@ -144,7 +156,7 @@ target_link_libraries(
   ${COMPONENT_LIB} PUBLIC DCC_EIN::DCC_EIN fmt::fmt magic_enum::magic_enum
                           Microsoft.GSL::GSL ULF::COM ZUSI::ZUSI)
 
-# Minify HTML shown by wifi::http::ap::Server
+# Minify HTML shown by http::ap::Server
 minify_html(http/ap/index.html ${CMAKE_BINARY_DIR}/http/ap/index.html)
 
 # Create NVS partition image

@@ -26,7 +26,13 @@ bool d21_state{};  // ch3
 bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
                             rmt_tx_done_event_data_t const*,
                             void*) {
+  gptimer_set_raw_count(gptimer, 0u);
+  gptimer_alarm_config_t const alarm_config{.alarm_count = Timing::BiDiTCSMin};
+  gptimer_set_alarm_action(gptimer, &alarm_config);
+
+  // TODO REMOVE
   gpio_set_level(d20_gpio_num, d20_state = !d20_state);
+
   return pdFALSE;
 }
 
@@ -34,6 +40,31 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
 bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
                                 gptimer_alarm_event_data_t const* edata,
                                 void*) {
+  // Start of channel 1
+  if (edata->alarm_value < Timing::BiDiTTS1) {
+    // Pull tracks low
+    // TODO
+
+    // Reset alarm to end of channel 1
+    gptimer_alarm_config_t const alarm_config{.alarm_count = Timing::BiDiTTC1};
+    gptimer_set_alarm_action(timer, &alarm_config);
+  }
+  // End of channel 1
+  else if (edata->alarm_value < BiDiTTS2) {
+    // Reset alarm to end of cutout
+    gptimer_alarm_config_t const alarm_config{.alarm_count = Timing::BiDiTCE};
+    gptimer_set_alarm_action(timer, &alarm_config);
+  }
+  // End of cutout
+  else {
+    // Release tracks
+    // TODO
+
+    gptimer_set_alarm_action(gptimer, NULL);
+  }
+
+  gpio_set_level(d20_gpio_num, d20_state = !d20_state);
+
   return pdFALSE;
 }
 
@@ -76,6 +107,8 @@ void operations_loop() {
 void task_function(void*) {
   for (;;) {
     LOGI_TASK_SUSPEND(task.handle);
+
+    static_assert(OPTIMIZATION == std::string_view{"-Og"});
 
     dcc_encoder_config_t encoder_config{.num_preamble = 17u,
                                         .bit1_duration = 58u,
