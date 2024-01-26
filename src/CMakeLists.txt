@@ -47,7 +47,6 @@ else()
     ota/init.cpp
     ota/service.cpp
     out/track/dcc/resume.cpp
-    out/track/dcc/rmt_dcc_encoder.c
     out/track/dcc/suspend.cpp
     out/track/dcc/task_function.cpp
     out/track/mdu/resume.cpp
@@ -133,7 +132,6 @@ cpmaddpackage(
   SYSTEM
   YES)
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.0.1")
-cpmaddpackage("gh:ZIMO-Elektronik/DCC#no_rmt")
 cpmaddpackage("gh:ZIMO-Elektronik/DCC_EIN@0.2.0")
 cpmaddpackage("gh:Neargye/magic_enum@0.9.5")
 cpmaddpackage("gh:microsoft/GSL@4.0.0")
