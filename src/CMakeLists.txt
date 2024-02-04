@@ -122,15 +122,7 @@ idf_build_set_property(
   "-Wno-error=all;-Wno-error=extra;-Wno-error=implicit-function-declaration;-Wno-error=format"
   APPEND)
 
-cpmaddpackage(
-  NAME
-  ZUSI
-  GIT_REPOSITORY
-  ssh://git@192.168.1.11:44933/ZIMO/ZUSI.git
-  GIT_TAG
-  master
-  SYSTEM
-  YES)
+cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.7.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.0.1")
 cpmaddpackage("gh:ZIMO-Elektronik/DCC_EIN@0.2.0")
 cpmaddpackage("gh:Neargye/magic_enum@0.9.5")

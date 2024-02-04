@@ -40,8 +40,17 @@ esp_err_t init_gpio() {
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    // TODO, currently fixed@0.5A
+    ESP_ERROR_CHECK(gpio_set_level(isel0_gpio_num, false));
+    ESP_ERROR_CHECK(gpio_set_level(isel1_gpio_num, false));
+
     ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, false));
-    return gpio_set_level(dcc::bidi_en_gpio_num, false);
+    ESP_ERROR_CHECK(gpio_set_level(dcc::bidi_en_gpio_num, false));
+
+    // TODO remove? I'd like NSLEEP to always be 3.3V... but currently afraid
+    // that there might be a fault I can't reset then
+    return gpio_set_level(out::track::nsleep_gpio_num, true);
   }
 }
 

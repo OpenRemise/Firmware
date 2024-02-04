@@ -19,7 +19,7 @@
 #include "wifi/init.hpp"
 #include "zusi/init.hpp"
 
-#include "log.h"
+#include <driver/gpio.h>
 
 /// ESP-IDF application entry point
 extern "C" void app_main() {
@@ -40,12 +40,10 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init));
 
-  //
-  vTaskDelay(pdMS_TO_TICKS(2000u));
-  LOGI_TASK_RESUME(out::track::dcc::task.handle);
-
   for (;;) {
     vTaskDelay(pdMS_TO_TICKS(5000u));
+    auto const fault{gpio_get_level(out::track::fault_gpio_num)};
+    printf("FAULT %d\n", fault);
     // esp_intr_dump(stdout);
   }
 }
