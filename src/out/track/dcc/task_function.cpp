@@ -202,8 +202,6 @@ esp_err_t receive_bidi(Address addr) {
   return ESP_OK;
 }
 
-// #define FORCE_ERROR
-
 /// TODO
 void operations_loop() {
   static constexpr auto idle_packet{make_idle_packet()};
@@ -218,46 +216,24 @@ void operations_loop() {
     ESP_ERROR_CHECK(transmit_packet(packets.back()));
   }
 
-  Packet old_packet{};
-  bool toggle{};
   for (;;) {
-    // auto packet{receive_packet()};
-
-    // // Return on timeout
-    // if (auto const now{xTaskGetTickCount()}; now >= then) return;
-    // // In case we got data, reset timeout
-    // else if (packet) then = now + pdMS_TO_TICKS(task.timeout);
-    // else packet = idle_packet;
-
-    if (toggle) {
-      // 21*2*58        Preamble
-      // 4*2*100        Startbits
-      // 4*8*2*58       Bytes
-      // 2*58           Endbit
-      old_packet = {0x03u, 0xDFu, 0x00, 0xDCu};
-      packets.push_back(old_packet);
-      assert(size(old_packet) == 4uz);
-    } else {
-      old_packet = {0x03u, 0xA0u, 0xA3u};
-      packets.push_back(old_packet);
-      assert(size(old_packet) == 3uz);
+    // Return on timeout
+    if (auto const now{xTaskGetTickCount()}; now >= then) return;
+    // In case we got data, reset timeout
+    else if (auto const packet{receive_packet()}) {
+      then = now + pdMS_TO_TICKS(task.timeout);
+      packets.push_back(*packet);
+      addrs.push_back(decode_address(data(*packet)));
     }
-    toggle = !toggle;
+    // We got no data, transmit idle packet
+    else {
+      packets.push_back(idle_packet);
+      addrs.push_back(decode_address(data(idle_packet)));
+    }
 
-    //
-    addrs.push_back(decode_address(data(packets.back())));
-
-    //
-#ifdef FORCE_ERROR
-    ESP_ERROR_CHECK(transmit_packet(old_packet));
-#else
+    // Transmit packet and receive BiDi
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
-#endif
-
-    //
     ESP_ERROR_CHECK(receive_bidi(addrs.front()));
-
-    // Done with those
     packets.pop_front();
     addrs.pop_front();
   }
