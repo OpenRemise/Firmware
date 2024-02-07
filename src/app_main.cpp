@@ -20,6 +20,7 @@
 #include "zusi/init.hpp"
 
 #include <driver/gpio.h>
+#include "log.h"
 
 /// ESP-IDF application entry point
 extern "C" void app_main() {
@@ -40,10 +41,16 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init));
 
+  //
+  auto suspended{Mode::Suspended};
+  mode.compare_exchange_strong(suspended, Mode::DCCOperations);
+  vTaskDelay(pdMS_TO_TICKS(1000u));
+  LOGI_TASK_RESUME(out::track::dcc::task.handle);
+
   for (;;) {
-    vTaskDelay(pdMS_TO_TICKS(5000u));
-    auto const fault{gpio_get_level(out::track::fault_gpio_num)};
-    printf("FAULT %d\n", fault);
+    vTaskDelay(pdMS_TO_TICKS(1000u));
+    // auto const fault{gpio_get_level(out::track::fault_gpio_num)};
+    // printf("FAULT %d\n", fault);
     // esp_intr_dump(stdout);
   }
 }

@@ -72,7 +72,7 @@ uint8_t Settings::getDcc1Duration() const { return getU8("dcc_1_duration"); }
 
 /// TODO
 esp_err_t Settings::setDcc1Duration(uint8_t value) {
-  if (value >= dcc::Timing::Bit1Min && value <= dcc::Timing::Bit1Max)
+  if (value >= dcc::tx::Bit1Min && value <= dcc::tx::Bit1Max)
     return setU8("dcc_1_duration", value);
   else return ESP_ERR_INVALID_ARG;
 }
@@ -82,7 +82,7 @@ uint8_t Settings::getDcc0Duration() const { return getU8("dcc_0_duration"); }
 
 /// TODO
 esp_err_t Settings::setDcc0Duration(uint8_t value) {
-  if (value >= dcc::Timing::Bit0Min && value <= dcc::Timing::Bit0Max)
+  if (value >= dcc::tx::Bit0Min && value <= dcc::tx::Bit0Max)
     return setU8("dcc_0_duration", value);
   else return ESP_ERR_INVALID_ARG;
 }

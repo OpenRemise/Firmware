@@ -68,7 +68,7 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
   gptimer_set_raw_count(gptimer, 0u);
   gptimer_alarm_config_t const alarm_config{
     .alarm_count = static_cast<decltype(gptimer_alarm_config_t::alarm_count)>(
-      BiDiTCSMin + offsets.tcs)};
+      TCSMin + offsets.tcs)};
   gptimer_set_alarm_action(gptimer, &alarm_config);
   return pdFALSE;
 }
@@ -82,23 +82,23 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
   BaseType_t high_task_awoken{pdFALSE};
 
   // TCS
-  if (edata->alarm_value < BiDiTTS1) {
-    gptimer_set_raw_count(timer, BiDiTCSMin);
+  if (edata->alarm_value < TTS1) {
+    gptimer_set_raw_count(timer, TCSMin);
 
     // Pull tracks low
     gpio_set_level(bidi_en_gpio_num, true);
 
     // Reset alarm to TS2
-    gptimer_alarm_config_t const alarm_config{.alarm_count = BiDiTTC1};
+    gptimer_alarm_config_t const alarm_config{.alarm_count = TTC1};
     gptimer_set_alarm_action(timer, &alarm_config);
   }
   // TS2
-  else if (edata->alarm_value < BiDiTTS2) {
+  else if (edata->alarm_value < TTS2) {
     // Check whether there has been data in channel 1
     ch1 = uart_ll_get_rxfifo_len(&UART1) >= 2uz;
 
     // Reset alarm to TCE
-    gptimer_alarm_config_t const alarm_config{.alarm_count = BiDiTCEMin};
+    gptimer_alarm_config_t const alarm_config{.alarm_count = TCEMin};
     gptimer_set_alarm_action(timer, &alarm_config);
 
     // TODO REMOVE DEBUG ONLY
@@ -202,37 +202,64 @@ esp_err_t receive_bidi(Address addr) {
   return ESP_OK;
 }
 
+// #define FORCE_ERROR
+
 /// TODO
 void operations_loop() {
   static constexpr auto idle_packet{make_idle_packet()};
-  ztl::inplace_deque<Address, trans_queue_depth> addrs{};
+  ztl::inplace_deque<Packet, trans_queue_depth + 1uz> packets{};
+  ztl::inplace_deque<Address, trans_queue_depth + 1uz> addrs{};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   // Preload idle packets
   for (auto i{0uz}; i < trans_queue_depth; ++i) {
-    auto const packet{idle_packet};
-    ESP_ERROR_CHECK(transmit_packet(packet));
-    addrs.push_back(decode_address(data(packet)));
+    packets.push_back(idle_packet);
+    addrs.push_back(decode_address(data(idle_packet)));
+    ESP_ERROR_CHECK(transmit_packet(packets.back()));
   }
 
+  Packet old_packet{};
+  bool toggle{};
   for (;;) {
-    auto packet{receive_packet()};
+    // auto packet{receive_packet()};
 
-    // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then) return;
-    // In case we got data, reset timeout
-    else if (packet) then = now + pdMS_TO_TICKS(task.timeout);
-    else packet = idle_packet;
+    // // Return on timeout
+    // if (auto const now{xTaskGetTickCount()}; now >= then) return;
+    // // In case we got data, reset timeout
+    // else if (packet) then = now + pdMS_TO_TICKS(task.timeout);
+    // else packet = idle_packet;
+
+    if (toggle) {
+      // 21*2*58        Preamble
+      // 4*2*100        Startbits
+      // 4*8*2*58       Bytes
+      // 2*58           Endbit
+      old_packet = {0x03u, 0xDFu, 0x00, 0xDCu};
+      packets.push_back(old_packet);
+      assert(size(old_packet) == 4uz);
+    } else {
+      old_packet = {0x03u, 0xA0u, 0xA3u};
+      packets.push_back(old_packet);
+      assert(size(old_packet) == 3uz);
+    }
+    toggle = !toggle;
 
     //
-    ESP_ERROR_CHECK(transmit_packet(*packet));
+    addrs.push_back(decode_address(data(packets.back())));
+
+    //
+#ifdef FORCE_ERROR
+    ESP_ERROR_CHECK(transmit_packet(old_packet));
+#else
+    ESP_ERROR_CHECK(transmit_packet(packets.front()));
+#endif
 
     //
     ESP_ERROR_CHECK(receive_bidi(addrs.front()));
 
-    //
+    // Done with those
+    packets.pop_front();
     addrs.pop_front();
-    addrs.push_back(decode_address(data(*packet)));
   }
 }
 
