@@ -10,6 +10,7 @@
 #include <hal/uart_hal.h>
 #include <dcc/dcc.hpp>
 #include <ztl/fail.hpp>
+#include <ztl/inplace_deque.hpp>
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
@@ -105,7 +106,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     ch1 = uart_ll_get_rxfifo_len(&UART1);
 
     // TODO REMOVE DEBUG ONLY
-    // gpio_set_level(d21_gpio_num, true );
+    // gpio_set_level(d21_gpio_num, true);
   }
   // TCE
   else {
@@ -208,37 +209,63 @@ esp_err_t receive_bidi(Address addr) {
 /// TODO
 void operations_loop() {
   static constexpr auto idle_packet{make_idle_packet()};
-  auto packets{std::invoke([] {
-    std::array<Packet, trans_queue_depth + 2uz> retval{};
-    retval.fill(idle_packet);
-    return retval;
-  })};
-  size_t count{};
+  ztl::inplace_deque<Packet, trans_queue_depth> packets{};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   // Preload idle packets
-  while (count < trans_queue_depth)
-    ESP_ERROR_CHECK(transmit_packet(packets[count++]));
+  for (auto i{0uz}; i < trans_queue_depth; ++i) {
+    packets.push_back(idle_packet);
+    ESP_ERROR_CHECK(transmit_packet(packets.front()));
+  }
 
   for (;;) {
     // Receive BiDi on last transmitted address
-    ESP_ERROR_CHECK(receive_bidi(decode_address(
-      data(packets[(count + trans_queue_depth) % size(packets)]))));
+    auto const addr{decode_address(data(*(begin(packets) - 1)))};
+    ESP_ERROR_CHECK(receive_bidi(addr));
+    packets.pop_front();
 
     // Return on timeout
     if (auto const now{xTaskGetTickCount()}; now >= then) return;
     // In case we got data, reset timeout
     else if (auto const packet{receive_packet()}) {
       then = now + pdMS_TO_TICKS(task.timeout);
-      packets[count] = *packet;
+      packets.push_back(*packet);
     }
     // We got no data, transmit idle packet
     else
-      packets[count] = idle_packet;
+      packets.push_back(idle_packet);
 
     // Transmit packet
-    ESP_ERROR_CHECK(transmit_packet(packets[count]));
-    count = (count + 1uz) % size(packets);
+    ESP_ERROR_CHECK(transmit_packet(packets.front()));
+  }
+}
+
+/// TODO
+void service_loop() {
+  static constexpr auto reset_packet{make_reset_packet()};
+  ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
+
+  // Transmit 25 reset packets to ensure entry
+  for (auto i{0uz}; i < 25uz; ++i)
+    ESP_ERROR_CHECK(transmit_packet(packets.front()));
+
+  for (;;) {
+    // Transmit reset packets until first non-reset packet or timeout
+    TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
+    do {
+      // Return on timeout
+      if (auto const now{xTaskGetTickCount()}; now >= then) return;
+      // In case we got data, reset timeout
+      else if (auto const packet{receive_packet()}) {
+        then = now + pdMS_TO_TICKS(task.timeout);
+        packets.push_back(*packet);
+      }
+      // We got no data, transmit idle packet
+      else
+        packets.push_back(reset_packet);
+
+      ESP_ERROR_CHECK(transmit_packet(packets.front()));
+    } while (packets.back() == reset_packet);
   }
 }
 
@@ -255,7 +282,14 @@ void task_function(void*) {
         ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, gptimer_callback));
         operations_loop();
         break;
-      case Mode::DCCService: assert(false); break;
+      case Mode::DCCService:
+        // RCN-216 demands at least 20 preamble bits
+        encoder_config.num_preamble =
+          std::max<decltype(encoder_config.num_preamble)>(
+            encoder_config.num_preamble, 20u);
+        encoder_config.cutoutbit_duration = 0u;
+        ESP_ERROR_CHECK(resume(encoder_config, nullptr, nullptr));
+        break;
       default: assert(false); break;
     }
 
