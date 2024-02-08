@@ -94,15 +94,15 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
   }
   // TS2
   else if (edata->alarm_value < TTS2) {
-    // Check whether there has been data in channel 1
-    ch1 = uart_ll_get_rxfifo_len(&UART1) >= 2uz;
-
     // Reset alarm to TCE
     gptimer_alarm_config_t const alarm_config{.alarm_count = TCEMin};
     gptimer_set_alarm_action(timer, &alarm_config);
 
+    // Check whether there has been data in channel 1
+    ch1 = uart_ll_get_rxfifo_len(&UART1);
+
     // TODO REMOVE DEBUG ONLY
-    gpio_set_level(d21_gpio_num, true);
+    if (ch1) gpio_set_level(d21_gpio_num, d21_state = !d21_state);
   }
   // TCE
   else {
@@ -119,7 +119,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     gptimer_set_alarm_action(gptimer, NULL);
 
     // TODO REMOVE DEBUG ONLY
-    gpio_set_level(d21_gpio_num, false);
+    // gpio_set_level(d21_gpio_num, false);
   }
 
   return high_task_awoken == pdTRUE;
@@ -175,7 +175,7 @@ esp_err_t transmit_packet(Packet const& packet) {
 esp_err_t receive_bidi(Address addr) {
   //
   auto const notification_value{
-    ulTaskNotifyTakeIndexed(pdTRUE, default_notify_index, 0u)};
+    ulTaskNotifyTakeIndexed(pdTRUE, default_notify_index, portMAX_DELAY)};
 
   //
   Datagram datagram{};
@@ -203,10 +203,42 @@ esp_err_t receive_bidi(Address addr) {
 }
 
 /// TODO
+esp_err_t hal_receive_bidi(Address addr) {
+  //
+  auto const notification_value{
+    ulTaskNotifyTakeIndexed(pdTRUE, default_notify_index, portMAX_DELAY)};
+
+  //
+  Datagram datagram{};
+  size_t bytes_available{};
+  ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_1, &bytes_available));
+
+  // CH1+2
+  if (notification_value & 0b1u)
+    uart_read_bytes(UART_NUM_1,
+                    data(datagram),
+                    std::min<size_t>(bytes_available, size(datagram)),
+                    0u);
+  // CH2 only
+  else
+    uart_read_bytes(
+      UART_NUM_1,
+      data(datagram) + channel1_size,
+      std::min<size_t>(bytes_available, size(datagram) - channel1_size),
+      0u);
+
+  RxQueue::value_type addr_datagram{.addr = addr, .datagram = datagram};
+  if (!xQueueSend(rx_queue.handle, &addr_datagram, 0u))
+    ;  // I'd love to error log here, but it's simply too slow
+
+  return ESP_OK;
+}
+
+/// TODO
 void operations_loop() {
   static constexpr auto idle_packet{make_idle_packet()};
-  ztl::inplace_deque<Packet, trans_queue_depth + 1uz> packets{};
-  ztl::inplace_deque<Address, trans_queue_depth + 1uz> addrs{};
+  ztl::inplace_deque<Packet, trans_queue_depth> packets{};
+  ztl::inplace_deque<Address, trans_queue_depth> addrs{};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   // Preload idle packets
@@ -215,8 +247,17 @@ void operations_loop() {
     addrs.push_back(decode_address(data(idle_packet)));
     ESP_ERROR_CHECK(transmit_packet(packets.back()));
   }
+  assert(full(packets));
+  assert(full(addrs));
 
   for (;;) {
+    //
+    ESP_ERROR_CHECK(receive_bidi(addrs.front()));
+    if (addrs.front().type == Address::IdleSystem)
+      gpio_set_level(d20_gpio_num, d20_state = !d20_state);
+    packets.pop_front();
+    addrs.pop_front();
+
     // Return on timeout
     if (auto const now{xTaskGetTickCount()}; now >= then) return;
     // In case we got data, reset timeout
@@ -231,11 +272,8 @@ void operations_loop() {
       addrs.push_back(decode_address(data(idle_packet)));
     }
 
-    // Transmit packet and receive BiDi
+    // Transmit packet
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
-    ESP_ERROR_CHECK(receive_bidi(addrs.front()));
-    packets.pop_front();
-    addrs.pop_front();
   }
 }
 

@@ -16,8 +16,7 @@ namespace {
 ///
 esp_err_t deinit_bidi() {
   ESP_ERROR_CHECK(gpio_set_level(bidi_en_gpio_num, false));
-  ESP_ERROR_CHECK(uart_driver_delete(UART_NUM_1));
-  return ESP_OK;
+  return uart_driver_delete(UART_NUM_1);
 }
 
 }  // namespace

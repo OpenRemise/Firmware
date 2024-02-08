@@ -24,13 +24,17 @@ esp_err_t deinit_rmt() {
 }  // namespace
 
 /// TODO
-esp_err_t deinit_encoder() { return rmt_del_encoder(encoder); }
+esp_err_t deinit_encoder() {
+  ESP_ERROR_CHECK(rmt_del_encoder(encoder));
+  encoder = NULL;
+  return ESP_OK;
+}
 
 /// TODO
 esp_err_t suspend() {
   ESP_ERROR_CHECK(deinit_gpio());
-  ESP_ERROR_CHECK(deinit_encoder());
   ESP_ERROR_CHECK(deinit_rmt());
+  ESP_ERROR_CHECK(deinit_encoder());
   return out::suspend();
 }
 
