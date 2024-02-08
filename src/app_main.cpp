@@ -38,10 +38,5 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init));
 
-  for (;;) {
-    vTaskDelay(pdMS_TO_TICKS(1000u));
-    // auto const fault{gpio_get_level(out::track::fault_gpio_num)};
-    // printf("FAULT %d\n", fault);
-    // esp_intr_dump(stdout);
-  }
+  for (;;) vTaskDelay(pdMS_TO_TICKS(1000u));
 }

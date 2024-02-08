@@ -10,7 +10,6 @@
 #include <hal/uart_hal.h>
 #include <dcc/dcc.hpp>
 #include <ztl/fail.hpp>
-#include <ztl/inplace_deque.hpp>
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
@@ -23,14 +22,17 @@ using namespace ::dcc::bidi;
 
 namespace {
 
+// TODO REMOVE
 bool d20_state{};  // ch2
 bool d21_state{};  // ch3
 
+/// TODO
 struct Offsets {
   uint8_t endbit{};
   uint8_t tcs{};
 };
 
+/// TODO
 consteval Offsets make_offsets() {
   // TODO REMOVE once we measured all optimization offsets
   static_assert(OPTIMIZATION == std::string_view{"-Og"});
@@ -59,6 +61,7 @@ consteval Offsets make_offsets() {
   else { ztl::fail(); }
 }
 
+/// TODO
 auto const offsets{make_offsets()};
 
 /// TODO
@@ -102,7 +105,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     ch1 = uart_ll_get_rxfifo_len(&UART1);
 
     // TODO REMOVE DEBUG ONLY
-    if (ch1) gpio_set_level(d21_gpio_num, d21_state = !d21_state);
+    // gpio_set_level(d21_gpio_num, true );
   }
   // TCE
   else {
@@ -203,77 +206,39 @@ esp_err_t receive_bidi(Address addr) {
 }
 
 /// TODO
-esp_err_t hal_receive_bidi(Address addr) {
-  //
-  auto const notification_value{
-    ulTaskNotifyTakeIndexed(pdTRUE, default_notify_index, portMAX_DELAY)};
-
-  //
-  Datagram datagram{};
-  size_t bytes_available{};
-  ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_1, &bytes_available));
-
-  // CH1+2
-  if (notification_value & 0b1u)
-    uart_read_bytes(UART_NUM_1,
-                    data(datagram),
-                    std::min<size_t>(bytes_available, size(datagram)),
-                    0u);
-  // CH2 only
-  else
-    uart_read_bytes(
-      UART_NUM_1,
-      data(datagram) + channel1_size,
-      std::min<size_t>(bytes_available, size(datagram) - channel1_size),
-      0u);
-
-  RxQueue::value_type addr_datagram{.addr = addr, .datagram = datagram};
-  if (!xQueueSend(rx_queue.handle, &addr_datagram, 0u))
-    ;  // I'd love to error log here, but it's simply too slow
-
-  return ESP_OK;
-}
-
-/// TODO
 void operations_loop() {
   static constexpr auto idle_packet{make_idle_packet()};
-  ztl::inplace_deque<Packet, trans_queue_depth> packets{};
-  ztl::inplace_deque<Address, trans_queue_depth> addrs{};
+  auto packets{std::invoke([] {
+    std::array<Packet, trans_queue_depth + 2uz> retval{};
+    retval.fill(idle_packet);
+    return retval;
+  })};
+  size_t count{};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   // Preload idle packets
-  for (auto i{0uz}; i < trans_queue_depth; ++i) {
-    packets.push_back(idle_packet);
-    addrs.push_back(decode_address(data(idle_packet)));
-    ESP_ERROR_CHECK(transmit_packet(packets.back()));
-  }
-  assert(full(packets));
-  assert(full(addrs));
+  while (count < trans_queue_depth)
+    ESP_ERROR_CHECK(transmit_packet(packets[count++]));
 
   for (;;) {
-    //
-    ESP_ERROR_CHECK(receive_bidi(addrs.front()));
-    if (addrs.front().type == Address::IdleSystem)
-      gpio_set_level(d20_gpio_num, d20_state = !d20_state);
-    packets.pop_front();
-    addrs.pop_front();
+    // Receive BiDi on last transmitted address
+    ESP_ERROR_CHECK(receive_bidi(decode_address(
+      data(packets[(count + trans_queue_depth) % size(packets)]))));
 
     // Return on timeout
     if (auto const now{xTaskGetTickCount()}; now >= then) return;
     // In case we got data, reset timeout
     else if (auto const packet{receive_packet()}) {
       then = now + pdMS_TO_TICKS(task.timeout);
-      packets.push_back(*packet);
-      addrs.push_back(decode_address(data(*packet)));
+      packets[count] = *packet;
     }
     // We got no data, transmit idle packet
-    else {
-      packets.push_back(idle_packet);
-      addrs.push_back(decode_address(data(idle_packet)));
-    }
+    else
+      packets[count] = idle_packet;
 
     // Transmit packet
-    ESP_ERROR_CHECK(transmit_packet(packets.front()));
+    ESP_ERROR_CHECK(transmit_packet(packets[count]));
+    count = (count + 1uz) % size(packets);
   }
 }
 
