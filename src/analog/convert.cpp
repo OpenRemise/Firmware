@@ -32,12 +32,13 @@ VoltageMeasurement mV2measurement(Voltage mV) {
 
 /// TODO
 Current measurement2mA(CurrentMeasurement meas) {
-  return static_cast<Current>(0);
+  return static_cast<Current>((raw2mV(meas) * kimon) / rimon);
 }
 
 /// TODO
 CurrentMeasurement mA2measurement(Current mA) {
-  return static_cast<CurrentMeasurement>(0);
+  return static_cast<CurrentMeasurement>((mA * rimon * max_measurement) /
+                                         (kimon * vref));
 }
 
 }  // namespace analog

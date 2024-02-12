@@ -11,6 +11,7 @@
 #include <dcc/dcc.hpp>
 #include <ztl/fail.hpp>
 #include <ztl/inplace_deque.hpp>
+#include "analog/convert.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
@@ -241,8 +242,26 @@ void operations_loop() {
 }
 
 /// TODO
+bool detect_ack() {
+  analog::CurrentsQueue::value_type currents;
+  xQueuePeek(analog::currents_queue.handle, &currents, 0u);
+  std::ranges::sort(currents);
+  // ACK is at least 5ms long, n is the number of samples we take in that time
+  static constexpr auto n{static_cast<int32_t>(
+    5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
+  static_assert(n == 5);
+  static constexpr auto delta{60};
+  auto const n_max{std::accumulate(cend(currents) - n, cend(currents), 0)};
+  auto const n_min{std::accumulate(cbegin(currents), cbegin(currents) + n, 0)};
+  return measurement2mA(
+           static_cast<analog::CurrentMeasurement>(n_max - n_min)) >= n * delta;
+}
+
+/// TODO
 void service_loop() {
   static constexpr auto reset_packet{make_reset_packet()};
+  static constexpr auto read_timeout{pdMS_TO_TICKS(50u)};
+  static constexpr auto write_timeout{pdMS_TO_TICKS(100u)};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
 
   // Transmit 25 reset packets to ensure entry
@@ -257,7 +276,7 @@ void service_loop() {
       if (auto const now{xTaskGetTickCount()}; now >= then) return;
       // In case we got data, reset timeout
       else if (auto const packet{receive_packet()}) {
-        then = now + pdMS_TO_TICKS(task.timeout);
+        // then = now + pdMS_TO_TICKS(task.timeout);
         packets.push_back(*packet);
       }
       // We got no data, transmit idle packet
@@ -265,7 +284,38 @@ void service_loop() {
         packets.push_back(reset_packet);
 
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
+      packets.pop_front();
     } while (packets.back() == reset_packet);
+
+    // Transmit equal CV access packets, try to detect ack
+    // TODO read timeout would theoretically be only 50ms?
+    auto const cv_access_packet{packets.back()};
+    then = xTaskGetTickCount() + write_timeout +
+           pdMS_TO_TICKS(trans_queue_depth * 10u);
+    bool ack{};
+    do {
+      if (auto const packet{receive_packet()}) packets.push_back(*packet);
+      else break;
+      ESP_ERROR_CHECK(transmit_packet(packets.front()));
+      packets.pop_front();
+      ack |= detect_ack();
+    } while (packets.back() == cv_access_packet);
+
+    // Transmit reset packets until ack or timeout
+    while (!ack && xTaskGetTickCount() < then) {
+      packets.push_back(reset_packet);
+      ESP_ERROR_CHECK(transmit_packet(packets.front()));
+      packets.pop_front();
+      ack |= detect_ack();
+    }
+
+    // Transmit reset packets until current drops (safety measure so that ack
+    // isn't counted twice...)
+    while (ack && detect_ack()) {
+      packets.push_back(reset_packet);
+      ESP_ERROR_CHECK(transmit_packet(packets.front()));
+      packets.pop_front();
+    }
   }
 }
 
@@ -289,6 +339,7 @@ void task_function(void*) {
             encoder_config.num_preamble, 20u);
         encoder_config.cutoutbit_duration = 0u;
         ESP_ERROR_CHECK(resume(encoder_config, nullptr, nullptr));
+        service_loop();
         break;
       default: assert(false); break;
     }
