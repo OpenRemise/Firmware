@@ -16,13 +16,13 @@ namespace ota {
 
 /// TODO
 Service::Service() {
-  xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
-                          task.name,
-                          task.stack_depth,
-                          NULL,
-                          task.priority,
-                          &task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
+                                 task.name,
+                                 task.stack_depth,
+                                 NULL,
+                                 task.priority,
+                                 &task.handle,
+                                 1));
 }
 
 /// TODO

@@ -21,11 +21,22 @@ esp_err_t init_gpio() {
   // Input
   {
     static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << fault_gpio_num,
+      .pin_bit_mask = 1ull << nfault_gpio_num,
       .mode = GPIO_MODE_INPUT,
       .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+  }
+
+  // Input
+  {
+    static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ack_gpio_num,
+                                           .mode = GPIO_MODE_INPUT,
+                                           .pull_up_en = GPIO_PULLUP_DISABLE,
+                                           .pull_down_en =
+                                             GPIO_PULLDOWN_DISABLE,
+                                           .intr_type = GPIO_INTR_NEGEDGE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
   }
 
@@ -84,20 +95,20 @@ esp_err_t init() {
   ESP_ERROR_CHECK(init_gpio());
   ESP_ERROR_CHECK(init_channel());
 
-  xTaskCreatePinnedToCore(dcc::task_function,
-                          dcc::task.name,
-                          dcc::task.stack_depth,
-                          NULL,
-                          dcc::task.priority,
-                          &dcc::task.handle,
-                          1);
-  xTaskCreatePinnedToCore(mdu::task_function,
-                          mdu::task.name,
-                          mdu::task.stack_depth,
-                          NULL,
-                          mdu::task.priority,
-                          &mdu::task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(dcc::task_function,
+                                 dcc::task.name,
+                                 dcc::task.stack_depth,
+                                 NULL,
+                                 dcc::task.priority,
+                                 &dcc::task.handle,
+                                 1));
+  assert(xTaskCreatePinnedToCore(mdu::task_function,
+                                 mdu::task.name,
+                                 mdu::task.stack_depth,
+                                 NULL,
+                                 mdu::task.priority,
+                                 &mdu::task.handle,
+                                 1));
 
   return ESP_OK;
 }

@@ -58,13 +58,13 @@ esp_err_t init() {
   devcfg.clock_speed_hz = static_cast<int>(1.0 / 0.5533e-6);
   spi_bus_add_device(SPI2_HOST, &devcfg, &spis[3uz]);
 
-  xTaskCreatePinnedToCore(task_function,
-                          task.name,
-                          task.stack_depth,
-                          NULL,
-                          task.priority,
-                          &task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(task_function,
+                                 task.name,
+                                 task.stack_depth,
+                                 NULL,
+                                 task.priority,
+                                 &task.handle,
+                                 1));
 
   return ESP_OK;
 }

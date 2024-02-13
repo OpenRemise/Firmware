@@ -63,7 +63,7 @@ bool ZppLoad::readData() const { return gpio_get_level(data_gpio_num); }
 
 ///
 void ZppLoad::delayUs(uint32_t us) const {
-  gptimer_set_raw_count(gptimer, 0u);
+  gptimer_set_raw_count(gptimer, 0ull);
   uint64_t value{};
   while (value < us) ESP_ERROR_CHECK(gptimer_get_raw_count(gptimer, &value));
 }

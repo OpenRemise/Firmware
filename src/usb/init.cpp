@@ -49,51 +49,51 @@ void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
 esp_err_t init() {
   rx_stream_buffer.handle = xStreamBufferCreate(rx_stream_buffer.size, 1uz);
   tx_stream_buffer.handle = xStreamBufferCreate(tx_stream_buffer.size, 1uz);
-  xTaskCreatePinnedToCore(rx_task_function,
-                          rx_task.name,
-                          rx_task.stack_depth,
-                          NULL,
-                          rx_task.priority,
-                          &rx_task.handle,
-                          1);
-  xTaskCreatePinnedToCore(tx_task_function,
-                          tx_task.name,
-                          tx_task.stack_depth,
-                          NULL,
-                          tx_task.priority,
-                          &tx_task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(rx_task_function,
+                                 rx_task.name,
+                                 rx_task.stack_depth,
+                                 NULL,
+                                 rx_task.priority,
+                                 &rx_task.handle,
+                                 1));
+  assert(xTaskCreatePinnedToCore(tx_task_function,
+                                 tx_task.name,
+                                 tx_task.stack_depth,
+                                 NULL,
+                                 tx_task.priority,
+                                 &tx_task.handle,
+                                 1));
 
-  xTaskCreatePinnedToCore(dcc_ein::rx_task_function,
-                          dcc_ein::rx_task.name,
-                          dcc_ein::rx_task.stack_depth,
-                          NULL,
-                          dcc_ein::rx_task.priority,
-                          &dcc_ein::rx_task.handle,
-                          1);
-  xTaskCreatePinnedToCore(susiv2::rx_task_function,
-                          susiv2::rx_task.name,
-                          susiv2::rx_task.stack_depth,
-                          NULL,
-                          susiv2::rx_task.priority,
-                          &susiv2::rx_task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(dcc_ein::rx_task_function,
+                                 dcc_ein::rx_task.name,
+                                 dcc_ein::rx_task.stack_depth,
+                                 NULL,
+                                 dcc_ein::rx_task.priority,
+                                 &dcc_ein::rx_task.handle,
+                                 1));
+  assert(xTaskCreatePinnedToCore(susiv2::rx_task_function,
+                                 susiv2::rx_task.name,
+                                 susiv2::rx_task.stack_depth,
+                                 NULL,
+                                 susiv2::rx_task.priority,
+                                 &susiv2::rx_task.handle,
+                                 1));
 
   // Transmit tasks must have lower priority than usb::tx_task
-  xTaskCreatePinnedToCore(dcc_ein::tx_task_function,
-                          dcc_ein::tx_task.name,
-                          dcc_ein::tx_task.stack_depth,
-                          NULL,
-                          dcc_ein::tx_task.priority,
-                          &dcc_ein::tx_task.handle,
-                          1);
-  xTaskCreatePinnedToCore(susiv2::tx_task_function,
-                          susiv2::tx_task.name,
-                          susiv2::tx_task.stack_depth,
-                          NULL,
-                          susiv2::tx_task.priority,
-                          &susiv2::tx_task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(dcc_ein::tx_task_function,
+                                 dcc_ein::tx_task.name,
+                                 dcc_ein::tx_task.stack_depth,
+                                 NULL,
+                                 dcc_ein::tx_task.priority,
+                                 &dcc_ein::tx_task.handle,
+                                 1));
+  assert(xTaskCreatePinnedToCore(susiv2::tx_task_function,
+                                 susiv2::tx_task.name,
+                                 susiv2::tx_task.stack_depth,
+                                 NULL,
+                                 susiv2::tx_task.priority,
+                                 &susiv2::tx_task.handle,
+                                 1));
 
   static constexpr tinyusb_config_t tusb_cfg{.device_descriptor = NULL,
                                              .string_descriptor = NULL,

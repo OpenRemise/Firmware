@@ -160,7 +160,7 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
 
     // Create task and wait for it's deletion
     TaskHandle_t handle;
-    xTaskCreatePinnedToCore(
+    assert(xTaskCreatePinnedToCore(
       [](void* pv) {
         auto& _t{*static_cast<decltype(t)*>(pv)};
         std::apply(std::get<0uz>(_t), std::get<1uz>(_t));
@@ -171,7 +171,7 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
       &t,
       ESP_TASK_PRIO_MAX - 1u,
       &handle,
-      core_id);
+      core_id));
     while (eTaskGetState(handle) < eDeleted) vTaskDelay(1u);
   }
   // Pinned core is different, return type isn't void
@@ -182,7 +182,7 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
 
     // Create task and wait for it's deletion
     TaskHandle_t handle;
-    xTaskCreatePinnedToCore(
+    assert(xTaskCreatePinnedToCore(
       [](void* pv) {
         auto& _t{*static_cast<decltype(t)*>(pv)};
         std::get<0uz>(_t) = std::apply(std::get<1uz>(_t), std::get<2uz>(_t));
@@ -193,7 +193,7 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
       &t,
       ESP_TASK_PRIO_MAX - 1u,
       &handle,
-      core_id);
+      core_id));
     while (eTaskGetState(handle) < eDeleted) vTaskDelay(1u);
 
     return std::get<0uz>(t);

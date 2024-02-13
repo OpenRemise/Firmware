@@ -69,20 +69,20 @@ esp_err_t init() {
   ESP_ERROR_CHECK(temperature_sensor_enable(temp_sensor));
 
   //
-  xTaskCreatePinnedToCore(adc_task_function,
-                          adc_task.name,
-                          adc_task.stack_depth,
-                          NULL,
-                          adc_task.priority,
-                          &adc_task.handle,
-                          1);
-  xTaskCreatePinnedToCore(temp_task_function,
-                          temp_task.name,
-                          temp_task.stack_depth,
-                          NULL,
-                          temp_task.priority,
-                          &temp_task.handle,
-                          1);
+  assert(xTaskCreatePinnedToCore(adc_task_function,
+                                 adc_task.name,
+                                 adc_task.stack_depth,
+                                 NULL,
+                                 adc_task.priority,
+                                 &adc_task.handle,
+                                 1));
+  assert(xTaskCreatePinnedToCore(temp_task_function,
+                                 temp_task.name,
+                                 temp_task.stack_depth,
+                                 NULL,
+                                 temp_task.priority,
+                                 &temp_task.handle,
+                                 1));
 
   return ESP_OK;
 }

@@ -284,12 +284,13 @@ namespace track {
 /// Continuous transmission requires at least a depth of 2
 inline constexpr auto trans_queue_depth{2uz};
 
+inline constexpr auto ack_gpio_num{a1_gpio_num};
 inline constexpr auto nsleep_gpio_num{d5_gpio_num};
 inline constexpr auto isel0_gpio_num{d7_gpio_num};
 inline constexpr auto isel1_gpio_num{d8_gpio_num};
 inline constexpr auto in_gpio_num{d10_gpio_num};
 inline constexpr auto force_low_gpio_num{d11_gpio_num};
-inline constexpr auto fault_gpio_num{d6_gpio_num};
+inline constexpr auto nfault_gpio_num{d6_gpio_num};
 inline constexpr auto enable_gpio_num{d12_gpio_num};
 
 ///

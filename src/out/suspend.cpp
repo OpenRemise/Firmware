@@ -15,7 +15,7 @@ namespace {
 /// TODO
 esp_err_t deinit_alarm() {
   gptimer_stop(gptimer);
-  ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0u));
+  ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
   ESP_ERROR_CHECK(gptimer_disable(gptimer));
   gptimer_event_callbacks_t cbs{};
   ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, NULL));

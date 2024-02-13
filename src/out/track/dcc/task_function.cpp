@@ -25,8 +25,8 @@ using namespace ::dcc::bidi;
 namespace {
 
 // TODO REMOVE
-bool d20_state{};  // ch2
-bool d21_state{};  // ch3
+bool d20_state{};
+bool d21_state{};
 
 /// TODO
 struct Offsets {
@@ -70,7 +70,7 @@ auto const offsets{make_offsets()};
 bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
                             rmt_tx_done_event_data_t const*,
                             void*) {
-  gptimer_set_raw_count(gptimer, 0u);
+  gptimer_set_raw_count(gptimer, 0ull);
   gptimer_alarm_config_t const alarm_config{
     .alarm_count = static_cast<decltype(gptimer_alarm_config_t::alarm_count)>(
       TCSMin + offsets.tcs)};
@@ -180,7 +180,7 @@ esp_err_t transmit_packet(Packet const& packet) {
 esp_err_t receive_bidi(Address addr) {
   //
   auto const notification_value{
-    ulTaskNotifyTakeIndexed(pdTRUE, default_notify_index, portMAX_DELAY)};
+    ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, portMAX_DELAY)};
 
   //
   Datagram datagram{};
