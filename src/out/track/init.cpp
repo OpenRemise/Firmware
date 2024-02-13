@@ -91,13 +91,13 @@ esp_err_t init() {
                           dcc::task.priority,
                           &dcc::task.handle,
                           1);
-  // xTaskCreatePinnedToCore(mdu::task_function,
-  //                         mdu::task.name,
-  //                         mdu::task.stack_depth,
-  //                         NULL,
-  //                         mdu::task.priority,
-  //                         &mdu::task.handle,
-  //                         1);
+  xTaskCreatePinnedToCore(mdu::task_function,
+                          mdu::task.name,
+                          mdu::task.stack_depth,
+                          NULL,
+                          mdu::task.priority,
+                          &mdu::task.handle,
+                          1);
 
   return ESP_OK;
 }

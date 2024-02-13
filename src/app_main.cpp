@@ -19,6 +19,8 @@
 #include "wifi/init.hpp"
 #include "zusi/init.hpp"
 
+#include "log.h"
+
 /// ESP-IDF application entry point
 extern "C" void app_main() {
   // Don't change initialization order
@@ -37,6 +39,12 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(1, ota::init));
   ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init));
+
+  //
+  auto suspended{Mode::Suspended};
+  mode.compare_exchange_strong(suspended, Mode::MDUFirmware);
+  vTaskDelay(pdMS_TO_TICKS(1000u));
+  LOGI_TASK_RESUME(out::track::mdu::task.handle);
 
   for (;;) vTaskDelay(pdMS_TO_TICKS(1000u));
 }
