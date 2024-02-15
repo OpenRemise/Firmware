@@ -1,6 +1,6 @@
 set(COMMON_SRC
-    usb/dcc_ein/rx_task_function.cpp usb/dcc_ein/tx_task_function.cpp
-    usb/rx_task_function.cpp utility.cpp)
+    out/track/current_limit.cpp usb/dcc_ein/rx_task_function.cpp
+    usb/dcc_ein/tx_task_function.cpp usb/rx_task_function.cpp utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
   idf_component_register(

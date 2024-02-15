@@ -26,3 +26,4 @@ Current settings
 - MDU update for old bootloaders (2.2.0) doesn't seem to work?
   - Looks like the old revision has a higher inrush current, maybe use 4.1A for entry and then switch back to 0.5A?
   - MS990 has same problem
+  - Update: ok, i have no clue what causes this issue... maybe it's timing related? maybe spamming busy isn't such a good idea?

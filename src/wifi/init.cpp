@@ -24,7 +24,9 @@ namespace wifi {
 namespace {
 
 /// TODO
-void led(bool on) { ESP_ERROR_CHECK(gpio_set_level(led_gpio_num, on)); }
+void led(uint32_t level) {
+  ESP_ERROR_CHECK(gpio_set_level(led_gpio_num, level));
+}
 
 /// TODO
 wifi_ap_config_t ap_config() {

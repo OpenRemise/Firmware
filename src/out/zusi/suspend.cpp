@@ -22,9 +22,9 @@ esp_err_t deinit_gpio() {
     data_gpio_num, SIG_GPIO_OUT_IDX, false, false);
   esp_rom_gpio_connect_out_signal(
     clock_gpio_num, SIG_GPIO_OUT_IDX, false, false);
-  ESP_ERROR_CHECK(gpio_set_level(data_gpio_num, false));
-  ESP_ERROR_CHECK(gpio_set_level(clock_gpio_num, false));
-  return gpio_set_level(enable_gpio_num, false);
+  ESP_ERROR_CHECK(gpio_set_level(data_gpio_num, 0u));
+  ESP_ERROR_CHECK(gpio_set_level(clock_gpio_num, 0u));
+  return gpio_set_level(enable_gpio_num, 0u);
 }
 
 }  // namespace

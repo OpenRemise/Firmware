@@ -16,7 +16,7 @@ namespace out::zusi {
 namespace {
 
 ///
-esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, true); }
+esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
 
 }  // namespace
 

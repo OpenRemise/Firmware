@@ -91,7 +91,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     gptimer_set_raw_count(timer, TCSMin);
 
     // Pull tracks low
-    gpio_set_level(bidi_en_gpio_num, true);
+    gpio_set_level(bidi_en_gpio_num, 1u);
 
     // Reset alarm to TS2
     gptimer_alarm_config_t const alarm_config{.alarm_count = TTC1};
@@ -107,12 +107,12 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     ch1 = uart_ll_get_rxfifo_len(&UART1);
 
     // TODO REMOVE DEBUG ONLY
-    // gpio_set_level(d21_gpio_num, true);
+    // gpio_set_level(d21_gpio_num, 1u);
   }
   // TCE
   else {
     // Release tracks
-    gpio_set_level(bidi_en_gpio_num, false);
+    gpio_set_level(bidi_en_gpio_num, 0u);
 
     // Send a notification to the task
     xTaskNotifyIndexedFromISR(task.handle,
@@ -124,7 +124,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     gptimer_set_alarm_action(gptimer, NULL);
 
     // TODO REMOVE DEBUG ONLY
-    // gpio_set_level(d21_gpio_num, false);
+    // gpio_set_level(d21_gpio_num, 0u);
   }
 
   return high_task_awoken == pdTRUE;

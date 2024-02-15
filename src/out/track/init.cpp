@@ -9,6 +9,7 @@
 #include <array>
 #include <cstring>
 #include <limits>
+#include "current_limit.hpp"
 #include "dcc/task_function.hpp"
 #include "mdu/task_function.hpp"
 
@@ -52,17 +53,12 @@ esp_err_t init_gpio() {
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
-
-    // TODO, currently fixed@0.5A
-    ESP_ERROR_CHECK(gpio_set_level(isel0_gpio_num, false));
-    ESP_ERROR_CHECK(gpio_set_level(isel1_gpio_num, false));
-
-    ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, false));
-    ESP_ERROR_CHECK(gpio_set_level(dcc::bidi_en_gpio_num, false));
+    ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
+    ESP_ERROR_CHECK(gpio_set_level(dcc::bidi_en_gpio_num, 0u));
 
     // TODO remove? I'd like NSLEEP to always be 3.3V... but currently afraid
     // that there might be a fault I can't reset then
-    return gpio_set_level(out::track::nsleep_gpio_num, true);
+    return gpio_set_level(out::track::nsleep_gpio_num, 1u);
   }
 }
 
@@ -95,6 +91,10 @@ esp_err_t init() {
 
   ESP_ERROR_CHECK(init_gpio());
   ESP_ERROR_CHECK(init_channel());
+
+  //
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500));
+  assert(get_current_limit() == CurrentLimit::_500);
 
   assert(xTaskCreatePinnedToCore(dcc::task_function,
                                  dcc::task.name,

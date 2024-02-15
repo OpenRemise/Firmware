@@ -139,7 +139,7 @@ constexpr auto make_unique_caps(size_t size, uint32_t caps) {
 }
 
 ///
-void bug_led(bool on);
+void bug_led(uint32_t level);
 
 ///
 uint16_t get_http_receive_timeout();

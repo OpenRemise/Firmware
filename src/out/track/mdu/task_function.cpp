@@ -1,6 +1,7 @@
 #include "task_function.hpp"
 #include <driver/gpio.h>
 #include <mdu/mdu.hpp>
+#include "../current_limit.hpp"
 #include "log.h"
 #include "resume.hpp"
 #include "suspend.hpp"
@@ -17,6 +18,7 @@ bool d21_state{};
 
 /// TODO
 void IRAM_ATTR gpio_isr_handler(void*) {
+  gpio_set_level(d21_gpio_num, d21_state = !d21_state);
   uint64_t value{};
   gptimer_get_raw_count(gptimer, &value);
 
@@ -136,7 +138,9 @@ void loop(mdu_encoder_config_t& encoder_config) {
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   // Alternative entry
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100));
   ESP_ERROR_CHECK(transmit_packet_wait_all_done_for(busy_packet, 200u));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500));
 
   for (;;) {
     auto const packet{receive_packet()};

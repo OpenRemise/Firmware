@@ -17,7 +17,7 @@ esp_err_t init_rmt(rmt_tx_done_callback_t rmt_cb) {
 }
 
 /// TODO
-esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, true); }
+esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
 
 /// TODO
 esp_err_t resume(rmt_tx_done_callback_t rmt_cb, gptimer_alarm_cb_t gptimer_cb) {

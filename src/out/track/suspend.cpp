@@ -13,7 +13,7 @@ namespace out::track {
 namespace {
 
 /// TODO
-esp_err_t deinit_gpio() { return gpio_set_level(enable_gpio_num, false); }
+esp_err_t deinit_gpio() { return gpio_set_level(enable_gpio_num, 0u); }
 
 /// TODO
 esp_err_t deinit_rmt() {

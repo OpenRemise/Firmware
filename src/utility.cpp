@@ -57,7 +57,9 @@ std::optional<dcc::Address> uri2loco_address(std::string_view uri) {
 }
 
 ///
-void bug_led(bool on) { ESP_ERROR_CHECK(gpio_set_level(bug_led_gpio_num, on)); }
+void bug_led(uint32_t level) {
+  ESP_ERROR_CHECK(gpio_set_level(bug_led_gpio_num, level));
+}
 
 ///
 uint16_t get_http_receive_timeout() {
