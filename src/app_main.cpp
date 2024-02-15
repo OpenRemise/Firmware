@@ -40,11 +40,5 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init));
 
-  //
-  vTaskDelay(pdMS_TO_TICKS(2000u));
-  auto suspended{Mode::Suspended};
-  mode.compare_exchange_strong(suspended, Mode::MDUFirmware);
-  LOGI_TASK_RESUME(out::track::mdu::task.handle);
-
   for (;;) vTaskDelay(pdMS_TO_TICKS(1000u));
 }

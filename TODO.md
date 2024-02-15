@@ -23,3 +23,6 @@ Current settings
 # Bugs
 - Should WebSockets handle PING/PONG?
 - Disable heartbeat fetch for MDU/ZUSI?
+- MDU update for old bootloaders (2.2.0) doesn't seem to work?
+  - Looks like the old revision has a higher inrush current, maybe use 4.1A for entry and then switch back to 0.5A?
+  - MS990 has same problem

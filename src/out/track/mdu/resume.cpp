@@ -8,7 +8,6 @@ namespace {
 
 ///
 esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
-  ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL2));
   return gpio_isr_handler_add(ack_gpio_num, gpio_isr_handler, NULL);
 }
 

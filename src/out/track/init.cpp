@@ -38,6 +38,7 @@ esp_err_t init_gpio() {
                                              GPIO_PULLDOWN_DISABLE,
                                            .intr_type = GPIO_INTR_NEGEDGE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL2));
   }
 
   // Output
