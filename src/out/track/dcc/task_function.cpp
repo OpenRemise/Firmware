@@ -269,6 +269,9 @@ esp_err_t transmit_ack(bool ack) {
            : ESP_FAIL;
 }
 
+// TODO REMOVE
+ztl::inplace_vector<int, 512uz> currents_queue{};
+
 /// TODO
 void service_loop() {
   static constexpr auto reset_packet{make_reset_packet()};
@@ -310,18 +313,32 @@ void service_loop() {
       else break;
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-      ack |= receive_ack();
+
+      // Read currents, if there is new stuff, push to queue
+      analog::CurrentsQueue::value_type currents;
+      if (xQueueReceive(analog::currents_queue.handle, &currents, 0u))
+        for (auto current : currents) currents_queue.push_back(current);
+
     } while (packets.back() == cv_access_packet);
 
     // Transmit reset packets until ack or timeout
-    while (!ack && xTaskGetTickCount() < then) {
+    while (/*!ack &&*/ xTaskGetTickCount() < then) {
       packets.push_back(reset_packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-      ack |= receive_ack();
+
+      // Read currents, if there is new stuff, push to queue
+      analog::CurrentsQueue::value_type currents;
+      if (xQueueReceive(analog::currents_queue.handle, &currents, 0u))
+        for (auto current : currents) currents_queue.push_back(current);
     }
     ESP_ERROR_CHECK(transmit_ack(ack));
 
+    // Print whole fucking queue, then clear
+    for (auto current : currents_queue) printf("%d,", current);
+    currents_queue.clear();
+
+    /*
     // Transmit reset packets until current drops (safety measure so that ack
     // isn't counted twice...)
     while (ack && receive_ack()) {
@@ -329,6 +346,7 @@ void service_loop() {
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
     }
+    */
   }
 }
 
