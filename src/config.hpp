@@ -281,6 +281,13 @@ inline struct TxMessageBuffer {
 
 namespace track {
 
+enum class CurrentLimit {
+  _500mA = 0b00u,
+  _1600mA = 0b01u,
+  _3000mA = 0b10u,
+  _4100mA = 0b11u
+};
+
 /// Continuous transmission requires at least a depth of 2
 inline constexpr auto trans_queue_depth{2uz};
 

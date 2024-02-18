@@ -144,9 +144,9 @@ void loop(mdu_encoder_config_t& encoder_config) {
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   // Alternative entry
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
   ESP_ERROR_CHECK(transmit_packet_wait_all_done_for(busy_packet, 200u));
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
 
   for (;;) {
     auto const packet{receive_packet()};

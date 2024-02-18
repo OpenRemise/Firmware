@@ -19,8 +19,6 @@
 #include "wifi/init.hpp"
 #include "zusi/init.hpp"
 
-#include "log.h"
-
 /// ESP-IDF application entry point
 extern "C" void app_main() {
   // Don't change initialization order

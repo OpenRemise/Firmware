@@ -93,8 +93,8 @@ esp_err_t init() {
   ESP_ERROR_CHECK(init_channel());
 
   //
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500));
-  assert(get_current_limit() == CurrentLimit::_500);
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  assert(get_current_limit() == CurrentLimit::_500mA);
 
   assert(xTaskCreatePinnedToCore(dcc::task_function,
                                  dcc::task.name,

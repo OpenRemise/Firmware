@@ -177,7 +177,7 @@ esp_err_t transmit_packet(Packet const& packet) {
 }
 
 /// TODO
-esp_err_t receive_bidi(Address addr) {
+Datagram<> receive_bidi(Address addr) {
   //
   auto const notification_value{
     ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, portMAX_DELAY)};
@@ -198,13 +198,16 @@ esp_err_t receive_bidi(Address addr) {
       data(datagram) + channel1_size,
       std::min<size_t>(bytes_available, size(datagram) - channel1_size));
 
+  // Flush FIFO
   uart_ll_rxfifo_rst(&UART1);
 
-  RxQueue::value_type addr_datagram{.addr = addr, .datagram = datagram};
-  if (!xQueueSend(rx_queue.handle, &addr_datagram, 0u))
-    ;  // I'd love to error log here, but it's simply too slow
+  return datagram;
+}
 
-  return ESP_OK;
+/// TODO
+esp_err_t transmit_bidi(Address addr, Datagram<> const& datagram) {
+  RxQueue::value_type const addr_datagram{.addr = addr, .datagram = datagram};
+  return xQueueSend(rx_queue.handle, &addr_datagram, 0u) ? ESP_OK : ESP_FAIL;
 }
 
 /// TODO
@@ -222,7 +225,8 @@ void operations_loop() {
   for (;;) {
     // Receive BiDi on last transmitted address
     auto const addr{decode_address(data(*(begin(packets) - 1)))};
-    ESP_ERROR_CHECK(receive_bidi(addr));
+    auto const datagram{receive_bidi(addr)};
+    transmit_bidi(addr, datagram);
     packets.pop_front();
 
     // Return on timeout
@@ -272,8 +276,8 @@ void service_loop() {
   static constexpr auto write_timeout{pdMS_TO_TICKS(100u)};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
 
-  // Transmit 25 reset packets to ensure entry
-  for (auto i{0uz}; i < 25uz; ++i)
+  // Transmit 25+3 reset packets to ensure entry
+  for (auto i{0uz}; i < 25uz + 3uz; ++i)
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
 
   for (;;) {
