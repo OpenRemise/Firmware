@@ -3,7 +3,7 @@
 ## Install ESP-IDF
 mkdir -p ~/esp
 cd ~/esp
-git clone -b v5.2-beta1 --recursive https://github.com/espressif/esp-idf.git
+git clone -b v5.2 --recursive https://github.com/espressif/esp-idf.git
 cd ~/esp/esp-idf
 ./install.fish all
 

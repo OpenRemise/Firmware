@@ -191,7 +191,7 @@ std::optional<bool> ServiceService::receiveBit() const {
   if (xMessageBufferReceive(out::rx_message_buffer.handle,
                             &bit,
                             sizeof(bit),
-                            pdMS_TO_TICKS(150u)) == sizeof(bit))
+                            pdMS_TO_TICKS(200u)) == sizeof(bit))
     return bit;
   else return std::nullopt;
 }

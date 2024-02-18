@@ -112,24 +112,30 @@ receive_acks(mdu_encoder_config_t const& encoder_config, Packet const& packet) {
     else acks[1uz] = ack;
   }
 
-  xMessageBufferSend(out::rx_message_buffer.handle,
-                     data(acks),
-                     size(acks),
-                     pdMS_TO_TICKS(task.timeout));
   return acks;
+}
+
+/// TODO
+esp_err_t transmit_acks(std::array<uint8_t, 2uz> acks) {
+  return xMessageBufferSend(out::rx_message_buffer.handle,
+                            data(acks),
+                            size(acks),
+                            pdMS_TO_TICKS(task.timeout)) == size(acks)
+           ? ESP_OK
+           : ESP_FAIL;
 }
 
 /// TODO
 esp_err_t config_transfer_rate(mdu_encoder_config_t& encoder_config,
                                uint8_t transfer_rate,
                                std::array<uint8_t, 2uz> const& acks) {
-  if (acks[0uz] == ack) return ESP_ERR_INVALID_CRC;
   assert(transfer_rate <= std::to_underlying(TransferRate::Default));
   ESP_ERROR_CHECK(deinit_encoder());
-  encoder_config.transfer_rate = acks[1uz] == ack
+  encoder_config.transfer_rate = acks[0uz] == ack || acks[1uz] == ack
                                    ? std::to_underlying(TransferRate::Fallback)
                                    : transfer_rate;
-  return init_encoder(encoder_config);
+  ESP_ERROR_CHECK(init_encoder(encoder_config));
+  return acks[0uz] == ack ? ESP_ERR_INVALID_CRC : ESP_OK;
 }
 
 /// TODO
@@ -152,11 +158,14 @@ void loop(mdu_encoder_config_t& encoder_config) {
     // We got no data, transmit busy packet
     else {
       ESP_ERROR_CHECK(transmit_packet_wait_all_done(busy_packet));
+      auto const acks{receive_acks(encoder_config, *packet)};
+      if (acks[0uz] == ack || acks[1uz] == ack) vTaskDelay(pdMS_TO_TICKS(20u));
       continue;
     }
 
     ESP_ERROR_CHECK(transmit_packet_wait_all_done(*packet));
     auto const acks{receive_acks(encoder_config, *packet)};
+    ESP_ERROR_CHECK(transmit_acks(acks));
 
     // Transfer rate packet
     if (auto const cmd{packet2command(*packet)};

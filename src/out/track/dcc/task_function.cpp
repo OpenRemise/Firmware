@@ -242,7 +242,7 @@ void operations_loop() {
 }
 
 /// TODO
-bool detect_ack() {
+bool receive_ack() {
   analog::CurrentsQueue::value_type currents;
   xQueuePeek(analog::currents_queue.handle, &currents, 0u);
   std::ranges::sort(currents);
@@ -255,6 +255,14 @@ bool detect_ack() {
   auto const n_min{std::accumulate(cbegin(currents), cbegin(currents) + n, 0)};
   return measurement2mA(
            static_cast<analog::CurrentMeasurement>(n_max - n_min)) >= n * delta;
+}
+
+/// TODO
+esp_err_t transmit_ack(bool ack) {
+  return xMessageBufferSend(rx_message_buffer.handle, &ack, sizeof(ack), 0u) ==
+             sizeof(ack)
+           ? ESP_OK
+           : ESP_FAIL;
 }
 
 /// TODO
@@ -276,7 +284,7 @@ void service_loop() {
       if (auto const now{xTaskGetTickCount()}; now >= then) return;
       // In case we got data, reset timeout
       else if (auto const packet{receive_packet()}) {
-        // then = now + pdMS_TO_TICKS(task.timeout);
+        then = now + pdMS_TO_TICKS(task.timeout);
         packets.push_back(*packet);
       }
       // We got no data, transmit idle packet
@@ -298,7 +306,7 @@ void service_loop() {
       else break;
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-      ack |= detect_ack();
+      ack |= receive_ack();
     } while (packets.back() == cv_access_packet);
 
     // Transmit reset packets until ack or timeout
@@ -306,12 +314,13 @@ void service_loop() {
       packets.push_back(reset_packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-      ack |= detect_ack();
+      ack |= receive_ack();
     }
+    ESP_ERROR_CHECK(transmit_ack(ack));
 
     // Transmit reset packets until current drops (safety measure so that ack
     // isn't counted twice...)
-    while (ack && detect_ack()) {
+    while (ack && receive_ack()) {
       packets.push_back(reset_packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();

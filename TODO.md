@@ -1,7 +1,8 @@
 # TODO
 
-## DCC Service Mode
-Do we need to change the sampling frequency? It's currently only 1kHz.
+## DCC
+split receive_bidi -> transmit_bidi
+Switching between op and serv mode on the fly?
 
 ## HTTP -> Websocket
 Should DCC use UDP or the Z21 protocol in general?
@@ -16,14 +17,14 @@ I've measured:
 - -Og 82us
 
 ## Settings
-DCC BiDi option (in us, no longer bool)
-ZIMO0 option
-Current settings
+DCC BiDi option (in us, no longer bool?)
+DCC timeout
+DCC ZIMO0 option
+Current settings (4 steps)
+MDU?
 
 # Bugs
 - Should WebSockets handle PING/PONG?
 - Disable heartbeat fetch for MDU/ZUSI?
-- MDU update for old bootloaders (2.2.0) doesn't seem to work?
-  - Looks like the old revision has a higher inrush current, maybe use 4.1A for entry and then switch back to 0.5A?
-  - MS990 has same problem
-  - Update: ok, i have no clue what causes this issue... maybe it's timing related? maybe spamming busy isn't such a good idea?
+- Returning from DCC service mode triggers watchdog (TG1WDT_SYS_RST)
+- DCC service mode doesn't work on MS990
