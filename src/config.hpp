@@ -131,15 +131,15 @@ inline constexpr auto voltage_channel{ADC_CHANNEL_7};
 inline constexpr auto attenuation{ADC_ATTEN_DB_0};
 inline constexpr std::array channels{current_channel, voltage_channel};
 
-inline constexpr auto conversion_frame_samples{40uz};
+inline constexpr auto conversion_frame_samples{200uz};
 inline constexpr auto conversion_frame_size{conversion_frame_samples *
                                             SOC_ADC_DIGI_DATA_BYTES_PER_CONV};
 inline constexpr auto conversion_frame_samples_per_channel{
   conversion_frame_samples / size(channels)};
 static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
 
-/// Sample frequency [Hz] (sample takes 500µs, conversion frame 20ms)
-inline constexpr auto sample_freq_hz{2000u};
+/// Sample frequency [Hz] (sample takes 100µs, conversion frame 20ms)
+inline constexpr auto sample_freq_hz{10000u};
 
 ///
 inline struct AdcTask {

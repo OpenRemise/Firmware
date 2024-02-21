@@ -31,7 +31,7 @@ void adc_task_function(void*) {
       continue;
     }
 
-    // The following conversion and copy takes 6.91µs
+    // The following conversion and copy takes 20.4µs
     VoltagesQueue::value_type voltages;
     CurrentsQueue::value_type currents;
     auto voltages_it{begin(voltages)};

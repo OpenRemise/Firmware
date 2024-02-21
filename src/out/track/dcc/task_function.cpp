@@ -253,7 +253,7 @@ bool receive_ack() {
   // ACK is at least 5ms long, n is the number of samples we take in that time
   static constexpr auto n{static_cast<int32_t>(
     5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
-  static_assert(n == 5);
+  static_assert(n == 25);
   static constexpr auto delta{60};
   auto const n_max{std::accumulate(cend(currents) - n, cend(currents), 0)};
   auto const n_min{std::accumulate(cbegin(currents), cbegin(currents) + n, 0)};
@@ -270,7 +270,7 @@ esp_err_t transmit_ack(bool ack) {
 }
 
 // TODO REMOVE
-ztl::inplace_vector<int, 512uz> currents_queue{};
+ztl::inplace_vector<int, 2048uz> currents_queue{};
 
 /// TODO
 void service_loop() {
