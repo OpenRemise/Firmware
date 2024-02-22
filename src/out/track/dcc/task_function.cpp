@@ -141,8 +141,8 @@ dcc_encoder_config_t dcc_encoder_config() {
   //   .bidi = nvs.getDccBiDi(),
   // };
   return {.num_preamble = 21u,
-          .cutoutbit_duration = 60u,
-          // .cutoutbit_duration = 0u,
+          .bidibit_duration = 60u,
+          // .bidibit_duration = 0u,
           .bit1_duration = 58u,
           .bit0_duration = 100u,
           .endbit_duration = static_cast<uint8_t>(58u - offsets.endbit)};
@@ -212,7 +212,7 @@ esp_err_t transmit_bidi(Address addr, Datagram<> const& datagram) {
 }
 
 /// TODO
-void operations_loop() {
+esp_err_t operations_loop() {
   static constexpr auto idle_packet{make_idle_packet()};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
@@ -231,7 +231,8 @@ void operations_loop() {
     packets.pop_front();
 
     // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then) return;
+    if (auto const now{xTaskGetTickCount()}; now >= then)
+      return rmt_tx_wait_all_done(channel, -1);
     // In case we got data, reset timeout
     else if (auto const packet{receive_packet()}) {
       then = now + pdMS_TO_TICKS(task.timeout);
@@ -297,7 +298,7 @@ esp_err_t transmit_ack(bool ack) {
 }
 
 /// TODO
-void service_loop() {
+esp_err_t service_loop() {
   static constexpr auto reset_packet{make_reset_packet()};
   static constexpr auto read_timeout{pdMS_TO_TICKS(50u)};
   static constexpr auto write_timeout{pdMS_TO_TICKS(100u)};
@@ -322,7 +323,8 @@ void service_loop() {
     TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
     do {
       // Return on timeout
-      if (auto const now{xTaskGetTickCount()}; now >= then) return;
+      if (auto const now{xTaskGetTickCount()}; now >= then)
+        return rmt_tx_wait_all_done(channel, -1);
       // In case we got data, reset timeout
       else if (auto const packet{receive_packet()}) {
         then = now + pdMS_TO_TICKS(task.timeout);
@@ -378,16 +380,16 @@ void task_function(void*) {
       case Mode::DCC_EIN: [[fallthrough]];
       case Mode::DCCOperations:
         ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, gptimer_callback));
-        operations_loop();
+        ESP_ERROR_CHECK(operations_loop());
         break;
       case Mode::DCCService:
         // RCN-216 demands at least 20 preamble bits
         encoder_config.num_preamble =
           std::max<decltype(encoder_config.num_preamble)>(
             encoder_config.num_preamble, 20u);
-        encoder_config.cutoutbit_duration = 0u;
+        encoder_config.bidibit_duration = 0u;
         ESP_ERROR_CHECK(resume(encoder_config, nullptr, nullptr));
-        service_loop();
+        ESP_ERROR_CHECK(service_loop());
         break;
       default: assert(false); break;
     }

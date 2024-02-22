@@ -26,5 +26,3 @@ MDU?
 # Bugs
 - Should WebSockets handle PING/PONG?
 - Disable heartbeat fetch for MDU/ZUSI?
-- Returning from DCC service mode triggers watchdog (TG1WDT_SYS_RST)
-- DCC service mode doesn't work on MS990

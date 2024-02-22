@@ -13,7 +13,7 @@
       "isBackground": true,
       "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0"
     },
-    { 
+    {
       "label": "Ninja Firmware",
       "type": "shell",
       "isBackground": true,
@@ -48,6 +48,15 @@
       "type": "shell",
       "isBackground": true,
       "command": "valgrind --error-exitcode=1 --leak-check=yes --errors-for-leak-kinds=definite,indirect ./build/Firmware.elf"
+    },
+    {
+      "label": "Run openocd",
+      "type": "shell",
+      "isBackground": true,
+      "options": {
+        "cwd": "/home/vinci/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32"
+      },
+      "command": "bin/openocd -f board/esp32s3-builtin.cfg"
     }
   ]
 }

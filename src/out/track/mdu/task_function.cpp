@@ -139,7 +139,7 @@ esp_err_t config_transfer_rate(mdu_encoder_config_t& encoder_config,
 }
 
 /// TODO
-void loop(mdu_encoder_config_t& encoder_config) {
+esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   auto const busy_packet{make_busy_packet()};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
@@ -152,7 +152,8 @@ void loop(mdu_encoder_config_t& encoder_config) {
     auto const packet{receive_packet()};
 
     // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then) return;
+    if (auto const now{xTaskGetTickCount()}; now >= then)
+      return rmt_tx_wait_all_done(channel, -1);
     // In case we got data, reset timeout
     else if (packet) then = now + pdMS_TO_TICKS(task.timeout);
     // We got no data, transmit busy packet
@@ -172,11 +173,8 @@ void loop(mdu_encoder_config_t& encoder_config) {
         cmd == Command::ConfigTransferRate)
       config_transfer_rate(encoder_config, (*packet)[4uz], acks);
     // Exit
-    else if (cmd == Command::ZppExitReset ||
-             cmd == Command::ZsuCrc32ResultExit) {
-      ESP_ERROR_CHECK(transmit_packet_wait_all_done_for(busy_packet, 1000u));
-      return;
-    }
+    else if (cmd == Command::ZppExitReset || cmd == Command::ZsuCrc32ResultExit)
+      return transmit_packet_wait_all_done_for(busy_packet, 1000u);
   }
 }
 
@@ -194,7 +192,7 @@ void task_function(void*) {
       .num_ackreq = 10u,
     };
     ESP_ERROR_CHECK(resume(encoder_config, gpio_isr_handler));
-    loop(encoder_config);
+    ESP_ERROR_CHECK(loop(encoder_config));
 
     ESP_ERROR_CHECK(suspend());
   }

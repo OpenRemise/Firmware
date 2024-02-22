@@ -56,3 +56,8 @@ https://github.com/espressif/esp-idf/blob/c77b5752ef9e4e40c2e819d511b1dd7b83be29
 ## Log
 LOG_LOCAL_LEVEL is fucking useless  
 https://github.com/espressif/esp-idf/issues/8570
+
+## Debug
+openocd -f esp32s3-builtin.cfg
+
+xtensa-esp32s3-elf-gdb -ex 'set pagination off' -ex 'target remote :3333' ./build/Firmware.elf
