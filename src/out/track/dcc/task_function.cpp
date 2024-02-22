@@ -9,6 +9,7 @@
 #include <driver/uart.h>
 #include <hal/uart_hal.h>
 #include <dcc/dcc.hpp>
+#include <ranges>
 #include <ztl/fail.hpp>
 #include <ztl/inplace_deque.hpp>
 #include "analog/convert.hpp"
@@ -246,19 +247,45 @@ void operations_loop() {
 }
 
 /// TODO
-bool receive_ack() {
+analog::CurrentsQueue::value_type peek_current_measurements() {
   analog::CurrentsQueue::value_type currents;
-  xQueuePeek(analog::currents_queue.handle, &currents, 0u);
-  std::ranges::sort(currents);
-  // ACK is at least 5ms long, n is the number of samples we take in that time
-  static constexpr auto n{static_cast<int32_t>(
-    5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
-  static_assert(n == 25);
-  static constexpr auto delta{60};
-  auto const n_max{std::accumulate(cend(currents) - n, cend(currents), 0)};
-  auto const n_min{std::accumulate(cbegin(currents), cbegin(currents) + n, 0)};
-  return measurement2mA(
-           static_cast<analog::CurrentMeasurement>(n_max - n_min)) >= n * delta;
+  assert(xQueuePeek(analog::currents_queue.handle, &currents, 0u));
+  return currents;
+}
+
+/// TODO
+analog::CurrentMeasurement mean_current_measurement() {
+  auto const currents{peek_current_measurements()};
+  return static_cast<analog::CurrentMeasurement>(
+    std::accumulate(cbegin(currents), cend(currents), 0) / size(currents));
+}
+
+/// TODO
+template<std::ranges::contiguous_range R>
+void append_current_measurements(R&& r) {
+  auto const currents{peek_current_measurements()};
+  if (size(r) < size(currents) ||
+      !std::equal(cbegin(currents), cend(currents), cend(r) - size(currents)))
+    std::ranges::copy(currents, std::back_inserter(r));
+}
+
+/// TODO
+template<std::ranges::contiguous_range R>
+bool detect_ack(R&& r, analog::CurrentMeasurement ref) {
+  // ACKs must be at least 5ms long
+  static constexpr auto wlen{
+    static_cast<int>(5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
+
+  // TODO this should be a setting
+  auto const delta{mA2measurement(analog::Current{60})};
+
+  //
+  for (auto const windows{r | std::views::slide(wlen)};
+       auto const& window : windows) {
+    auto const movsum{(std::accumulate(cbegin(window), cend(window), 0))};
+    if (movsum - wlen * ref > wlen * delta) return true;
+  }
+  return false;
 }
 
 /// TODO
@@ -269,21 +296,28 @@ esp_err_t transmit_ack(bool ack) {
            : ESP_FAIL;
 }
 
-// TODO REMOVE
-ztl::inplace_vector<int, 2048uz> currents_queue{};
-
 /// TODO
 void service_loop() {
   static constexpr auto reset_packet{make_reset_packet()};
   static constexpr auto read_timeout{pdMS_TO_TICKS(50u)};
   static constexpr auto write_timeout{pdMS_TO_TICKS(100u)};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
+  analog::CurrentMeasurement ref_current{};
+  ztl::inplace_vector<analog::CurrentMeasurement::value_type, 1024uz>
+    current_measurements{};
 
-  // Transmit 25+3 reset packets to ensure entry
+  // Transmit 25 reset packets to ensure entry
   for (auto i{0uz}; i < 25uz + 3uz; ++i)
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
 
   for (;;) {
+    // Transmit 3 reset packets to ensure sequence
+    for (auto i{0uz}; i < 3uz; ++i) {
+      packets.push_back(reset_packet);
+      ESP_ERROR_CHECK(transmit_packet(packets.front()));
+      packets.pop_front();
+    }
+
     // Transmit reset packets until first non-reset packet or timeout
     TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
     do {
@@ -300,6 +334,9 @@ void service_loop() {
 
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
+
+      // Take reference current
+      ref_current = mean_current_measurement();
     } while (packets.back() == reset_packet);
 
     // Transmit equal CV access packets, try to detect ack
@@ -313,40 +350,20 @@ void service_loop() {
       else break;
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-
-      // Read currents, if there is new stuff, push to queue
-      analog::CurrentsQueue::value_type currents;
-      if (xQueueReceive(analog::currents_queue.handle, &currents, 0u))
-        for (auto current : currents) currents_queue.push_back(current);
-
+      append_current_measurements(current_measurements);
+      ack |= detect_ack(current_measurements, ref_current);
     } while (packets.back() == cv_access_packet);
 
     // Transmit reset packets until ack or timeout
-    while (/*!ack &&*/ xTaskGetTickCount() < then) {
+    while (!ack && xTaskGetTickCount() < then) {
       packets.push_back(reset_packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-
-      // Read currents, if there is new stuff, push to queue
-      analog::CurrentsQueue::value_type currents;
-      if (xQueueReceive(analog::currents_queue.handle, &currents, 0u))
-        for (auto current : currents) currents_queue.push_back(current);
+      append_current_measurements(current_measurements);
+      ack |= detect_ack(current_measurements, ref_current);
     }
     ESP_ERROR_CHECK(transmit_ack(ack));
-
-    // Print whole fucking queue, then clear
-    for (auto current : currents_queue) printf("%d,", current);
-    currents_queue.clear();
-
-    /*
-    // Transmit reset packets until current drops (safety measure so that ack
-    // isn't counted twice...)
-    while (ack && receive_ack()) {
-      packets.push_back(reset_packet);
-      ESP_ERROR_CHECK(transmit_packet(packets.front()));
-      packets.pop_front();
-    }
-    */
+    current_measurements.clear();
   }
 }
 

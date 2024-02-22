@@ -1,7 +1,6 @@
 # TODO
 
 ## DCC
-split receive_bidi -> transmit_bidi
 Switching between op and serv mode on the fly?
 
 ## HTTP -> Websocket
@@ -20,6 +19,7 @@ I've measured:
 DCC BiDi option (in us, no longer bool?)
 DCC timeout
 DCC ZIMO0 option
+DCC ACK current (>=60mA)
 Current settings (4 steps)
 MDU?
 
