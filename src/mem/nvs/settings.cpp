@@ -63,34 +63,39 @@ uint8_t Settings::getDccPreamble() const { return getU8("dcc_preamble"); }
 
 /// TODO
 esp_err_t Settings::setDccPreamble(uint8_t value) {
-  if (value >= DCC_TX_MIN_PREAMBLE_BITS) return setU8("dcc_preamble", value);
+  if (value >= DCC_TX_MIN_PREAMBLE_BITS && value <= 30u)
+    return setU8("dcc_preamble", value);
   else return ESP_ERR_INVALID_ARG;
 }
 
 /// TODO
-uint8_t Settings::getDcc1Duration() const { return getU8("dcc_1_duration"); }
+uint8_t Settings::getDccBit1Duration() const { return getU8("dcc_bit1_dur"); }
 
 /// TODO
-esp_err_t Settings::setDcc1Duration(uint8_t value) {
+esp_err_t Settings::setDccBit1Duration(uint8_t value) {
   if (value >= dcc::tx::Bit1Min && value <= dcc::tx::Bit1Max)
-    return setU8("dcc_1_duration", value);
+    return setU8("dcc_bit1_dur", value);
   else return ESP_ERR_INVALID_ARG;
 }
 
 /// TODO
-uint8_t Settings::getDcc0Duration() const { return getU8("dcc_0_duration"); }
+uint8_t Settings::getDccBit0Duration() const { return getU8("dcc_bit0_dur"); }
 
 /// TODO
-esp_err_t Settings::setDcc0Duration(uint8_t value) {
+esp_err_t Settings::setDccBit0Duration(uint8_t value) {
   if (value >= dcc::tx::Bit0Min && value <= dcc::tx::Bit0Max)
-    return setU8("dcc_0_duration", value);
+    return setU8("dcc_bit0_dur", value);
   else return ESP_ERR_INVALID_ARG;
 }
 
 /// TODO
-bool Settings::getDccBiDi() const { return getU8("dcc_bidi"); }
+uint8_t Settings::getDccBiDiBitDuration() const {
+  return getU8("dcc_bidibit_dur");
+}
 
 /// TODO
-esp_err_t Settings::setDccBiDi(bool value) { return setU8("dcc_bidi", value); }
+esp_err_t Settings::setDccBiDiBitDuration(uint8_t value) {
+  return setU8("dcc_bidibit_dur", value);
+}
 
 }  // namespace mem::nvs

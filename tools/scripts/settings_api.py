@@ -4,9 +4,9 @@ import json, requests
 run_get_requests = True
 run_post_requests = True
 
-valid = '{"sta_mdns":"some DNS","sta_ssid":"some SSID","sta_pass":"some PASS","dcc_preamble":42,"dcc_1_duration":43,"dcc_0_duration":44,"dcc_bidi":true}'
+valid = '{"sta_mdns":"some DNS","sta_ssid":"some SSID","sta_pass":"some PASS","dcc_preamble":42,"dcc_bit1_dur":43,"dcc_bit0_dur":44,"dcc_bidibit_dur":60}'
 valid_no_sta = (
-    '{"dcc_preamble":42,"dcc_1_duration":43,"dcc_0_duration":44,"dcc_bidi":true}'
+    '{"dcc_preamble":42,"dcc_bit1_dur":43,"dcc_bit0_dur":44,"dcc_bidibit_dur":60}'
 )
 
 # Open session

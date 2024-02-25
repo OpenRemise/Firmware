@@ -30,9 +30,9 @@ http::Response Service::getRequest(http::Request const& req) {
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
   doc["dcc_preamble"] = nvs.getDccPreamble();
-  doc["dcc_1_duration"] = nvs.getDcc1Duration();
-  doc["dcc_0_duration"] = nvs.getDcc0Duration();
-  doc["dcc_bidi"] = nvs.getDccBiDi();
+  doc["dcc_bit1_dur"] = nvs.getDccBit1Duration();
+  doc["dcc_bit0_dur"] = nvs.getDccBit0Duration();
+  doc["dcc_bidibit_dur"] = nvs.getDccBiDiBitDuration();
 
   //
   std::string json;
@@ -86,16 +86,16 @@ http::Response Service::postRequest(http::Request const& req) {
     if (nvs.setDccPreamble(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
-  if (JsonVariantConst v{doc["dcc_1_duration"]}; v.is<uint8_t>())
-    if (nvs.setDcc1Duration(v.as<uint8_t>()) != ESP_OK)
+  if (JsonVariantConst v{doc["dcc_bit1_dur"]}; v.is<uint8_t>())
+    if (nvs.setDccBit1Duration(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
-  if (JsonVariantConst v{doc["dcc_0_duration"]}; v.is<uint8_t>())
-    if (nvs.setDcc0Duration(v.as<uint8_t>()) != ESP_OK)
+  if (JsonVariantConst v{doc["dcc_bit0_dur"]}; v.is<uint8_t>())
+    if (nvs.setDccBit0Duration(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
-  if (JsonVariantConst v{doc["dcc_bidi"]}; v.is<bool>())
-    if (nvs.setDccBiDi(v.as<bool>()) != ESP_OK)
+  if (JsonVariantConst v{doc["dcc_bidibit_dur"]}; v.is<bool>())
+    if (nvs.setDccBiDiBitDuration(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   return {};

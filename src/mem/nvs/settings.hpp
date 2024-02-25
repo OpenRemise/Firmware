@@ -33,14 +33,14 @@ public:
   uint8_t getDccPreamble() const;
   esp_err_t setDccPreamble(uint8_t value);
 
-  uint8_t getDcc1Duration() const;
-  esp_err_t setDcc1Duration(uint8_t value);
+  uint8_t getDccBit1Duration() const;
+  esp_err_t setDccBit1Duration(uint8_t value);
 
-  uint8_t getDcc0Duration() const;
-  esp_err_t setDcc0Duration(uint8_t value);
+  uint8_t getDccBit0Duration() const;
+  esp_err_t setDccBit0Duration(uint8_t value);
 
-  bool getDccBiDi() const;
-  esp_err_t setDccBiDi(bool value);
+  uint8_t getDccBiDiBitDuration() const;
+  esp_err_t setDccBiDiBitDuration(uint8_t value);
 };
 
 }  // namespace mem::nvs
