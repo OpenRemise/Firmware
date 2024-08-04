@@ -74,13 +74,13 @@
       "label": "act esp-elf-gcc",
       "type": "shell",
       "isBackground": true,
-      "command": "act -j esp-elf-gcc --input target=linux --input command=\"cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF && idf.py build\" --input post-build=\"./build/Firmware.elf\""
+      "command": "act -j esp-elf-gcc --input target=linux --input command=\"cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF && idf.py update-dependencies && idf.py build\" --input post-build=\"./build/Firmware.elf\""
     },
     {
       "label": "act tests",
       "type": "shell",
       "isBackground": true,
-      "command": "act -j tests --input target=esp32s3 --input command=\"cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 && idf.py build\""
+      "command": "act -j tests --input target=esp32s3 --input command=\"cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 && idf.py update-dependencies && idf.py build\""
     },
   ]
 }

@@ -19,7 +19,7 @@ dependencies:
   zimo-elektronik/mdu:
     version: "0.15.4"
   Frontend:
-    version: "0.0.0"
+    version: master
     rules:
       - if: "target != linux"
     git: https://github.com/OpenRemise/Frontend.git
