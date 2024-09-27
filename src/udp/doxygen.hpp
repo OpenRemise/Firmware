@@ -12,5 +12,8 @@ namespace udp {
 /// \tableofcontents
 /// \todo document UDP page
 ///
+/// The sole responsibility of this module is to initialize UDP and open
+/// endpoints for communications.
+///
 
 }  // namespace udp

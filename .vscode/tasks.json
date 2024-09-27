@@ -8,10 +8,22 @@
       "command": "rm -rf build && rm -rf managed_components && rm -rf dependencies.lock && rm -rf sdkconfig && rm -rf sdkconfig.old",
     },
     {
-      "label": "CMake Firmware",
+      "label": "CMake Firmware Debug",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0",
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.debug\""
+    },
+    {
+      "label": "CMake Firmware Debug JTAG",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.debug;sdkconfig.jtag\""
+    },
+    {
+      "label": "CMake Firmware Release",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.release\""
     },
     {
       "label": "CMake FirmwareTests",
@@ -23,31 +35,31 @@
       "label": "Ninja Firmware",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && ninja -C build"
+      "command": ". esp-idf.fish && cmake --build build --parallel"
     },
     {
       "label": "Ninja FirmwareTests",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && ninja -C build"
+      "command": ". esp-idf.fish && cmake --build build --parallel"
     },
     {
       "label": "Ninja FirmwareDocs",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && ninja -C build FirmwareDocs"
+      "command": ". esp-idf.fish && cmake --build build --parallel --target FirmwareDocs"
     },
     {
       "label": "Ninja FirmwareLst",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && ninja -C build FirmwareLst"
+      "command": ". esp-idf.fish && cmake --build build --parallel --target FirmwareLst"
     },
     {
       "label": "Ninja FirmwareFormat",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && ninja -C build FirmwareFormat"
+      "command": ". esp-idf.fish && cmake --build build --parallel --target FirmwareFormat"
     },
     {
       "label": "Run FirmwareTests",
@@ -66,7 +78,7 @@
       "type": "shell",
       "isBackground": true,
       "options": {
-        "cwd": "/home/vinci/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32"
+        "cwd": "/home/vinci/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32"
       },
       "command": "bin/openocd -f board/esp32s3-builtin.cfg"
     },

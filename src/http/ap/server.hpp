@@ -1,6 +1,6 @@
-/// HTTP service for access point
+/// HTTP server for access point
 ///
-/// \file   http/ap/service.hpp
+/// \file   http/ap/server.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -11,10 +11,10 @@
 
 namespace http::ap {
 
-class Service {
+class Server {
 public:
-  explicit Service(QueueHandle_t ap_records_queue_handle);
-  ~Service();
+  explicit Server(QueueHandle_t ap_records_queue_handle);
+  ~Server();
 
 private:
   void buildApRecordsStrings(QueueHandle_t ap_records_queue_handle);

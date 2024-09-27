@@ -12,5 +12,7 @@ namespace dcc {
 /// \tableofcontents
 /// \todo document DCC page
 ///
+/// The DCC module runs a service that...
+///
 
 }  // namespace dcc

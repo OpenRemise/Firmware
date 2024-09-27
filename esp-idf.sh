@@ -1,10 +1,10 @@
-#!/bin/fish
-if test -n "$IDF_PATH"
+#!/bin/bash
+if [ -v IDF_PATH ]; then
   return 0
-end
+fi
 
 export IDF_PATH=$HOME/esp/esp-idf
-. $HOME/esp/esp-idf/export.fish
+. $HOME/esp/esp-idf/export.sh
 
 #https://github.com/espressif/idf-component-manager/issues/40
 #https://github.com/espressif/idf-component-manager#environment-variables

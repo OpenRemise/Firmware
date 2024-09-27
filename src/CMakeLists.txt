@@ -27,9 +27,9 @@ else()
     dcc/init.cpp
     dcc/service.cpp
     http/ap/init.cpp
-    http/ap/service.cpp
+    http/ap/server.cpp
     http/sta/init.cpp
-    http/sta/service.cpp
+    http/sta/server.cpp
     http/init.cpp
     mdu/init.cpp
     mdu/service.cpp
@@ -61,10 +61,6 @@ else()
     out/zusi/task_function.cpp
     out/init.cpp
     out/suspend.cpp
-    settings/init.cpp
-    settings/service.cpp
-    sys/init.cpp
-    sys/service.cpp
     udp/init.cpp
     usb/decup_ein/task_function.cpp
     usb/susiv2/task_function.cpp
@@ -96,18 +92,6 @@ else()
 endif()
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
-
-if(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
-  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-Og")
-elseif(CONFIG_COMPILER_OPTIMIZATION_SIZE)
-  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-Os")
-elseif(CONFIG_COMPILER_OPTIMIZATION_PERF)
-  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-O2")
-elseif(CONFIG_COMPILER_OPTIMIZATION_NONE)
-  target_compile_definitions(${COMPONENT_LIB} PRIVATE OPTIMIZATION="-O0")
-else()
-  message(FATAL_ERROR "Unknown optimization setting")
-endif()
 
 target_common_warnings(${COMPONENT_LIB} PRIVATE)
 

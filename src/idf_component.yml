@@ -25,4 +25,4 @@ dependencies:
     git: https://github.com/OpenRemise/Frontend.git
   Z21:
     version: dcc
-    git: https://github.com/ZIMO-Elektronik/Z21.git
+    git: git@github.com:ZIMO-Elektronik/Z21.git

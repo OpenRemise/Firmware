@@ -1,4 +1,4 @@
-/// Initialize HTTP service for access point
+/// Initialize HTTP server for access point
 ///
 /// \file   http/ap/init.cpp
 /// \author Vincent Hamp
@@ -6,19 +6,19 @@
 
 #include "init.hpp"
 #include <memory>
-#include "service.hpp"
+#include "server.hpp"
 
 namespace http::ap {
 
 namespace {
 
-std::unique_ptr<Service> service;
+std::unique_ptr<Server> server;
 
 }  // namespace
 
 ///
 esp_err_t init() {
-  service.reset(new Service{wifi::ap_records_queue.handle});
+  server.reset(new Server{wifi::ap_records_queue.handle});
   return ESP_OK;
 }
 

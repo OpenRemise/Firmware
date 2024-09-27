@@ -1,6 +1,6 @@
 #include "init.hpp"
 #include <memory>
-#include "http/sta/service.hpp"
+#include "http/sta/server.hpp"
 #include "service.hpp"
 #include "z21/service.hpp"
 
@@ -8,17 +8,17 @@ namespace dcc {
 
 ///
 esp_err_t init(BaseType_t xCoreID) {
-  if (http::sta::service) {
+  if (http::sta::server) {
     service = std::make_shared<Service>(xCoreID);
-    http::sta::service->subscribe({.uri = "/dcc/locos/", .method = HTTP_DELETE},
-                                  service,
-                                  &Service::locosDeleteRequest);
-    http::sta::service->subscribe({.uri = "/dcc/locos/", .method = HTTP_GET},
-                                  service,
-                                  &Service::locosGetRequest);
-    http::sta::service->subscribe({.uri = "/dcc/locos/", .method = HTTP_PUT},
-                                  service,
-                                  &Service::locosPutRequest);
+    http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_DELETE},
+                                 service,
+                                 &Service::locosDeleteRequest);
+    http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_GET},
+                                 service,
+                                 &Service::locosGetRequest);
+    http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_PUT},
+                                 service,
+                                 &Service::locosPutRequest);
   }
   return ESP_OK;
 }

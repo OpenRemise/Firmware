@@ -4,23 +4,17 @@
     {
       "type": "gdb",
       "request": "attach",
-      "name": "Debug",
-      "executable": "/home/vinci/Develop/VSCode/Firmware/build/Firmware.elf",
+      "name": "Debug Firmware",
+      "target": "extended-remote :3333",
+      "executable": "/home/vinci/Develop/VSCode/OpenRemise/Firmware/build/Firmware.elf",
+      "gdbpath": "/home/vinci/.espressif/tools/xtensa-esp-elf-gdb/14.2_20240403/xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
       "cwd": "${workspaceFolder}",
-      "gdbpath": "/home/vinci/.espressif/tools/xtensa-esp-elf-gdb/12.1_20231023/xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
-      "target": "target remote :3333",
-      "remote": true,
       "autorun": [
-        "set pagination off",
-        "target remote :3333",
         "mon reset halt",
-        "thb app_main",
-        "flushregs",
-        "b app_main"
+        "maintenance flush register-cache",
+        "thb app_main"
       ],
       "preLaunchTask": "Run openocd",
-      "showDevDebugOutput": true,
-      "internalConsoleOptions": "openOnSessionStart"
     },
     {
       "name": "Debug FirmwareTests",
