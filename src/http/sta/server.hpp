@@ -13,10 +13,14 @@
 namespace http::sta {
 
 ///
-class Service : public Endpoints {
+class Server : public Endpoints {
 public:
-  Service();
-  ~Service();
+  Server();
+  ~Server();
+
+  Response settingsGetRequest(Request const& req);
+  Response settingsPostRequest(Request const& req);
+  Response sysGetRequest(Request const& req);
 
 private:
   esp_err_t deleteHandler(httpd_req_t* req);

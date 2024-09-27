@@ -40,31 +40,20 @@ struct Offsets {
 /// \bug DCC/RailCom timings seem to get worse when the DCC tasks runs the
 /// second time?
 consteval Offsets make_offsets() {
-  /// \todo remove once we measured all optimization offsets
-  static_assert(OPTIMIZATION == std::string_view{"-Og"});
-
-  using namespace std::literals;
-  if constexpr (OPTIMIZATION == "-Og"sv)
-    return {
-      .endbit = 32u,
-      .tcs = 21u,
-    };
-  else if constexpr (OPTIMIZATION == "-Os"sv)
-    return {
-      .endbit = 0u,
-      .tcs = 0u,
-    };
-  else if constexpr (OPTIMIZATION == "-O2"sv)
-    return {
-      .endbit = 0u,
-      .tcs = 0u,
-    };
-  else if constexpr (OPTIMIZATION == "-O0"sv)
-    return {
-      .endbit = 0u,
-      .tcs = 0u,
-    };
-  else ztl::fail();
+#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+  return {
+    .endbit = 32u,
+    .tcs = 21u,
+  };
+#elif defined(CONFIG_COMPILER_OPTIMIZATION_SIZE)
+#  error "Unknown optimization setting"
+#elif defined(CONFIG_COMPILER_OPTIMIZATION_PERF)
+#  error "Unknown optimization setting"
+#elif defined(CONFIG_COMPILER_OPTIMIZATION_NONE)
+#  error "Unknown optimization setting"
+#else
+#  error "Unknown optimization setting"
+#endif
 }
 
 /// \todo document

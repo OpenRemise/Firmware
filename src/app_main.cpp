@@ -12,8 +12,6 @@
 #include "mem/init.hpp"
 #include "ota/init.hpp"
 #include "out/init.hpp"
-#include "settings/init.hpp"
-#include "sys/init.hpp"
 #include "trace.hpp"
 #include "udp/init.hpp"
 #include "usb/init.hpp"
@@ -38,14 +36,16 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, wifi::init));
   ESP_ERROR_CHECK(invoke_on_core(0, http::init));
   ESP_ERROR_CHECK(invoke_on_core(0, udp::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, settings::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, sys::init));
   ESP_ERROR_CHECK(invoke_on_core(1, dcc::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(1, mdu::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(1, ota::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(0, z21::init, 0));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init, 1));
+
+  // Don't disable serial JTAG
+#if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
   ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
+#endif
 
   /// \todo remove
   // vTaskDelay(pdMS_TO_TICKS(1000u));

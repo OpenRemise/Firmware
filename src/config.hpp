@@ -103,12 +103,11 @@
 /// by the following warning from the [Task Notifications
 /// documentation](https://www.freertos.org/RTOS-task-notifications.html).
 ///
-///
-/// \warning  FreeRTOS Stream and Message Buffers use the task notification at
-///           array index 0. If you want to maintain the state of a task
-///           notification across a call to a Stream or Message Buffer API
-///           function then use a task notification at an array index greater
-///           than 0.
+/// \warning
+/// FreeRTOS Stream and Message Buffers use the task notification at array
+/// index 0. If you want to maintain the state of a task notification across a
+/// call to a Stream or Message Buffer API function then use a task notification
+/// at an array index greater than 0.
 inline constexpr auto default_notify_index{tskDEFAULT_INDEX_TO_NOTIFY + 1u};
 static_assert(configTASK_NOTIFICATION_ARRAY_ENTRIES > 1);
 
@@ -286,8 +285,8 @@ inline constexpr auto file_buffer_size{16384uz};
 
 namespace sta {
 
-class Service;
-inline std::shared_ptr<Service> service;
+class Server;
+inline std::shared_ptr<Server> server;
 
 }  // namespace sta
 

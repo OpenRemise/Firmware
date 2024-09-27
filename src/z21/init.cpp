@@ -6,18 +6,18 @@
 
 #include "init.hpp"
 #include "dcc/service.hpp"
-#include "http/sta/service.hpp"
+#include "http/sta/server.hpp"
 #include "service.hpp"
 
 namespace z21 {
 
 ///
 esp_err_t init(BaseType_t xCoreID) {
-  if (http::sta::service) {
+  if (http::sta::server) {
     service = std::make_shared<Service>(xCoreID);
     service->dcc(dcc::service);
     dcc::service->z21(service, service);
-    http::sta::service->subscribe({.uri = "/z21/"}, service, &Service::socket);
+    http::sta::server->subscribe({.uri = "/z21/"}, service, &Service::socket);
   }
   return ESP_OK;
 }

@@ -22,13 +22,6 @@ https://github.com/wireviz/WireViz
 https://hackaday.com/2024/03/11/share-your-projects-kicad-automations-and-pretty-renders/
 
 # Notes
-## Install ESP-IDF
-mkdir -p ~/esp
-cd ~/esp
-git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
-cd ~/esp/esp-idf
-./install.fish all
-
 ## Available pins
 In theory we have **20** available IO pins excluding
 - EN
@@ -134,3 +127,6 @@ https://github.com/espressif/esp-idf/issues/8570
 ## Debug
 openocd -f esp32s3-builtin.cfg  
 xtensa-esp32s3-elf-gdb -ex 'set pagination off' -ex 'target remote :3333' ./build/Firmware.elf
+
+## WebSocket
+https://esp32.com/viewtopic.php?t=31224  

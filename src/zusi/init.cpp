@@ -1,6 +1,6 @@
 #include "init.hpp"
 #include <memory>
-#include "http/sta/service.hpp"
+#include "http/sta/server.hpp"
 #include "service.hpp"
 
 namespace zusi {
@@ -13,9 +13,9 @@ std::shared_ptr<Service> service;
 
 /// \todo document
 esp_err_t init(BaseType_t xCoreID) {
-  if (http::sta::service) {
+  if (http::sta::server) {
     service = std::make_shared<Service>(xCoreID);
-    http::sta::service->subscribe({.uri = "/zusi/"}, service, &Service::socket);
+    http::sta::server->subscribe({.uri = "/zusi/"}, service, &Service::socket);
   }
   return ESP_OK;
 }

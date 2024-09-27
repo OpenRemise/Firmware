@@ -1,4 +1,4 @@
-/// Initialize HTTP service for station
+/// Initialize HTTP server for station
 ///
 /// \file   http/sta/init.cpp
 /// \author Vincent Hamp
@@ -7,13 +7,21 @@
 #include "init.hpp"
 #include <memory>
 #include <span>
-#include "service.hpp"
+#include "server.hpp"
 
 namespace http::sta {
 
 ///
 esp_err_t init() {
-  service = std::make_shared<Service>();
+  server = std::make_shared<Server>();
+  server->subscribe({.uri = "/settings/", .method = HTTP_GET},
+                    server,
+                    &Server::settingsGetRequest);
+  server->subscribe({.uri = "/settings/", .method = HTTP_POST},
+                    server,
+                    &Server::settingsPostRequest);
+  server->subscribe(
+    {.uri = "/sys/", .method = HTTP_GET}, server, &Server::sysGetRequest);
   return ESP_OK;
 }
 
