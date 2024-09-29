@@ -195,13 +195,6 @@
 /// Before we can start building the actual firmware, we need to add the ESP-IDF
 /// framework and its tools to the PATH environment variable. For this, there is
 /// again a script available that needs to be **sourced**.
-///
-/// \warning
-/// Please make sure that you do not just **execute** the script! The script
-/// must be **sourced**, the leading dot and the space are important.
-/// Furthermore, the variables that this script creates are only valid for the
-/// current terminal session. Each time a new session is opened, the script must
-/// be re-run.
 /// <div class="tabbed">
 /// - <b class="tab-title">Fish</b>
 ///   ```sh
@@ -212,6 +205,12 @@
 ///   . esp-idf.sh
 ///   ```
 /// </div>
+/// \warning
+/// Please make sure that you do not just **execute** the script! The script
+/// must be **sourced**, the leading dot and the space are important.
+/// Furthermore, the variables that this script creates are only valid for the
+/// current terminal session. Each time a new session is opened, the script must
+/// be re-run.
 ///
 /// If everything has worked up to this point, Espressif will, after a series of
 /// debug outputs, reward you with the following message.
@@ -225,11 +224,6 @@
 /// corresponds to `-Og`, Release corresponds to `-Os`), and above all in
 /// whether the USB peripheral is initialized as a [built-in JTAG
 /// interface](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
-///
-/// \note
-/// In principle, the `sdkconfig` files can be stacked in any way, e.g. to
-/// create a Release JTAG build.
-///
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
 ///   ```sh
@@ -263,11 +257,17 @@
 ///   ```
 /// </div>
 ///
-/// \warning
-/// For obvious reasons, a firmware compiled with the built-in JTAG interface
-/// can no longer be used for other USB connections.
+/// \note
+/// In principle, the `sdkconfig` files can be stacked in any way, e.g. to
+/// create a Release JTAG build. For obvious reasons though, a firmware compiled
+/// with the built-in JTAG interface can no longer be used for other USB
+/// connections.
 ///
-/// \todo ninja!
+/// After the configuration has been successfully created, we just need to run
+/// the actual build step.
+/// ```sh
+/// cmake --build build --parallel
+/// ```
 ///
 /// \section section_development_flash Flash
 /// \todo section_development_flash
