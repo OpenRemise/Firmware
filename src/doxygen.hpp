@@ -15,10 +15,10 @@
 ///
 // clang-format off
 /// \mainpage Introduction
-/// | Getting Started                                                                                                                                                                        | API Reference                                                                                                                                                                           | HW Reference                                                                                                       |
-/// | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-/// | [![](icons/stopwatch.png)](page_getting_started.html)                                                                                                                                  | [![](icons/api.png)](page_api_reference.html)                                                                                                                                           | [![](icons/pcb.png)](page_hw_reference.html)                                                                       |
-/// | New to the codebase?<br>Check out the \ref page_getting_started <br>guides. Setup a development<br>environment and learn about<br>the firmwares architecture<br>and it's key concepts. | The \ref page_api_reference contains a<br>detailed description of the inner<br>workings of the firmwares<br> individual modules.<br>It assumes an understanding of<br>the key concepts. | Browse schematics and layouts<br>of all supported boards in the<br>\ref page_hw_reference section.<br><br><br><br> |
+/// | Getting Started                                                                                                                                                                                           | API Reference                                                                                                                                                                                              | HW Reference                                                                                                                    |
+/// | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+/// | [![](icons/stopwatch.svg)](page_getting_started.html)                                                                                                                                                     | [![](icons/api.svg)](page_api_reference.html)                                                                                                                                                              | [![](icons/pcb.svg)](page_hw_reference.html)                                                                                    |
+/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Setup a development environment and learn about the firmwares architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the firmwares individual modules. It assumes an understanding of the key concepts.</div> | <div style="max-width:200px">Browse schematics and layouts of all supported boards in the \ref page_hw_reference section.</div> |
 ///
 /// <div class="section_buttons">
 /// | Next                      |
@@ -60,9 +60,10 @@
 /// advantage that our unit tests can run directly [on the
 /// host](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/host-apps.html).
 ///
-/// We recommend either an [Arch](https://archlinux.org/) or
+/// We recommend either an [Arch](https://archlinux.org/) (e.g.
+/// [Garuda](https://garudalinux.org/) or [Manjaro](https://manjaro.org/)) or
 /// [Ubuntu](https://ubuntu.com/) based distribution, so all of the following
-/// steps refer to those two.
+/// steps refer to those.
 ///
 /// \section section_development_prerequisites Prerequisites
 /// In order to start developing the firmware, we need to meet quite a few
@@ -171,6 +172,20 @@
 /// It prints the path to the executable of the shell from which it was
 /// executed.
 ///
+/// \subsection subsection_development_vscode VSCode (optional)
+/// \todo optional...
+///
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch</b>
+///   ```sh
+///   sudo pamac install visual-studio-code-bin
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   ```sh
+///   snap install code --classic
+///   ```
+/// </div>
+///
 /// \section section_development_clone Clone
 /// The firmware source code is also hosted on GitHub. As before, we can use
 /// either SSH or HTTP to clone the
@@ -219,10 +234,10 @@
 /// Done! You can now compile ESP-IDF projects.
 /// ```
 ///
-/// We'll try this out right away by starting one of three build configurations.
-/// These configurations differ in the compiler's optimization level (Debug
-/// corresponds to `-Og`, Release corresponds to `-Os`), and above all in
-/// whether the USB peripheral is initialized as a [built-in JTAG
+/// We'll try this out right away by starting one of three CMake build
+/// configurations. These configurations differ in the compiler's optimization
+/// level (Debug corresponds to `-Og`, Release corresponds to `-Os`), and above
+/// all in whether the USB peripheral is initialized as a [built-in JTAG
 /// interface](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
@@ -261,26 +276,113 @@
 /// In principle, the `sdkconfig` files can be stacked in any way, e.g. to
 /// create a Release JTAG build. For obvious reasons though, a firmware compiled
 /// with the built-in JTAG interface can no longer be used for other USB
-/// connections.
+/// connections. See the \ref page_config for more details.
 ///
-/// After the configuration has been successfully created, we just need to run
-/// the actual build step.
+/// After the CMake configure stage has been successful, we just need to run the
+/// actual build stage.
 /// ```sh
 /// cmake --build build --parallel
 /// ```
 ///
+/// The terminal output of our build tool tells us if the binary has been built
+/// successfully.
+/// ```sh
+/// Creating esp32s3 image...
+/// Merged 2 ELF sections
+/// Successfully created esp32s3 image.
+/// Generated OpenRemise/Firmware/build/Firmware.bin
+/// ```
+///
 /// \section section_development_flash Flash
-/// \todo section_development_flash
+/// In order to flash the generated binary (or actually, binaries) onto a board,
+/// we need to put the board into the bootloader. This is done by
+/// - Connecting the board to the USB-C port
+/// - Setting the BOOT jumper
+/// - Switching on the power supply
+///
+/// Afterwards we can use the `flash` command of the
+/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/tools/idf-py.html)
+/// frontend to upload the firmware.
+/// ```sh
+/// idf.py flash
+/// ```
+///
+/// \warning
+/// Be careful, this command actually flashes 6 binaries at once and not just
+/// the application. This includes things like the
+/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/bootloader.html),
+/// the [partition
+/// table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/partition-tables.html)
+/// and the [NVS
+/// storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/storage/nvs_flash.html).
+/// Again, you can find further details in \ref page_config. If you already have
+/// a board with a running firmware and just want to flash the application, you
+/// can do this with the following command.
+/// ```sh
+/// idf.py app-flash
+/// ```
+///
+/// \section section_development_debug Debug
+/// The idf.py frontend we just saw is only one of two ways to communicate with
+/// our ESP chip over USB. The other way is the built-in JTAG interface.
+/// Espressif's own documentation has a diagram that illustrates the two
+/// possibilities well. The convenient part is that both connections are made
+/// via the same USB cable. This is made possible by the ESP32-S3 chip itself,
+/// which provides two USB channels, one for JTAG and the other for the USB
+/// terminal connection we have already used.
+///
+/// ![](images/jtag-debugging-overview.jpg)
+///
+/// Before we can establish a debugging connection with GDB though, we need to
+/// grant the appropriate rights to communicate with the OpenOCD device. To do
+/// this, we download the [udev
+/// rules](https://github.com/espressif/openocd-esp32/raw/master/contrib/60-openocd.rules)
+/// from Espressif's [OpenOCD
+/// repository](https://github.com/espressif/openocd-esp32) to
+/// `/etc/udev/rules.d`.
+// clang-format off
+/// \page page_development Development
+/// \details \tableofcontents
+/// ```sh
+/// sudo wget https://github.com/espressif/openocd-esp32/raw/master/contrib/60-openocd.rules -P /etc/udev/rules.d
+/// ```
+// clang-format on
+/// \page page_development Development
+/// \details \tableofcontents
+///
+/// With the udev rules installed, we can now start a debug session. We
+/// recommend using [VSCode](https://code.visualstudio.com) for this, but of
+/// course you can also do it manually via CLI.
+/// <div class="tabbed">
+/// - <b class="tab-title">VSCode</b>
+///   To debug the firmware directly in VSCode, we install the GDB debugger
+///   extension [Native
+///   Debug](https://marketplace.visualstudio.com/items?itemName=webfreak.debug)
+///   from the Visual Studio Marketplace. If you are not familiar with VSCode
+///   extensions, you can take a look at the [official
+///   documentation](https://code.visualstudio.com/docs/editor/extension-marketplace).
+///
+///   Running the debugger is done by
+///   - Connecting the board to the USB-C port
+///   - Switching on the power supply
+///   - Hitting F5
+/// - <b class="tab-title">CLI</b>
+///   To debug the firmware directly via the CLI we start 2x terminal sessions.
+///   In the first session we launch OpenOCD with the built-in JTAG interface
+///   configuration.
+///   ```sh
+///   cd ~/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32
+///   bin/openocd -f board/esp32s3-builtin.cfg
+///   ```
+///   And in the second session, started in our project folder, we connect to
+///   GDB.
+///   ```sh
+///   xtensa-esp32-elf-gdb -x gdbinit build/Firmware.elf
+///   ```
+/// </div>
 ///
 /// \section section_development_test Test
 /// \todo section_development_test
-///
-/// \section section_development_debug Debug
-/// \todo section_development_debug
-///
-/// https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs/DEBUGGING.md#using-nativedebug
-/// udev rules! ->
-/// https://github.com/espressif/openocd-esp32/blob/master/contrib/60-openocd.rules
 ///
 /// <div class="section_buttons">
 /// | Previous                  | Next             |
@@ -289,7 +391,7 @@
 /// </div>
 
 /// \page page_config Configuration
-/// \todo write config page
+/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                    |

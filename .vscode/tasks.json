@@ -78,7 +78,7 @@
       "type": "shell",
       "isBackground": true,
       "options": {
-        "cwd": "/home/vinci/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32"
+        "cwd": "${userHome}/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32"
       },
       "command": "bin/openocd -f board/esp32s3-builtin.cfg"
     },

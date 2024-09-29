@@ -28,7 +28,7 @@ if(Doxygen_FOUND)
   set(PLANTUML_JAR_PATH ${PlantUML_SOURCE_DIR}/plantuml-1.2024.7.jar)
 
   # Get Doxygen Awesome
-  cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.3.3")
+  cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.3.4")
 
   # Get logo and fonts
   file(DOWNLOAD
@@ -90,6 +90,7 @@ if(Doxygen_FOUND)
   set(DOXYGEN_HTML_COLORSTYLE_HUE 209)
   set(DOXYGEN_HTML_COLORSTYLE_SAT 255)
   set(DOXYGEN_HTML_COLORSTYLE_GAMMA 113)
+  set(DOXYGEN_HTML_COPY_CLIPBOARD NO)
   set(DOXYGEN_GENERATE_TREEVIEW YES)
   set(DOXYGEN_MACRO_EXPANSION YES)
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
@@ -97,6 +98,6 @@ if(Doxygen_FOUND)
   set(DOXYGEN_DOT_IMAGE_FORMAT svg)
   set(DOXYGEN_PLANTUML_JAR_PATH ${PLANTUML_JAR_PATH})
 
-  doxygen_add_docs(FirmwareDocs ${CMAKE_SOURCE_DIR}/src
+  doxygen_add_docs(${PROJECT_NAME}Docs ${CMAKE_SOURCE_DIR}/src
                    ${CMAKE_SOURCE_DIR}/CHANGELOG.md)
 endif()
