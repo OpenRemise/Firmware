@@ -20,6 +20,7 @@ I've measured:
 ## Documentation
 https://github.com/wireviz/WireViz
 https://hackaday.com/2024/03/11/share-your-projects-kicad-automations-and-pretty-renders/
+https://github.com/openscopeproject/InteractiveHtmlBom
 
 # Notes
 ## Available pins

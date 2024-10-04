@@ -15,10 +15,10 @@
 ///
 // clang-format off
 /// \mainpage Introduction
-/// | Getting Started                                                                                                                                                                                           | API Reference                                                                                                                                                                                              | HW Reference                                                                                                                    |
-/// | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-/// | [![](icons/stopwatch.svg)](page_getting_started.html)                                                                                                                                                     | [![](icons/api.svg)](page_api_reference.html)                                                                                                                                                              | [![](icons/pcb.svg)](page_hw_reference.html)                                                                                    |
-/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Setup a development environment and learn about the firmwares architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the firmwares individual modules. It assumes an understanding of the key concepts.</div> | <div style="max-width:200px">Browse schematics and layouts of all supported boards in the \ref page_hw_reference section.</div> |
+/// | Getting Started                                                                                                                                                                                            | API Reference                                                                                                                                                                                              | HW Reference                                                                                                                    |
+/// | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+/// | [![](icons/stopwatch.svg)](page_getting_started.html)                                                                                                                                                      | [![](icons/api.svg)](page_api_reference.html)                                                                                                                                                              | [![](icons/pcb.svg)](page_hw_reference.html)                                                                                    |
+/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the firmwares architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the firmwares individual modules. It assumes an understanding of the key concepts.</div> | <div style="max-width:200px">Browse schematics and layouts of all supported boards in the \ref page_hw_reference section.</div> |
 ///
 /// <div class="section_buttons">
 /// | Next                      |
@@ -173,8 +173,9 @@
 /// executed.
 ///
 /// \subsection subsection_development_vscode VSCode (optional)
-/// \todo optional...
-///
+/// We generally recommend [VSCode](https://code.visualstudio.com) for
+/// development, but this step remains entirely optional. Feel free to otherwise
+/// fire up your favorite editor or IDE.
 /// <div class="tabbed">
 /// - <b class="tab-title">Arch</b>
 ///   ```sh
@@ -351,8 +352,8 @@
 /// \details \tableofcontents
 ///
 /// With the udev rules installed, we can now start a debug session. We
-/// recommend using [VSCode](https://code.visualstudio.com) for this, but of
-/// course you can also do it manually via CLI.
+/// recommend using VSCode for this, but of course you can also do it manually
+/// via CLI.
 /// <div class="tabbed">
 /// - <b class="tab-title">VSCode</b>
 ///   To debug the firmware directly in VSCode, we install the GDB debugger
@@ -382,7 +383,18 @@
 /// </div>
 ///
 /// \section section_development_test Test
-/// \todo section_development_test
+/// \todo x86, GTest
+///
+// clang-format off
+/// \page page_development Development
+/// \details \tableofcontents
+/// ```sh
+/// cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF
+/// cmake --build build --parallel
+/// ```
+// clang-format on
+/// \page page_development Development
+/// \details \tableofcontents
 ///
 /// <div class="section_buttons">
 /// | Previous                  | Next             |
@@ -391,7 +403,7 @@
 /// </div>
 
 /// \page page_config Configuration
-/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp
+/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, Pins
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                    |
@@ -401,13 +413,71 @@
 
 /// \page page_architecture Architecture
 /// \details \tableofcontents
-/// \todo document arch page
-/// The entire software stack is divided into three layers.
+/// The entire software stack is divided into three layers. At the top are the
+/// interfaces, which represent the connections to the outside world. In the
+/// middle, various services run as middlewares that take care of processing the
+/// data. And below there are drivers that basically control the hardware
+/// outputs. A more detailed version of the upcoming diagram can be found at the
+/// [bottom of the page](#section_architecture_diagram) (\emoji :warning: not
+/// mobile friendly).
 ///
 /// \startuml
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
-/// scale max 1920*1080
+///
+/// database "Storage" {
+/// }
+///
+/// frame "Interfaces" {
+/// }
+///
+/// frame "Middlewares" {
+/// }
+///
+/// frame "Drivers" {
+/// }
+///
+/// Interfaces -d-> Middlewares
+/// Middlewares -d-> Drivers
+/// \enduml
+///
+/// \section section_architecture_interfaces Interfaces
+/// The interface layer contains modules that are used to receive and send data.
+/// They initialize various communication peripherals such as USB and WiFi and
+/// manage the data transfer via them. The received data is processed and then
+/// forwarded to the corresponding services in the middleware layer.
+///
+/// \section section_architecture_middlewares Middlewares
+/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
+/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
+/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
+/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
+/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
+/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
+/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
+/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
+/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
+/// iaculis est imperdiet faucibus interdum.
+///
+/// \section section_architecture_drivers Drivers
+/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
+/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
+/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
+/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
+/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
+/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
+/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
+/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
+/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
+/// iaculis est imperdiet faucibus interdum.
+///
+/// \section section_architecture_storage Storage
+/// The storage layer is global and can be accessed from anywhere.
+///
+/// \section section_architecture_diagram Diagram
+/// \startuml
+/// !theme mono
+/// skinparam defaultFontName "Glacial Indifference"
 ///
 /// database "Storage" {
 ///   package "mem" {
@@ -532,54 +602,6 @@
 /// url of middlewares_usb is [[page_usb.html]]
 /// url of z21 is [[page_z21.html]]
 /// \enduml
-///
-/// \section section_architecture_interfaces Interfaces
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
-///
-/// \section section_architecture_middlewares Middlewares
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
-///
-/// \section section_architecture_drivers Drivers
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
-///
-/// \section section_architecture_storage Storage
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
 ///
 /// <div class="section_buttons">
 /// | Previous         | Next                   |
