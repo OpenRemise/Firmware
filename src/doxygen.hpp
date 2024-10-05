@@ -58,7 +58,7 @@
 /// ([ESP-IDF](https://github.com/espressif/esp-idf)) which, in addition to the
 /// obvious support for ESP chips, can also be compiled for Linux. This has the
 /// advantage that our unit tests can run directly [on the
-/// host](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/host-apps.html).
+/// host](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/host-apps.html).
 ///
 /// We recommend either an [Arch](https://archlinux.org/) (e.g.
 /// [Garuda](https://garudalinux.org/) or [Manjaro](https://manjaro.org/)) or
@@ -115,14 +115,14 @@
 /// \subsection subsection_development_esp_idf ESP-IDF
 /// The ESP-IDF framework is the only dependency that we cannot get directly
 /// from the packet manager. Instead, we follow [Espressif's
-/// instructions](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
+/// instructions](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
 /// and clone the ESP-IDF repository into a directory called `esp` in our home
 /// directory.
 ///
 /// [GitHub](https://github.com/) allows you to clone a repository either over
 /// SSH or HTTPS. If you have the option, we recommend using SSH as we believe
 /// it [simplifies commit
-/// signing]((https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification)).
+/// signing](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification).
 /// <div class="tabbed">
 /// - <b class="tab-title">SSH</b>
 ///   ```sh
@@ -239,7 +239,7 @@
 /// configurations. These configurations differ in the compiler's optimization
 /// level (Debug corresponds to `-Og`, Release corresponds to `-Os`), and above
 /// all in whether the USB peripheral is initialized as a [built-in JTAG
-/// interface](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
+/// interface](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
 ///   ```sh
@@ -302,7 +302,7 @@
 /// - Switching on the power supply
 ///
 /// Afterwards we can use the `flash` command of the
-/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/tools/idf-py.html)
+/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/tools/idf-py.html)
 /// frontend to upload the firmware.
 /// ```sh
 /// idf.py flash
@@ -311,11 +311,11 @@
 /// \warning
 /// Be careful, this command actually flashes 6 binaries at once and not just
 /// the application. This includes things like the
-/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/bootloader.html),
+/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/bootloader.html),
 /// the [partition
-/// table](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/partition-tables.html)
+/// table](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/partition-tables.html)
 /// and the [NVS
-/// storage](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/storage/nvs_flash.html).
+/// storage](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html).
 /// Again, you can find further details in \ref page_config. If you already have
 /// a board with a running firmware and just want to flash the application, you
 /// can do this with the following command.
@@ -403,7 +403,8 @@
 /// </div>
 
 /// \page page_config Configuration
-/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, Pins
+/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, pins,
+/// which core does what
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                    |
@@ -416,11 +417,10 @@
 /// The entire software stack is divided into three layers. At the top are the
 /// interfaces, which represent the connections to the outside world. In the
 /// middle, various services run as middlewares that take care of processing the
-/// data. And below there are drivers that basically control the hardware
-/// outputs. A more detailed version of the upcoming diagram can be found at the
-/// [bottom of the page](#section_architecture_diagram) (\emoji :warning: not
-/// mobile friendly).
-///
+/// data and generate various output signals from it. And underneath that there
+/// are drivers that use these signals to control the hardware outputs. A more
+/// detailed version of the upcoming diagram can be found at the [bottom of the
+/// page](#section_architecture_diagram) (\emoji :warning: not mobile friendly).
 /// \startuml
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
@@ -442,37 +442,42 @@
 /// \enduml
 ///
 /// \section section_architecture_interfaces Interfaces
-/// The interface layer contains modules that are used to receive and send data.
-/// They initialize various communication peripherals such as USB and WiFi and
-/// manage the data transfer via them. The received data is processed and then
-/// forwarded to the corresponding services in the middleware layer.
+/// The interface layer contains modules that are used to receive and transmit
+/// data. They initialize various communication peripherals such as USB and WiFi
+/// and manage the data transfer via them. The received data is processed and
+/// then forwarded to the corresponding services in the middleware layer.
 ///
 /// \section section_architecture_middlewares Middlewares
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
+/// The modules in the middleware layer contain services that connect the
+/// interfaces with the outputs in the driver layer. An example of this is the
+/// mdu::Service, which can accept a
+/// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
+/// http::sta::Server and then processes commands for an update of the decoder
+/// software. The service then starts the corresponding \ref
+/// out::track::mdu::task_function "MDU task" in the driver layer, which then
+/// generates the necessary signals on the track. The communication is
+/// bidirectional, received feedback is sent back to the server via service. In
+/// more complex situations, middleware services may also communicate directly
+/// with each other. An example of this is the communication between the
+/// dcc::Service and the z21::Service.
 ///
 /// \section section_architecture_drivers Drivers
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
+/// In the driver layer there are modules that contain some form of IO. For the
+/// most part, these are modules that generate signals controlled by middleware
+/// services. Other modules initialize various hardware peripherals such as the
+/// ADC or WiFi.
 ///
 /// \section section_architecture_storage Storage
-/// The storage layer is global and can be accessed from anywhere.
+/// Although these modules do not necessarily represent a layer, they are still
+/// a separate part of the architecture and manage the different flash memory
+/// partitions. Specifically, this involves the
+/// [nvs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html)
+/// module, which stores settings or locomotives in a key-value pair system, as
+/// well as the
+/// [spiffs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/spiffs.html)
+/// module, which contains a file system optimized for NOR flashes and contains,
+/// for example, the frontend. These modules are considered global and can be
+/// accessed from all other layers.
 ///
 /// \section section_architecture_diagram Diagram
 /// \startuml
@@ -558,13 +563,15 @@
 ///         [Task] as out_track_mdu_task
 ///       }
 ///     }
-///     package "zusi" as drivers_zusi {
+///     package "zusi" as out_zusi {
 ///       [Task] as out_zusi_task
 ///     }
 ///   }
+///   package "wifi" {
+///     [Task] as wifi_task
+///   }
 /// }
 ///
-/// '
 /// sta_server <--> dcc_service
 /// sta_server <--> decup_service
 /// sta_server <--> mdu_service
@@ -575,6 +582,8 @@
 /// usb_tasks <--> DCC_EIN
 /// usb_tasks <--> DECUP_EIN
 /// usb_tasks <--> SUSIV2
+///
+/// z21_service <-l-> dcc_service
 ///
 /// dcc_service <--> out_track_dcc_task
 /// decup_service <--> out_track_decup_task
@@ -590,18 +599,32 @@
 /// 'Links
 /// url of analog is [[page_analog.html]]
 /// url of mem is [[page_mem.html]]
+/// url of nvs is [[page_mem.html#section_mem_nvs]]
+/// url of spiffs is [[page_mem.html#section_mem_spiffs]]
 /// url of mdu is [[page_mdu.html]]
 /// url of http is [[page_http.html]]
+/// url of ap is [[page_http.html#section_http_ap]]
+/// url of sta is [[page_http.html#section_http_sta]]
 /// url of ota is [[page_ota.html]]
 /// url of udp is [[page_udp.html]]
 /// url of dcc is [[page_dcc.html]]
 /// url of decup is [[page_decup.html]]
 /// url of out is [[page_out.html]]
+/// url of track is [[page_out.html#section_out_track]]
+/// url of out_track_dcc is [[page_out.html#subsection_out_track_dcc]]
+/// url of out_track_decup is [[page_out.html#subsection_out_track_decup]]
+/// url of out_track_mdu is [[page_out.html#subsection_out_track_mdu]]
+/// url of out_zusi is [[page_out.html#section_out_zusi]]
 /// url of middlewares_zusi is [[page_zusi.html]]
 /// url of interfaces_usb is [[page_usb.html]]
 /// url of middlewares_usb is [[page_usb.html]]
 /// url of z21 is [[page_z21.html]]
+/// url of wifi is [[page_wifi.html]]
 /// \enduml
+///
+/// \note
+/// This diagram contains links. Clicking on a module takes you to the
+/// corresponding \ref page_api_reference.
 ///
 /// <div class="section_buttons">
 /// | Previous         | Next                   |
@@ -610,14 +633,11 @@
 /// </div>
 
 /// \page page_control_flow Control flow
-/// \tableofcontents
-/// \todo write control flow page
+/// \details \tableofcontents
+/// \todo \ref state, how to change between different operating modes
+///
 /// \section A
 /// Some text in this section
-///
-/// \tableofcontents
-/// \section B
-/// More text in this one
 ///
 /// <div class="section_buttons">
 /// | Previous               | Next             |
@@ -656,12 +676,29 @@
 /// | \subpage page_wifi     | WiFi                                            |
 /// | \subpage page_z21      | Z21                                             |
 /// | \subpage page_zusi     | ZUSI                                            |
+///
+/// <div class="section_buttons">
+/// | Previous               | Next             |
+/// | :--------------------- | ---------------: |
+/// | \ref page_control_flow | \ref page_analog |
+/// </div>
 
 /// \page page_hw_reference HW Reference
+/// \details \tableofcontents
+/// \section section_hw_reference Deprecated
+/// \subsection subsection_hw_reference_esp32s3board ESP32S3 Board
 /// \htmlonly
 /// <script type="module" src="kicanvas.js"></script>
 /// <kicanvas-embed controls="full">
 ///   <kicanvas-source src="esp32s3board.kicad_sch"></kicanvas-source>
 ///   <kicanvas-source src="esp32s3board.kicad_pcb"></kicanvas-source>
+/// </kicanvas-embed>
+/// \endhtmlonly
+///
+/// \subsection subsection_hw_reference_drv8323shield DRV8323 Shield
+/// \htmlonly
+/// <kicanvas-embed controls="full">
+///   <kicanvas-source src="drv8323shield.kicad_sch"></kicanvas-source>
+///   <kicanvas-source src="drv8323shield.kicad_pcb"></kicanvas-source>
 /// </kicanvas-embed>
 /// \endhtmlonly

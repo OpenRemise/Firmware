@@ -12,5 +12,9 @@ namespace http {
 /// \tableofcontents
 /// \todo document HTTP page
 ///
+/// \section section_http_ap Access Point
+///
+/// \section section_http_sta Station
+///
 
 }  // namespace http

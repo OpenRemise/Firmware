@@ -16,7 +16,7 @@
         "maintenance flush register-cache",
         "thb app_main"
       ],
-      "preLaunchTask": "Run openocd",
+      "preLaunchTask": "Run OpenOCD",
     },
     {
       "name": "Debug FirmwareTests",
