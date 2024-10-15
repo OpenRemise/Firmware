@@ -1,6 +1,6 @@
-# Firmware
+# :construction: Firmware :construction:
 
-[![tests](https://github.com/OpenRemise/Firmware/actions/workflows/tests.yml/badge.svg)](https://github.com/OpenRemise/Firmware/actions/workflows/tests.yml)
+[![build](https://github.com/OpenRemise/Firmware/actions/workflows/build.yml/badge.svg)](https://github.com/OpenRemise/Firmware/actions/workflows/build.yml) [![tests](https://github.com/OpenRemise/Firmware/actions/workflows/tests.yml/badge.svg)](https://github.com/OpenRemise/Firmware/actions/workflows/tests.yml) [![license](https://img.shields.io/github/license/OpenRemise/Firmware)](https://github.com/OpenRemise/Firmware/raw/master/LICENSE)
 
 <a href="https://openremise.github.io/">
 <picture>
@@ -20,6 +20,9 @@ I've measured:
 ## Documentation
 https://github.com/wireviz/WireViz
 https://hackaday.com/2024/03/11/share-your-projects-kicad-automations-and-pretty-renders/
+https://github.com/openscopeproject/InteractiveHtmlBom
+https://github.com/yaqwsx/PcbDraw
+https://yaqwsx.github.io/Pinion/
 
 # Notes
 ## Available pins

@@ -12,6 +12,7 @@ namespace mem {
 /// \tableofcontents
 /// \todo document mem page
 ///
+/// \section section_mem_nvs NVS
 /// | Setting         | NVS key         | Type   | Min | Max | Default  |
 /// | --------------- | --------------- | ------ | --- | --- | -------- |
 /// | bla             | sta_mdns        | Binary | -   | -   | "remise" |
@@ -35,5 +36,8 @@ namespace mem {
 /// | bla             | dcc_flags       | u8     | ?   | ?   | ?        |
 /// | bla             | mdu_preamble    | u8     | 14  | 30  | 14       |
 /// | bla             | mdu_ackreq      | u8     | 10  | 30  | 10       |
+///
+/// \section section_mem_spiffs SPIFFS
+///
 
 }  // namespace mem

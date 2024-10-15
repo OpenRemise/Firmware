@@ -30,7 +30,7 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt update -y
-          sudo apt install -y doxygen graphviz mscgen
+          sudo apt install -y doxygen graphviz openjdk-21-jdk
       - run: cmake -Bbuild
       - run: cmake --build build --parallel --target FirmwareDocs
       - name: Setup Pages

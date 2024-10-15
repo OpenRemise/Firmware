@@ -20,8 +20,6 @@
 #include "z21/init.hpp"
 #include "zusi/init.hpp"
 
-#include "log.h"
-
 /// ESP-IDF application entry point
 extern "C" void app_main() {
   static_assert(WIFI_TASK_CORE_ID == 0);
@@ -46,10 +44,6 @@ extern "C" void app_main() {
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
   ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
 #endif
-
-  /// \todo remove
-  // vTaskDelay(pdMS_TO_TICKS(1000u));
-  // LOGI_TASK_RESUME(out::track::decup::task.handle);
 
   // char* buffer{new char[2048uz]};
   for (;;) {
