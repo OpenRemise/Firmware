@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 /// DECUP task function
 ///
 /// \file   out/track/decup/task_function.cpp
@@ -110,7 +114,8 @@ esp_err_t test_entry() {
   gpio_set_level(d21_gpio_num, d21_state = !d21_state);
   Packet packet{221};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  receive_acks(300u);
+  auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u))};
+  LOGI("MX654 DECUP number of ack pulses %d\n", acks);
 
   for (;;) { vTaskDelay(pdMS_TO_TICKS(200u)); }
 

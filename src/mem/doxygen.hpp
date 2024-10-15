@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 /// Memory documentation
 ///
 /// \file   mem/doxygen.hpp
@@ -12,6 +16,7 @@ namespace mem {
 /// \tableofcontents
 /// \todo document mem page
 ///
+/// \section section_mem_nvs NVS
 /// | Setting         | NVS key         | Type   | Min | Max | Default  |
 /// | --------------- | --------------- | ------ | --- | --- | -------- |
 /// | bla             | sta_mdns        | Binary | -   | -   | "remise" |
@@ -35,5 +40,8 @@ namespace mem {
 /// | bla             | dcc_flags       | u8     | ?   | ?   | ?        |
 /// | bla             | mdu_preamble    | u8     | 14  | 30  | 14       |
 /// | bla             | mdu_ackreq      | u8     | 10  | 30  | 10       |
+///
+/// \section section_mem_spiffs SPIFFS
+///
 
 }  // namespace mem

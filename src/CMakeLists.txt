@@ -107,8 +107,13 @@ idf_build_set_property(
   "-Wno-error=all;-Wno-error=extra;-Wno-error=implicit-function-declaration;-Wno-error=format;-Wno-error=switch"
   APPEND)
 
+cpmaddpackage("gh:ZIMO-Elektronik/DECUP#master")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.0.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.3.1")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN#master")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN#master")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2#master")
+cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.7.0")
 cpmaddpackage("gh:microsoft/GSL@4.0.0")
 cpmaddpackage("gh:Neargye/magic_enum@0.9.6")
 
@@ -117,53 +122,6 @@ cpmaddpackage("gh:Neargye/magic_enum@0.9.6")
 math(EXPR INT16_MAX "(1 << 15) - 1" OUTPUT_FORMAT DECIMAL)
 target_compile_definitions(
   magic_enum INTERFACE MAGIC_ENUM_RANGE_MIN=0 MAGIC_ENUM_RANGE_MAX=${INT16_MAX})
-
-# Currently still private, force SSH
-cpmaddpackage(
-  NAME
-  DECUP
-  GIT_REPOSITORY
-  "git@github.com:ZIMO-Elektronik/DECUP"
-  GIT_TAG
-  tx
-  SYSTEM
-  YES)
-cpmaddpackage(
-  NAME
-  ULF_DECUP_EIN
-  GIT_REPOSITORY
-  "git@github.com:ZIMO-Elektronik/ULF_DECUP_EIN"
-  GIT_TAG
-  tx
-  SYSTEM
-  YES)
-cpmaddpackage(
-  NAME
-  ULF_MDU_EIN
-  GIT_REPOSITORY
-  "git@github.com:ZIMO-Elektronik/ULF_MDU_EIN"
-  GIT_TAG
-  tx
-  SYSTEM
-  YES)
-cpmaddpackage(
-  NAME
-  ULF_SUSIV2
-  GIT_REPOSITORY
-  "git@github.com:ZIMO-Elektronik/ULF_SUSIV2"
-  GIT_TAG
-  tx
-  SYSTEM
-  YES)
-cpmaddpackage(
-  NAME
-  ZUSI
-  GIT_REPOSITORY
-  "git@github.com:ZIMO-Elektronik/ZUSI"
-  VERSION
-  0.7.0
-  SYSTEM
-  YES)
 
 # fmt install option does not play nice with ESP-IDF
 cpmaddpackage(
@@ -196,8 +154,12 @@ target_link_libraries(
 # Minify HTML shown by http::ap::Server
 minify_html(http/ap/index.html ${CMAKE_BINARY_DIR}/http/ap/index.html)
 
-# Create NVS partition image
+# Create NVS and spiffs partition images
 if(NOT IDF_TARGET STREQUAL linux)
+  cpmaddpackage("gh:OpenRemise/Frontend#master")
+  spiffs_create_partition_image(storage ${Frontend_BINARY_DIR}/build/web
+                                FLASH_IN_PROJECT DEPENDS Frontend)
+
   nvs_create_partition_image(nvs ../nvs.csv FLASH_IN_PROJECT)
 
   # Assembly listening takes forever, add custom target

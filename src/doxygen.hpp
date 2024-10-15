@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 /// Documentation
 ///
 /// \file   doxygen.hpp
@@ -15,10 +19,10 @@
 ///
 // clang-format off
 /// \mainpage Introduction
-/// | Getting Started                                                                                                                                                                        | API Reference                                                                                                                                                                           | HW Reference                                                                                                       |
-/// | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-/// | [![](icons/stopwatch.png)](page_getting_started.html)                                                                                                                                  | [![](icons/api.png)](page_api_reference.html)                                                                                                                                           | [![](icons/pcb.png)](page_hw_reference.html)                                                                       |
-/// | New to the codebase?<br>Check out the \ref page_getting_started <br>guides. Setup a development<br>environment and learn about<br>the firmwares architecture<br>and it's key concepts. | The \ref page_api_reference contains a<br>detailed description of the inner<br>workings of the firmwares<br> individual modules.<br>It assumes an understanding of<br>the key concepts. | Browse schematics and layouts<br>of all supported boards in the<br>\ref page_hw_reference section.<br><br><br><br> |
+/// | Getting Started                                                                                                                                                                                            | API Reference                                                                                                                                                                                              | HW Reference                                                                                                                    |
+/// | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+/// | [![](icons/stopwatch.svg)](page_getting_started.html)                                                                                                                                                      | [![](icons/api.svg)](page_api_reference.html)                                                                                                                                                              | [![](icons/pcb.svg)](page_hw_reference.html)                                                                                    |
+/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the firmwares architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the firmwares individual modules. It assumes an understanding of the key concepts.</div> | <div style="max-width:200px">Browse schematics and layouts of all supported boards in the \ref page_hw_reference section.</div> |
 ///
 /// <div class="section_buttons">
 /// | Next                      |
@@ -58,11 +62,12 @@
 /// ([ESP-IDF](https://github.com/espressif/esp-idf)) which, in addition to the
 /// obvious support for ESP chips, can also be compiled for Linux. This has the
 /// advantage that our unit tests can run directly [on the
-/// host](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/host-apps.html).
+/// host](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/host-apps.html).
 ///
-/// We recommend either an [Arch](https://archlinux.org/) or
+/// We recommend either an [Arch](https://archlinux.org/) (e.g.
+/// [Garuda](https://garudalinux.org/) or [Manjaro](https://manjaro.org/)) or
 /// [Ubuntu](https://ubuntu.com/) based distribution, so all of the following
-/// steps refer to those two.
+/// steps refer to those.
 ///
 /// \section section_development_prerequisites Prerequisites
 /// In order to start developing the firmware, we need to meet quite a few
@@ -114,14 +119,14 @@
 /// \subsection subsection_development_esp_idf ESP-IDF
 /// The ESP-IDF framework is the only dependency that we cannot get directly
 /// from the packet manager. Instead, we follow [Espressif's
-/// instructions](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
+/// instructions](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
 /// and clone the ESP-IDF repository into a directory called `esp` in our home
 /// directory.
 ///
 /// [GitHub](https://github.com/) allows you to clone a repository either over
 /// SSH or HTTPS. If you have the option, we recommend using SSH as we believe
 /// it [simplifies commit
-/// signing]((https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification)).
+/// signing](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification).
 /// <div class="tabbed">
 /// - <b class="tab-title">SSH</b>
 ///   ```sh
@@ -171,6 +176,21 @@
 /// It prints the path to the executable of the shell from which it was
 /// executed.
 ///
+/// \subsection subsection_development_vscode VSCode (optional)
+/// We generally recommend [VSCode](https://code.visualstudio.com) for
+/// development, but this step remains entirely optional. Feel free to otherwise
+/// fire up your favorite editor or IDE.
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch</b>
+///   ```sh
+///   sudo pamac install visual-studio-code-bin
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   ```sh
+///   snap install code --classic
+///   ```
+/// </div>
+///
 /// \section section_development_clone Clone
 /// The firmware source code is also hosted on GitHub. As before, we can use
 /// either SSH or HTTP to clone the
@@ -195,13 +215,6 @@
 /// Before we can start building the actual firmware, we need to add the ESP-IDF
 /// framework and its tools to the PATH environment variable. For this, there is
 /// again a script available that needs to be **sourced**.
-///
-/// \warning
-/// Please make sure that you do not just **execute** the script! The script
-/// must be **sourced**, the leading dot and the space are important.
-/// Furthermore, the variables that this script creates are only valid for the
-/// current terminal session. Each time a new session is opened, the script must
-/// be re-run.
 /// <div class="tabbed">
 /// - <b class="tab-title">Fish</b>
 ///   ```sh
@@ -212,6 +225,12 @@
 ///   . esp-idf.sh
 ///   ```
 /// </div>
+/// \warning
+/// Please make sure that you do not just **execute** the script! The script
+/// must be **sourced**, the leading dot and the space are important.
+/// Furthermore, the variables that this script creates are only valid for the
+/// current terminal session. Each time a new session is opened, the script must
+/// be re-run.
 ///
 /// If everything has worked up to this point, Espressif will, after a series of
 /// debug outputs, reward you with the following message.
@@ -220,16 +239,11 @@
 /// Done! You can now compile ESP-IDF projects.
 /// ```
 ///
-/// We'll try this out right away by starting one of three build configurations.
-/// These configurations differ in the compiler's optimization level (Debug
-/// corresponds to `-Og`, Release corresponds to `-Os`), and above all in
-/// whether the USB peripheral is initialized as a [built-in JTAG
-/// interface](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
-///
-/// \note
-/// In principle, the `sdkconfig` files can be stacked in any way, e.g. to
-/// create a Release JTAG build.
-///
+/// We'll try this out right away by starting one of three CMake build
+/// configurations. These configurations differ in the compiler's optimization
+/// level (Debug corresponds to `-Og`, Release corresponds to `-Os`), and above
+/// all in whether the USB peripheral is initialized as a [built-in JTAG
+/// interface](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
 ///   ```sh
@@ -263,24 +277,128 @@
 ///   ```
 /// </div>
 ///
-/// \warning
-/// For obvious reasons, a firmware compiled with the built-in JTAG interface
-/// can no longer be used for other USB connections.
+/// \note
+/// In principle, the `sdkconfig` files can be stacked in any way, e.g. to
+/// create a Release JTAG build. For obvious reasons though, a firmware compiled
+/// with the built-in JTAG interface can no longer be used for other USB
+/// connections. See the \ref page_config for more details.
 ///
-/// \todo ninja!
+/// After the CMake configure stage has been successful, we just need to run the
+/// actual build stage.
+/// ```sh
+/// cmake --build build --parallel
+/// ```
+///
+/// The terminal output of our build tool tells us if the binary has been built
+/// successfully.
+/// ```sh
+/// Creating esp32s3 image...
+/// Merged 2 ELF sections
+/// Successfully created esp32s3 image.
+/// Generated OpenRemise/Firmware/build/Firmware.bin
+/// ```
 ///
 /// \section section_development_flash Flash
-/// \todo section_development_flash
+/// In order to flash the generated binary (or actually, binaries) onto a board,
+/// we need to put the board into the bootloader. This is done by
+/// - Connecting the board to the USB-C port
+/// - Setting the BOOT jumper
+/// - Switching on the power supply
 ///
-/// \section section_development_test Test
-/// \todo section_development_test
+/// Afterwards we can use the `flash` command of the
+/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/tools/idf-py.html)
+/// frontend to upload the firmware.
+/// ```sh
+/// idf.py flash
+/// ```
+///
+/// \warning
+/// Be careful, this command actually flashes 6 binaries at once and not just
+/// the application. This includes things like the
+/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/bootloader.html),
+/// the [partition
+/// table](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/partition-tables.html)
+/// and the [NVS
+/// storage](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html).
+/// Again, you can find further details in \ref page_config. If you already have
+/// a board with a running firmware and just want to flash the application, you
+/// can do this with the following command.
+/// ```sh
+/// idf.py app-flash
+/// ```
 ///
 /// \section section_development_debug Debug
-/// \todo section_development_debug
+/// The idf.py frontend we just saw is only one of two ways to communicate with
+/// our ESP chip over USB. The other way is the built-in JTAG interface.
+/// Espressif's own documentation has a diagram that illustrates the two
+/// possibilities well. The convenient part is that both connections are made
+/// via the same USB cable. This is made possible by the ESP32-S3 chip itself,
+/// which provides two USB channels, one for JTAG and the other for the USB
+/// terminal connection we have already used.
 ///
-/// https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs/DEBUGGING.md#using-nativedebug
-/// udev rules! ->
-/// https://github.com/espressif/openocd-esp32/blob/master/contrib/60-openocd.rules
+/// ![](images/jtag-debugging-overview.jpg)
+///
+/// Before we can establish a debugging connection with GDB though, we need to
+/// grant the appropriate rights to communicate with the OpenOCD device. To do
+/// this, we download the [udev
+/// rules](https://github.com/espressif/openocd-esp32/raw/master/contrib/60-openocd.rules)
+/// from Espressif's [OpenOCD
+/// repository](https://github.com/espressif/openocd-esp32) to
+/// `/etc/udev/rules.d`.
+// clang-format off
+/// \page page_development Development
+/// \details \tableofcontents
+/// ```sh
+/// sudo wget https://github.com/espressif/openocd-esp32/raw/master/contrib/60-openocd.rules -P /etc/udev/rules.d
+/// ```
+// clang-format on
+/// \page page_development Development
+/// \details \tableofcontents
+///
+/// With the udev rules installed, we can now start a debug session. We
+/// recommend using VSCode for this, but of course you can also do it manually
+/// via CLI.
+/// <div class="tabbed">
+/// - <b class="tab-title">VSCode</b>
+///   To debug the firmware directly in VSCode, we install the GDB debugger
+///   extension [Native
+///   Debug](https://marketplace.visualstudio.com/items?itemName=webfreak.debug)
+///   from the Visual Studio Marketplace. If you are not familiar with VSCode
+///   extensions, you can take a look at the [official
+///   documentation](https://code.visualstudio.com/docs/editor/extension-marketplace).
+///
+///   Running the debugger is done by
+///   - Connecting the board to the USB-C port
+///   - Switching on the power supply
+///   - Hitting F5
+/// - <b class="tab-title">CLI</b>
+///   To debug the firmware directly via the CLI we start 2x terminal sessions.
+///   In the first session we launch OpenOCD with the built-in JTAG interface
+///   configuration.
+///   ```sh
+///   cd ~/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32
+///   bin/openocd -f board/esp32s3-builtin.cfg
+///   ```
+///   And in the second session, started in our project folder, we connect to
+///   GDB.
+///   ```sh
+///   xtensa-esp32-elf-gdb -x gdbinit build/Firmware.elf
+///   ```
+/// </div>
+///
+/// \section section_development_test Test
+/// \todo x86, GTest
+///
+// clang-format off
+/// \page page_development Development
+/// \details \tableofcontents
+/// ```sh
+/// cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF
+/// cmake --build build --parallel
+/// ```
+// clang-format on
+/// \page page_development Development
+/// \details \tableofcontents
 ///
 /// <div class="section_buttons">
 /// | Previous                  | Next             |
@@ -289,7 +407,8 @@
 /// </div>
 
 /// \page page_config Configuration
-/// \todo write config page
+/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, pins,
+/// which core does what
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                    |
@@ -299,13 +418,75 @@
 
 /// \page page_architecture Architecture
 /// \details \tableofcontents
-/// \todo document arch page
-/// The entire software stack is divided into three layers.
-///
+/// The entire software stack is divided into three layers. At the top are the
+/// interfaces, which represent the connections to the outside world. In the
+/// middle, various services run as middlewares that take care of processing the
+/// data and generate various output signals from it. And underneath that there
+/// are drivers that use these signals to control the hardware outputs. A more
+/// detailed version of the upcoming diagram can be found at the [bottom of the
+/// page](#section_architecture_diagram) (\emoji :warning: not mobile friendly).
 /// \startuml
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
-/// scale max 1920*1080
+///
+/// database "Storage" {
+/// }
+///
+/// frame "Interfaces" {
+/// }
+///
+/// frame "Middlewares" {
+/// }
+///
+/// frame "Drivers" {
+/// }
+///
+/// Interfaces -d-> Middlewares
+/// Middlewares -d-> Drivers
+/// \enduml
+///
+/// \section section_architecture_interfaces Interfaces
+/// The interface layer contains modules that are used to receive and transmit
+/// data. They initialize various communication peripherals such as USB and WiFi
+/// and manage the data transfer via them. The received data is processed and
+/// then forwarded to the corresponding services in the middleware layer.
+///
+/// \section section_architecture_middlewares Middlewares
+/// The modules in the middleware layer contain services that connect the
+/// interfaces with the outputs in the driver layer. An example of this is the
+/// mdu::Service, which can accept a
+/// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
+/// http::sta::Server and then processes commands for an update of the decoder
+/// software. The service then starts the corresponding \ref
+/// out::track::mdu::task_function "MDU task" in the driver layer, which then
+/// generates the necessary signals on the track. The communication is
+/// bidirectional, received feedback is sent back to the server via service. In
+/// more complex situations, middleware services may also communicate directly
+/// with each other. An example of this is the communication between the
+/// dcc::Service and the z21::Service.
+///
+/// \section section_architecture_drivers Drivers
+/// In the driver layer there are modules that contain some form of IO. For the
+/// most part, these are modules that generate signals controlled by middleware
+/// services. Other modules initialize various hardware peripherals such as the
+/// ADC or WiFi.
+///
+/// \section section_architecture_storage Storage
+/// Although these modules do not necessarily represent a layer, they are still
+/// a separate part of the architecture and manage the different flash memory
+/// partitions. Specifically, this involves the
+/// [nvs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html)
+/// module, which stores settings or locomotives in a key-value pair system, as
+/// well as the
+/// [spiffs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/spiffs.html)
+/// module, which contains a file system optimized for NOR flashes and contains,
+/// for example, the frontend. These modules are considered global and can be
+/// accessed from all other layers.
+///
+/// \section section_architecture_diagram Diagram
+/// \startuml
+/// !theme mono
+/// skinparam defaultFontName "Glacial Indifference"
 ///
 /// database "Storage" {
 ///   package "mem" {
@@ -386,13 +567,15 @@
 ///         [Task] as out_track_mdu_task
 ///       }
 ///     }
-///     package "zusi" as drivers_zusi {
+///     package "zusi" as out_zusi {
 ///       [Task] as out_zusi_task
 ///     }
 ///   }
+///   package "wifi" {
+///     [Task] as wifi_task
+///   }
 /// }
 ///
-/// '
 /// sta_server <--> dcc_service
 /// sta_server <--> decup_service
 /// sta_server <--> mdu_service
@@ -403,6 +586,8 @@
 /// usb_tasks <--> DCC_EIN
 /// usb_tasks <--> DECUP_EIN
 /// usb_tasks <--> SUSIV2
+///
+/// z21_service <-l-> dcc_service
 ///
 /// dcc_service <--> out_track_dcc_task
 /// decup_service <--> out_track_decup_task
@@ -418,66 +603,32 @@
 /// 'Links
 /// url of analog is [[page_analog.html]]
 /// url of mem is [[page_mem.html]]
+/// url of nvs is [[page_mem.html#section_mem_nvs]]
+/// url of spiffs is [[page_mem.html#section_mem_spiffs]]
 /// url of mdu is [[page_mdu.html]]
 /// url of http is [[page_http.html]]
+/// url of ap is [[page_http.html#section_http_ap]]
+/// url of sta is [[page_http.html#section_http_sta]]
 /// url of ota is [[page_ota.html]]
 /// url of udp is [[page_udp.html]]
 /// url of dcc is [[page_dcc.html]]
 /// url of decup is [[page_decup.html]]
 /// url of out is [[page_out.html]]
+/// url of track is [[page_out.html#section_out_track]]
+/// url of out_track_dcc is [[page_out.html#subsection_out_track_dcc]]
+/// url of out_track_decup is [[page_out.html#subsection_out_track_decup]]
+/// url of out_track_mdu is [[page_out.html#subsection_out_track_mdu]]
+/// url of out_zusi is [[page_out.html#section_out_zusi]]
 /// url of middlewares_zusi is [[page_zusi.html]]
 /// url of interfaces_usb is [[page_usb.html]]
 /// url of middlewares_usb is [[page_usb.html]]
 /// url of z21 is [[page_z21.html]]
+/// url of wifi is [[page_wifi.html]]
 /// \enduml
 ///
-/// \section section_architecture_interfaces Interfaces
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
-///
-/// \section section_architecture_middlewares Middlewares
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
-///
-/// \section section_architecture_drivers Drivers
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
-///
-/// \section section_architecture_storage Storage
-/// Etiam quis est sed nibh imperdiet convallis nec tincidunt magna. Nunc
-/// efficitur euismod justo. Nunc a turpis sed leo pharetra imperdiet nec vel
-/// magna. Nunc in quam est. Vestibulum in laoreet eros. Vestibulum ac
-/// condimentum felis. Ut vel cursus elit. Nullam scelerisque eros ante, sed
-/// mattis dolor hendrerit sit amet. Donec ornare tempor mi ac egestas. Cras
-/// volutpat nulla sem, volutpat gravida ligula elementum et. Donec justo ex,
-/// tempor dignissim efficitur id, tincidunt rutrum lorem. Cras venenatis non
-/// tortor vel elementum. Aliquam dapibus tristique est congue fringilla.
-/// Integer mollis nunc at dignissim lacinia. Ut euismod lorem mauris. Morbi
-/// iaculis est imperdiet faucibus interdum.
+/// \note
+/// This diagram contains links. Clicking on a module takes you to the
+/// corresponding \ref page_api_reference.
 ///
 /// <div class="section_buttons">
 /// | Previous         | Next                   |
@@ -486,14 +637,11 @@
 /// </div>
 
 /// \page page_control_flow Control flow
-/// \tableofcontents
-/// \todo write control flow page
+/// \details \tableofcontents
+/// \todo \ref state, how to change between different operating modes
+///
 /// \section A
 /// Some text in this section
-///
-/// \tableofcontents
-/// \section B
-/// More text in this one
 ///
 /// <div class="section_buttons">
 /// | Previous               | Next             |
@@ -532,12 +680,29 @@
 /// | \subpage page_wifi     | WiFi                                            |
 /// | \subpage page_z21      | Z21                                             |
 /// | \subpage page_zusi     | ZUSI                                            |
+///
+/// <div class="section_buttons">
+/// | Previous               | Next             |
+/// | :--------------------- | ---------------: |
+/// | \ref page_control_flow | \ref page_analog |
+/// </div>
 
 /// \page page_hw_reference HW Reference
+/// \details \tableofcontents
+/// \section section_hw_reference Deprecated
+/// \subsection subsection_hw_reference_esp32s3board ESP32S3 Board
 /// \htmlonly
 /// <script type="module" src="kicanvas.js"></script>
 /// <kicanvas-embed controls="full">
 ///   <kicanvas-source src="esp32s3board.kicad_sch"></kicanvas-source>
 ///   <kicanvas-source src="esp32s3board.kicad_pcb"></kicanvas-source>
+/// </kicanvas-embed>
+/// \endhtmlonly
+///
+/// \subsection subsection_hw_reference_drv8323shield DRV8323 Shield
+/// \htmlonly
+/// <kicanvas-embed controls="full">
+///   <kicanvas-source src="drv8323shield.kicad_sch"></kicanvas-source>
+///   <kicanvas-source src="drv8323shield.kicad_pcb"></kicanvas-source>
 /// </kicanvas-embed>
 /// \endhtmlonly

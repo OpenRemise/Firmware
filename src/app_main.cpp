@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 /// ESP-IDF application entry point
 ///
 /// \file   app_main.cpp
@@ -19,8 +23,6 @@
 #include "wifi/init.hpp"
 #include "z21/init.hpp"
 #include "zusi/init.hpp"
-
-#include "log.h"
 
 /// ESP-IDF application entry point
 extern "C" void app_main() {
@@ -46,10 +48,6 @@ extern "C" void app_main() {
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
   ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
 #endif
-
-  /// \todo remove
-  // vTaskDelay(pdMS_TO_TICKS(1000u));
-  // LOGI_TASK_RESUME(out::track::decup::task.handle);
 
   // char* buffer{new char[2048uz]};
   for (;;) {

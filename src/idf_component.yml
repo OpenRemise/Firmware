@@ -18,11 +18,5 @@ dependencies:
     version: "0.37.0"
   zimo-elektronik/mdu:
     version: "0.16.1"
-  Frontend:
-    version: dev
-    rules:
-      - if: "target != linux"
-    git: https://github.com/OpenRemise/Frontend.git
   Z21:
-    version: dcc
-    git: git@github.com:ZIMO-Elektronik/Z21.git
+    git: https://github.com/ZIMO-Elektronik/Z21.git
