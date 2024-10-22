@@ -30,19 +30,10 @@ if(Doxygen_FOUND)
   # Get Doxygen Awesome
   cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.3.4")
 
-  # Get customizations
+  # Get logo and fonts
   file(DOWNLOAD
        "https://github.com/OpenRemise/.github/raw/master/data/images/logo.svg"
        ${CMAKE_SOURCE_DIR}/data/images/logo.svg)
-  file(DOWNLOAD
-       "https://github.com/OpenRemise/.github/raw/master/data/custom.css"
-       ${CMAKE_CURRENT_LIST_DIR}/custom.css)
-  file(DOWNLOAD
-       "https://github.com/OpenRemise/.github/raw/master/data/footer.html"
-       ${CMAKE_CURRENT_LIST_DIR}/footer.html)
-  file(DOWNLOAD
-       "https://github.com/OpenRemise/.github/raw/master/data/header.html"
-       ${CMAKE_CURRENT_LIST_DIR}/header.html)
   file(
     DOWNLOAD
     "https://github.com/OpenRemise/.github/raw/master/data/fonts/GlacialIndifference-Bold.otf"
