@@ -130,8 +130,10 @@ esp_err_t loop() {
   for (;;) {
     auto const packet{receive_packet()};
 
-    // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then)
+    // Return on timeout, suspend or short circuit
+    if (auto const now{xTaskGetTickCount()};
+        now >= then || std::to_underlying(
+                         state.load() & (State::Suspend | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
     // In case we got a packet, reset timeout
     else if (packet) {

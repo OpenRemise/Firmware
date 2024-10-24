@@ -15,8 +15,8 @@ dependencies:
     rules:
       - if: "target != linux"
   zimo-elektronik/dcc:
-    version: "0.37.0"
+    version: "0.38.0"
   zimo-elektronik/mdu:
-    version: "0.16.1"
+    version: "0.17.0"
   Z21:
     git: https://github.com/ZIMO-Elektronik/Z21.git
