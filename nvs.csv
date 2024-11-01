@@ -1,0 +1,24 @@
+# ESP-IDF NVS Partition
+key,type,encoding,value
+settings,namespace,,
+sta_mdns,data,binary,"remise"
+sta_ssid,data,binary,""
+sta_pass,data,binary,""
+http_rx_timeout,data,u8,5
+http_tx_timeout,data,u8,5
+usb_rx_timeout,data,u8,1
+current_limit,data,u8,3
+current_sc_time,data,u8,20
+dcc_preamble,data,u8,17
+dcc_bit1_dur,data,u8,58
+dcc_bit0_dur,data,u8,100
+dcc_bidibit_dur,data,u8,60
+dcc_prog_type,data,u8,3
+dcc_strtp_rs_pc,data,u8,25
+dcc_cntn_rs_pc,data,u8,6
+dcc_prog_pc,data,u8,7
+dcc_verify_bit1,data,u8,1
+dcc_ack_cur,data,u8,50
+dcc_flags,data,u8,2
+mdu_preamble,data,u8,14
+mdu_ackreq,data,u8,10

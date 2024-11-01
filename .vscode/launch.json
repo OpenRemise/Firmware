@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs/DEBUGGING.md#using-nativedebug
+    {
+      "type": "gdb",
+      "request": "attach",
+      "name": "Debug Firmware",
+      "target": "extended-remote :3333",
+      "executable": "${workspaceFolder}/build/Firmware.elf",
+      "gdbpath": "${userHome}/.espressif/tools/xtensa-esp-elf-gdb/14.2_20240403/xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
+      "cwd": "${workspaceFolder}",
+      "autorun": [
+        "set pagination off",
+        "mon reset halt",
+        "maintenance flush register-cache",
+        "thb app_main"
+      ],
+      "preLaunchTask": "Run OpenOCD",
+    },
+    {
+      "name": "Debug FirmwareTests",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/Firmware.elf",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": false
+        }
+      ]
+    }
+  ]
+}

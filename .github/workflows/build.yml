@@ -1,0 +1,33 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  esp-elf-gcc:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.1.6
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v2.16.0
+        with:
+          channel: stable
+      - name: Install prerequisites
+        run: |
+          sudo apt update -y
+          sudo apt-get install -y bison build-essential ccache clang-format cmake dfu-util doxygen flex git gperf graphviz libbsd-dev libffi-dev libssl-dev libusb-1.0-0 ninja-build openjdk-21-jdk python3 python3-pip python3-venv ruby wget
+      - name: Install ESP-IDF
+        run: |
+          mkdir -p ~/esp
+          cd ~/esp
+          git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
+          cd ~/esp/esp-idf
+          ./install.sh esp32s3
+      - run: |
+          . $HOME/esp/esp-idf/export.sh
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.debug"
+          cmake --build build --parallel

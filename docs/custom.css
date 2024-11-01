@@ -1,0 +1,30 @@
+@font-face {
+  font-family: 'Glacial Indifference';
+  font-style: normal;
+  font-weight: 400;
+  src: url('GlacialIndifference-Regular.otf') format('opentype')
+}
+
+@font-face {
+  font-family: 'Glacial Indifference';
+  font-style: normal;
+  font-weight: 700;
+  src: url('GlacialIndifference-Bold.otf') format('opentype')
+}
+
+html {
+  --primary-color: #000000;
+
+  --font-family: 'Glacial Indifference', sans-serif;
+  --font-family-monospace: 'Glacial Indifference', sans-serif;
+
+  --content-maxwidth: auto
+}
+
+a:link {
+  text-decoration: underline;
+}
+
+#projectname {
+  display: none
+}

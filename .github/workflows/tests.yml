@@ -1,0 +1,20 @@
+name: tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  tests:
+    uses: ZIMO-Elektronik/.github-workflows/.github/workflows/esp-elf-gcc.yml@v0.0.8
+    with:
+      pre-build: |
+        sudo apt update -y
+        sudo apt install -y libbsd-dev
+      target: linux
+      command: |
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF
+        idf.py build
+      post-build: ./build/Firmware.elf

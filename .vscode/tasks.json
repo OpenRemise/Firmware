@@ -1,0 +1,92 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build all",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake --build build --parallel"
+    },
+    {
+      "label": "Build FirmwareDocs",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake --build build --parallel --target FirmwareDocs"
+    },
+    {
+      "label": "Build FirmwareFormat",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake --build build --parallel --target FirmwareFormat"
+    },
+    {
+      "label": "Build FirmwareLst",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake --build build --parallel --target FirmwareLst"
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "isBackground": true,
+      "command": "rm -rf build && rm -rf managed_components && rm -rf dependencies.lock && rm -rf sdkconfig && rm -rf sdkconfig.old",
+    },
+    {
+      "label": "Config Debug",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.debug\""
+    },
+    {
+      "label": "Config Debug JTAG",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.debug;sdkconfig.jtag\""
+    },
+    {
+      "label": "Config Release",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.release\""
+    },
+    {
+      "label": "Config Tests",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF"
+    },
+    {
+      "label": "Run act Tests",
+      "type": "shell",
+      "isBackground": true,
+      "command": "act -j tests"
+    },
+    {
+      "label": "Run OpenOCD",
+      "type": "shell",
+      "isBackground": true,
+      "options": {
+        "cwd": "${userHome}/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32"
+      },
+      "command": "bin/openocd -f board/esp32s3-builtin.cfg"
+    },
+    {
+      "label": "Run Python http.server",
+      "type": "shell",
+      "isBackground": true,
+      "command": "python -m http.server --directory ${workspaceFolder}/build/docs/html --bind 127.0.0.1"
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "isBackground": true,
+      "command": "./build/Firmware.elf"
+    },
+    {
+      "label": "Run Valgrind Tests",
+      "type": "shell",
+      "isBackground": true,
+      "command": "valgrind --error-exitcode=1 --leak-check=yes --errors-for-leak-kinds=definite,indirect ./build/Firmware.elf"
+    },
+  ]
+}
