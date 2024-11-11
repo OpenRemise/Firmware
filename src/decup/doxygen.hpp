@@ -13,18 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize memories (NVS)
+/// DECUP documentation
 ///
-/// \file   mem/init.hpp
+/// \file   decup/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   09/02/2023
+/// \date   02/11/2024
 
 #pragma once
 
-#include <esp_err.h>
+namespace decup {
 
-namespace mem {
+/// \page page_decup DECUP
+/// \tableofcontents
+/// \todo document DECUP page
+///
 
-esp_err_t init();
-
-}  // namespace mem
+}  // namespace decup

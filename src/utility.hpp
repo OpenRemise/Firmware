@@ -53,10 +53,10 @@ template<[[maybe_unused]] auto Unique = [] {}, typename F>
 auto make_tramp(F&& f) {
   using Args =
     typename signature<decltype(std::function{std::declval<F>()})>::args;
-  static auto f_{f};
+  static auto _f{f};
   return []<size_t... Is>(std::index_sequence<Is...>) {
     return [](std::tuple_element_t<Is, Args>... args) {
-      return std::invoke(f_, std::forward<decltype(args)>(args)...);
+      return std::invoke(_f, std::forward<decltype(args)>(args)...);
     };
   }(std::make_index_sequence<std::tuple_size_v<Args>>{});
 }
@@ -64,11 +64,11 @@ auto make_tramp(F&& f) {
 template<[[maybe_unused]] auto Unique = [] {}, typename Self, typename F>
 auto make_tramp(Self&& self, F&& f) {
   using Args = typename signature<F>::args;
-  static auto self_{self};
-  static auto f_{f};
+  static auto _self{self};
+  static auto _f{f};
   return []<size_t... Is>(std::index_sequence<Is...>) {
     return [](std::tuple_element_t<Is, Args>... args) {
-      return std::invoke(f_, self_, std::forward<decltype(args)>(args)...);
+      return std::invoke(_f, _self, std::forward<decltype(args)>(args)...);
     };
   }(std::make_index_sequence<std::tuple_size_v<Args>>{});
 }

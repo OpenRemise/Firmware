@@ -25,56 +25,8 @@ https://github.com/yaqwsx/PcbDraw
 https://yaqwsx.github.io/Pinion/
 
 # Notes
-## Available pins
-In theory we have **20** available IO pins excluding
-- EN
-- U0RX
-- U0TX
-- D+
-- D-
-- BOOT
-- JTAG_SEL
-- VBUS_SEN
-- VIN_SEN
-- ZUSI_CLK
-- ZUSI_EN
-- ZUSI_DATA
-- LED_GREEN (1.8V)
-- LED_BLUE (1.8V)
-
-From those DRV8328 already used **11** pins
-- NFAULT (IN)
-- NSLEEP (OUT)
-- ISEL0 (OUT)
-- ISEL1 (OUT)
-- BIDI (OUT)
-- DCC_L (IN)
-- DCC_R_LOW (IN)
-- TRACK_EN (IN)
-- BIDI_EN (IN)
-- IMON (OUT)
-- ACK (OUT)
-
-Not sure if we can leave any of those out. NSLEEP would be an option, but it's the only way to actually reset the DRV8328 device? That sounds dangerous. All in all that leaves us with only **9** pins :sob:
-Maybe we integrate into BiDiB after all... lol
-
-## Fuses
-With the help of the Fuse "STRAP_JTAG_SEL" you can use GPIO3 to switch between internal USB and external JTAG debugger. The PCB contains a jumper called "CONFIG" for that.
-
-## Partition table
-A custom partition table (partitions.csv) is used to specify the sizes of the various storage areas. One of those areas ("storage") is used for a SPIFFS partition. SPIFFS is a filesystem for NOR flashes and this partition will be used to store the frontend. The size of the storage is the whole flash size, minus all other partitions minus 52K from... who knows.
-(32M - 8M - 4M - 4M - 8K - 4K - 52K)
-
-Currently I use the following partitions.csv
-ota_0 4M  
-ota_1 4M  
-nvs 8M  
-storage rest  
-
-Maybe 4M OTA ain't enough for future app stuff? Also there is no room for images. Maybe create an 8MB "data" partition and an 8MB "frontend" one?
-
 ## JSON online viewer
-http://jsonviewer.stack.hu/#http://github.com
+https://jsonviewer.stack.hu
 
 ## REST API
 https://stackoverflow.com/questions/60761955/rest-update-best-practice-put-collection-id-without-id-in-body-vs-put-collecti
@@ -86,9 +38,6 @@ https://softwareengineering.stackexchange.com/questions/263925/to-include-a-reso
 A great overview about HTTP status codes
 https://www.codetinkerer.com/2015/12/04/choosing-an-http-status-code.html
 httpd_resp_send* functions of the ESP-IDF implicitly set content type text/html and status code 200!
-
-## POST vs PUT
-https://www.youtube.com/watch?v=41y6VwtvgwE
 
 ## mDNS
 I've restricted the mDNS name to (.+\.)?remise  
@@ -122,14 +71,6 @@ https://github.com/espressif/esp-idf/blob/c77b5752ef9e4e40c2e819d511b1dd7b83be29
 // If it isn't, it is cheaper to purposefully not write out new data.
 // since it may invoke an erasure of flash.
 ```
-
-## Log
-LOG_LOCAL_LEVEL is fucking useless  
-https://github.com/espressif/esp-idf/issues/8570
-
-## Debug
-openocd -f esp32s3-builtin.cfg  
-xtensa-esp32s3-elf-gdb -ex 'set pagination off' -ex 'target remote :3333' ./build/Firmware.elf
 
 ## WebSocket
 https://esp32.com/viewtopic.php?t=31224  

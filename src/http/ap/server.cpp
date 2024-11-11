@@ -29,8 +29,8 @@
 #include "utility.hpp"
 
 extern "C" {
-extern char const _binary_index_html_start;
-extern char const _binary_index_html_end;
+extern char const _binary_captive_portal_html_start;
+extern char const _binary_captive_portal_html_end;
 }
 
 namespace http::ap {
@@ -100,9 +100,9 @@ void Server::buildGetString() {
   auto const result{fmt::format_to_n(
     begin(_get_str),
     _get_str.capacity(),
-    fmt::runtime({&_binary_index_html_start,
-                  static_cast<size_t>(&_binary_index_html_end -
-                                      &_binary_index_html_start)}),
+    fmt::runtime({&_binary_captive_portal_html_start,
+                  static_cast<size_t>(&_binary_captive_portal_html_end -
+                                      &_binary_captive_portal_html_start)}),
     _sta_mdns_str,
     _sta_ssid_str,
     _ap_options_str,

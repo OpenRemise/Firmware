@@ -287,6 +287,18 @@ inline struct Task {
 
 }  // namespace dcc
 
+namespace decup {
+
+///
+inline struct Task {
+  static constexpr auto name{"decup"};
+  static constexpr auto stack_size{4096uz};
+  static constexpr UBaseType_t priority{2u};
+  TaskHandle_t handle{};
+} task;
+
+}  // namespace decup
+
 namespace http {
 
 /// Handle to server instance
@@ -294,9 +306,6 @@ inline httpd_handle_t handle{};
 
 ///
 inline constexpr auto stack_size{6144uz};
-
-/// Size of internal RAM reserved for serving files from SPIFFS
-inline constexpr auto file_buffer_size{16384uz};
 
 namespace sta {
 

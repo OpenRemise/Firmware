@@ -68,7 +68,7 @@ class ZsuLoad : public ulf::decup_ein::rx::Base {
     return acks;
   }
 
-  void done() final {}
+  void done() final { printf("done\n"); }
 };
 
 /// \todo document

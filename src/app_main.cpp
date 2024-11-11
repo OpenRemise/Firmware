@@ -22,6 +22,7 @@
 #include <esp_wifi.h>
 #include "analog/init.hpp"
 #include "dcc/init.hpp"
+#include "decup/init.hpp"
 #include "http/init.hpp"
 #include "mdu/init.hpp"
 #include "mem/init.hpp"
@@ -50,6 +51,7 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(0, http::init));
   ESP_ERROR_CHECK(invoke_on_core(0, udp::init));
   ESP_ERROR_CHECK(invoke_on_core(1, dcc::init, 1));
+  ESP_ERROR_CHECK(invoke_on_core(1, decup::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(1, mdu::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(1, ota::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(0, z21::init, 0));

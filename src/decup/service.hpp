@@ -13,18 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize memories (NVS)
-///
-/// \file   mem/init.hpp
-/// \author Vincent Hamp
-/// \date   09/02/2023
-
 #pragma once
 
-#include <esp_err.h>
+#include <esp_task.h>
+#include <queue>
+#include "zpp_service.hpp"
+#include "zsu_service.hpp"
 
-namespace mem {
+namespace decup {
 
-esp_err_t init();
+class Service : public ZppService, public ZsuService {
+public:
+  explicit Service(BaseType_t xCoreID);
+  ~Service();
 
-}  // namespace mem
+private:
+  // This gets called by FreeRTOS
+  void taskFunction(void*);
+};
+
+}  // namespace decup

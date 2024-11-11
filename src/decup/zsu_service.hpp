@@ -13,18 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize SPIFFS
-///
-/// \file   mem/spiffs/init.hpp
-/// \author Vincent Hamp
-/// \date   10/02/2023
-
 #pragma once
 
-#include <esp_err.h>
+#include <esp_task.h>
+#include <array>
+#include <queue>
+#include <ulf/decup_ein.hpp>
+#include "http/message.hpp"
 
-namespace mem::spiffs {
+namespace decup {
 
-esp_err_t init();
+class ZsuService : public ulf::decup_ein::rx::Base {
+public:
+  esp_err_t zsuSocket(http::Message& msg);
 
-}  // namespace mem::spiffs
+protected:
+  void loop();
+
+private:
+  uint8_t transmit(std::span<uint8_t const> bytes) final;
+  void done() final;
+
+  void close();
+
+  std::queue<http::Message> _queue{};
+  std::optional<uint8_t> _ack{};
+};
+
+}  // namespace decup

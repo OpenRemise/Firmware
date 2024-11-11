@@ -258,33 +258,15 @@
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
 ///   ```sh
-///   cmake -Bbuild -GNinja \
-///   -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake \
-///   -DPYTHON_DEPS_CHECKED=1 \
-///   -DESP_PLATFORM=1 \
-///   -DIDF_TARGET=esp32s3 \
-///   -DCCACHE_ENABLE=0 \
-///   -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.debug"
+///   cmake --preset "Debug"
 ///   ```
 /// - <b class="tab-title">Debug JTAG</b>
 ///   ```sh
-///   cmake -Bbuild -GNinja \
-///   -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake \
-///   -DPYTHON_DEPS_CHECKED=1 \
-///   -DESP_PLATFORM=1 \
-///   -DIDF_TARGET=esp32s3 \
-///   -DCCACHE_ENABLE=0 \
-///   -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.debug;sdkconfig.jtag"
+///   cmake --preset "Debug JTAG"
 ///   ```
 /// - <b class="tab-title">Release</b>
 ///   ```sh
-///   cmake -Bbuild -GNinja \
-///   -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake \
-///   -DPYTHON_DEPS_CHECKED=1 \
-///   -DESP_PLATFORM=1 \
-///   -DIDF_TARGET=esp32s3 \
-///   -DCCACHE_ENABLE=0 \
-///   -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.release"
+///   cmake --preset "Release"
 ///   ```
 /// </div>
 ///
@@ -404,7 +386,7 @@
 /// \page page_development Development
 /// \details \tableofcontents
 /// ```sh
-/// cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF
+/// cmake --preset "Tests"
 /// cmake --build build --parallel
 /// ```
 // clang-format on
@@ -419,7 +401,7 @@
 
 /// \page page_config Configuration
 /// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, pins,
-/// which core does what
+/// performance, which core does what
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                    |
@@ -485,14 +467,10 @@
 /// \section section_architecture_storage Storage
 /// Although these modules do not necessarily represent a layer, they are still
 /// a separate part of the architecture and manage the different flash memory
-/// partitions. Specifically, this involves the
+/// partitions. Currently this only involves the
 /// [nvs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html)
-/// module, which stores settings or locomotives in a key-value pair system, as
-/// well as the
-/// [spiffs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/spiffs.html)
-/// module, which contains a file system optimized for NOR flashes and contains,
-/// for example, the frontend. These modules are considered global and can be
-/// accessed from all other layers.
+/// module which stores settings or locomotives in a key-value pair system. All
+/// modules are considered global and can be accessed from all other layers.
 ///
 /// \section section_architecture_diagram Diagram
 /// \startuml
@@ -507,9 +485,6 @@
 ///       [Settings]
 ///       Accessories -[hidden] Locos
 ///       Locos -[hidden] Settings
-///     }
-///     package "spiffs" {
-///       [Partition]
 ///     }
 ///   }
 /// }
@@ -615,7 +590,6 @@
 /// url of analog is [[page_analog.html]]
 /// url of mem is [[page_mem.html]]
 /// url of nvs is [[page_mem.html#section_mem_nvs]]
-/// url of spiffs is [[page_mem.html#section_mem_spiffs]]
 /// url of mdu is [[page_mdu.html]]
 /// url of http is [[page_http.html]]
 /// url of ap is [[page_http.html#section_http_ap]]
@@ -681,6 +655,7 @@
 /// | ---------------------- | ----------------------------------------------- |
 /// | \subpage page_analog   | Analog                                          |
 /// | \subpage page_dcc      | DCC                                             |
+/// | \subpage page_decup    | DECUP                                           |
 /// | \subpage page_http     | HTTP                                            |
 /// | \subpage page_mdu      | MDU                                             |
 /// | \subpage page_mem      | SPIFFS and NVS memory                           |

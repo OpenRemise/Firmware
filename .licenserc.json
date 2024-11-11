@@ -1,5 +1,5 @@
 {
-  "{include,src}/**/*.{cpp,hpp}": [
+  "{src}/**/*.{cpp,hpp}": [
     "// Copyright (C) 2024 Vincent Hamp",
     "//",
     "// This program is free software: you can redistribute it and/or modify",

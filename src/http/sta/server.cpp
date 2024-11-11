@@ -23,12 +23,12 @@
 #include <ArduinoJson.h>
 #include <driver/gpio.h>
 #include <esp_app_desc.h>
-#include <esp_vfs.h>
 #include <dcc/dcc.hpp>
 #include <gsl/util>
 #include <magic_enum.hpp>
 #include <ztl/string.hpp>
 #include "analog/convert.hpp"
+#include "frontend_embeds.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
@@ -39,8 +39,6 @@ using namespace std::literals;
 
 /// Ctor
 Server::Server() {
-  assert(_file_buffer_ptr);
-
   //
   mem::nvs::Settings nvs;
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -87,6 +85,22 @@ Server::Server() {
   uri = {.uri = "/sys/*",
          .method = HTTP_GET,
          .handler = make_tramp(this, &Server::getHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/decup/zpp/*",
+         .method = HTTP_GET,
+         .handler = make_tramp(this, &Server::decupZppWsHandler),
+         .is_websocket = true,
+         .handle_ws_control_frames = true};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/decup/zsu/*",
+         .method = HTTP_GET,
+         .handler = make_tramp(this, &Server::decupZsuWsHandler),
+         .is_websocket = true,
+         .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
 
   //
@@ -422,6 +436,8 @@ esp_err_t Server::putPostHandler(httpd_req_t* req) {
     }                                                                          \
   }
 
+GENERIC_WS_HANDLER(decupZppWsHandler, "/decup/zpp/")
+GENERIC_WS_HANDLER(decupZsuWsHandler, "/decup/zsu/")
 GENERIC_WS_HANDLER(mduZppWsHandler, "/mdu/zpp/")
 GENERIC_WS_HANDLER(mduZsuWsHandler, "/mdu/zsu/")
 GENERIC_WS_HANDLER(otaWsHandler, "/ota/")
@@ -432,60 +448,37 @@ GENERIC_WS_HANDLER(zusiWsHandler, "/zusi/")
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
 
-  struct stat file_stat;
-  FILE* fd{};
-
   // 308 / to index.html
-  if (req->uri == "/"sv) {
+  if (std::string_view const uri{req->uri}; uri == "/"sv) {
     httpd_resp_set_status(req, "308 Permanent Redirect");
     httpd_resp_set_hdr(req, "Location", "/index.html");
     httpd_resp_send(req, NULL, 0);
     return ESP_OK;
   }
-  // SPIFFS
-  else if (!stat(req->uri, &file_stat))
-    fd = fopen(req->uri, "r");
+  // Frontend (embedded in firmware)
+  else if (auto const it{std::ranges::find_if(
+             frontend_embeds,
+             [uri](auto&& embed) { return uri.contains(embed[0uz]); })};
+           it != cend(frontend_embeds)) {
+    // Set content type
+    if (uri.ends_with(".css")) httpd_resp_set_type(req, "text/css");
+    else if (uri.ends_with(".js")) httpd_resp_set_type(req, "text/javascript");
+    else if (uri.ends_with(".otf")) httpd_resp_set_type(req, "font/otf");
+    else if (uri.ends_with(".png")) httpd_resp_set_type(req, "image/png");
+    else if (uri.ends_with(".svg")) httpd_resp_set_type(req, "image/svg+xml");
+    else if (uri.ends_with(".ttf")) httpd_resp_set_type(req, "font/ttf");
+
+    // Send file
+    auto const [_, start, end]{*it};
+    httpd_resp_send(req, start, end - start);
+
+    return ESP_OK;
+  }
   // 404
   else {
     httpd_resp_send_404(req);
     return ESP_FAIL;
   }
-
-  //
-  if (!fd) {
-    LOGE("Failed to read existing file");
-    httpd_resp_send_500(req);
-    return ESP_FAIL;
-  }
-  gsl::final_action close{[&fd] { fclose(fd); }};
-
-  // Set content type
-  std::string_view const uri{req->uri};
-  if (uri.ends_with(".css")) httpd_resp_set_type(req, "text/css");
-  else if (uri.ends_with(".js")) httpd_resp_set_type(req, "text/javascript");
-  else if (uri.ends_with(".otf")) httpd_resp_set_type(req, "font/otf");
-  else if (uri.ends_with(".png")) httpd_resp_set_type(req, "image/png");
-  else if (uri.ends_with(".svg")) httpd_resp_set_type(req, "image/svg+xml");
-  else if (uri.ends_with(".ttf")) httpd_resp_set_type(req, "font/ttf");
-
-  //
-  LOGD("Sending file : %s (%ldB)", req->uri, file_stat.st_size);
-  size_t chunksize;
-  do {
-    if (!(chunksize =
-            read(fileno(fd), _file_buffer_ptr.get(), file_buffer_size)))
-      continue;
-    if (httpd_resp_send_chunk(req, _file_buffer_ptr.get(), chunksize) !=
-        ESP_OK) {
-      LOGE("File sending failed");
-      httpd_resp_send_chunk(req, NULL, 0);  // Abort sending file
-      httpd_resp_send_500(req);
-      return ESP_FAIL;
-    }
-  } while (chunksize);
-
-  httpd_resp_send_chunk(req, NULL, 0);
-  return ESP_OK;
 }
 
 }  // namespace http::sta
