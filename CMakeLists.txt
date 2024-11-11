@@ -21,7 +21,9 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake OPTIONAL)
 project(Firmware LANGUAGES ASM C CXX)
 
 # Build Frontend during config time
-if(NOT IDF_TARGET STREQUAL linux AND NOT EXISTS ${Frontend_BINARY_DIR}/web)
+if(ESP_PLATFORM
+   AND NOT IDF_TARGET STREQUAL linux
+   AND NOT EXISTS ${Frontend_BINARY_DIR}/web)
   cpmaddpackage(
     NAME
     Frontend
