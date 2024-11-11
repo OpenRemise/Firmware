@@ -8,6 +8,7 @@ if(IDF_TARGET STREQUAL linux)
     ${COMMON_SRC}
     INCLUDE_DIRS
     .
+    ${CMAKE_BINARY_DIR}
     REQUIRES
     bblanchon__arduinojson
     driver
@@ -15,7 +16,7 @@ if(IDF_TARGET STREQUAL linux)
     esp_http_server
     nvs_flash
     EMBED_FILES
-    ${CMAKE_BINARY_DIR}/http/ap/index.html)
+    ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
 else()
   idf_component_register(
     SRCS
@@ -26,6 +27,10 @@ else()
     analog/temp_task_function.cpp
     dcc/init.cpp
     dcc/service.cpp
+    decup/init.cpp
+    decup/service.cpp
+    decup/zpp_service.cpp
+    decup/zsu_service.cpp
     http/ap/init.cpp
     http/ap/server.cpp
     http/sta/init.cpp
@@ -40,7 +45,6 @@ else()
     mem/nvs/init.cpp
     mem/nvs/locos.cpp
     mem/nvs/settings.cpp
-    mem/spiffs/init.cpp
     mem/init.cpp
     ota/init.cpp
     ota/service.cpp
@@ -76,6 +80,7 @@ else()
     trace.cpp
     INCLUDE_DIRS
     .
+    ${CMAKE_BINARY_DIR}
     REQUIRES
     app_update
     bootloader_support
@@ -85,10 +90,9 @@ else()
     esp_http_server
     esp_wifi
     nvs_flash
-    spiffs
     vfs
     EMBED_FILES
-    ${CMAKE_BINARY_DIR}/http/ap/index.html)
+    ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
 endif()
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
@@ -152,14 +156,11 @@ target_link_libraries(
          ZUSI::ZUSI)
 
 # Minify HTML shown by http::ap::Server
-minify_html(http/ap/index.html ${CMAKE_BINARY_DIR}/http/ap/index.html)
+minify_html(http/ap/captive_portal.html
+            ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
 
-# Create NVS and spiffs partition images
+# Create NVS partition image
 if(NOT IDF_TARGET STREQUAL linux)
-  cpmaddpackage("gh:OpenRemise/Frontend#master")
-  spiffs_create_partition_image(storage ${Frontend_BINARY_DIR}/build/web
-                                FLASH_IN_PROJECT DEPENDS Frontend)
-
   nvs_create_partition_image(nvs ../nvs.csv FLASH_IN_PROJECT)
 
   # Assembly listening takes forever, add custom target

@@ -13,18 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize memories (NVS)
-///
-/// \file   mem/init.hpp
-/// \author Vincent Hamp
-/// \date   09/02/2023
-
 #pragma once
 
-#include <esp_err.h>
+#include <esp_task.h>
+#include "http/message.hpp"
 
-namespace mem {
+namespace decup {
 
-esp_err_t init();
+class ZppService {
+public:
+  esp_err_t zppSocket(http::Message& msg);
 
-}  // namespace mem
+protected:
+  void loop();
+};
+
+}  // namespace decup

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize memories (NVS and SPIFFS)
+/// Initialize memories (NVS)
 ///
 /// \file   mem/init.cpp
 /// \author Vincent Hamp
@@ -21,14 +21,10 @@
 
 #include "init.hpp"
 #include "nvs/init.hpp"
-#include "spiffs/init.hpp"
 
 namespace mem {
 
 ///
-esp_err_t init() {
-  ESP_ERROR_CHECK(nvs::init());
-  return spiffs::init();
-}
+esp_err_t init() { return nvs::init(); }
 
 }  // namespace mem

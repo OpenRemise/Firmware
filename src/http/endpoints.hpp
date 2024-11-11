@@ -65,6 +65,8 @@ public:
 protected:
   /// \todo document
   Response syncResponse(httpd_req_t* req) {
+    static constexpr auto chunk_size{16384uz};
+
     auto const key{req2key(req)};
     auto const it{_sync_map.find(key)};
     if (it == cend(_sync_map))
@@ -77,7 +79,7 @@ protected:
     int bytes_red{};
     while (bytes_red < req->content_len) {
       if (auto const tmp{
-            httpd_req_recv(req, data(r.body) + bytes_red, file_buffer_size)};
+            httpd_req_recv(req, data(r.body) + bytes_red, chunk_size)};
           tmp > 0)
         bytes_red += tmp;
       else return std::unexpected<std::string>{"500 Internal Server Error"};

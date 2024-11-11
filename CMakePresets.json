@@ -1,0 +1,62 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 25,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "Debug",
+            "generator": "Ninja",
+            "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CCACHE_ENABLE": "0",
+                "ESP_PLATFORM": "1",
+                "IDF_TARGET": "esp32s3",
+                "PYTHON_DEPS_CHECKED": "1",
+                "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.debug"
+            }
+        },
+        {
+            "name": "Debug JTAG",
+            "generator": "Ninja",
+            "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CCACHE_ENABLE": "0",
+                "ESP_PLATFORM": "1",
+                "IDF_TARGET": "esp32s3",
+                "PYTHON_DEPS_CHECKED": "1",
+                "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.debug;sdkconfig.jtag"
+            }
+        },
+        {
+            "name": "Release",
+            "generator": "Ninja",
+            "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CCACHE_ENABLE": "0",
+                "ESP_PLATFORM": "1",
+                "IDF_TARGET": "esp32s3",
+                "PYTHON_DEPS_CHECKED": "1",
+                "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.release"
+            }
+        },
+        {
+            "name": "Tests",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF",
+                "CCACHE_ENABLE": "0",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ESP_PLATFORM": "1",
+                "IDF_TARGET": "linux",
+                "PYTHON_DEPS_CHECKED": "1"
+            }
+        }
+    ]
+}

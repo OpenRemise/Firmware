@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <div style="max-width:500px;margin:auto">
-  <h2>OpenRemise config</h2>
+  <h2>OpenRemise Config</h2>
   <form action="/save" method="POST">
     <table>
       <tr>
@@ -15,8 +15,8 @@
       <tr>
         <td><label for="sta_pass">Password:</label></td>
         <td><input type="password" id="sta_pass" name="sta_pass" maxlength="64" value="{}" autocomplete="off"></td>
-        <td><input type="image" id="toggle" value="&#128065;"
-            onClick="var pw = document.getElementById('sta_pass'); pw.type = pw.type == 'password' ? 'text' : 'password'; return false;">
+        <td><a
+            onclick="var pw = document.getElementById('sta_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
         </td>
       </tr>
       <tr>

@@ -35,25 +35,25 @@
       "label": "Config Debug",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.debug\""
+      "command": ". esp-idf.fish && cmake --preset \"Debug\""
     },
     {
       "label": "Config Debug JTAG",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.debug;sdkconfig.jtag\""
+      "command": ". esp-idf.fish && cmake --preset \"Debug JTAG\""
     },
     {
       "label": "Config Release",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=$IDF_PATH/tools/cmake/toolchain-esp32s3.cmake -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=esp32s3 -DCCACHE_ENABLE=0 -DSDKCONFIG_DEFAULTS=\"sdkconfig.defaults;sdkconfig.release\""
+      "command": ". esp-idf.fish && cmake --preset \"Release\""
     },
     {
       "label": "Config Tests",
       "type": "shell",
       "isBackground": true,
-      "command": ". esp-idf.fish && cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DPYTHON_DEPS_CHECKED=1 -DESP_PLATFORM=1 -DIDF_TARGET=linux -DCCACHE_ENABLE=0 -DBUILD_TESTING=OFF"
+      "command": ". esp-idf.fish && cmake --preset \"Tests\""
     },
     {
       "label": "Run act Tests",

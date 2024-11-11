@@ -52,7 +52,5 @@ namespace mem {
 /// | bla             | mdu_preamble    | u8     | 14  | 30  | 14       |
 /// | bla             | mdu_ackreq      | u8     | 10  | 30  | 10       |
 ///
-/// \section section_mem_spiffs SPIFFS
-///
 
 }  // namespace mem
