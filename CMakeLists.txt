@@ -17,8 +17,11 @@ endif()
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake OPTIONAL)
 
-# Project version is taken from git describe
-project(Firmware LANGUAGES ASM C CXX)
+version_from_git()
+project(
+  Firmware
+  VERSION ${VERSION_FROM_GIT}
+  LANGUAGES ASM C CXX)
 
 # Build Frontend during config time
 if(ESP_PLATFORM
@@ -35,12 +38,17 @@ if(ESP_PLATFORM
     TRUE)
 
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR} -G${CMAKE_GENERATOR}
+    COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
+            -DOPENREMISE_FRONTEND_BUILD_DOCS=OFF
     WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
                       COMMAND_ERROR_IS_FATAL ANY)
   execute_process(
     COMMAND ${CMAKE_COMMAND} --build ${Frontend_BINARY_DIR} --target Frontend
             COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
+
+  if(NOT EXISTS ${Frontend_BINARY_DIR}/web)
+    message(FATAL_ERROR "Failed to build frontend")
+  endif()
 
   # Create a list of absolute paths, relative paths and a flat representation
   # used by ESP-IDF embed
@@ -50,14 +58,23 @@ if(ESP_PLATFORM
   set(FLAT_SRC ${REL_SRC})
   list(TRANSFORM FLAT_SRC REPLACE "[,-\/]" "_")
 
-  # Flatten web directory to embed
+  # Flatten and gzip web directory to embed
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
                           ${Frontend_BINARY_DIR}/embed)
   foreach(FILE IN ZIP_LISTS SRC FLAT_SRC)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${FILE_0}
-                            ${Frontend_BINARY_DIR}/embed/${FILE_1})
+    file(
+      ARCHIVE_CREATE
+      OUTPUT
+      ${Frontend_BINARY_DIR}/embed/${FILE_1}_gz
+      PATHS
+      ${FILE_0}
+      FORMAT
+      raw
+      COMPRESSION
+      GZip
+      VERBOSE)
     target_add_binary_data(${PROJECT_NAME}.elf
-                           ${Frontend_BINARY_DIR}/embed/${FILE_1} BINARY)
+                           ${Frontend_BINARY_DIR}/embed/${FILE_1}_gz BINARY)
   endforeach()
 
   # Create a header file which maps actual file names to embeded binaries
@@ -65,15 +82,15 @@ if(ESP_PLATFORM
   file(WRITE ${HEADER} "#pragma once\n" "#include <array>\n")
   file(APPEND ${HEADER} "extern \"C\" {\n")
   foreach(FILE ${FLAT_SRC})
-    file(APPEND ${HEADER} "extern char const _binary_${FILE}_start;\n"
-                          "extern char const _binary_${FILE}_end;\n")
+    file(APPEND ${HEADER} "extern char const _binary_${FILE}_gz_start;\n"
+                          "extern char const _binary_${FILE}_gz_end;\n")
   endforeach()
   file(APPEND ${HEADER} "}\n")
   file(APPEND ${HEADER} "inline constexpr std::array frontend_embeds{\n")
   foreach(FILE IN ZIP_LISTS REL_SRC FLAT_SRC)
     file(
       APPEND ${HEADER}
-      "std::array{\"${FILE_0}\", &_binary_${FILE_1}_start, &_binary_${FILE_1}_end},\n"
+      "std::array{\"${FILE_0}\", &_binary_${FILE_1}_gz_start, &_binary_${FILE_1}_gz_end},\n"
     )
   endforeach()
   file(APPEND ${HEADER} "};\n")

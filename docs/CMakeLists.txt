@@ -33,7 +33,7 @@ if(Doxygen_FOUND)
   # Get logo and fonts
   file(DOWNLOAD
        "https://github.com/OpenRemise/.github/raw/master/data/images/logo.svg"
-       ${CMAKE_SOURCE_DIR}/data/images/logo.svg)
+       ${CMAKE_CURRENT_BINARY_DIR}/html/logo.svg)
   file(
     DOWNLOAD
     "https://github.com/OpenRemise/.github/raw/master/data/fonts/GlacialIndifference-Bold.otf"
@@ -63,8 +63,7 @@ if(Doxygen_FOUND)
     "https://github.com/OpenRemise/DRV8328Shield/raw/master/drv8323shield.kicad_pcb"
     ${CMAKE_CURRENT_BINARY_DIR}/html/drv8323shield.kicad_pcb)
 
-  set(DOXYGEN_PROJECT_NUMBER ${PROJECT_VER})
-  set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/data/images/logo.svg)
+  set(DOXYGEN_PROJECT_LOGO ${CMAKE_CURRENT_BINARY_DIR}/html/logo.svg)
   set(DOXYGEN_REPEAT_BRIEF NO)
   set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
   set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
@@ -75,7 +74,7 @@ if(Doxygen_FOUND)
   set(DOXYGEN_EXTRACT_LOCAL_CLASSES YES)
   set(DOXYGEN_EXTRACT_LOCAL_METHODS YES)
   set(DOXYGEN_EXTRACT_ANON_NSPACES YES)
-  set(DOXYGEN_IMAGE_PATH ${CMAKE_SOURCE_DIR}/data)
+  set(DOXYGEN_IMAGE_PATH ${CMAKE_CURRENT_LIST_DIR})
   set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_LIST_DIR}/header.html)
   set(DOXYGEN_HTML_FOOTER ${CMAKE_CURRENT_LIST_DIR}/footer.html)
   set(DOXYGEN_HTML_EXTRA_STYLESHEET

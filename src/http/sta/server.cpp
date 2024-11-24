@@ -25,7 +25,6 @@
 #include <esp_app_desc.h>
 #include <dcc/dcc.hpp>
 #include <gsl/util>
-#include <magic_enum.hpp>
 #include <ztl/string.hpp>
 #include "analog/convert.hpp"
 #include "frontend_embeds.hpp"
@@ -460,7 +459,8 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
              frontend_embeds,
              [uri](auto&& embed) { return uri.contains(embed[0uz]); })};
            it != cend(frontend_embeds)) {
-    // Set content type
+    // Set content encoding and type
+    httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
     if (uri.ends_with(".css")) httpd_resp_set_type(req, "text/css");
     else if (uri.ends_with(".js")) httpd_resp_set_type(req, "text/javascript");
     else if (uri.ends_with(".otf")) httpd_resp_set_type(req, "font/otf");

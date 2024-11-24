@@ -32,7 +32,7 @@
 /// \mainpage Introduction
 /// | Getting Started                                                                                                                                                                                            | API Reference                                                                                                                                                                                              | HW Reference                                                                                                                    |
 /// | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-/// | [![](icons/stopwatch.svg)](page_getting_started.html)                                                                                                                                                      | [![](icons/api.svg)](page_api_reference.html)                                                                                                                                                              | [![](icons/pcb.svg)](page_hw_reference.html)                                                                                    |
+/// | [![](stopwatch.svg)](page_getting_started.html)                                                                                                                                                            | [![](api.svg)](page_api_reference.html)                                                                                                                                                                    | [![](pcb.svg)](page_hw_reference.html)                                                                                          |
 /// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the firmwares architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the firmwares individual modules. It assumes an understanding of the key concepts.</div> | <div style="max-width:200px">Browse schematics and layouts of all supported boards in the \ref page_hw_reference section.</div> |
 ///
 /// <div class="section_buttons">
@@ -306,7 +306,7 @@
 /// ```
 ///
 /// \warning
-/// Be careful, this command actually flashes 6 binaries at once and not just
+/// Be careful, this command actually flashes 5 binaries at once and not just
 /// the application. This includes things like the
 /// [bootloader](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/bootloader.html),
 /// the [partition
@@ -329,7 +329,7 @@
 /// which provides two USB channels, one for JTAG and the other for the USB
 /// terminal connection we have already used.
 ///
-/// ![](images/jtag-debugging-overview.jpg)
+/// ![](jtag-debugging-overview.jpg)
 ///
 /// Before we can establish a debugging connection with GDB though, we need to
 /// grant the appropriate rights to communicate with the OpenOCD device. To do
@@ -380,18 +380,36 @@
 /// </div>
 ///
 /// \section section_development_test Test
-/// \todo x86, GTest
+/// A very useful feature of the ESP-IDF framework is the ability to run
+/// applications on the
+/// [host](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/host-apps.html).
+/// This allows us to write [unit
+/// tests](https://en.wikipedia.org/wiki/Unit_testing) that do not have to run
+/// directly on a board but also on the host (and in the CI pipeline). The tests
+/// themselves are written with
+/// [GoogleTest](https://github.com/google/googletest).
 ///
-// clang-format off
-/// \page page_development Development
-/// \details \tableofcontents
+/// To build the tests executable we run the `Tests` build configuration.
 /// ```sh
 /// cmake --preset "Tests"
 /// cmake --build build --parallel
 /// ```
-// clang-format on
-/// \page page_development Development
-/// \details \tableofcontents
+///
+/// And directly execute the [.elf
+/// file](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format).
+/// ```sh
+/// ╰─λ ./build/Firmware.elf
+/// I (21886608) port: Starting scheduler.
+/// [==========] Running 18 tests from 5 test suites.
+/// [----------] Global test environment set-up.
+/// [----------] 4 tests from DccTest
+/// [ RUN      ] DccTest.loco_to_base_to_json
+/// [       OK ] DccTest.loco_to_base_to_json (0 ms)
+/// ...
+/// [----------] Global test environment tear-down
+/// [==========] 18 tests from 5 test suites ran. (100 ms total)
+/// [  PASSED  ] 18 tests.
+/// ```
 ///
 /// <div class="section_buttons">
 /// | Previous                  | Next             |
@@ -402,6 +420,23 @@
 /// \page page_config Configuration
 /// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, pins,
 /// performance, which core does what
+///
+/// [partition
+/// tables](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/partition-tables.html)
+///
+// clang-format off
+/// \page page_config Configuration
+/// \details \tableofcontents
+/// | Name    | Type | Subtype  | Size   | Description                                                          |
+/// | ------- | ---- | -------- | ------ | -------------------------------------------------------------------- |
+/// | otadata | data | ota      | 8K     | Bootloader uses this data to know which ota partition to execute     |
+/// | ota_0   | app  | ota_0    | 6M     | First application partition (toggles to second on successful update) |
+/// | ota_1   | app  | ota_1    | 6M     | Second application partition (toggles to first on successful update) |
+/// | nvs     | data | nvs      | 6M     | Stores settings and locomotives                                      |
+/// | data    | data | littlefs | 14272K | Stores additional data (e.g. images)                                 |
+// clang-format on
+/// \page page_config Configuration
+/// \details \tableofcontents
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                    |

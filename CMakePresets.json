@@ -12,10 +12,10 @@
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CCACHE_ENABLE": "0",
-                "ESP_PLATFORM": "1",
+                "CCACHE_ENABLE": "OFF",
+                "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "esp32s3",
-                "PYTHON_DEPS_CHECKED": "1",
+                "PYTHON_DEPS_CHECKED": "ON",
                 "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.debug"
             }
         },
@@ -25,10 +25,10 @@
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CCACHE_ENABLE": "0",
-                "ESP_PLATFORM": "1",
+                "CCACHE_ENABLE": "OFF",
+                "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "esp32s3",
-                "PYTHON_DEPS_CHECKED": "1",
+                "PYTHON_DEPS_CHECKED": "ON",
                 "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.debug;sdkconfig.jtag"
             }
         },
@@ -38,10 +38,10 @@
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CCACHE_ENABLE": "0",
-                "ESP_PLATFORM": "1",
+                "CCACHE_ENABLE": "OFF",
+                "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "esp32s3",
-                "PYTHON_DEPS_CHECKED": "1",
+                "PYTHON_DEPS_CHECKED": "ON",
                 "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.release"
             }
         },
@@ -51,11 +51,11 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "BUILD_TESTING": "OFF",
-                "CCACHE_ENABLE": "0",
+                "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "ESP_PLATFORM": "1",
+                "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "linux",
-                "PYTHON_DEPS_CHECKED": "1"
+                "PYTHON_DEPS_CHECKED": "ON"
             }
         }
     ]

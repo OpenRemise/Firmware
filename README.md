@@ -4,8 +4,8 @@
 
 <a href="https://openremise.at">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/OpenRemise/.github/raw/master/data/icons/dark.png">
-  <img src="https://github.com/OpenRemise/.github/raw/master/data/icons/light.png" width="20%" align="right">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/OpenRemise/.github/raw/master/data/icons/icon_dark.svg">
+  <img src="https://github.com/OpenRemise/.github/raw/master/data/icons/icon_light.svg" width="20%" align="right">
 </picture>
 </a>
 

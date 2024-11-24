@@ -1,6 +1,7 @@
 # ESP-IDF Partition Table
 # Name,   Type, SubType, Offset,  Size, Flags
 otadata,  data, ota,     ,        8K,
-ota_0,    app,  ota_0,   ,        8M,
-ota_1,    app,  ota_1,   ,        8M,
-nvs,      data, nvs,     ,        8M,
+ota_0,    app,  ota_0,   ,        6M,
+ota_1,    app,  ota_1,   ,        6M,
+nvs,      data, nvs,     ,        6M,
+data,     data, littlefs,,        14272K,

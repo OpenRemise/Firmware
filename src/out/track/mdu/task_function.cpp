@@ -20,9 +20,13 @@
 /// \date   10/04/2024
 
 #include "task_function.hpp"
+#include <rmt_dcc_encoder.h>
+#include <dcc/dcc.hpp>
 #include <mdu/mdu.hpp>
 #include <ulf/mdu_ein.hpp>
 #include "../current_limit.hpp"
+#include "../dcc/resume.hpp"
+#include "../dcc/suspend.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
@@ -167,14 +171,96 @@ esp_err_t config_transfer_rate(mdu_encoder_config_t& encoder_config,
 }
 
 /// \todo document
+esp_err_t zpp_entry() {
+  static constexpr rmt_transmit_config_t config{};
+
+  mem::nvs::Settings nvs;
+  dcc_encoder_config_t encoder_config{
+    .num_preamble = DCC_TX_MAX_PREAMBLE_BITS,
+    .bidibit_duration = 0u,
+    .bit1_duration = nvs.getDccBit1Duration(),
+    .bit0_duration = nvs.getDccBit0Duration(),
+  };
+  auto const startup_reset_packet_count{nvs.getDccStartupResetPacketCount()};
+  auto const program_packet_count{nvs.getDccProgramPacketCount()};
+  auto const continue_reset_packet_count{nvs.getDccContinueResetPacketCount()};
+  nvs.~Settings();
+
+  //
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
+
+  //
+  ESP_ERROR_CHECK(out::track::dcc::resume(encoder_config, nullptr, nullptr));
+
+  // Transmit at least 25 reset packets to ensure entry
+  auto packet{::dcc::make_reset_packet()};
+  for (auto i{0uz}; i < startup_reset_packet_count + 3uz; ++i) {
+    ESP_ERROR_CHECK(
+      rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+    ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
+  }
+
+  //
+  static constexpr std::array<std::pair<uint8_t, uint8_t>, 9uz> sequence{{
+    {8u - 1u, 0xFEu},
+    {105u - 1u, 0xAAu},
+    {106u - 1u, 0x55u},
+    {105u - 1u, 0x55u},
+    {106u - 1u, 0xAAu},
+    {105u - 1u, 0x00u},
+    {106u - 1u, 0x00u},
+    {105u - 1u, 0x00u},
+    {106u - 1u, 0x00u},
+  }};
+
+  for (auto const& [cv_addr, byte] : sequence) {
+    // CV verify
+    packet = ::dcc::make_cv_access_long_verify_service_packet(cv_addr, byte);
+    for (auto i{0uz}; i < program_packet_count; ++i) {
+      ESP_ERROR_CHECK(
+        rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+      ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
+    }
+
+    // Transmit at least 3 reset packets to ensure sequence
+    packet = ::dcc::make_reset_packet();
+    for (auto i{0uz}; i < continue_reset_packet_count; ++i) {
+      ESP_ERROR_CHECK(
+        rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+      ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
+    }
+  }
+
+  //
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+
+  //
+  ESP_ERROR_CHECK(out::track::dcc::deinit_bidi());
+  ESP_ERROR_CHECK(out::track::dcc::deinit_alarm());
+  ESP_ERROR_CHECK(out::track::dcc::deinit_rmt());
+  ESP_ERROR_CHECK(out::track::dcc::deinit_encoder());
+
+  return ESP_OK;
+}
+
+/// \todo document
+esp_err_t zsu_entry() {
+  //
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
+
+  //
+  ESP_ERROR_CHECK(transmit_packet_blocking_for(make_busy_packet(), 200'000u));
+
+  //
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+
+  return ESP_OK;
+}
+
+/// \todo document
 esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   auto const busy_packet{make_busy_packet()};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
-
-  // Alternative entry
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
-  ESP_ERROR_CHECK(transmit_packet_blocking_for(busy_packet, 200'000u));
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
 
   for (;;) {
     auto const packet{receive_packet()};
@@ -211,12 +297,11 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
 /// \todo document
 void task_function(void*) {
   for (;;) switch (auto encoder_config{mdu_encoder_config()}; state.load()) {
-      case State::MDUZpp:
-        /// \todo implement MDUZpp
-        break;
+      case State::MDUZpp: ESP_ERROR_CHECK(zpp_entry()); [[fallthrough]];
       case State::MDUZsu: [[fallthrough]];
       case State::MDU_EIN:
         ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
+        ESP_ERROR_CHECK(zsu_entry());
         ESP_ERROR_CHECK(loop(encoder_config));
         ESP_ERROR_CHECK(suspend());
         break;

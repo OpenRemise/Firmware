@@ -51,7 +51,6 @@ void Service::dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service) {
 esp_err_t Service::socket(http::Message& msg) {
   switch (msg.type) {
     case HTTPD_WS_TYPE_BINARY: {
-      LOGI("WS bin");
       _ws_sock_fds.insert(msg.sock_fd);
 
       //
@@ -72,7 +71,6 @@ esp_err_t Service::socket(http::Message& msg) {
       break;
     }
     case HTTPD_WS_TYPE_CLOSE:
-      LOGI("WS close");
       /// \todo implicit power off here if there are no more clients registered?
       _ws_sock_fds.erase(msg.sock_fd);
       break;

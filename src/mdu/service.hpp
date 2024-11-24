@@ -17,19 +17,27 @@
 
 #include <esp_task.h>
 #include <queue>
-#include "zpp_service.hpp"
-#include "zsu_service.hpp"
+#include "http/message.hpp"
 
 namespace mdu {
 
-class Service : public ZppService, public ZsuService {
+class Service {
 public:
   explicit Service(BaseType_t xCoreID);
   ~Service();
 
+  esp_err_t zppSocket(http::Message& msg);
+  esp_err_t zsuSocket(http::Message& msg);
+
 private:
-  // This gets called by FreeRTOS
+  esp_err_t socket(http::Message& msg, State mdu_state);
   void taskFunction(void*);
+  void loop();
+  std::array<uint8_t, 2uz> transmit(std::vector<uint8_t> const& payload) const;
+  void close();
+
+  std::queue<http::Message> _queue{};
+  std::array<uint8_t, 2uz> _acks{};
 };
 
 }  // namespace mdu
