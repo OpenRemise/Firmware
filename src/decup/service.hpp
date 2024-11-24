@@ -17,19 +17,31 @@
 
 #include <esp_task.h>
 #include <queue>
-#include "zpp_service.hpp"
-#include "zsu_service.hpp"
+#include <ulf/decup_ein.hpp>
+#include "http/message.hpp"
 
 namespace decup {
 
-class Service : public ZppService, public ZsuService {
+class Service : public ulf::decup_ein::rx::Base {
 public:
   explicit Service(BaseType_t xCoreID);
   ~Service();
 
+  esp_err_t zppSocket(http::Message& msg);
+  esp_err_t zsuSocket(http::Message& msg);
+
 private:
-  // This gets called by FreeRTOS
+  esp_err_t socket(http::Message& msg, State decup_state);
   void taskFunction(void*);
+  void loop();
+
+  uint8_t transmit(std::span<uint8_t const> bytes) final;
+  void done() final;
+
+  void close();
+
+  std::queue<http::Message> _queue{};
+  std::optional<uint8_t> _ack{};
 };
 
 }  // namespace decup

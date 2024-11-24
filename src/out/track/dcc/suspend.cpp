@@ -27,8 +27,6 @@
 namespace out::track::dcc {
 
 /// \todo document
-/// For some reason the delay seems to be necessary when switching between op-
-/// and serv-mode?
 esp_err_t deinit_gpio() {
   ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
   vTaskDelay(pdMS_TO_TICKS(20u));

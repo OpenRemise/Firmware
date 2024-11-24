@@ -1,6 +1,16 @@
 set(COMMON_SRC
-    dcc/loco.cpp out/track/current_limit.cpp usb/dcc_ein/task_function.cpp
-    usb/rx_task_function.cpp utility.cpp)
+    dcc/loco.cpp
+    dcc/service.cpp
+    mem/nvs/accessories.cpp
+    mem/nvs/base.cpp
+    mem/nvs/init.cpp
+    mem/nvs/locos.cpp
+    mem/nvs/settings.cpp
+    mem/init.cpp
+    out/track/current_limit.cpp
+    usb/dcc_ein/task_function.cpp
+    usb/rx_task_function.cpp
+    utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
   idf_component_register(
@@ -26,11 +36,8 @@ else()
     analog/init.cpp
     analog/temp_task_function.cpp
     dcc/init.cpp
-    dcc/service.cpp
     decup/init.cpp
     decup/service.cpp
-    decup/zpp_service.cpp
-    decup/zsu_service.cpp
     http/ap/init.cpp
     http/ap/server.cpp
     http/sta/init.cpp
@@ -38,14 +45,6 @@ else()
     http/init.cpp
     mdu/init.cpp
     mdu/service.cpp
-    mdu/zpp_service.cpp
-    mdu/zsu_service.cpp
-    mem/nvs/accessories.cpp
-    mem/nvs/base.cpp
-    mem/nvs/init.cpp
-    mem/nvs/locos.cpp
-    mem/nvs/settings.cpp
-    mem/init.cpp
     ota/init.cpp
     ota/service.cpp
     out/track/dcc/resume.cpp
@@ -119,7 +118,7 @@ cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN#master")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2#master")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.7.0")
 cpmaddpackage("gh:microsoft/GSL@4.1.0")
-cpmaddpackage("gh:Neargye/magic_enum@0.9.6")
+cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
 
 # According to this answer here https://stackoverflow.com/a/55312360/5840652
 # magic enum works up to INT16_MAX
