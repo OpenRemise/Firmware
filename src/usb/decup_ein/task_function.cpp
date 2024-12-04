@@ -50,8 +50,8 @@ class ZsuLoad : public ulf::decup_ein::rx::Base {
                             pdMS_TO_TICKS(timeout));
 
     /// \todo remove
-    // for (auto c : bytes) printf("%X ", c);
-    // printf(" -> %d\n", acks);
+    for (auto c : bytes) printf("%X ", c);
+    printf(" -> %d\n", acks);
 
     return acks;
   }

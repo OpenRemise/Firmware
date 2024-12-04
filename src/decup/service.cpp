@@ -137,8 +137,8 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes) {
                           pdMS_TO_TICKS(timeout));
 
   /// \todo remove
-  // for (auto c : bytes) printf("%X ", c);
-  // printf(" -> %d\n", acks);
+  for (auto c : bytes) printf("%X ", c);
+  printf(" -> %d\n", acks);
 
   return acks;
 }
