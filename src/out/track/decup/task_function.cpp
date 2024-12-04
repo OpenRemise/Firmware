@@ -28,6 +28,7 @@
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
 #include "suspend.hpp"
+#include "utility.hpp"
 
 namespace out::track::decup {
 
@@ -36,15 +37,15 @@ using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
 
 namespace {
 
-bool d20_state{};
-bool d21_state{};
+bool gpio1_state{};
+bool gpio2_state{};
 
 /// \todo document
 void IRAM_ATTR ack_isr_handler(void*) {
   xTaskNotifyIndexedFromISR(
     task.handle, default_notify_index, 0u, eIncrement, NULL);
 
-  gpio_set_level(d20_gpio_num, d20_state = !d20_state);
+  gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
 }
 
 /// \todo document
@@ -55,7 +56,7 @@ std::optional<Packet> receive_packet() {
         xMessageBufferReceive(tx_message_buffer.front_handle,
                               data(packet),
                               packet.max_size(),
-                              pdMS_TO_TICKS(task.timeout))}) {
+                              pdMS_TO_TICKS(http_receive_timeout2ms()))}) {
     packet.resize(bytes_received);
     return packet;
   }
@@ -65,8 +66,6 @@ std::optional<Packet> receive_packet() {
 }
 
 /// \todo document
-/// \TODO EOT level for last transmission MUST be 0!!! Otherwise DRV8328 INHA
-/// stays high
 esp_err_t transmit_packet_blocking(Packet const& packet) {
   static constexpr rmt_transmit_config_t config{.flags = {.eot_level = 1u}};
   ESP_ERROR_CHECK(
@@ -100,18 +99,36 @@ uint8_t receive_acks(uint32_t us) {
 
 /// \todo document
 esp_err_t transmit_acks(uint8_t acks) {
-  return xMessageBufferSend(out::rx_message_buffer.handle,
-                            &acks,
-                            sizeof(acks),
-                            pdMS_TO_TICKS(task.timeout)) == sizeof(acks)
+  return xMessageBufferSend(
+           out::rx_message_buffer.handle, &acks, sizeof(acks), 0u) ==
+             sizeof(acks)
            ? ESP_OK
            : ESP_FAIL;
 }
 
-/// Just run preamble and then pulse a MX645...
-/// This should produce a double pulse response
-esp_err_t test_entry() {
+/// \todo document
+esp_err_t loop() {
   ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+
+  for (;;) {
+    // Return on empty packet, suspend or short circuit
+    if (auto const packet{receive_packet()};
+        !packet || std::to_underlying(state.load() &
+                                      (State::Suspend | State::ShortCircuit)))
+      return rmt_tx_wait_all_done(channel, -1);
+    // Transmit packet
+    else {
+      ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
+      auto const acks{receive_acks((size(*packet) > 1uz ? 100'000u : 5000u))};
+      ESP_ERROR_CHECK(transmit_acks(acks));
+    }
+  }
+}
+
+/// \todo document that this pings a decoder (default MX645)
+esp_err_t test_loop(uint8_t decoder_id = 221u) {
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+
   for (auto i{0uz}; i < 200uz; ++i) {
     Packet packet{0xEFu};
     ESP_ERROR_CHECK(transmit_packet_blocking(packet));
@@ -121,38 +138,15 @@ esp_err_t test_entry() {
     receive_acks(300u);
   }
 
-  // 221 -> MX645
-  gpio_set_level(d21_gpio_num, d21_state = !d21_state);
-  Packet packet{221};
+  Packet packet{decoder_id};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
   auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u))};
-  LOGI("MX654 DECUP number of ack pulses %d\n", acks);
-
-  for (;;) { vTaskDelay(pdMS_TO_TICKS(200u)); }
-
-  return ESP_OK;
-}
-
-/// \todo document
-esp_err_t loop() {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
-  TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
-
-  for (;;) {
-    auto const packet{receive_packet()};
-
-    // Return on timeout, suspend or short circuit
-    if (auto const now{xTaskGetTickCount()};
-        now >= then || std::to_underlying(
-                         state.load() & (State::Suspend | State::ShortCircuit)))
-      return rmt_tx_wait_all_done(channel, -1);
-    // In case we got a packet, reset timeout
-    else if (packet) {
-      then = now + pdMS_TO_TICKS(task.timeout);
-      ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const acks{receive_acks((size(*packet) > 1uz ? 100'000u : 5000u))};
-      ESP_ERROR_CHECK(transmit_acks(acks));
-    }
+  if (acks == 2uz) {
+    LOGI("DECUP test success");
+    return ESP_OK;
+  } else {
+    LOGE("DECUP test failure");
+    return ESP_FAIL;
   }
 }
 
@@ -161,6 +155,7 @@ esp_err_t loop() {
 /// \todo document
 void task_function(void*) {
   for (;;) switch (decup_encoder_config_t encoder_config{}; state.load()) {
+      case State::DECUPZsu: [[fallthrough]];
       case State::DECUP_EIN:
         ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
         ESP_ERROR_CHECK(loop());

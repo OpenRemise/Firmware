@@ -36,7 +36,6 @@ private:
   void loop();
 
   uint8_t transmit(std::span<uint8_t const> bytes) final;
-  void done() final;
 
   void close();
 

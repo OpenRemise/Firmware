@@ -43,7 +43,7 @@ esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(gpio_isr_handler_add(ack_gpio_num, gpio_isr_handler, NULL));
   ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 1u));
   vTaskDelay(pdMS_TO_TICKS(20u));
-  return gpio_set_level(right_force_low_gpio_num, 0u);
+  return gpio_set_level(n_force_low_gpio_num, 0u);
 }
 
 }  // namespace

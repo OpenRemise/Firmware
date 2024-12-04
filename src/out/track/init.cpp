@@ -43,7 +43,7 @@ void IRAM_ATTR nfault_isr_handler(void*) {
 /// \todo document RMT pin no longer tristate after that
 esp_err_t init_channel() {
   static constexpr rmt_tx_channel_config_t chan_config{
-    .gpio_num = left_gpio_num,
+    .gpio_num = p_gpio_num,
     .clk_src = RMT_CLK_SRC_DEFAULT,
     .resolution_hz = 1'000'000u,
     .mem_block_symbols =
@@ -66,16 +66,15 @@ esp_err_t init_gpio() {
   // Outputs
   {
     static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << isel0_gpio_num | 1ull << isel1_gpio_num |
-                      1ull << nsleep_gpio_num |
-                      1ull << right_force_low_gpio_num |
+      .pin_bit_mask = 1ull << ilim0_gpio_num | 1ull << ilim1_gpio_num |
+                      1ull << nsleep_gpio_num | 1ull << n_force_low_gpio_num |
                       1ull << enable_gpio_num | 1ull << dcc::bidi_en_gpio_num,
       .mode = GPIO_MODE_OUTPUT,
       .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
-    ESP_ERROR_CHECK(gpio_set_level(right_force_low_gpio_num, 1u));
+    ESP_ERROR_CHECK(gpio_set_level(n_force_low_gpio_num, 1u));
     ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
     ESP_ERROR_CHECK(gpio_set_level(dcc::bidi_en_gpio_num, 0u));
     ESP_ERROR_CHECK(gpio_set_level(nsleep_gpio_num, 1u));
@@ -94,7 +93,7 @@ esp_err_t init_gpio() {
     static constexpr gpio_config_t io_conf{
       .pin_bit_mask = 1ull << nfault_gpio_num | 1ull << ack_gpio_num,
       .mode = GPIO_MODE_INPUT,
-      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_NEGEDGE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));

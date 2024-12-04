@@ -22,7 +22,7 @@
 /// \details
 /// Welcome to the OpenRemise [Firmware](https://github.com/OpenRemise/Firmware)
 /// documentation, the software powering all
-/// [Remise boards](\ref page_hw_reference).
+/// [OpenRemise boards](\ref page_hw_reference).
 ///
 /// \note
 /// This documentation is intended for developers. General information on usage
@@ -43,6 +43,7 @@
 // clang-format on
 
 /// \page page_getting_started Getting Started
+/// \details
 /// The aim of this section is to help you set up a development environment and
 /// provide you with a 30.000ft overview of the firmware and some of it's key
 /// concepts.
@@ -329,7 +330,7 @@
 /// which provides two USB channels, one for JTAG and the other for the USB
 /// terminal connection we have already used.
 ///
-/// ![](jtag-debugging-overview.jpg)
+/// \image html jtag-debugging-overview.jpg "JTAG debugging"
 ///
 /// Before we can establish a debugging connection with GDB though, we need to
 /// grant the appropriate rights to communicate with the OpenOCD device. To do
@@ -453,7 +454,7 @@
 /// are drivers that use these signals to control the hardware outputs. A more
 /// detailed version of the upcoming diagram can be found at the [bottom of the
 /// page](#section_architecture_diagram) (\emoji :warning: not mobile friendly).
-/// \startuml
+/// \startuml "Architecture overview"
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
@@ -508,7 +509,7 @@
 /// modules are considered global and can be accessed from all other layers.
 ///
 /// \section section_architecture_diagram Diagram
-/// \startuml
+/// \startuml "Architecture diagram"
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
@@ -693,7 +694,7 @@
 /// | \subpage page_decup    | DECUP                                           |
 /// | \subpage page_http     | HTTP                                            |
 /// | \subpage page_mdu      | MDU                                             |
-/// | \subpage page_mem      | SPIFFS and NVS memory                           |
+/// | \subpage page_mem      | NVS memory                                      |
 /// | \subpage page_ota      | OTA                                             |
 /// | \subpage page_out      | Blub                                            |
 /// | \subpage page_udp      | UDP                                             |

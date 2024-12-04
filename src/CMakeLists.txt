@@ -111,12 +111,12 @@ idf_build_set_property(
   APPEND)
 
 cpmaddpackage("gh:ZIMO-Elektronik/DECUP#develop")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.0.2")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.3.1")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.0")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.3.2")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN#develop")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN#master")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2#master")
-cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.7.0")
+cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.7.1")
 cpmaddpackage("gh:microsoft/GSL@4.1.0")
 cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
 

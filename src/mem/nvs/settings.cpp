@@ -83,17 +83,6 @@ esp_err_t Settings::setHttpTransmitTimeout(uint8_t value) {
 }
 
 /// \todo document
-uint8_t Settings::getUsbReceiveTimeout() const {
-  return getU8("usb_rx_timeout");
-}
-
-/// \todo document
-esp_err_t Settings::setUsbReceiveTimeout(uint8_t value) {
-  return value >= 1u && value <= 10u ? setU8("usb_rx_timeout", value)
-                                     : ESP_ERR_INVALID_ARG;
-}
-
-/// \todo document
 out::track::CurrentLimit Settings::getCurrentLimit() const {
   return static_cast<out::track::CurrentLimit>(getU8("current_limit"));
 }

@@ -127,27 +127,6 @@
 inline constexpr auto default_notify_index{tskDEFAULT_INDEX_TO_NOTIFY + 1u};
 static_assert(configTASK_NOTIFICATION_ARRAY_ENTRIES > 1);
 
-inline constexpr auto a0_gpio_num{GPIO_NUM_5};
-inline constexpr auto a1_gpio_num{GPIO_NUM_6};
-inline constexpr auto a2_gpio_num{GPIO_NUM_7};
-inline constexpr auto a3_gpio_num{GPIO_NUM_15};
-inline constexpr auto a4_gpio_num{GPIO_NUM_16};
-inline constexpr auto a5_gpio_num{GPIO_NUM_17};
-inline constexpr auto d2_gpio_num{GPIO_NUM_10};
-inline constexpr auto d3_gpio_num{GPIO_NUM_11};
-inline constexpr auto d4_gpio_num{GPIO_NUM_12};
-inline constexpr auto d5_gpio_num{GPIO_NUM_13};
-inline constexpr auto d6_gpio_num{GPIO_NUM_14};
-inline constexpr auto d7_gpio_num{GPIO_NUM_21};
-inline constexpr auto d8_gpio_num{GPIO_NUM_45};
-inline constexpr auto d9_gpio_num{GPIO_NUM_38};
-inline constexpr auto d10_gpio_num{GPIO_NUM_39};
-inline constexpr auto d11_gpio_num{GPIO_NUM_40};
-inline constexpr auto d12_gpio_num{GPIO_NUM_41};
-inline constexpr auto d13_gpio_num{GPIO_NUM_42};
-inline constexpr auto d20_gpio_num{GPIO_NUM_2};
-inline constexpr auto d21_gpio_num{GPIO_NUM_1};
-
 inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
 enum class State : uint16_t {
@@ -183,16 +162,25 @@ inline std::atomic<State> state{State::Suspended};
 
 namespace analog {
 
-inline constexpr auto r1{14300};
-inline constexpr auto r2{470};
-inline constexpr auto rimon{120};
-inline constexpr auto kimon{500};
+inline constexpr auto ol_on_gpio_num{GPIO_NUM_17};
+
+/// Voltage divider upper resistor for voltage measurement
+inline constexpr auto voltage_upper_r{14300};
+
+/// Voltage divider lower resistor for voltage measurement
+inline constexpr auto voltage_lower_r{470};
+
+/// Current sense resistor
+inline constexpr auto current_r{180};
+
+/// Current sense ratio
+inline constexpr auto current_k{800};
 
 inline constexpr auto vref{1000};
 inline constexpr auto max_measurement{smath::pow(2, SOC_ADC_DIGI_MAX_BITWIDTH) -
                                       1};
-inline constexpr auto current_channel{ADC_CHANNEL_4};
-inline constexpr auto voltage_channel{ADC_CHANNEL_7};
+inline constexpr auto voltage_channel{ADC_CHANNEL_2};
+inline constexpr auto current_channel{ADC_CHANNEL_9};
 inline constexpr auto attenuation{ADC_ATTEN_DB_0};
 inline constexpr std::array channels{current_channel, voltage_channel};
 
@@ -227,7 +215,7 @@ inline struct TempTask {
   static constexpr auto name{"analog::temp"};
   static constexpr auto stack_size{2048uz};
   static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
-  static constexpr auto timeout{200u};
+  static constexpr auto timeout{1000u};
   TaskHandle_t handle{};
 } temp_task;
 
@@ -382,23 +370,23 @@ namespace track {
 
 enum class CurrentLimit : uint8_t {
   _500mA = 0b00u,
-  _1600mA = 0b01u,
-  _3000mA = 0b10u,
+  _1300mA = 0b01u,
+  _2700mA = 0b10u,
   _4100mA = 0b11u
 };
 
 /// Continuous transmission requires at least a depth of 2
 inline constexpr auto trans_queue_depth{2uz};
 
-inline constexpr auto left_gpio_num{d10_gpio_num};
-inline constexpr auto right_force_low_gpio_num{d11_gpio_num};
+inline constexpr auto p_gpio_num{GPIO_NUM_11};
+inline constexpr auto n_force_low_gpio_num{GPIO_NUM_9};
 
-inline constexpr auto ack_gpio_num{a1_gpio_num};
-inline constexpr auto nsleep_gpio_num{d5_gpio_num};
-inline constexpr auto isel0_gpio_num{d7_gpio_num};
-inline constexpr auto isel1_gpio_num{d8_gpio_num};
-inline constexpr auto nfault_gpio_num{d6_gpio_num};
-inline constexpr auto enable_gpio_num{d12_gpio_num};
+inline constexpr auto ack_gpio_num{GPIO_NUM_18};
+inline constexpr auto nsleep_gpio_num{GPIO_NUM_8};
+inline constexpr auto ilim0_gpio_num{GPIO_NUM_15};
+inline constexpr auto ilim1_gpio_num{GPIO_NUM_16};
+inline constexpr auto nfault_gpio_num{GPIO_NUM_46};
+inline constexpr auto enable_gpio_num{GPIO_NUM_12};
 
 ///
 inline struct RxQueue {
@@ -415,8 +403,8 @@ inline rmt_encoder_handle_t encoder{};
 
 namespace dcc {
 
-inline constexpr auto bidi_rx_gpio_num{d9_gpio_num};
-inline constexpr auto bidi_en_gpio_num{d13_gpio_num};
+inline constexpr auto bidi_rx_gpio_num{GPIO_NUM_14};
+inline constexpr auto bidi_en_gpio_num{GPIO_NUM_13};
 
 ///
 inline struct Task {
@@ -435,7 +423,6 @@ inline struct Task {
   static constexpr auto name{"out::track::decup"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  static constexpr auto timeout{60'000u};
   TaskHandle_t handle{};
 } task;
 
@@ -448,7 +435,6 @@ inline struct Task {
   static constexpr auto name{"out::track::mdu"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  static constexpr auto timeout{10'000u};
   TaskHandle_t handle{};
 } task;
 
@@ -458,16 +444,15 @@ inline struct Task {
 
 namespace zusi {
 
-inline constexpr auto enable_gpio_num{GPIO_NUM_18};
-inline constexpr auto clock_gpio_num{GPIO_NUM_9};
-inline constexpr auto data_gpio_num{GPIO_NUM_46};
+inline constexpr auto enable_gpio_num{GPIO_NUM_4};
+inline constexpr auto clock_gpio_num{GPIO_NUM_6};
+inline constexpr auto data_gpio_num{GPIO_NUM_5};
 
 ///
 inline struct Task {
   static constexpr auto name{"out::zusi"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  static constexpr auto timeout{10'000u};
   TaskHandle_t handle{};
 } task;
 
@@ -484,7 +469,7 @@ inline int sock_fd;
 
 namespace usb {
 
-inline constexpr auto vbus_gpio_num{GPIO_NUM_4};
+inline constexpr auto vbus_gpio_num{GPIO_NUM_7};
 inline constexpr auto buffer_size{512uz};
 
 ///
@@ -537,7 +522,6 @@ inline struct Task {
   static constexpr auto name{"usb::decup_ein"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
-  static constexpr auto timeout{::out::track::decup::task.timeout};
   TaskHandle_t handle{};
 } task;
 
@@ -556,7 +540,7 @@ inline struct Task {
   static constexpr auto name{"usb::susiv2"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
-  static constexpr auto timeout{::out::zusi::task.timeout};
+  static constexpr auto timeout{100u};
   TaskHandle_t handle{};
 } task;
 
@@ -566,7 +550,6 @@ inline struct Task {
 
 namespace wifi {
 
-inline constexpr auto force_ap_init_gpio_num{GPIO_NUM_3};
 inline constexpr auto led_gpio_num{GPIO_NUM_47};
 
 inline std::string mdns_str;

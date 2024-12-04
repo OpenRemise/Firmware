@@ -15,6 +15,7 @@ if(IDF_TARGET STREQUAL linux)
   list(APPEND EXTRA_COMPONENT_DIRS tests $ENV{IDF_PATH}/tools/mocks/driver)
 endif()
 
+# Make optional to allow building docs without ESP-IDF
 include($ENV{IDF_PATH}/tools/cmake/project.cmake OPTIONAL)
 
 version_from_git()
@@ -33,7 +34,7 @@ if(ESP_PLATFORM
     GITHUB_REPOSITORY
     "OpenRemise/Frontend"
     GIT_TAG
-    develop
+    develop # TODO release should build from tag
     DOWNLOAD_ONLY
     TRUE)
 
@@ -77,7 +78,7 @@ if(ESP_PLATFORM
                            ${Frontend_BINARY_DIR}/embed/${FILE_1}_gz BINARY)
   endforeach()
 
-  # Create a header file which maps actual file names to embeded binaries
+  # Create a header file which maps actual file names to embedded binaries
   set(HEADER ${CMAKE_BINARY_DIR}/frontend_embeds.hpp)
   file(WRITE ${HEADER} "#pragma once\n" "#include <array>\n")
   file(APPEND ${HEADER} "extern \"C\" {\n")
@@ -94,6 +95,25 @@ if(ESP_PLATFORM
     )
   endforeach()
   file(APPEND ${HEADER} "};\n")
+endif()
+
+# Custom release target to create .zip
+if(ESP_PLATFORM
+   AND NOT IDF_TARGET STREQUAL linux
+   AND CONFIG_COMPILER_OPTIMIZATION_SIZE)
+  add_custom_target(
+    FirmwareRelease
+    COMMAND
+      ${CMAKE_COMMAND} -E tar "cf" ${PROJECT_NAME}-${PROJECT_VERSION}.zip
+      --format=zip #
+      flasher_args.json #
+      bootloader/bootloader.bin #
+      Firmware.bin #
+      partition_table/partition-table.bin #
+      ota_data_initial.bin #
+      nvs.bin #
+    DEPENDS ${PROJECT_NAME}.elf
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
 
 add_subdirectory(docs)

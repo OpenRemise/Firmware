@@ -29,7 +29,7 @@ esp_err_t init() {
   //
   {
     static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << d21_gpio_num | 1ull << d20_gpio_num,
+      .pin_bit_mask = 1ull << GPIO_NUM_2 | 1ull << GPIO_NUM_1,
       .mode = GPIO_MODE_OUTPUT,
       .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,

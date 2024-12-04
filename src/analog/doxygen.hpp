@@ -31,5 +31,19 @@ namespace analog {
 /// measuring track voltage and current, measuring temperature, and monitoring
 /// all of those measurements.
 ///
+/// \section section_analog_init Initialization
+/// \copydetails init
+///
+/// \section section_analog_adc_task ADC task
+/// \copydetails adc_task_function
+///
+/// \section section_analog_temp_task Temperature task
+/// \copydetails temp_task_function
+///
+/// \section section_analog_conversions Conversions
+/// - measurement2mV(VoltageMeasurement)
+/// - mV2measurement(Voltage)
+/// - measurement2mA(CurrentMeasurement)
+/// - mA2measurement(Current)
 
 }  // namespace analog

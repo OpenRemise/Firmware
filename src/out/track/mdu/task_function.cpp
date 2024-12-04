@@ -31,6 +31,7 @@
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
 #include "suspend.hpp"
+#include "utility.hpp"
 
 namespace out::track::mdu {
 
@@ -66,8 +67,11 @@ mdu_encoder_config_t mdu_encoder_config() {
 std::optional<Packet> receive_packet() {
   Packet packet;
   //
-  if (auto const bytes_received{xMessageBufferReceive(
-        tx_message_buffer.front_handle, data(packet), packet.max_size(), 0u)}) {
+  if (auto const bytes_received{
+        xMessageBufferReceive(tx_message_buffer.front_handle,
+                              data(packet),
+                              packet.max_size(),
+                              pdMS_TO_TICKS(http_receive_timeout2ms()))}) {
     packet.resize(bytes_received);
     return packet;
   }
@@ -149,10 +153,9 @@ receive_acks(mdu_encoder_config_t const& encoder_config, Packet const& packet) {
 
 /// \todo document
 esp_err_t transmit_acks(std::array<uint8_t, 2uz> acks) {
-  return xMessageBufferSend(out::rx_message_buffer.handle,
-                            data(acks),
-                            size(acks),
-                            pdMS_TO_TICKS(task.timeout)) == size(acks)
+  return xMessageBufferSend(
+           out::rx_message_buffer.handle, data(acks), size(acks), 0u) ==
+             size(acks)
            ? ESP_OK
            : ESP_FAIL;
 }
@@ -260,35 +263,43 @@ esp_err_t zsu_entry() {
 /// \todo document
 esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   auto const busy_packet{make_busy_packet()};
-  TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
 
   for (;;) {
-    auto const packet{receive_packet()};
-
-    // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then)
+    // Return on empty packet, suspend or short circuit
+    if (auto const packet{receive_packet()};
+        !packet || std::to_underlying(state.load() &
+                                      (State::Suspend | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
-    // In case we got a packet, reset timeout
-    else if (packet) then = now + pdMS_TO_TICKS(task.timeout);
-    // We got no packet, transmit busy packet
+    // Transmit packet
     else {
-      ESP_ERROR_CHECK(transmit_packet_blocking(busy_packet));
+      ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
       auto const acks{receive_acks(encoder_config, *packet)};
-      if (acks[0uz] == ack || acks[1uz] == ack) vTaskDelay(pdMS_TO_TICKS(20u));
-      continue;
+      ESP_ERROR_CHECK(transmit_acks(acks));
+
+      // Transfer rate packet
+      if (auto const cmd{packet2command(*packet)};
+          cmd == Command::ConfigTransferRate)
+        config_transfer_rate(encoder_config, (*packet)[4uz], acks);
+      // Exit
+      else if (cmd == Command::ZppExitReset ||
+               cmd == Command::ZsuCrc32ResultExit)
+        return transmit_packet_blocking_for(busy_packet, 1'000'000u);
     }
+  }
+}
 
-    ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-    auto const acks{receive_acks(encoder_config, *packet)};
-    ESP_ERROR_CHECK(transmit_acks(acks));
-
-    // Transfer rate packet
-    if (auto const cmd{packet2command(*packet)};
-        cmd == Command::ConfigTransferRate)
-      config_transfer_rate(encoder_config, (*packet)[4uz], acks);
-    // Exit
-    else if (cmd == Command::ZppExitReset || cmd == Command::ZsuCrc32ResultExit)
-      return transmit_packet_blocking_for(busy_packet, 1'000'000u);
+/// \todo document that this pings a decoder (default MS450)
+[[maybe_unused]] esp_err_t test_loop(mdu_encoder_config_t& encoder_config,
+                                     uint8_t decoder_id = 6u) {
+  auto const packet{make_ping_packet(decoder_id)};
+  ESP_ERROR_CHECK(transmit_packet_blocking(packet));
+  auto const acks{receive_acks(encoder_config, packet)};
+  if (acks == std::array{nak, ack}) {
+    LOGI("MDU test success");
+    return ESP_OK;
+  } else {
+    LOGE("MDU test failure");
+    return ESP_FAIL;
   }
 }
 

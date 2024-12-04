@@ -24,12 +24,19 @@
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
+#include "z21/service.hpp"
 
 namespace analog {
 
 namespace {
 
-/// \todo document
+/// Convert the NVS setting "current_sc_time" to a counter value
+///
+/// For convenience, the \ref mem::nvs::Settings::getCurrentShortCircuitTime()
+/// "short circuit detection time" is stored in milliseconds. In order for this
+/// setting to be used by the ADC task, it must be converted to a counter value.
+///
+/// \return Short circuit counter value for ADC task function
 auto get_short_circuit_count() {
   return mem::nvs::Settings{}.getCurrentShortCircuitTime() /
          conversion_frame_time;
@@ -37,7 +44,7 @@ auto get_short_circuit_count() {
 
 }  // namespace
 
-///
+/// ADC task function
 void adc_task_function(void*) {
   std::array<uint8_t, conversion_frame_size> conversion_frame{};
   auto short_circuit_count{get_short_circuit_count()};
@@ -78,8 +85,7 @@ void adc_task_function(void*) {
     xQueueOverwrite(voltages_queue.handle, &voltages);
     xQueueOverwrite(currents_queue.handle, &currents);
 
-    /// \todo short circuit detection here
-    /// >90% der 100 Messungen 4095 (==max_measurement) sind, dann is es SC
+    // >90% of all current measurements indicate short circuit
     if (static constexpr auto ninty_pct{
           static_cast<size_t>(0.9 * size(currents))};
         state.load() != State::ShortCircuit &&
@@ -87,6 +93,7 @@ void adc_task_function(void*) {
         !--short_circuit_count) {
       state.store(State::ShortCircuit);
       bug_led(true);
+      z21::service->broadcastTrackShortCircuit();
     }
     //
     else
