@@ -26,7 +26,7 @@
 ///
 /// \note
 /// This documentation is intended for developers. General information on usage
-/// can be found on the main page at [openremise.at](https://openremise.at/).
+/// can be found on the main page at [openremise.at](https://openremise.at).
 ///
 // clang-format off
 /// \mainpage Introduction
@@ -76,9 +76,9 @@
 /// advantage that our unit tests can run directly [on the
 /// host](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/host-apps.html).
 ///
-/// We recommend either an [Arch](https://archlinux.org/) (e.g.
-/// [Garuda](https://garudalinux.org/) or [Manjaro](https://manjaro.org/)) or
-/// [Ubuntu](https://ubuntu.com/) based distribution, so all of the following
+/// We recommend either an [Arch](https://archlinux.org) (e.g.
+/// [Garuda](https://garudalinux.org) or [Manjaro](https://manjaro.org)) or
+/// [Ubuntu](https://ubuntu.com) based distribution, so all of the following
 /// steps refer to those.
 ///
 /// \section section_development_prerequisites Prerequisites
@@ -102,14 +102,14 @@
 /// build tool, Doxygen, a documentation generator, and Graphviz, a graph
 /// visualization software.
 ///
-/// - [CMake](https://cmake.org/) ( >= 3.25 )
-/// - [GCC](https://gcc.gnu.org/) ( >= 13.2.0 )
+/// - [CMake](https://cmake.org) ( >= 3.25 )
+/// - [GCC](https://gcc.gnu.org) ( >= 13.2.0 )
 /// - [ESP-IDF](https://github.com/espressif/esp-idf) ( >= 5.3 )
-/// - [Ninja](https://ninja-build.org/) ( >= 1.10.2 )
+/// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
 /// - Optional
 ///   - for building documentation
 ///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.12.0 )
-///     - [Graphviz](https://graphviz.org/) ( >= 12.1.1 )
+///     - [Graphviz](https://graphviz.org) ( >= 12.1.1 )
 ///
 // clang-format off
 /// \page page_development Development
@@ -135,7 +135,7 @@
 /// and clone the ESP-IDF repository into a directory called `esp` in our home
 /// directory.
 ///
-/// [GitHub](https://github.com/) allows you to clone a repository either over
+/// [GitHub](https://github.com) allows you to clone a repository either over
 /// SSH or HTTPS. If you have the option, we recommend using SSH as we believe
 /// it [simplifies commit
 /// signing](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification).
@@ -410,6 +410,13 @@
 /// [----------] Global test environment tear-down
 /// [==========] 18 tests from 5 test suites ran. (100 ms total)
 /// [  PASSED  ] 18 tests.
+/// ```
+///
+/// \section section_doc Doc
+/// If Doxygen was found during CMake's configuration phase, the `FirmwareDocs`
+/// target can be built to create the documentation.
+/// ```sh
+/// cmake --build build --target FirmwareDocs
 /// ```
 ///
 /// <div class="section_buttons">

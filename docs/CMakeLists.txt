@@ -43,7 +43,7 @@ if(Doxygen_FOUND)
     "https://github.com/OpenRemise/.github/raw/master/data/fonts/GlacialIndifference-Regular.otf"
     ${CMAKE_CURRENT_BINARY_DIR}/html/GlacialIndifference-Regular.otf)
 
-  # Get KiCanvas (https://kicanvas.org/) and schematics/boards
+  # Get KiCanvas (https://kicanvas.org) and schematics/boards
   file(DOWNLOAD "https://kicanvas.org/kicanvas/kicanvas.js"
        ${CMAKE_CURRENT_BINARY_DIR}/html/kicanvas.js)
   file(
