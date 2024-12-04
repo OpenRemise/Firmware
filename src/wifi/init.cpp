@@ -143,17 +143,12 @@ void event_handler(void*,
 
 /// \todo document
 esp_err_t gpio_init() {
-  // Pulling this GPIO low can force AP init
-  gpio_config_t io_conf{.pin_bit_mask = 1ull << force_ap_init_gpio_num,
-                        .mode = GPIO_MODE_INPUT,
-                        .pull_up_en = GPIO_PULLUP_ENABLE,
+  // LED
+  gpio_config_t io_conf{.pin_bit_mask = 1ull << led_gpio_num,
+                        .mode = GPIO_MODE_OUTPUT,
+                        .pull_up_en = GPIO_PULLUP_DISABLE,
                         .pull_down_en = GPIO_PULLDOWN_DISABLE,
                         .intr_type = GPIO_INTR_DISABLE};
-  ESP_ERROR_CHECK(gpio_config(&io_conf));
-
-  // LED
-  io_conf.pin_bit_mask = 1ull << led_gpio_num;
-  io_conf.mode = GPIO_MODE_OUTPUT;
   return gpio_config(&io_conf);
 }
 
@@ -241,10 +236,9 @@ esp_err_t init() {
   ESP_ERROR_CHECK(gpio_init());
   ESP_ERROR_CHECK(wifi_init());
 
-  // Initialize AP if there is no STA config or AP pin is low
+  // Initialize AP if there is no STA config
   auto const sta_config{optional_sta_config()};
-  auto const force_ap_init{!gpio_get_level(force_ap_init_gpio_num)};
-  auto const mode{!sta_config || force_ap_init ? WIFI_MODE_AP : WIFI_MODE_STA};
+  auto const mode{!sta_config ? WIFI_MODE_AP : WIFI_MODE_STA};
   ESP_ERROR_CHECK(mode == WIFI_MODE_AP ? ap_init(ap_config())
                                        : sta_init(*sta_config));
 

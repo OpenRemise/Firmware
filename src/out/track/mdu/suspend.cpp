@@ -31,7 +31,7 @@ namespace {
 esp_err_t deinit_gpio() {
   ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
   vTaskDelay(pdMS_TO_TICKS(20u));
-  ESP_ERROR_CHECK(gpio_set_level(right_force_low_gpio_num, 1u));
+  ESP_ERROR_CHECK(gpio_set_level(n_force_low_gpio_num, 1u));
   return gpio_isr_handler_remove(ack_gpio_num);
 }
 

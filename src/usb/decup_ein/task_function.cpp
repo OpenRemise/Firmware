@@ -32,70 +32,52 @@ using namespace ulf::decup_ein;
 
 namespace {
 
+/// \todo document
 class ZsuLoad : public ulf::decup_ein::rx::Base {
   uint8_t transmit(std::span<uint8_t const> bytes) final {
-    /**
-    \todo remove once DECUP hardware issues are fixed
-    xMessageBufferSend(out::tx_message_buffer.front_handle,
-                       data(bytes),
-                       size(bytes),
-                       pdMS_TO_TICKS(task.timeout));
+    uint8_t acks{};
 
-    uint8_t acks;
-    auto const bytes_received{
+    if (auto const timeout{http_receive_timeout2ms()};
+        !xMessageBufferSend(out::tx_message_buffer.front_handle,
+                            data(bytes),
+                            size(bytes),
+                            pdMS_TO_TICKS(timeout)))
+      return acks;
+    else
       xMessageBufferReceive(out::rx_message_buffer.handle,
                             &acks,
                             sizeof(acks),
-                            pdMS_TO_TICKS(task.timeout))};
-    assert(bytes_received);
-    */
+                            pdMS_TO_TICKS(timeout));
 
-    // Print incoming
-    for (auto c : bytes) printf("%X ", c);
+    /// \todo remove
+    // for (auto c : bytes) printf("%X ", c);
+    // printf(" -> %d\n", acks);
 
-    /// \todo remove once DECUP hardware issues are fixed
-    uint8_t acks;
-    if (size(bytes) == 1uz) {
-      // MX645 startbyte
-      if (bytes[0uz] == 221u) acks = 2uz;
-      else acks = 1uz;
-    }
-    // all other packets
-    else
-      acks = 2uz;
-
-    printf(" -> %d\n", acks);
     return acks;
   }
-
-  void done() final { printf("done\n"); }
 };
 
 /// \todo document
 void transmit_response(uint8_t byte) {
   xStreamBufferSend(
-    tx_stream_buffer.handle, &byte, sizeof(byte), pdMS_TO_TICKS(task.timeout));
+    tx_stream_buffer.handle, &byte, sizeof(byte), portMAX_DELAY);
 }
 
 /// Actual usb::decup_ein::task loop
 void loop() {
-  // auto const timeout{usb_receive_timeout2ms()};
-  auto const timeout{task.timeout};
-  TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
-
   ZsuLoad zsu_load{};
 
   for (;;) {
-    // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then) return;
-    // In case we got a byte, reset timeout
-    else if (uint8_t byte; xStreamBufferReceive(rx_stream_buffer.handle,
-                                                &byte,
-                                                sizeof(byte),
-                                                pdMS_TO_TICKS(task.timeout))) {
-      then = now + pdMS_TO_TICKS(timeout);
-      if (auto const resp{zsu_load.receive(byte)}) transmit_response(*resp);
-    }
+    // Receive single character
+    uint8_t byte;
+    if (!xStreamBufferReceive(rx_stream_buffer.handle,
+                              &byte,
+                              sizeof(byte),
+                              pdMS_TO_TICKS(http_receive_timeout2ms())))
+      return;
+
+    //
+    if (auto const resp{zsu_load.receive(byte)}) transmit_response(*resp);
   }
 }
 
@@ -110,11 +92,8 @@ void task_function(void*) {
     if (auto expected{State::Suspended};
         state.compare_exchange_strong(expected, State::DECUP_EIN)) {
       transmit_ok();
-      /// \todo re-enable DECUP task once DECUP hardware issues are fixed
-      // LOGI_TASK_RESUME(out::track::decup::task.handle);
+      LOGI_TASK_RESUME(out::track::decup::task.handle);
       loop();
-      /// \todo remove once DECUP hardware issues are fixed
-      state.store(State::Suspended);
     }
     //
     else

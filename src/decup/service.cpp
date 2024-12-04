@@ -56,7 +56,7 @@ esp_err_t Service::socket(http::Message& msg, State decup_state) {
       msg.type != HTTPD_WS_TYPE_CLOSE &&
       state.compare_exchange_strong(expected, decup_state)) {
     LOGI_TASK_RESUME(task.handle);
-    // LOGI_TASK_RESUME(out::track::decup::task.handle);
+    LOGI_TASK_RESUME(out::track::decup::task.handle);
   }
 
   //
@@ -122,51 +122,31 @@ void Service::loop() {
 
 /// \todo document
 uint8_t Service::transmit(std::span<uint8_t const> bytes) {
-  /// \todo remove once DECUP hardware issues are fixed
-  /*
-  //
-  xMessageBufferSend(out::tx_message_buffer.front_handle,
-                     data(bytes),
-                     size(bytes),
-                     portMAX_DELAY);
+  uint8_t acks{};
 
-  //
-  uint8_t retval;
-  auto const bytes_received{xMessageBufferReceive(
-    out::rx_message_buffer.handle, &retval, sizeof(retval), portMAX_DELAY)};
-  return retval;
-  */
-
-  // Print incoming
-  for (auto c : bytes) printf("%X ", c);
-
-  /// \todo remove once DECUP hardware issues are fixed
-  uint8_t acks;
-  if (size(bytes) == 1uz) {
-    // MX645 startbyte
-    if (bytes[0uz] == 221u) acks = 2uz;
-    else acks = 1uz;
-  }
-  // all other packets
+  if (auto const timeout{http_receive_timeout2ms()};
+      !xMessageBufferSend(out::tx_message_buffer.front_handle,
+                          data(bytes),
+                          size(bytes),
+                          pdMS_TO_TICKS(timeout)))
+    return acks;
   else
-    acks = 2uz;
+    xMessageBufferReceive(out::rx_message_buffer.handle,
+                          &acks,
+                          sizeof(acks),
+                          pdMS_TO_TICKS(timeout));
 
-  printf(" -> %d\n", acks);
+  /// \todo remove
+  // for (auto c : bytes) printf("%X ", c);
+  // printf(" -> %d\n", acks);
+
   return acks;
-}
-
-void Service::done() {
-  /// \todo call close and stuff here? this also needs to stop the actual DECUP
-  /// task, just like the USB version
 }
 
 /// \todo document
 void Service::close() {
   _queue = {};
   bug_led(false);
-
-  /// \todo remove once DECUP hardware issues are fixed
-  state.store(State::Suspended);
 }
 
 }  // namespace decup

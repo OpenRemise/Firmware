@@ -130,7 +130,7 @@ void transmit_addressed_datagram(
 
 /// Actual usb::dcc_ein::rx_task loop
 void loop() {
-  auto const timeout{usb_receive_timeout2ms()};
+  auto const timeout{http_receive_timeout2ms()};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
 
   for (;;) {

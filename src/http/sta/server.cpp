@@ -170,7 +170,6 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["sta_pass"] = sta_pass;
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
-  doc["usb_rx_timeout"] = nvs.getUsbReceiveTimeout();
   doc["current_limit"] = std::to_underlying(nvs.getCurrentLimit());
   doc["current_sc_time"] = nvs.getCurrentShortCircuitTime();
   doc["dcc_preamble"] = nvs.getDccPreamble();
@@ -233,10 +232,6 @@ Response Server::settingsPostRequest(Request const& req) {
 
   if (JsonVariantConst v{doc["http_tx_timeout"]}; v.is<uint8_t>())
     if (nvs.setHttpTransmitTimeout(v.as<uint8_t>()) != ESP_OK)
-      return std::unexpected<std::string>{"422 Unprocessable Entity"};
-
-  if (JsonVariantConst v{doc["usb_rx_timeout"]}; v.is<uint8_t>())
-    if (nvs.setUsbReceiveTimeout(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["current_limit"]}; v.is<uint8_t>())

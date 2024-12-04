@@ -38,12 +38,13 @@ namespace out::track::dcc {
 
 using namespace ::dcc;
 using namespace ::dcc::bidi;
+using namespace std::literals;
 
 namespace {
 
 /// \todo remove
-bool d20_state{};
-bool d21_state{};
+bool gpio1_state{};
+bool gpio2_state{};
 
 /// \todo document
 struct Offsets {
@@ -55,20 +56,19 @@ struct Offsets {
 /// \bug DCC/RailCom timings seem to get worse when the DCC tasks runs the
 /// second time?
 consteval Offsets make_offsets() {
-#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+  static_assert(CONFIG_IDF_INIT_VERSION == "5.3.0"sv);
+
   return {
-    .endbit = 32u,
+#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+    .endbit = 34u,
     .tcs = 21u,
-  };
 #elif defined(CONFIG_COMPILER_OPTIMIZATION_SIZE)
-#  error "Unknown optimization setting"
-#elif defined(CONFIG_COMPILER_OPTIMIZATION_PERF)
-#  error "Unknown optimization setting"
-#elif defined(CONFIG_COMPILER_OPTIMIZATION_NONE)
-#  error "Unknown optimization setting"
+    .endbit = 31u,
+    .tcs = 20u,
 #else
 #  error "Unknown optimization setting"
 #endif
+  };
 }
 
 /// \todo document
@@ -83,6 +83,10 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
     .alarm_count = static_cast<decltype(gptimer_alarm_config_t::alarm_count)>(
       TCSMin + offsets.tcs)};
   gptimer_set_alarm_action(gptimer, &alarm_config);
+
+  /// \todo remove
+  // gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
+
   return pdFALSE;
 }
 
@@ -115,7 +119,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     ch1 = uart_ll_get_rxfifo_len(&UART1);
 
     /// \todo remove
-    // gpio_set_level(d21_gpio_num, 1u);
+    // gpio_set_level(GPIO_NUM_1, 1u);
   }
   // TCE
   else {
@@ -132,7 +136,7 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     gptimer_set_alarm_action(gptimer, NULL);
 
     /// \todo remove
-    // gpio_set_level(d21_gpio_num, 0u);
+    // gpio_set_level(GPIO_NUM_1, 0u);
   }
 
   return high_task_awoken == pdTRUE;

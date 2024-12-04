@@ -45,9 +45,6 @@ public:
   uint8_t getHttpTransmitTimeout() const;
   esp_err_t setHttpTransmitTimeout(uint8_t value);
 
-  uint8_t getUsbReceiveTimeout() const;
-  esp_err_t setUsbReceiveTimeout(uint8_t value);
-
   out::track::CurrentLimit getCurrentLimit() const;
   esp_err_t setCurrentLimit(out::track::CurrentLimit value);
 

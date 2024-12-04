@@ -35,7 +35,6 @@ namespace mem {
 /// | bla             | sta_pass        | Binary | -   | -   | ""       |
 /// | bla             | http_rx_timeout | u8     | 5   | 60  | 5        |
 /// | bla             | http_tx_timeout | u8     | 5   | 60  | 5        |
-/// | bla             | usb_rx_timeout  | u8     | 1   | 10  | 1        |
 /// | bla             | current_limit   | u8     | 0   | 3   | 3        |
 /// | bla             | current_sc_time | u8     | 20  | 240 | 20       |
 /// | bla             | dcc_preamble    | u8     | 17  | 30  | 17       |

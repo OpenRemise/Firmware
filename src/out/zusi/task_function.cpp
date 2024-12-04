@@ -30,6 +30,7 @@
 #include "log.h"
 #include "resume.hpp"
 #include "suspend.hpp"
+#include "utility.hpp"
 
 namespace out::zusi {
 
@@ -101,7 +102,7 @@ std::optional<std::span<uint8_t>> receive_command(std::span<uint8_t> stack) {
         xMessageBufferReceive(tx_message_buffer.front_handle,
                               data(stack),
                               size(stack),
-                              pdMS_TO_TICKS(task.timeout))})
+                              pdMS_TO_TICKS(http_receive_timeout2ms()))})
     return stack.subspan(0uz, bytes_received);
   //
   else return std::nullopt;
@@ -109,10 +110,8 @@ std::optional<std::span<uint8_t>> receive_command(std::span<uint8_t> stack) {
 
 /// \todo document
 void transmit(std::span<uint8_t const> stack) {
-  xMessageBufferSend(out::rx_message_buffer.handle,
-                     data(stack),
-                     size(stack),
-                     pdMS_TO_TICKS(task.timeout));
+  xMessageBufferSend(
+    out::rx_message_buffer.handle, data(stack), size(stack), 0u);
 }
 
 /// \todo document

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-///
+/// Convert between ADC measurements and SI units
 ///
 /// \file   analog/convert.cpp
 /// \author Vincent Hamp
@@ -36,24 +36,26 @@ int raw2mV(int meas) {
 
 /// \todo document
 Voltage measurement2mV(VoltageMeasurement meas) {
-  return static_cast<Voltage>((raw2mV(meas) * (r1 + r2)) / r2);
+  return static_cast<Voltage>(
+    (raw2mV(meas) * (voltage_upper_r + voltage_lower_r)) / voltage_lower_r);
 }
 
 /// \todo document
 VoltageMeasurement mV2measurement(Voltage mV) {
-  return static_cast<VoltageMeasurement>((mV * r2 * max_measurement) /
-                                         ((r1 + r2) * vref));
+  return static_cast<VoltageMeasurement>(
+    (mV * voltage_lower_r * max_measurement) /
+    ((voltage_upper_r + voltage_lower_r) * vref));
 }
 
 /// \todo document
 Current measurement2mA(CurrentMeasurement meas) {
-  return static_cast<Current>((raw2mV(meas) * kimon) / rimon);
+  return static_cast<Current>((raw2mV(meas) * current_k) / current_r);
 }
 
 /// \todo document
 CurrentMeasurement mA2measurement(Current mA) {
-  return static_cast<CurrentMeasurement>((mA * rimon * max_measurement) /
-                                         (kimon * vref));
+  return static_cast<CurrentMeasurement>((mA * current_r * max_measurement) /
+                                         (current_k * vref));
 }
 
 }  // namespace analog

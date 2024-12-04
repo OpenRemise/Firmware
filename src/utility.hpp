@@ -160,9 +160,6 @@ void bug_led(uint32_t level);
 uint32_t http_receive_timeout2ms();
 
 ///
-uint32_t usb_receive_timeout2ms();
-
-///
 template<typename F, typename... Ts>
 auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
   using R = decltype(f(std::forward<Ts>(ts)...));

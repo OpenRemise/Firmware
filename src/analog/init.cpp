@@ -20,6 +20,7 @@
 /// \date   09/02/2023
 
 #include "init.hpp"
+#include <driver/gpio.h>
 #include <esp_adc/adc_cali_scheme.h>
 #include <esp_freertos_hooks.h>
 #include "adc_task_function.hpp"
@@ -29,6 +30,21 @@
 
 namespace analog {
 
+namespace {
+
+/// \todo document
+esp_err_t init_gpio() {
+  static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ol_on_gpio_num,
+                                         .mode = GPIO_MODE_OUTPUT,
+                                         .pull_up_en = GPIO_PULLUP_DISABLE,
+                                         .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                         .intr_type = GPIO_INTR_DISABLE};
+  ESP_ERROR_CHECK(gpio_config(&io_conf));
+  return gpio_set_level(ol_on_gpio_num, 0u);
+}
+
+}  // namespace
+
 /// \todo document
 esp_err_t init(BaseType_t xCoreID) {
   voltages_queue.handle =
@@ -37,6 +53,8 @@ esp_err_t init(BaseType_t xCoreID) {
     xQueueCreate(currents_queue.size, sizeof(CurrentsQueue::value_type));
   temperature_queue.handle =
     xQueueCreate(temperature_queue.size, sizeof(TemperatureQueue::value_type));
+
+  ESP_ERROR_CHECK(init_gpio());
 
   //
   static constexpr adc_cali_curve_fitting_config_t cali_config{
