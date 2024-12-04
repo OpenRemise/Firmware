@@ -112,7 +112,7 @@ if(ESP_PLATFORM
       partition_table/partition-table.bin #
       ota_data_initial.bin #
       nvs.bin #
-    DEPENDS ${PROJECT_NAME}.elf
+    DEPENDS all
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
 
