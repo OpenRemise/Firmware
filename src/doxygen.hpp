@@ -694,21 +694,27 @@
 /// The module definition is similar to the one from
 /// [C++20](https://en.cppreference.com/w/cpp/language/modules).
 ///
-/// | Chapter                | Content                                         |
-/// | ---------------------- | ----------------------------------------------- |
-/// | \subpage page_analog   | Analog                                          |
-/// | \subpage page_dcc      | DCC                                             |
-/// | \subpage page_decup    | DECUP                                           |
-/// | \subpage page_http     | HTTP                                            |
-/// | \subpage page_mdu      | MDU                                             |
-/// | \subpage page_mem      | NVS memory                                      |
-/// | \subpage page_ota      | OTA                                             |
-/// | \subpage page_out      | Blub                                            |
-/// | \subpage page_udp      | UDP                                             |
-/// | \subpage page_usb      | USB                                             |
-/// | \subpage page_wifi     | WiFi                                            |
-/// | \subpage page_z21      | Z21                                             |
-/// | \subpage page_zusi     | ZUSI                                            |
+// clang-format off
+/// \page page_api_reference API Reference
+/// \details
+/// | Chapter                | Content                                                           |
+/// | ---------------------- | ----------------------------------------------------------------- |
+/// | \subpage page_analog   | ADC measurements, overcurrent                                     |
+/// | \subpage page_dcc      | Operation and service mode, DCC command generation, BiDi decoding |
+/// | \subpage page_decup    | DECUP ZPP and ZSU updates (WebSocket service)                     |
+/// | \subpage page_http     | Access point (AP) and station (STA) HTTP servers                  |
+/// | \subpage page_mdu      | MDU ZPP and ZSU updates (WebSocket service)                       |
+/// | \subpage page_mem      | NVS memory for settings, locos, accessories                       |
+/// | \subpage page_ota      | OTA update (WebSocket service)                                    |
+/// | \subpage page_out      | Drivers, signal generation of DCC, DECUP, MDU and ZUSI            |
+/// | \subpage page_udp      | UDP                                                               |
+/// | \subpage page_usb      | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) modes       |
+/// | \subpage page_wifi     | WiFi                                                              |
+/// | \subpage page_z21      | Z21 server (UDP and WebSocket service)                            |
+/// | \subpage page_zusi     | ZUSI ZPP updates (WebSocket service)                              |
+// clang-format on
+/// \page page_api_reference API Reference
+/// \details
 ///
 /// <div class="section_buttons">
 /// | Previous               | Next             |

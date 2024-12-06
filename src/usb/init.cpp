@@ -59,7 +59,7 @@ void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
 /// - MDU_EIN
 /// - SUSIV2
 ///
-/// \return ESP_OK  No error
+/// \return ESP_OK  Success
 esp_err_t init(BaseType_t xCoreID) {
   rx_stream_buffer.handle =
     xStreamBufferCreate(rx_stream_buffer.size, sizeof(uint8_t));

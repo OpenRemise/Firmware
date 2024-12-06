@@ -186,7 +186,7 @@ inline constexpr auto attenuation{ADC_ATTEN_DB_0};
 inline constexpr std::array channels{current_channel, voltage_channel};
 
 /// Sample frequency [Hz] (sample takes 100µs, conversion frame 20ms)
-inline constexpr auto sample_freq_hz{10000u};
+inline constexpr auto sample_freq_hz{10'000u};
 
 /// Number of samples per frame
 inline constexpr auto conversion_frame_samples{200uz};
@@ -216,7 +216,6 @@ inline struct TempTask {
   static constexpr auto name{"analog::temp"};
   static constexpr auto stack_size{2048uz};
   static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
-  static constexpr auto timeout{1000u};
   TaskHandle_t handle{};
 } temp_task;
 
