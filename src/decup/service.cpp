@@ -71,20 +71,22 @@ esp_err_t Service::socket(http::Message& msg, State decup_state) {
 
 /// \todo document
 void Service::taskFunction(void*) {
-  for (;;) switch (state.load()) {
+  for (;;) {
+    LOGI_TASK_SUSPEND(task.handle);
+    switch (state.load()) {
       case State::DECUPZpp: [[fallthrough]];
       case State::DECUPZsu:
+        bug_led(true);
         loop();
-        vTaskDelay(pdMS_TO_TICKS(100u));
+        bug_led(false);
         break;
-      default: LOGI_TASK_SUSPEND(task.handle); break;
+      default: break;
     }
+  }
 }
 
 /// \todo document
 void Service::loop() {
-  bug_led(true);
-
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {
@@ -92,7 +94,7 @@ void Service::loop() {
     while (empty(_queue))
       if (xTaskGetTickCount() >= then) {
         LOGI("WebSocket timeout");
-        return close();
+        return reset();
       }
 
     auto const& msg{_queue.front()};
@@ -102,7 +104,7 @@ void Service::loop() {
         std::ranges::for_each(msg.payload,
                               [&](uint8_t byte) { _ack = receive(byte); });
         break;
-      case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return close();
+      case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return reset();
       default:
         LOGE("WebSocket packet type neither binary nor close");
         _ack = nak;
@@ -144,9 +146,6 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes) {
 }
 
 /// \todo document
-void Service::close() {
-  _queue = {};
-  bug_led(false);
-}
+void Service::reset() { _queue = {}; }
 
 }  // namespace decup

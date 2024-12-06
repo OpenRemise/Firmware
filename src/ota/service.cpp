@@ -67,16 +67,21 @@ esp_err_t Service::socket(http::Message& msg) {
 
 /// \todo document
 void Service::taskFunction(void*) {
-  for (;;) switch (state.load()) {
-      case State::OTA: loop(); break;
-      default: LOGI_TASK_SUSPEND(task.handle); break;
+  for (;;) {
+    LOGI_TASK_SUSPEND(task.handle);
+    switch (state.load()) {
+      case State::OTA:
+        bug_led(true);
+        loop();
+        bug_led(false);
+        break;
+      default: break;
     }
+  }
 }
 
 /// \todo document
 void Service::loop() {
-  bug_led(true);
-
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {
@@ -84,7 +89,7 @@ void Service::loop() {
     while (empty(_queue))
       if (xTaskGetTickCount() >= then) {
         LOGI("WebSocket timeout");
-        return close();
+        return reset();
       }
 
     auto const& msg{_queue.front()};
@@ -94,7 +99,7 @@ void Service::loop() {
       case HTTPD_WS_TYPE_CLOSE:
         LOGI("WebSocket closed");
         if (_handle) end();
-        return close();
+        return reset();
       default:
         LOGE("WebSocket packet type neither binary nor close");
         _ack = nak;
@@ -110,7 +115,7 @@ void Service::loop() {
     httpd_ws_send_frame_async(msg.sock_fd, &frame);
 
     // We can't continue in case of error... so abort
-    if (_ack == nak) return close();
+    if (_ack == nak) return reset();
 
     _queue.pop();
   }
@@ -144,14 +149,13 @@ void Service::end() {
   if (err == ESP_OK) err = esp_ota_set_boot_partition(_partition);
   if (err == ESP_OK) {
     LOGI("Update successful, restarting...");
-    bug_led(false);
     esp_restart();
   }
   LOGE("Update failed %s", esp_err_to_name(err));
 }
 
 /// \todo document
-void Service::close() {
+void Service::reset() {
   _queue = {};
   _partition = NULL;
   if (_handle) esp_ota_abort(_handle);
@@ -160,7 +164,6 @@ void Service::close() {
   if (auto expected{State::OTA};
       !state.compare_exchange_strong(expected, State::Suspended))
     assert(false);
-  bug_led(false);
 }
 
 }  // namespace ota
