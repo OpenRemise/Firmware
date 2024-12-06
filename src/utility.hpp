@@ -224,3 +224,9 @@ template<typename... Ts>
 auto httpd_ws_send_frame_async(Ts&&... ts) {
   return httpd_ws_send_frame_async(http::handle, std::forward<Ts>(ts)...);
 }
+
+///
+template<typename... Ts>
+auto httpd_sess_trigger_close(Ts&&... ts) {
+  return httpd_sess_trigger_close(http::handle, std::forward<Ts>(ts)...);
+}

@@ -81,7 +81,7 @@ void Service::taskFunction(void*) {
         loop();
         bug_led(false);
         break;
-      default: break;
+      default: assert(false); break;
     }
   }
 }
@@ -104,18 +104,23 @@ void Service::loop() {
         break;
     }
 
+    // Send frame
     httpd_ws_frame_t frame{
       .type = HTTPD_WS_TYPE_BINARY,
       .payload = data(_acks),
       .len = size(_acks),
     };
-    httpd_ws_send_frame_async(msg.sock_fd, &frame);
+    if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
+      LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+      return reset();
+    }
 
     TickType_t const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
     while (empty(_queue))
       if (xTaskGetTickCount() >= then) {
-        // httpd_sess_trigger_close ?
         LOGI("WebSocket timeout");
+        if (auto const err{httpd_sess_trigger_close(msg.sock_fd)})
+          LOGE("httpd_sess_trigger_close failed %s", esp_err_to_name(err));
         return reset();
       }
   }
