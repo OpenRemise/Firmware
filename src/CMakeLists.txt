@@ -64,6 +64,7 @@ else()
     out/zusi/task_function.cpp
     out/init.cpp
     out/suspend.cpp
+    trace/init.cpp
     udp/init.cpp
     usb/decup_ein/task_function.cpp
     usb/susiv2/task_function.cpp
@@ -76,7 +77,6 @@ else()
     zusi/init.cpp
     zusi/service.cpp
     app_main.cpp
-    trace.cpp
     INCLUDE_DIRS
     .
     ${CMAKE_BINARY_DIR}

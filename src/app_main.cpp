@@ -28,7 +28,7 @@
 #include "mem/init.hpp"
 #include "ota/init.hpp"
 #include "out/init.hpp"
-#include "trace.hpp"
+#include "trace/init.hpp"
 #include "udp/init.hpp"
 #include "usb/init.hpp"
 #include "utility.hpp"
