@@ -13,18 +13,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize WiFi and mDNS
+/// WiFi task function
 ///
-/// \file   wifi/init.hpp
+/// \file   wifi/task_function.cpp
 /// \author Vincent Hamp
-/// \date   02/07/2023
+/// \date   06/12/2024
 
-#pragma once
-
-#include <esp_err.h>
+#include "task_function.hpp"
+#include <driver/gpio.h>
+#include "log.h"
+#include "mem/nvs/settings.hpp"
+#include "utility.hpp"
 
 namespace wifi {
 
-esp_err_t init(BaseType_t xCoreID);
+namespace {
+
+/// \todo document
+void reset_sta_settings() {
+  mem::nvs::Settings settings;
+  settings.setStationmDNS("remise");
+  settings.setStationSSID("");
+  settings.setStationPassword("");
+}
+
+}  // namespace
+
+/// \todo document
+void task_function(void*) {
+  size_t seconds{};
+
+  for (;;) {
+    vTaskDelay(pdMS_TO_TICKS(1000u));
+    seconds = gpio_get_level(boot_gpio_num) ? 0uz : seconds + 1uz;
+    if (seconds < 5uz) continue;
+    bug_led(true);
+    reset_sta_settings();
+    esp_delayed_restart();
+    vTaskDelete(NULL);
+  }
+}
 
 }  // namespace wifi

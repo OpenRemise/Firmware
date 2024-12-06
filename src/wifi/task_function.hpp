@@ -13,18 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize WiFi and mDNS
+/// WiFi task function
 ///
-/// \file   wifi/init.hpp
+/// \file   wifi/task_function.hpp
 /// \author Vincent Hamp
-/// \date   02/07/2023
+/// \date   06/12/2024
 
 #pragma once
 
-#include <esp_err.h>
-
 namespace wifi {
 
-esp_err_t init(BaseType_t xCoreID);
+void task_function(void*);
 
 }  // namespace wifi

@@ -72,6 +72,7 @@ else()
     usb/rx_task_function.cpp
     usb/tx_task_function.cpp
     wifi/init.cpp
+    wifi/task_function.cpp
     z21/init.cpp
     z21/service.cpp
     zusi/init.cpp

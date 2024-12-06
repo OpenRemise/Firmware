@@ -127,6 +127,7 @@
 inline constexpr auto default_notify_index{tskDEFAULT_INDEX_TO_NOTIFY + 1u};
 static_assert(configTASK_NOTIFICATION_ARRAY_ENTRIES > 1);
 
+inline constexpr auto boot_gpio_num{GPIO_NUM_0};
 inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
 enum class State : uint16_t {
@@ -561,6 +562,14 @@ inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
 inline struct ApRecordsQueue {
   QueueHandle_t handle{};
 } ap_records_queue;
+
+///
+inline struct Task {
+  static constexpr auto name{"wifi"};
+  static constexpr auto stack_size{3072uz};
+  static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
+  TaskHandle_t handle{};
+} task;
 
 }  // namespace wifi
 
