@@ -88,12 +88,17 @@ uint8_t receive_acks(uint32_t us) {
   // Wait either
   // 100ms after data or
   // 5ms otherwise
-  auto const then{esp_timer_get_time() + us};
+  auto then{esp_timer_get_time() + us};
   while (esp_timer_get_time() < then)
     if (retval += static_cast<uint8_t>(
           ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u));
         retval == 2u)
       break;
+
+  // Mandatory delay
+  then = esp_timer_get_time() + 100u;
+  while (esp_timer_get_time() < then);
+
   return retval;
 }
 
