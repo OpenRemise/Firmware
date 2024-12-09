@@ -155,4 +155,4 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes) {
 /// \todo document
 void Service::reset() { _queue = {}; }
 
-}  // namespace decup
+} // namespace decup

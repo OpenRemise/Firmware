@@ -36,4 +36,4 @@ esp_err_t init() {
   else return ESP_FAIL;
 }
 
-}  // namespace http
+} // namespace http

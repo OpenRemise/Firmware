@@ -51,4 +51,4 @@ private:
   uint8_t _ack{};
 };
 
-}  // namespace ota
+} // namespace ota

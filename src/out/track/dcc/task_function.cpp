@@ -387,7 +387,7 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -410,4 +410,4 @@ void task_function(void*) {
     }
 }
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

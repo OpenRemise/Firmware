@@ -41,4 +41,4 @@ public:
   dcc::Address::value_type key2address(std::string_view key) const;
 };
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

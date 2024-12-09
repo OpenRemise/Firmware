@@ -52,4 +52,4 @@ namespace mem {
 /// | bla             | mdu_ackreq      | u8     | 10  | 30  | 10       |
 ///
 
-}  // namespace mem
+} // namespace mem

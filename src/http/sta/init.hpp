@@ -27,4 +27,4 @@ namespace http::sta {
 
 esp_err_t init();
 
-}  // namespace http::sta
+} // namespace http::sta

@@ -153,7 +153,7 @@ void loop() {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// DCC_EIN receive task function
 ///
@@ -181,4 +181,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace usb::dcc_ein
+} // namespace usb::dcc_ein

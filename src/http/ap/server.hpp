@@ -49,4 +49,4 @@ private:
   std::string _sta_pass_str;
 };
 
-}  // namespace http::ap
+} // namespace http::ap

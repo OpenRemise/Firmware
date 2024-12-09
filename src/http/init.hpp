@@ -27,4 +27,4 @@ namespace http {
 
 esp_err_t init();
 
-}  // namespace http
+} // namespace http

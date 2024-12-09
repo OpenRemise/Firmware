@@ -148,4 +148,4 @@ Service::transmit(std::vector<uint8_t> const& payload) const {
 /// \todo document
 void Service::reset() { _queue = {}; }
 
-}  // namespace mdu
+} // namespace mdu

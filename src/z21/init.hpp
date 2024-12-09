@@ -27,4 +27,4 @@ namespace z21 {
 
 esp_err_t init(BaseType_t xCoreID);
 
-}  // namespace z21
+} // namespace z21

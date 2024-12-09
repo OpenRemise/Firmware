@@ -50,4 +50,4 @@ esp_err_t init() {
   }
 }
 
-}  // namespace trace
+} // namespace trace

@@ -25,4 +25,4 @@ namespace out::track::decup {
 
 void task_function(void*);
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

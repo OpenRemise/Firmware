@@ -27,4 +27,4 @@ namespace mem::nvs {
 
 esp_err_t init();
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

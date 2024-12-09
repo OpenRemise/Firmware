@@ -25,4 +25,4 @@ namespace usb::susiv2 {
 
 void task_function(void*);
 
-}  // namespace usb::susiv2
+} // namespace usb::susiv2

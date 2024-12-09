@@ -132,27 +132,27 @@ inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
 enum class State : uint16_t {
   // Flags (8 bits)
-  Suspended = 0u << 0u,          ///<
-  Suspend = !Suspended << 0u,    ///<
-  ShortCircuit = Suspend << 1u,  ///<
+  Suspended = 0u << 0u,         ///<
+  Suspend = !Suspended << 0u,   ///<
+  ShortCircuit = Suspend << 1u, ///<
 
   // Outputs
-  DCCOperations = 1u << CHAR_BIT,  ///<
-  DCCService = 2u << CHAR_BIT,     ///<
-  DECUPZpp = 3u << CHAR_BIT,       ///<
-  DECUPZsu = 4u << CHAR_BIT,       ///<
-  MDUZpp = 5u << CHAR_BIT,         ///<
-  MDUZsu = 6u << CHAR_BIT,         ///<
-  ZUSI = 7u << CHAR_BIT,           ///<
+  DCCOperations = 1u << CHAR_BIT, ///<
+  DCCService = 2u << CHAR_BIT,    ///<
+  DECUPZpp = 3u << CHAR_BIT,      ///<
+  DECUPZsu = 4u << CHAR_BIT,      ///<
+  MDUZpp = 5u << CHAR_BIT,        ///<
+  MDUZsu = 6u << CHAR_BIT,        ///<
+  ZUSI = 7u << CHAR_BIT,          ///<
 
   // USB protocols
-  DCC_EIN = 8u << CHAR_BIT,    ///<
-  DECUP_EIN = 9u << CHAR_BIT,  ///<
-  MDU_EIN = 10u << CHAR_BIT,   ///<
-  SUSIV2 = 11u << CHAR_BIT,    ///<
+  DCC_EIN = 8u << CHAR_BIT,   ///<
+  DECUP_EIN = 9u << CHAR_BIT, ///<
+  MDU_EIN = 10u << CHAR_BIT,  ///<
+  SUSIV2 = 11u << CHAR_BIT,   ///<
 
   // System
-  OTA = 12u << CHAR_BIT,  ///<
+  OTA = 12u << CHAR_BIT, ///<
 };
 static_assert(std::to_underlying(State::OTA) < MAGIC_ENUM_RANGE_MAX);
 
@@ -256,7 +256,7 @@ inline struct TemperatureQueue {
   QueueHandle_t handle{};
 } temperature_queue;
 
-}  // namespace analog
+} // namespace analog
 
 namespace dcc {
 
@@ -274,7 +274,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace dcc
+} // namespace dcc
 
 namespace decup {
 
@@ -286,7 +286,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace decup
+} // namespace decup
 
 namespace http {
 
@@ -301,9 +301,9 @@ namespace sta {
 class Server;
 inline std::shared_ptr<Server> server;
 
-}  // namespace sta
+} // namespace sta
 
-}  // namespace http
+} // namespace http
 
 namespace mdu {
 
@@ -315,7 +315,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace mdu
+} // namespace mdu
 
 namespace ota {
 
@@ -333,7 +333,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace ota
+} // namespace ota
 
 namespace zusi {
 
@@ -345,7 +345,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace zusi
+} // namespace zusi
 
 namespace out {
 
@@ -414,7 +414,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace dcc
+} // namespace dcc
 
 namespace decup {
 
@@ -426,7 +426,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace decup
+} // namespace decup
 
 namespace mdu {
 
@@ -438,9 +438,9 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace mdu
+} // namespace mdu
 
-}  // namespace track
+} // namespace track
 
 namespace zusi {
 
@@ -456,16 +456,16 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace zusi
+} // namespace zusi
 
-}  // namespace out
+} // namespace out
 
 namespace udp {
 
 inline constexpr uint16_t port{21105u};
 inline int sock_fd;
 
-}  // namespace udp
+} // namespace udp
 
 namespace usb {
 
@@ -513,7 +513,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace dcc_ein
+} // namespace dcc_ein
 
 namespace decup_ein {
 
@@ -525,7 +525,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace decup_ein
+} // namespace decup_ein
 
 namespace susiv2 {
 
@@ -544,9 +544,9 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace susiv2
+} // namespace susiv2
 
-}  // namespace usb
+} // namespace usb
 
 namespace wifi {
 
@@ -570,7 +570,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace wifi
+} // namespace wifi
 
 namespace z21 {
 
@@ -586,4 +586,4 @@ inline struct RxTask {
 class Service;
 inline std::shared_ptr<Service> service;
 
-}  // namespace z21
+} // namespace z21

@@ -30,4 +30,4 @@ namespace dcc {
 /// The DCC module runs a service that...
 ///
 
-}  // namespace dcc
+} // namespace dcc

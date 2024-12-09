@@ -28,4 +28,4 @@ namespace http {
 
 using Response = std::expected<std::string, std::string>;
 
-}  // namespace http
+} // namespace http

@@ -44,7 +44,7 @@ esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
   return gpio_set_level(enable_gpio_num, 1u);
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t resume(decup_encoder_config_t const& encoder_config,
@@ -54,4 +54,4 @@ esp_err_t resume(decup_encoder_config_t const& encoder_config,
   return init_gpio(gpio_isr_handler);
 }
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

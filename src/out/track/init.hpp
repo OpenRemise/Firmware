@@ -27,4 +27,4 @@ namespace out::track {
 
 esp_err_t init(BaseType_t xCoreID);
 
-}  // namespace out::track
+} // namespace out::track

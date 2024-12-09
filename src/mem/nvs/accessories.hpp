@@ -31,4 +31,4 @@ public:
   explicit Accessories() : Base{"accessories", NVS_READWRITE} {}
 };
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

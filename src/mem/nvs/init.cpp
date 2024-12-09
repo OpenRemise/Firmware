@@ -39,4 +39,4 @@ esp_err_t init() {
   return err;
 }
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

@@ -48,7 +48,7 @@ esp_err_t init_gpio() {
   return gpio_set_level(ol_on_gpio_num, 0u);
 }
 
-}  // namespace
+} // namespace
 
 /// Initialize analog
 ///
@@ -138,4 +138,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace analog
+} // namespace analog

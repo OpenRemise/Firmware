@@ -27,4 +27,4 @@ namespace wifi {
 
 esp_err_t init(BaseType_t xCoreID);
 
-}  // namespace wifi
+} // namespace wifi

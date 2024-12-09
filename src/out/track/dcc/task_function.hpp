@@ -25,4 +25,4 @@ namespace out::track::dcc {
 
 void task_function(void*);
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

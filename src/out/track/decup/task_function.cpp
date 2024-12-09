@@ -155,7 +155,7 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -170,4 +170,4 @@ void task_function(void*) {
     }
 }
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

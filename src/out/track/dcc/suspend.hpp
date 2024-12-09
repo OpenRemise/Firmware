@@ -32,4 +32,4 @@ esp_err_t deinit_rmt();
 esp_err_t deinit_encoder();
 esp_err_t suspend();
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

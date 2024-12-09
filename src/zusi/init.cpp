@@ -24,7 +24,7 @@ namespace {
 
 std::shared_ptr<Service> service;
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t init(BaseType_t xCoreID) {
@@ -35,4 +35,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace zusi
+} // namespace zusi

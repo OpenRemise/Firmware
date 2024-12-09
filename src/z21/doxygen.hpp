@@ -28,4 +28,4 @@ namespace z21 {
 /// \todo document Z21 page
 ///
 
-}  // namespace z21
+} // namespace z21

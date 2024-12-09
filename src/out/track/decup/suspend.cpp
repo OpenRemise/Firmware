@@ -43,7 +43,7 @@ esp_err_t deinit_alarm() {
   return gptimer_set_alarm_action(gptimer, NULL);
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t deinit_encoder() {
@@ -60,4 +60,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

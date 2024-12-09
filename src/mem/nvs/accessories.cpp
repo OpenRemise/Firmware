@@ -24,4 +24,4 @@
 #include <charconv>
 #include "log.h"
 
-namespace mem::nvs {}  // namespace mem::nvs
+namespace mem::nvs {} // namespace mem::nvs

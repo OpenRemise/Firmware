@@ -91,4 +91,4 @@ public:
   esp_err_t setMduAckreq(uint8_t value);
 };
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

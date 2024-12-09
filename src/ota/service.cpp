@@ -173,4 +173,4 @@ void Service::reset() {
     assert(false);
 }
 
-}  // namespace ota
+} // namespace ota

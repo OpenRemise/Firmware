@@ -25,4 +25,4 @@ namespace analog {
 
 void temp_task_function(void*);
 
-}  // namespace analog
+} // namespace analog

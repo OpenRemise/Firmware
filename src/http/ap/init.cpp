@@ -29,7 +29,7 @@ namespace {
 
 std::unique_ptr<Server> server;
 
-}  // namespace
+} // namespace
 
 ///
 esp_err_t init() {
@@ -37,4 +37,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-}  // namespace http::ap
+} // namespace http::ap

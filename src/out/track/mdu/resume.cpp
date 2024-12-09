@@ -46,7 +46,7 @@ esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
   return gpio_set_level(n_force_low_gpio_num, 0u);
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t resume(mdu_encoder_config_t const& encoder_config,
@@ -56,4 +56,4 @@ esp_err_t resume(mdu_encoder_config_t const& encoder_config,
   return init_gpio(gpio_isr_handler);
 }
 
-}  // namespace out::track::mdu
+} // namespace out::track::mdu

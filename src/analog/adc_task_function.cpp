@@ -42,7 +42,7 @@ auto get_short_circuit_count() {
          conversion_frame_time;
 }
 
-}  // namespace
+} // namespace
 
 /// ADC task function
 ///
@@ -116,4 +116,4 @@ void adc_task_function(void*) {
   ESP_ERROR_CHECK(adc_continuous_stop(adc1_handle));
 }
 
-}  // namespace analog
+} // namespace analog

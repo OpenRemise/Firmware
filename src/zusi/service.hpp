@@ -43,4 +43,4 @@ private:
   std::queue<http::Message> _queue{};
 };
 
-}  // namespace zusi
+} // namespace zusi

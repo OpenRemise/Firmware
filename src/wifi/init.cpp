@@ -243,7 +243,7 @@ esp_err_t mdns_init(wifi_mode_t mode) {
   return ESP_OK;
 }
 
-}  // namespace
+} // namespace
 
 /// Initialize either
 /// - AP (access point) if NVS doesn't contain SSID/pass or GPIO2 is high
@@ -276,4 +276,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return mdns_init(mode);
 }
 
-}  // namespace wifi
+} // namespace wifi

@@ -33,7 +33,7 @@ constexpr auto round_to(std::integral auto n, std::integral auto to) {
   return (n - a >= b - n) ? b : a;
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 std::string Settings::getStationmDNS() const { return getBlob("sta_mdns"); }
@@ -220,7 +220,7 @@ uint8_t Settings::getDccFlags() const { return getU8("dcc_flags"); }
 /// \todo document
 /// \todo replace the bit masks with definitions from the Z21 lib
 esp_err_t Settings::setDccFlags(uint8_t value) {
-  return setU8("dcc_flags", (value & ~0x03u) | 0x02u);  // Force DCC
+  return setU8("dcc_flags", (value & ~0x03u) | 0x02u); // Force DCC
 }
 
 /// \todo document
@@ -243,4 +243,4 @@ esp_err_t Settings::setMduAckreq(uint8_t value) {
            : ESP_ERR_INVALID_ARG;
 }
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

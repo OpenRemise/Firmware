@@ -27,4 +27,4 @@ namespace out::zusi {
 
 esp_err_t resume();
 
-}  // namespace out::zusi
+} // namespace out::zusi

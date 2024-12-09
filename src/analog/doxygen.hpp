@@ -46,4 +46,4 @@ namespace analog {
 /// - measurement2mA(CurrentMeasurement)
 /// - mA2measurement(Current)
 
-}  // namespace analog
+} // namespace analog

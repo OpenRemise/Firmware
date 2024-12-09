@@ -28,4 +28,4 @@ namespace ota {
 /// \todo document OTA page
 ///
 
-}  // namespace ota
+} // namespace ota

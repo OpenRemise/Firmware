@@ -148,7 +148,7 @@ void loop() {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -170,4 +170,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace usb::susiv2
+} // namespace usb::susiv2

@@ -51,4 +51,4 @@ private:
   esp_err_t wildcardGetHandler(httpd_req_t* req);
 };
 
-}  // namespace http::sta
+} // namespace http::sta

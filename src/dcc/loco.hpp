@@ -51,4 +51,4 @@ struct Loco : NvLocoBase {
   }
 };
 
-}  // namespace dcc
+} // namespace dcc

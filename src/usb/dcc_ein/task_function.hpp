@@ -29,4 +29,4 @@ namespace usb::dcc_ein {
 std::optional<dcc::Packet> receive_dcc_packet();
 void task_function(void*);
 
-}  // namespace usb::dcc_ein
+} // namespace usb::dcc_ein

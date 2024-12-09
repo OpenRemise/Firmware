@@ -86,10 +86,10 @@ private:
 
   //
   struct CvRequest {
-    TickType_t then{};              ///<
-    uint16_t addr{};                ///<
-    uint16_t cv_addr{};             ///<
-    std::optional<uint8_t> byte{};  ///<
+    TickType_t then{};             ///<
+    uint16_t addr{};               ///<
+    uint16_t cv_addr{};            ///<
+    std::optional<uint8_t> byte{}; ///<
   };
   ztl::inplace_deque<CvRequest, Z21_SERVER_MAX_LOCO_ADDRESSES_PER_CLIENT>
     _cv_request_deque{};
@@ -97,4 +97,4 @@ private:
     _cv_pom_request_deque{};
 };
 
-}  // namespace dcc
+} // namespace dcc

@@ -33,4 +33,4 @@ namespace wifi {
 /// UDP?) are also started.
 ///
 
-}  // namespace wifi
+} // namespace wifi

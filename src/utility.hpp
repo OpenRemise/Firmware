@@ -105,7 +105,7 @@ constexpr T prime{sizeof(T) <= 4uz ? 16777619ull : 1099511628211ull};
 template<std::unsigned_integral T>
 constexpr T offset{sizeof(T) <= 4uz ? 2166136261ull : 14695981039346656037ull};
 
-}  // namespace detail
+} // namespace detail
 
 // http://www.isthe.com/chongo/tech/comp/fnv/index.html
 template<std::unsigned_integral T = uint32_t>

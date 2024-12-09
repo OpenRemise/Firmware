@@ -131,4 +131,4 @@ private:
   std::map<key_type, async_mapped_type, key_compare> _async_map;
 };
 
-}  // namespace http
+} // namespace http

@@ -108,7 +108,7 @@ void wait_for_all_protocol_tasks_to_suspend() {
   while (any_protocol_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
 }
 
-}  // namespace
+} // namespace
 
 /// USB receive task function
 ///
@@ -123,4 +123,4 @@ void rx_task_function(void*) {
   }
 }
 
-}  // namespace usb
+} // namespace usb

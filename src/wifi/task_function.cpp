@@ -37,7 +37,7 @@ void reset_sta_settings() {
   settings.setStationPassword("");
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -54,4 +54,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace wifi
+} // namespace wifi

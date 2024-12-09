@@ -48,7 +48,7 @@ void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
     xStreamBufferSend(rx_stream_buffer.handle, data(buf), bytes_received, 0u);
 }
 
-}  // namespace
+} // namespace
 
 /// Initialize USB
 ///
@@ -126,4 +126,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace usb
+} // namespace usb

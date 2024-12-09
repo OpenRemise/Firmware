@@ -51,4 +51,4 @@ esp_err_t set_current_limit(CurrentLimit current_limit) {
   }
 }
 
-}  // namespace out::track
+} // namespace out::track

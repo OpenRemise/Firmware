@@ -104,4 +104,4 @@ esp_err_t Base::setU16(std::string const& key, uint16_t value) {
   return err;
 }
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

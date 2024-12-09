@@ -121,8 +121,8 @@ packet2ack_counts(mdu_encoder_config_t const& encoder_config,
       return a + std::popcount(b);
     })};
   auto const zeros{size(packet) * CHAR_BIT - ones};
-  count += ones * timings[encoder_config.transfer_rate].one +   // Ones
-           zeros * timings[encoder_config.transfer_rate].zero;  // Zeros
+  count += ones * timings[encoder_config.transfer_rate].one +  // Ones
+           zeros * timings[encoder_config.transfer_rate].zero; // Zeros
 
   // End
   count += timings[encoder_config.transfer_rate].one;
@@ -303,7 +303,7 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -320,4 +320,4 @@ void task_function(void*) {
     }
 }
 
-}  // namespace out::track::mdu
+} // namespace out::track::mdu

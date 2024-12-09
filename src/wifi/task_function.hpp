@@ -25,4 +25,4 @@ namespace wifi {
 
 void task_function(void*);
 
-}  // namespace wifi
+} // namespace wifi

@@ -48,7 +48,7 @@ esp_err_t init_channel() {
     .resolution_hz = 1'000'000u,
     .mem_block_symbols =
       SOC_RMT_CHANNELS_PER_GROUP *
-      SOC_RMT_MEM_WORDS_PER_CHANNEL,  // 8 channels sharing 384x32 bit RAM
+      SOC_RMT_MEM_WORDS_PER_CHANNEL, // 8 channels sharing 384x32 bit RAM
     .trans_queue_depth = trans_queue_depth,
     .intr_priority = 3,
     .flags = {
@@ -103,7 +103,7 @@ esp_err_t init_gpio() {
   return gpio_isr_handler_add(nfault_gpio_num, nfault_isr_handler, NULL);
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t init(BaseType_t xCoreID) {
@@ -140,4 +140,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace out::track
+} // namespace out::track

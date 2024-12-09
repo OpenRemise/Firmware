@@ -158,4 +158,4 @@ void Service::reset() {
   // state.compare_exchange_strong(expected, State::Suspend);
 }
 
-}  // namespace zusi
+} // namespace zusi

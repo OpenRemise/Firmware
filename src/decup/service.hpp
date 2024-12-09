@@ -43,4 +43,4 @@ private:
   std::optional<uint8_t> _ack{};
 };
 
-}  // namespace decup
+} // namespace decup

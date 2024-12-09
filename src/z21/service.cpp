@@ -259,4 +259,4 @@ bool Service::trackPower(bool on, State dcc_state) {
   }
 }
 
-}  // namespace z21
+} // namespace z21

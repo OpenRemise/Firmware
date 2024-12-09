@@ -31,4 +31,4 @@ esp_err_t init_encoder(decup_encoder_config_t const& encoder_config);
 esp_err_t resume(decup_encoder_config_t const& encoder_config,
                  gpio_isr_t gpio_isr_handler);
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

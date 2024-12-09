@@ -37,7 +37,7 @@ int raw2mV(int meas) {
   return retval;
 }
 
-}  // namespace
+} // namespace
 
 /// Convert VoltageMeasurement to Voltage
 ///
@@ -75,4 +75,4 @@ CurrentMeasurement mA2measurement(Current mA) {
                                          (current_k * vref));
 }
 
-}  // namespace analog
+} // namespace analog

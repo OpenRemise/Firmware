@@ -32,4 +32,4 @@ CurrentMeasurement mA2measurement(Current mA);
 
 inline adc_cali_handle_t cali_handle{};
 
-}  // namespace analog
+} // namespace analog

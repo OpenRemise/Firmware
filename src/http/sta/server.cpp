@@ -476,4 +476,4 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   }
 }
 
-}  // namespace http::sta
+} // namespace http::sta

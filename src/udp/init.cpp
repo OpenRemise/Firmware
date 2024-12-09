@@ -44,4 +44,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-}  // namespace udp
+} // namespace udp

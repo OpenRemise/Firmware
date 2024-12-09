@@ -81,7 +81,7 @@ void loop() {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -103,4 +103,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace usb::decup_ein
+} // namespace usb::decup_ein

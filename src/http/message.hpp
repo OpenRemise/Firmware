@@ -32,4 +32,4 @@ struct Message {
   std::vector<uint8_t> payload;
 };
 
-}  // namespace http
+} // namespace http
