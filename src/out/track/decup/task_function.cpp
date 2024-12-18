@@ -39,11 +39,19 @@ namespace {
 
 bool gpio1_state{};
 bool gpio2_state{};
+bool gpio21_state{};
 
 /// \todo document
 void IRAM_ATTR ack_isr_handler(void*) {
-  xTaskNotifyIndexedFromISR(
-    task.handle, default_notify_index, 0u, eIncrement, NULL);
+  uint64_t value{};
+  gptimer_get_raw_count(gptimer, &value);
+
+  // Send a notification to the task
+  xTaskNotifyIndexedFromISR(task.handle,
+                            default_notify_index,
+                            static_cast<uint32_t>(value),
+                            eSetValueWithOverwrite,
+                            NULL);
 
   gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
 }
@@ -82,22 +90,34 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
 }
 
 /// \todo document
-uint8_t receive_acks(uint32_t us) {
+/// Wait either 100ms after data or 5ms otherwise
+uint8_t receive_acks(uint32_t us, bool use_printf = false) {
   uint8_t retval{};
 
-  // Wait either
-  // 100ms after data or
-  // 5ms otherwise
+  // Get reference value
+  uint32_t begin{};
   auto then{esp_timer_get_time() + us};
-  while (esp_timer_get_time() < then)
-    if (retval += static_cast<uint8_t>(
-          ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u));
-        retval == 2u)
-      break;
+  while (esp_timer_get_time() < then) {
+    // gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
+    begin = ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u);
+    if (begin) break;
+  }
 
-  // Mandatory delay
-  then = esp_timer_get_time() + 100u;
-  while (esp_timer_get_time() < then);
+  // Got nothing
+  if (!begin) return retval;
+
+  // As long as end keeps changing every 500us loop
+  uint32_t end{begin};
+  then = esp_timer_get_time() + 500u;
+  while (esp_timer_get_time() < then) {
+    gpio_set_level(GPIO_NUM_21, gpio21_state = !gpio21_state);
+    auto const tmp{ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u)};
+    if (!tmp || end == tmp) continue;
+    end = tmp;
+    then = esp_timer_get_time() + 500u;
+  }
+
+  if (use_printf) printf("begin %u    end %u\n", begin, end);
 
   return retval;
 }
@@ -132,7 +152,7 @@ esp_err_t loop() {
 
 /// \todo document that this pings a decoder (default MX645)
 esp_err_t test_loop(uint8_t decoder_id = 221u) {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
 
   for (auto i{0uz}; i < 200uz; ++i) {
     Packet packet{0xEFu};
@@ -145,7 +165,14 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 
   Packet packet{decoder_id};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u))};
+  gpio_set_level(GPIO_NUM_2, 1u);
+  auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u), true)};
+  gpio_set_level(GPIO_NUM_2, 0u);
+
+  /// \todo remove
+  printf("done\n");
+  for (;;) vTaskDelay(pdMS_TO_TICKS(5000u));
+
   if (acks == 2uz) {
     LOGI("DECUP test success");
     return ESP_OK;
@@ -163,7 +190,7 @@ void task_function(void*) {
       case State::DECUPZsu: [[fallthrough]];
       case State::DECUP_EIN:
         ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
-        ESP_ERROR_CHECK(loop());
+        ESP_ERROR_CHECK(test_loop());
         ESP_ERROR_CHECK(suspend());
         break;
       default: LOGI_TASK_SUSPEND(task.handle); break;
