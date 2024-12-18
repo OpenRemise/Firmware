@@ -74,11 +74,13 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   // Start timer
   ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
 
+  // Wait
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
+
   // Clear any stored counts
   xTaskNotifyStateClearIndexed(NULL, default_notify_index);
 
-  // Wait
-  return rmt_tx_wait_all_done(channel, -1);
+  return ESP_OK;
 }
 
 /// \todo document
@@ -113,7 +115,7 @@ esp_err_t transmit_acks(uint8_t acks) {
 
 /// \todo document
 esp_err_t loop() {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
 
   for (;;) {
     // Return on empty packet, suspend or short circuit
@@ -124,15 +126,15 @@ esp_err_t loop() {
     // Transmit packet
     else {
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const acks{receive_acks((size(*packet) > 1uz ? 100'000u : 5000u))};
+      auto const acks{receive_acks(size(*packet) > 1uz ? 100'000u : 5000u)};
       ESP_ERROR_CHECK(transmit_acks(acks));
     }
   }
 }
 
 /// \todo document that this pings a decoder (default MX645)
-esp_err_t test_loop(uint8_t decoder_id = 221u) {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+esp_err_t test_loop(uint8_t decoder_id = 250u) {
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
 
   for (auto i{0uz}; i < 200uz; ++i) {
     Packet packet{0xEFu};
@@ -145,7 +147,11 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 
   Packet packet{decoder_id};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u))};
+  gpio_set_level(GPIO_NUM_2, 1u);
+  auto const acks{receive_acks(size(packet) > 1uz ? 100'000u : 5000u)};
+  gpio_set_level(GPIO_NUM_2, 0u);
+  for (;;) vTaskDelay(pdMS_TO_TICKS(1000u));
+
   if (acks == 2uz) {
     LOGI("DECUP test success");
     return ESP_OK;
@@ -163,7 +169,7 @@ void task_function(void*) {
       case State::DECUPZsu: [[fallthrough]];
       case State::DECUP_EIN:
         ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
-        ESP_ERROR_CHECK(loop());
+        ESP_ERROR_CHECK(test_loop());
         ESP_ERROR_CHECK(suspend());
         break;
       default: LOGI_TASK_SUSPEND(task.handle); break;

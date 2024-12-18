@@ -89,14 +89,25 @@ esp_err_t init_gpio() {
   // individual GPIO pins via gpio_isr_handler_add
   ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL2));
 
-  // Inputs
+  //
   {
     static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << nfault_gpio_num | 1ull << ack_gpio_num,
+      .pin_bit_mask = 1ull << nfault_gpio_num,
       .mode = GPIO_MODE_INPUT,
       .pull_up_en = GPIO_PULLUP_ENABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_NEGEDGE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+  }
+
+  //
+  {
+    static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ack_gpio_num,
+                                           .mode = GPIO_MODE_INPUT,
+                                           .pull_up_en = GPIO_PULLUP_ENABLE,
+                                           .pull_down_en =
+                                             GPIO_PULLDOWN_DISABLE,
+                                           .intr_type = GPIO_INTR_NEGEDGE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
     gpio_glitch_filter_handle_t filter;
