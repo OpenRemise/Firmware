@@ -85,6 +85,23 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
 }
 
 /// \todo document
+/// MX645 @ 1.3A
+/// 18V 154-156 360-362
+/// 16V 152-153 357-359
+/// 14V 149-150 354-356
+/// 12V 145-146 345-347
+/// 10V 137-138 330-332
+///
+/// MX699 @ 1.3A
+/// 18V x
+/// 16V 214-215 422-427
+/// 14V 235-237 414-416
+/// 12V 143-146 364-366
+/// 10V 163-164 278-280
+///
+/// MX699 @ 2.7A
+/// 18V 267-267 314-315
+/// 10V x (Doppelpuls bricht nicht mehr ein)
 uint32_t measure_pulse_width(uint32_t us) {
   auto then{esp_timer_get_time() + us};
 
@@ -117,10 +134,12 @@ uint8_t receive_acks(uint32_t us, Packet const& packet) {
       std::abs(static_cast<int32_t>(pulse_width - single_pulse_width))};
     auto const diff_to_double{
       std::abs(static_cast<int32_t>(pulse_width - 2 * single_pulse_width))};
-    printf("diffs %d/%d\n", diff_to_single, diff_to_double);
+    printf(
+      "width %u    diffs %d/%d\n", pulse_width, diff_to_single, diff_to_double);
     if (size(packet) > 1uz && diff_to_single < diff_to_double)
       gpio_set_level(GPIO_NUM_2, gpio2_state = !gpio2_state);
-    return diff_to_single < diff_to_double ? 1u : 2u;
+    return pulse_width < 300uz ? 1u : 2u;
+    // return diff_to_single < diff_to_double ? 1u : 2u;
   }
   //
   else
