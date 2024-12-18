@@ -39,22 +39,6 @@ namespace {
 
 bool gpio1_state{};
 bool gpio2_state{};
-bool gpio21_state{};
-
-/// \todo document
-void IRAM_ATTR ack_isr_handler(void*) {
-  uint64_t value{};
-  gptimer_get_raw_count(gptimer, &value);
-
-  // Send a notification to the task
-  xTaskNotifyIndexedFromISR(task.handle,
-                            default_notify_index,
-                            static_cast<uint32_t>(value),
-                            eSetValueWithOverwrite,
-                            NULL);
-
-  gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
-}
 
 /// \todo document
 std::optional<Packet> receive_packet() {
@@ -78,48 +62,51 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   static constexpr rmt_transmit_config_t config{.flags = {.eot_level = 1u}};
   ESP_ERROR_CHECK(
     rmt_transmit(channel, encoder, data(packet), size(packet), &config));
-
-  // Start timer
-  ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
-
-  // Clear any stored counts
-  xTaskNotifyStateClearIndexed(NULL, default_notify_index);
-
-  // Wait
   return rmt_tx_wait_all_done(channel, -1);
 }
 
 /// \todo document
-/// Wait either 100ms after data or 5ms otherwise
-uint8_t receive_acks(uint32_t us, bool use_printf = false) {
-  uint8_t retval{};
-
-  // Get reference value
-  uint32_t begin{};
+uint32_t measure_pulse_width(uint32_t us) {
+  uint64_t retval{};
   auto then{esp_timer_get_time() + us};
-  while (esp_timer_get_time() < then) {
-    // gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
-    begin = ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u);
-    if (begin) break;
-  }
 
-  // Got nothing
-  if (!begin) return retval;
+  for (;;) {
+    // Wait for low level
+    for (;;) {
+      if (esp_timer_get_time() >= then) return static_cast<uint32_t>(retval);
+      else if (gpio_get_level(ack_gpio_num)) continue;
+      else if (!retval) ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
+      break;
+    }
 
-  // As long as end keeps changing every 500us loop
-  uint32_t end{begin};
-  then = esp_timer_get_time() + 500u;
-  while (esp_timer_get_time() < then) {
-    gpio_set_level(GPIO_NUM_21, gpio21_state = !gpio21_state);
-    auto const tmp{ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u)};
-    if (!tmp || end == tmp) continue;
-    end = tmp;
+    // Wait for high level
     then = esp_timer_get_time() + 500u;
+    for (;;) {
+      if (esp_timer_get_time() >= then) return static_cast<uint32_t>(retval);
+      else if (!gpio_get_level(ack_gpio_num)) continue;
+      ESP_ERROR_CHECK(gptimer_get_raw_count(gptimer, &retval));
+      break;
+    }
+
+    //
+    then = esp_timer_get_time() + 100u;
   }
+}
 
-  if (use_printf) printf("begin %u    end %u\n", begin, end);
-
-  return retval;
+/// \todo document
+/// Wait either 100ms after data or 5ms otherwise
+uint8_t receive_acks(uint32_t us) {
+  if (auto const pulse_width{measure_pulse_width(us)}) {
+    static constexpr auto single_pulse_width{156u};
+    auto const diff_to_single{
+      std::abs(static_cast<int32_t>(pulse_width - single_pulse_width))};
+    auto const diff_to_double{
+      std::abs(static_cast<int32_t>(pulse_width - 2 * single_pulse_width))};
+    return diff_to_single < diff_to_double ? 1u : 2u;
+  }
+  //
+  else
+    return 0u;
 }
 
 /// \todo document
@@ -133,7 +120,7 @@ esp_err_t transmit_acks(uint8_t acks) {
 
 /// \todo document
 esp_err_t loop() {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
 
   for (;;) {
     // Return on empty packet, suspend or short circuit
@@ -145,6 +132,7 @@ esp_err_t loop() {
     else {
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
       auto const acks{receive_acks((size(*packet) > 1uz ? 100'000u : 5000u))};
+      if (acks) gpio_set_level(GPIO_NUM_2, gpio2_state = !gpio2_state);
       ESP_ERROR_CHECK(transmit_acks(acks));
     }
   }
@@ -165,14 +153,7 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 
   Packet packet{decoder_id};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  gpio_set_level(GPIO_NUM_2, 1u);
-  auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u), true)};
-  gpio_set_level(GPIO_NUM_2, 0u);
-
-  /// \todo remove
-  printf("done\n");
-  for (;;) vTaskDelay(pdMS_TO_TICKS(5000u));
-
+  auto const acks{receive_acks((size(packet) > 1uz ? 100'000u : 5000u))};
   if (acks == 2uz) {
     LOGI("DECUP test success");
     return ESP_OK;
@@ -189,8 +170,8 @@ void task_function(void*) {
   for (;;) switch (decup_encoder_config_t encoder_config{}; state.load()) {
       case State::DECUPZsu: [[fallthrough]];
       case State::DECUP_EIN:
-        ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
-        ESP_ERROR_CHECK(test_loop());
+        ESP_ERROR_CHECK(resume(encoder_config));
+        ESP_ERROR_CHECK(loop());
         ESP_ERROR_CHECK(suspend());
         break;
       default: LOGI_TASK_SUSPEND(task.handle); break;

@@ -20,6 +20,7 @@
 /// \date   14/08/2024
 
 #include "resume.hpp"
+#include <driver/gpio.h>
 #include <driver/gptimer.h>
 
 namespace out::track::decup {
@@ -39,19 +40,15 @@ esp_err_t init_alarm() {
 }
 
 /// \todo document
-esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
-  ESP_ERROR_CHECK(gpio_isr_handler_add(ack_gpio_num, gpio_isr_handler, NULL));
-  return gpio_set_level(enable_gpio_num, 1u);
-}
+esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
 
 } // namespace
 
 /// \todo document
-esp_err_t resume(decup_encoder_config_t const& encoder_config,
-                 gpio_isr_t gpio_isr_handler) {
+esp_err_t resume(decup_encoder_config_t const& encoder_config) {
   ESP_ERROR_CHECK(init_encoder(encoder_config));
   ESP_ERROR_CHECK(init_alarm());
-  return init_gpio(gpio_isr_handler);
+  return init_gpio();
 }
 
 } // namespace out::track::decup
