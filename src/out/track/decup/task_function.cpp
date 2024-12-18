@@ -42,15 +42,11 @@ bool gpio2_state{};
 
 /// \todo document
 void IRAM_ATTR ack_isr_handler(void*) {
-  uint64_t value{};
-  gptimer_get_raw_count(gptimer, &value);
-
-  // Send a notification to the task
-  xTaskNotifyIndexedFromISR(task.handle,
-                            default_notify_index,
-                            static_cast<uint32_t>(value),
-                            eSetValueWithOverwrite,
-                            NULL);
+  uint64_t u64{};
+  gptimer_get_raw_count(gptimer, &u64);
+  auto const u32{static_cast<uint32_t>(u64)};
+  xMessageBufferSendFromISR(
+    tx_message_buffer.back_handle, &u32, sizeof(u32), NULL);
 
   gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
 }
@@ -81,11 +77,11 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   // Start timer
   ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
 
-  // Clear any stored counts
-  xTaskNotifyStateClearIndexed(NULL, default_notify_index);
-
   // Wait
-  return rmt_tx_wait_all_done(channel, -1);
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
+
+  // Clear any stored timer values
+  return xMessageBufferReset(tx_message_buffer.back_handle) ? ESP_OK : ESP_FAIL;
 }
 
 /// \todo document
@@ -95,7 +91,8 @@ uint32_t measure_pulse_width(uint32_t us) {
   // Get reference value
   uint32_t begin{};
   while (esp_timer_get_time() < then)
-    if ((begin = ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u)))
+    if (xMessageBufferReceive(
+          tx_message_buffer.back_handle, &begin, sizeof(begin), 0u))
       break;
 
   // Got nothing
@@ -104,19 +101,16 @@ uint32_t measure_pulse_width(uint32_t us) {
   // As long as end keeps changing within 500us loop
   uint32_t end{begin};
   while (esp_timer_get_time() < then)
-    if (auto const tmp{
-          ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u)};
-        tmp && end != tmp) {
+    if (xMessageBufferReceive(
+          tx_message_buffer.back_handle, &end, sizeof(end), 0u))
       then = esp_timer_get_time() + 500u;
-      end = tmp;
-    }
 
   return end - begin;
 }
 
 /// \todo document
 /// Wait either 100ms after data or 5ms otherwise
-uint8_t receive_acks(uint32_t us) {
+uint8_t receive_acks(uint32_t us, Packet const& packet) {
   if (auto const pulse_width{measure_pulse_width(us)}) {
     static constexpr auto single_pulse_width{156u};
     auto const diff_to_single{
@@ -124,6 +118,8 @@ uint8_t receive_acks(uint32_t us) {
     auto const diff_to_double{
       std::abs(static_cast<int32_t>(pulse_width - 2 * single_pulse_width))};
     printf("diffs %d/%d\n", diff_to_single, diff_to_double);
+    if (size(packet) > 1uz && diff_to_single < diff_to_double)
+      gpio_set_level(GPIO_NUM_2, gpio2_state = !gpio2_state);
     return diff_to_single < diff_to_double ? 1u : 2u;
   }
   //
@@ -153,7 +149,8 @@ esp_err_t loop() {
     // Transmit packet
     else {
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const acks{receive_acks(size(*packet) > 1uz ? 100'000u : 5000u)};
+      auto const acks{
+        receive_acks(size(*packet) > 1uz ? 100'000u : 5000u, *packet)};
       ESP_ERROR_CHECK(transmit_acks(acks));
     }
   }
@@ -166,15 +163,15 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
   for (auto i{0uz}; i < 200uz; ++i) {
     Packet packet{0xEFu};
     ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-    receive_acks(300u);
+    receive_acks(300u, packet);
     packet[0uz] = 0xBFu;
     ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-    receive_acks(300u);
+    receive_acks(300u, packet);
   }
 
   Packet packet{decoder_id};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  auto const acks{receive_acks(size(packet) > 1uz ? 100'000u : 5000u)};
+  auto const acks{receive_acks(size(packet) > 1uz ? 100'000u : 5000u, packet)};
   if (acks == 2uz) {
     LOGI("DECUP test success");
     return ESP_OK;
