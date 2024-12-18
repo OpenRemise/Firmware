@@ -28,7 +28,10 @@ namespace out::track::decup {
 namespace {
 
 /// \todo document
-esp_err_t deinit_gpio() { return gpio_set_level(enable_gpio_num, 0u); }
+esp_err_t deinit_gpio() {
+  ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
+  return gpio_isr_handler_remove(ack_gpio_num);
+}
 
 /// \todo document
 esp_err_t deinit_alarm() {
