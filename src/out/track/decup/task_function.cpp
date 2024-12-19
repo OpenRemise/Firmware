@@ -77,8 +77,8 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   // Wait
   ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
 
-  // Clear any stored counts
-  xTaskNotifyStateClearIndexed(NULL, default_notify_index);
+  // Clear any glitches
+  ulTaskNotifyValueClearIndexed(NULL, default_notify_index, -1);
 
   return ESP_OK;
 }
@@ -169,7 +169,7 @@ void task_function(void*) {
       case State::DECUPZsu: [[fallthrough]];
       case State::DECUP_EIN:
         ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
-        ESP_ERROR_CHECK(test_loop());
+        ESP_ERROR_CHECK(loop());
         ESP_ERROR_CHECK(suspend());
         break;
       default: LOGI_TASK_SUSPEND(task.handle); break;
