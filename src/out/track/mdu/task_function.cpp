@@ -89,8 +89,8 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   // Start timer
   ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
 
-  // Clear any stored counts
-  xTaskNotifyStateClearIndexed(NULL, default_notify_index);
+  // Clear any glitches
+  ulTaskNotifyValueClearIndexed(NULL, default_notify_index, -1);
 
   // Wait
   return rmt_tx_wait_all_done(channel, -1);
