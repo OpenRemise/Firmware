@@ -33,7 +33,7 @@ constexpr auto round_to(std::integral auto n, std::integral auto to) {
   return (n - a >= b - n) ? b : a;
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 std::string Settings::getStationmDNS() const { return getBlob("sta_mdns"); }
@@ -84,26 +84,39 @@ esp_err_t Settings::setHttpTransmitTimeout(uint8_t value) {
 
 /// \todo document
 out::track::CurrentLimit Settings::getCurrentLimit() const {
-  return static_cast<out::track::CurrentLimit>(getU8("current_limit"));
+  return static_cast<out::track::CurrentLimit>(getU8("cur_lim"));
 }
 
 /// \todo document
 esp_err_t Settings::setCurrentLimit(out::track::CurrentLimit value) {
   return std::to_underlying(value) <=
              std::to_underlying(out::track::CurrentLimit::_4100mA)
-           ? setU8("current_limit", std::to_underlying(value))
+           ? setU8("cur_lim", std::to_underlying(value))
+           : ESP_ERR_INVALID_ARG;
+}
+
+/// \todo document
+out::track::CurrentLimit Settings::getCurrentLimitService() const {
+  return static_cast<out::track::CurrentLimit>(getU8("cur_lim_serv"));
+}
+
+/// \todo document
+esp_err_t Settings::setCurrentLimitService(out::track::CurrentLimit value) {
+  return std::to_underlying(value) <=
+             std::to_underlying(out::track::CurrentLimit::_4100mA)
+           ? setU8("cur_lim_serv", std::to_underlying(value))
            : ESP_ERR_INVALID_ARG;
 }
 
 /// \todo document
 uint8_t Settings::getCurrentShortCircuitTime() const {
-  return getU8("current_sc_time");
+  return getU8("cur_sc_time");
 }
 
 /// \todo document
 esp_err_t Settings::setCurrentShortCircuitTime(uint8_t value) {
   return value >= 20u
-           ? setU8("current_sc_time",
+           ? setU8("cur_sc_time",
                    round_to(value,
                             (analog::conversion_frame_samples * 1000u) /
                               analog::sample_freq_hz))
@@ -220,7 +233,7 @@ uint8_t Settings::getDccFlags() const { return getU8("dcc_flags"); }
 /// \todo document
 /// \todo replace the bit masks with definitions from the Z21 lib
 esp_err_t Settings::setDccFlags(uint8_t value) {
-  return setU8("dcc_flags", (value & ~0x03u) | 0x02u);  // Force DCC
+  return setU8("dcc_flags", (value & ~0x03u) | 0x02u); // Force DCC
 }
 
 /// \todo document
@@ -243,4 +256,4 @@ esp_err_t Settings::setMduAckreq(uint8_t value) {
            : ESP_ERR_INVALID_ARG;
 }
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

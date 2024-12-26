@@ -32,7 +32,12 @@ namespace analog {
 
 namespace {
 
-/// \todo document
+/// Initialize analog GPIO
+///
+/// Initializes the higher resolution current sense switching of the
+/// TPS281C100x. This feature is currently not used.
+///
+/// \return ESP_OK  Success
 esp_err_t init_gpio() {
   static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ol_on_gpio_num,
                                          .mode = GPIO_MODE_OUTPUT,
@@ -43,9 +48,20 @@ esp_err_t init_gpio() {
   return gpio_set_level(ol_on_gpio_num, 0u);
 }
 
-}  // namespace
+} // namespace
 
-/// \todo document
+/// Initialize analog
+///
+/// Initialization takes place in init(). This function performs the following
+/// operations:
+/// - Creates queues for raw \ref voltages_queue "voltage" and \ref
+///   currents_queue "current" vales as well as \ref temperature_queue
+///   "temperatures" in Si units
+/// - Initializes the ADC in [continuous
+///   mode](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/peripherals/adc_continuous.html)
+///   and applies a curve fitting calibration
+/// - Initializes the internal temperature sensor
+/// - Creates an ADC and temperature task
 esp_err_t init(BaseType_t xCoreID) {
   voltages_queue.handle =
     xQueueCreate(voltages_queue.size, sizeof(VoltagesQueue::value_type));
@@ -56,7 +72,7 @@ esp_err_t init(BaseType_t xCoreID) {
 
   ESP_ERROR_CHECK(init_gpio());
 
-  //
+  // Curve fitting calibration
   static constexpr adc_cali_curve_fitting_config_t cali_config{
     .unit_id = ADC_UNIT_1,
     .atten = attenuation,
@@ -73,7 +89,7 @@ esp_err_t init(BaseType_t xCoreID) {
   };
   ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_config, &adc1_handle));
 
-  //
+  // Create same pattern for both channels
   auto pattern{std::invoke([] {
     std::array<adc_digi_pattern_config_t, size(channels)> retval;
     for (auto i{0uz}; i < size(channels); ++i)
@@ -94,14 +110,14 @@ esp_err_t init(BaseType_t xCoreID) {
   };
   ESP_ERROR_CHECK(adc_continuous_config(adc1_handle, &dig_cfg));
 
-  //
+  // Initialize internal temperature sensor
   static constexpr temperature_sensor_config_t temp_sensor_config =
     TEMPERATURE_SENSOR_CONFIG_DEFAULT(-10, 80);
   ESP_ERROR_CHECK(
     temperature_sensor_install(&temp_sensor_config, &temp_sensor));
   ESP_ERROR_CHECK(temperature_sensor_enable(temp_sensor));
 
-  //
+  // Create ADC and temp tasks
   if (!xTaskCreatePinnedToCore(adc_task_function,
                                adc_task.name,
                                adc_task.stack_size,
@@ -122,4 +138,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace analog
+} // namespace analog

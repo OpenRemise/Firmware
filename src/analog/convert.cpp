@@ -25,37 +25,54 @@ namespace analog {
 
 namespace {
 
-/// \todo document
+/// Convert ADC measurement to mV
+///
+/// Converts a raw ADC measurement to mV and applies a cure fitting calibration.
+///
+/// \param  meas  ADC measurement
+/// \return mV
 int raw2mV(int meas) {
   int retval;
   adc_cali_raw_to_voltage(cali_handle, meas, &retval);
   return retval;
 }
 
-}  // namespace
+} // namespace
 
-/// \todo document
+/// Convert VoltageMeasurement to Voltage
+///
+/// \param  meas  Voltage measurement
+/// \return Voltage
 Voltage measurement2mV(VoltageMeasurement meas) {
   return static_cast<Voltage>(
     (raw2mV(meas) * (voltage_upper_r + voltage_lower_r)) / voltage_lower_r);
 }
 
-/// \todo document
+/// Convert Voltage to VoltageMeasurement
+///
+/// \param  mV  Voltage in [mV]
+/// \return VoltageMeasurement
 VoltageMeasurement mV2measurement(Voltage mV) {
   return static_cast<VoltageMeasurement>(
     (mV * voltage_lower_r * max_measurement) /
     ((voltage_upper_r + voltage_lower_r) * vref));
 }
 
-/// \todo document
+/// Convert CurrentMeasurement to Current
+///
+/// \param  meas  Current measurement
+/// \return Current
 Current measurement2mA(CurrentMeasurement meas) {
   return static_cast<Current>((raw2mV(meas) * current_k) / current_r);
 }
 
-/// \todo document
+/// Convert Current to CurrentMeasurement
+///
+/// \param  mA  Current in [mA]
+/// \return CurrentMeasurement
 CurrentMeasurement mA2measurement(Current mA) {
   return static_cast<CurrentMeasurement>((mA * current_r * max_measurement) /
                                          (current_k * vref));
 }
 
-}  // namespace analog
+} // namespace analog

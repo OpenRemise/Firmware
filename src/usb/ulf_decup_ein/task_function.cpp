@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// DECUP_EIN protocol task function
+/// ULF_DECUP_EIN protocol task function
 ///
-/// \file   usb/decup_ein/task_function.cpp
+/// \file   usb/ulf_decup_ein/task_function.cpp
 /// \author Vincent Hamp
 /// \date   10/08/2024
 
@@ -26,14 +26,14 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace usb::decup_ein {
+namespace usb::ulf_decup_ein {
 
 using namespace ulf::decup_ein;
 
 namespace {
 
 /// \todo document
-class ZsuLoad : public ulf::decup_ein::rx::Base {
+class ZsuLoad : public ::ulf::decup_ein::rx::Base {
   uint8_t transmit(std::span<uint8_t const> bytes) final {
     uint8_t acks{};
 
@@ -81,7 +81,7 @@ void loop() {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -90,7 +90,7 @@ void task_function(void*) {
 
     //
     if (auto expected{State::Suspended};
-        state.compare_exchange_strong(expected, State::DECUP_EIN)) {
+        state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
       transmit_ok();
       LOGI_TASK_RESUME(out::track::decup::task.handle);
       loop();
@@ -103,4 +103,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace usb::decup_ein
+} // namespace usb::ulf_decup_ein

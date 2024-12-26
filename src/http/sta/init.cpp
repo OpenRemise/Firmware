@@ -40,4 +40,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-}  // namespace http::sta
+} // namespace http::sta

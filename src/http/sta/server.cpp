@@ -170,8 +170,9 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["sta_pass"] = sta_pass;
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
-  doc["current_limit"] = std::to_underlying(nvs.getCurrentLimit());
-  doc["current_sc_time"] = nvs.getCurrentShortCircuitTime();
+  doc["cur_lim"] = std::to_underlying(nvs.getCurrentLimit());
+  doc["cur_lim_serv"] = std::to_underlying(nvs.getCurrentLimitService());
+  doc["cur_sc_time"] = nvs.getCurrentShortCircuitTime();
   doc["dcc_preamble"] = nvs.getDccPreamble();
   doc["dcc_bit1_dur"] = nvs.getDccBit1Duration();
   doc["dcc_bit0_dur"] = nvs.getDccBit0Duration();
@@ -234,12 +235,17 @@ Response Server::settingsPostRequest(Request const& req) {
     if (nvs.setHttpTransmitTimeout(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
-  if (JsonVariantConst v{doc["current_limit"]}; v.is<uint8_t>())
+  if (JsonVariantConst v{doc["cur_lim"]}; v.is<uint8_t>())
     if (nvs.setCurrentLimit(
           static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
-  if (JsonVariantConst v{doc["current_sc_time"]}; v.is<uint8_t>())
+  if (JsonVariantConst v{doc["cur_lim_serv"]}; v.is<uint8_t>())
+    if (nvs.setCurrentLimitService(
+          static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["cur_sc_time"]}; v.is<uint8_t>())
     if (nvs.setCurrentShortCircuitTime(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
@@ -476,4 +482,4 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   }
 }
 
-}  // namespace http::sta
+} // namespace http::sta

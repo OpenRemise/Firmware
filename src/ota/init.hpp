@@ -27,4 +27,4 @@ namespace ota {
 
 esp_err_t init(BaseType_t xCoreID);
 
-}  // namespace ota
+} // namespace ota

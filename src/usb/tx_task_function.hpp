@@ -27,4 +27,4 @@ void transmit_ok();
 void transmit_not_ok();
 void tx_task_function(void*);
 
-}  // namespace usb
+} // namespace usb

@@ -48,6 +48,9 @@ public:
   out::track::CurrentLimit getCurrentLimit() const;
   esp_err_t setCurrentLimit(out::track::CurrentLimit value);
 
+  out::track::CurrentLimit getCurrentLimitService() const;
+  esp_err_t setCurrentLimitService(out::track::CurrentLimit value);
+
   uint8_t getCurrentShortCircuitTime() const;
   esp_err_t setCurrentShortCircuitTime(uint8_t value);
 
@@ -91,4 +94,4 @@ public:
   esp_err_t setMduAckreq(uint8_t value);
 };
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

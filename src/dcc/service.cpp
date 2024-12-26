@@ -80,7 +80,7 @@ http::Response Service::locosGetRequest(http::Request const& req) {
   // Collection
   else {
     JsonDocument doc;
-    auto array{doc.to<JsonArray>()};  // Explicitly convert to array
+    auto array{doc.to<JsonArray>()}; // Explicitly convert to array
     for (auto const& [addr, loco] : _locos) {
       auto loco_doc{loco.toJsonDocument()};
       loco_doc["address"] = addr;
@@ -229,8 +229,8 @@ void Service::operationsDcc() {
 
         // Speed and direction
         switch (loco.speed_steps) {
-          case z21::LocoInfo::DCC14: [[fallthrough]];  //  break;
-          case z21::LocoInfo::DCC28: [[fallthrough]];  // break;
+          case z21::LocoInfo::DCC14: [[fallthrough]]; //  break;
+          case z21::LocoInfo::DCC28: [[fallthrough]]; // break;
           case z21::LocoInfo::DCC128:
             sendToBack(
               make_advanced_operations_speed_packet(addr, loco.rvvvvvvv));
@@ -593,7 +593,7 @@ void Service::cvPomRead(uint16_t addr, uint16_t cv_addr) {
               program_packet_count);
 
   _cv_pom_request_deque.push_back(
-    {.then = xTaskGetTickCount() + pdMS_TO_TICKS(500u),  // See RCN-217
+    {.then = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
      .addr = addr,
      .cv_addr = cv_addr});
 
@@ -601,7 +601,7 @@ void Service::cvPomRead(uint16_t addr, uint16_t cv_addr) {
 
   // Mandatory delay
   vTaskDelay(
-    pdMS_TO_TICKS((program_packet_count + 1u) * 10u));  // ~10ms per packet
+    pdMS_TO_TICKS((program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
@@ -612,7 +612,7 @@ void Service::cvPomWrite(uint16_t addr, uint16_t cv_addr, uint8_t byte) {
 
   // Mandatory delay
   vTaskDelay(
-    pdMS_TO_TICKS((program_packet_count + 1u) * 10u));  // ~10ms per packet
+    pdMS_TO_TICKS((program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
@@ -657,4 +657,4 @@ uint8_t Service::programPacketCount() const {
   return nvs.getDccProgramPacketCount();
 }
 
-}  // namespace dcc
+} // namespace dcc

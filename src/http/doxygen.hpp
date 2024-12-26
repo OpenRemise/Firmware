@@ -32,4 +32,4 @@ namespace http {
 /// \section section_http_sta Station
 ///
 
-}  // namespace http
+} // namespace http

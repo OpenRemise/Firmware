@@ -70,7 +70,7 @@ void flush() {
     LOGE("USB CDC flush error");
 }
 
-}  // namespace
+} // namespace
 
 /// USB transmit task function
 ///
@@ -85,4 +85,4 @@ void tx_task_function(void*) {
   }
 }
 
-}  // namespace usb
+} // namespace usb

@@ -28,4 +28,4 @@ namespace usb {
 /// \todo document USB page
 ///
 
-}  // namespace usb
+} // namespace usb

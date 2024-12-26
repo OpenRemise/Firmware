@@ -56,7 +56,7 @@ struct Offsets {
 /// \bug DCC/RailCom timings seem to get worse when the DCC tasks runs the
 /// second time?
 consteval Offsets make_offsets() {
-  static_assert(CONFIG_IDF_INIT_VERSION == "5.3.0"sv);
+  static_assert(CONFIG_IDF_INIT_VERSION == "5.3.2"sv);
 
   return {
 #if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
@@ -83,10 +83,6 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
     .alarm_count = static_cast<decltype(gptimer_alarm_config_t::alarm_count)>(
       TCSMin + offsets.tcs)};
   gptimer_set_alarm_action(gptimer, &alarm_config);
-
-  /// \todo remove
-  // gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
-
   return pdFALSE;
 }
 
@@ -117,9 +113,6 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
 
     // Check whether there has been data in channel 1
     ch1 = uart_ll_get_rxfifo_len(&UART1);
-
-    /// \todo remove
-    // gpio_set_level(GPIO_NUM_1, 1u);
   }
   // TCE
   else {
@@ -134,9 +127,6 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
                               &high_task_awoken);
 
     gptimer_set_alarm_action(gptimer, NULL);
-
-    /// \todo remove
-    // gpio_set_level(GPIO_NUM_1, 0u);
   }
 
   return high_task_awoken == pdTRUE;
@@ -152,9 +142,7 @@ dcc_encoder_config_t dcc_encoder_config(State dcc_state = state.load()) {
     .bit1_duration = bit1_duration,
     .bit0_duration = nvs.getDccBit0Duration(),
     .endbit_duration = static_cast<uint8_t>(bit1_duration - offsets.endbit),
-    .flags = {
-      .invert = true,
-    }};
+    .flags = {.level0 = true}};
 
   // Service mode can't do BiDi and RCN-216 demands at least 20 preamble bits
   if (dcc_state == State::DCCService) {
@@ -269,13 +257,6 @@ analog::CurrentsQueue::value_type peek_current_measurements() {
 }
 
 /// \todo document
-analog::CurrentMeasurement mean_current_measurement() {
-  auto const currents{peek_current_measurements()};
-  return static_cast<analog::CurrentMeasurement>(
-    std::accumulate(cbegin(currents), cend(currents), 0) / size(currents));
-}
-
-/// \todo document
 template<std::ranges::contiguous_range R>
 void append_current_measurements(R&& r) {
   auto const currents{peek_current_measurements()};
@@ -285,21 +266,31 @@ void append_current_measurements(R&& r) {
 }
 
 /// \todo document
+/// this is the mean version of ack detection
 template<std::ranges::contiguous_range R>
-bool detect_ack(R&& r,
-                analog::CurrentMeasurement ref_measurement,
-                analog::Current ack_current) {
+bool detect_ack(R&& r, analog::Current ack_current) {
   // ACKs must be at least 5ms long
   static constexpr auto wlen{
     static_cast<int>(5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
+  static_assert(wlen == 20);
 
+  //
   auto const delta_measurement{mA2measurement(ack_current)};
 
+  // Reference value set to mean of first slide
+  std::optional<analog::CurrentMeasurement::value_type> ref_measurement;
+
+  //
   for (auto const windows{r | std::views::slide(wlen)};
-       auto const& window : windows) {
-    auto const movsum{(std::accumulate(cbegin(window), cend(window), 0))};
-    if (movsum - wlen * ref_measurement > wlen * delta_measurement) return true;
-  }
+       auto const& window : windows)
+    if (auto const movsum{(std::accumulate(cbegin(window), cend(window), 0))};
+        !ref_measurement)
+      ref_measurement = movsum;
+    else if (static constexpr auto ten_pct{static_cast<size_t>(0.1 * wlen)};
+             std::ranges::count(window, 0uz) < ten_pct &&
+             movsum - *ref_measurement > wlen * delta_measurement)
+      return true;
+
   return false;
 }
 
@@ -318,7 +309,6 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   static constexpr auto read_timeout{50u};
   static constexpr auto write_timeout{100u};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
-  analog::CurrentMeasurement ref_measurement{};
   std::vector<analog::CurrentMeasurement::value_type> current_measurements;
   current_measurements.reserve(2048uz);
 
@@ -328,12 +318,14 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   analog::Current const ack_current{nvs.getDccProgrammingAckCurrent()};
   nvs.~Settings();
 
-  // Limit current
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
-
   // Transmit at least 25 reset packets to ensure entry
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
   for (auto i{0uz}; i < startup_reset_packet_count + 3uz; ++i)
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
+
+  // Set current limit from NVS
+  ESP_ERROR_CHECK(
+    set_current_limit(mem::nvs::Settings{}.getCurrentLimitService()));
 
   for (;;) {
     // Transmit at least 3 reset packets to ensure sequence
@@ -351,12 +343,8 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
                                         (State::Suspend | State::ShortCircuit)))
         return rmt_tx_wait_all_done(channel, -1);
       else packets.push_back(*packet);
-
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-
-      // Take reference measurement
-      ref_measurement = mean_current_measurement();
     } while (packets.back() == reset_packet);
 
     // Transmit equal CV access packets, try to detect ack
@@ -371,7 +359,7 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
       append_current_measurements(current_measurements);
-      ack |= detect_ack(current_measurements, ref_measurement, ack_current);
+      ack |= detect_ack(current_measurements, ack_current);
     } while (packets.back() == cv_access_packet);
 
     // Transmit reset packets until ack or timeout
@@ -380,20 +368,20 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
       append_current_measurements(current_measurements);
-      ack |= detect_ack(current_measurements, ref_measurement, ack_current);
+      ack |= detect_ack(current_measurements, ack_current);
     }
     ESP_ERROR_CHECK(transmit_ack(ack));
     current_measurements.clear();
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
   for (;;) switch (auto encoder_config{dcc_encoder_config()}; state.load()) {
       case State::DCCOperations: [[fallthrough]];
-      case State::DCC_EIN:
+      case State::ULF_DCC_EIN:
         ESP_ERROR_CHECK(
           resume(encoder_config,
                  encoder_config.bidibit_duration ? rmt_callback : NULL,
@@ -410,4 +398,4 @@ void task_function(void*) {
     }
 }
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

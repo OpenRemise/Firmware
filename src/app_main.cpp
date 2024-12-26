@@ -28,7 +28,7 @@
 #include "mem/init.hpp"
 #include "ota/init.hpp"
 #include "out/init.hpp"
-#include "trace.hpp"
+#include "trace/init.hpp"
 #include "udp/init.hpp"
 #include "usb/init.hpp"
 #include "utility.hpp"
@@ -47,7 +47,7 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(1, out::init, 1));
 
   // Don't change initialization order
-  ESP_ERROR_CHECK(invoke_on_core(0, wifi::init));
+  ESP_ERROR_CHECK(invoke_on_core(0, wifi::init, WIFI_TASK_CORE_ID));
   ESP_ERROR_CHECK(invoke_on_core(0, http::init));
   ESP_ERROR_CHECK(invoke_on_core(0, udp::init));
   ESP_ERROR_CHECK(invoke_on_core(1, dcc::init, 1));
@@ -61,12 +61,4 @@ extern "C" void app_main() {
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
   ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
 #endif
-
-  // char* buffer{new char[2048uz]};
-  for (;;) {
-    // vTaskGetRunTimeStats(buffer);
-    // printf("%s\n", buffer);
-    // esp_intr_dump(stdout);
-    vTaskDelay(pdMS_TO_TICKS(5000u));
-  }
 }

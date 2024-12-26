@@ -27,4 +27,4 @@ namespace http::ap {
 
 esp_err_t init();
 
-}  // namespace http::ap
+} // namespace http::ap

@@ -23,12 +23,12 @@
 #include <tinyusb.h>
 #include <tusb_cdc_acm.h>
 #include <array>
-#include "dcc_ein/task_function.hpp"
-#include "decup_ein/task_function.hpp"
 #include "log.h"
 #include "rx_task_function.hpp"
-#include "susiv2/task_function.hpp"
 #include "tx_task_function.hpp"
+#include "ulf_dcc_ein/task_function.hpp"
+#include "ulf_decup_ein/task_function.hpp"
+#include "ulf_susiv2/task_function.hpp"
 
 namespace usb {
 
@@ -48,18 +48,17 @@ void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
     xStreamBufferSend(rx_stream_buffer.handle, data(buf), bytes_received, 0u);
 }
 
-}  // namespace
+} // namespace
 
 /// Initialize USB
 ///
 /// Create a CDC device on the TinyUSB stack and start various USB and USB
 /// protocol tasks. The following protocols are supported:
-/// - DCC_EIN
-/// - DECUP_EIN
-/// - MDU_EIN
-/// - SUSIV2
+/// - ULF_DCC_EIN
+/// - ULF_DECUP_EIN
+/// - ULF_SUSIV2
 ///
-/// \return ESP_OK  No error
+/// \return ESP_OK  Success
 esp_err_t init(BaseType_t xCoreID) {
   rx_stream_buffer.handle =
     xStreamBufferCreate(rx_stream_buffer.size, sizeof(uint8_t));
@@ -83,28 +82,28 @@ esp_err_t init(BaseType_t xCoreID) {
                                xCoreID))
     assert(false);
 
-  if (!xTaskCreatePinnedToCore(dcc_ein::task_function,
-                               dcc_ein::task.name,
-                               dcc_ein::task.stack_size,
+  if (!xTaskCreatePinnedToCore(ulf_dcc_ein::task_function,
+                               ulf_dcc_ein::task.name,
+                               ulf_dcc_ein::task.stack_size,
                                NULL,
-                               dcc_ein::task.priority,
-                               &dcc_ein::task.handle,
+                               ulf_dcc_ein::task.priority,
+                               &ulf_dcc_ein::task.handle,
                                xCoreID))
     assert(false);
-  if (!xTaskCreatePinnedToCore(decup_ein::task_function,
-                               decup_ein::task.name,
-                               decup_ein::task.stack_size,
+  if (!xTaskCreatePinnedToCore(ulf_decup_ein::task_function,
+                               ulf_decup_ein::task.name,
+                               ulf_decup_ein::task.stack_size,
                                NULL,
-                               decup_ein::task.priority,
-                               &decup_ein::task.handle,
+                               ulf_decup_ein::task.priority,
+                               &ulf_decup_ein::task.handle,
                                xCoreID))
     assert(false);
-  if (!xTaskCreatePinnedToCore(susiv2::task_function,
-                               susiv2::task.name,
-                               susiv2::task.stack_size,
+  if (!xTaskCreatePinnedToCore(ulf_susiv2::task_function,
+                               ulf_susiv2::task.name,
+                               ulf_susiv2::task.stack_size,
                                NULL,
-                               susiv2::task.priority,
-                               &susiv2::task.handle,
+                               ulf_susiv2::task.priority,
+                               &ulf_susiv2::task.handle,
                                xCoreID))
     assert(false);
 
@@ -126,4 +125,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace usb
+} // namespace usb

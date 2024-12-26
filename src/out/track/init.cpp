@@ -20,6 +20,7 @@
 /// \date   09/02/2023
 
 #include <driver/gpio.h>
+#include <driver/gpio_filter.h>
 #include <driver/rmt_tx.h>
 #include <array>
 #include <cstring>
@@ -48,7 +49,7 @@ esp_err_t init_channel() {
     .resolution_hz = 1'000'000u,
     .mem_block_symbols =
       SOC_RMT_CHANNELS_PER_GROUP *
-      SOC_RMT_MEM_WORDS_PER_CHANNEL,  // 8 channels sharing 384x32 bit RAM
+      SOC_RMT_MEM_WORDS_PER_CHANNEL, // 8 channels sharing 384x32 bit RAM
     .trans_queue_depth = trans_queue_depth,
     .intr_priority = 3,
     .flags = {
@@ -88,10 +89,10 @@ esp_err_t init_gpio() {
   // individual GPIO pins via gpio_isr_handler_add
   ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL2));
 
-  // Inputs
+  //
   {
     static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << nfault_gpio_num | 1ull << ack_gpio_num,
+      .pin_bit_mask = 1ull << nfault_gpio_num,
       .mode = GPIO_MODE_INPUT,
       .pull_up_en = GPIO_PULLUP_ENABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -99,11 +100,28 @@ esp_err_t init_gpio() {
     ESP_ERROR_CHECK(gpio_config(&io_conf));
   }
 
+  //
+  {
+    static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ack_gpio_num,
+                                           .mode = GPIO_MODE_INPUT,
+                                           .pull_up_en = GPIO_PULLUP_ENABLE,
+                                           .pull_down_en =
+                                             GPIO_PULLDOWN_DISABLE,
+                                           .intr_type = GPIO_INTR_NEGEDGE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    gpio_glitch_filter_handle_t filter;
+    static constexpr gpio_pin_glitch_filter_config_t config{
+      .clk_src = GLITCH_FILTER_CLK_SRC_DEFAULT, .gpio_num = ack_gpio_num};
+    ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&config, &filter));
+    ESP_ERROR_CHECK(gpio_glitch_filter_enable(filter));
+  }
+
   // Add an ISR handler for nFAULT
   return gpio_isr_handler_add(nfault_gpio_num, nfault_isr_handler, NULL);
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t init(BaseType_t xCoreID) {
@@ -140,4 +158,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace out::track
+} // namespace out::track

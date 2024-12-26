@@ -191,7 +191,7 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
   // https://stackoverflow.com/questions/2604530/a-good-way-to-redirect-with-a-post-request
   httpd_resp_set_status(req, "303 See Other");
   httpd_resp_set_hdr(req, "Location", "/");
-  httpd_resp_send(req, NULL, 0);  // Response body can be empty
+  httpd_resp_send(req, NULL, 0); // Response body can be empty
 
   // Restart in 1s
   esp_delayed_restart();
@@ -199,4 +199,4 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
   return ESP_OK;
 }
 
-}  // namespace http::ap
+} // namespace http::ap

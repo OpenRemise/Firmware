@@ -38,7 +38,7 @@ esp_err_t init_alarm() {
 ///
 esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
 
-}  // namespace
+} // namespace
 
 ///
 esp_err_t resume() {
@@ -46,4 +46,4 @@ esp_err_t resume() {
   return init_gpio();
 }
 
-}  // namespace out::zusi
+} // namespace out::zusi

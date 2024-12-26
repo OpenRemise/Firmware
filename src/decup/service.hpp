@@ -37,10 +37,10 @@ private:
 
   uint8_t transmit(std::span<uint8_t const> bytes) final;
 
-  void close();
+  void reset();
 
   std::queue<http::Message> _queue{};
   std::optional<uint8_t> _ack{};
 };
 
-}  // namespace decup
+} // namespace decup

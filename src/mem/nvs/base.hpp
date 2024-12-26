@@ -105,4 +105,4 @@ private:
   bool _commit_pending{};
 };
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

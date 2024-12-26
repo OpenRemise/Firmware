@@ -28,4 +28,4 @@ namespace decup {
 /// \todo document DECUP page
 ///
 
-}  // namespace decup
+} // namespace decup

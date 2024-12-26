@@ -128,7 +128,8 @@ void Service::transmit(z21::Socket const& sock,
       .payload = std::bit_cast<uint8_t*>(data(datasets)),
       .len = size(datasets),
     };
-    httpd_ws_send_frame_async(sock.fd, &frame);
+    if (auto const err{httpd_ws_send_frame_async(sock.fd, &frame)})
+      LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
   }
   //
   else {
@@ -258,4 +259,4 @@ bool Service::trackPower(bool on, State dcc_state) {
   }
 }
 
-}  // namespace z21
+} // namespace z21

@@ -38,4 +38,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace dcc
+} // namespace dcc

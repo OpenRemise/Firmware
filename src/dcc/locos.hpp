@@ -22,4 +22,4 @@ namespace dcc {
 
 using Locos = std::map<Address::value_type, Loco>;
 
-}  // namespace dcc
+} // namespace dcc

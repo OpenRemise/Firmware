@@ -33,6 +33,7 @@
 #include <ztl/string.hpp>
 #include "log.h"
 #include "mem/nvs/settings.hpp"
+#include "task_function.hpp"
 
 namespace wifi {
 
@@ -143,13 +144,28 @@ void event_handler(void*,
 
 /// \todo document
 esp_err_t gpio_init() {
+  // BOOT
+  {
+    static constexpr gpio_config_t io_conf{
+      .pin_bit_mask = 1ull << boot_gpio_num,
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+  }
+
   // LED
-  gpio_config_t io_conf{.pin_bit_mask = 1ull << led_gpio_num,
-                        .mode = GPIO_MODE_OUTPUT,
-                        .pull_up_en = GPIO_PULLUP_DISABLE,
-                        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-                        .intr_type = GPIO_INTR_DISABLE};
-  return gpio_config(&io_conf);
+  {
+    static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << led_gpio_num,
+                                           .mode = GPIO_MODE_OUTPUT,
+                                           .pull_up_en = GPIO_PULLUP_DISABLE,
+                                           .pull_down_en =
+                                             GPIO_PULLDOWN_DISABLE,
+                                           .intr_type = GPIO_INTR_DISABLE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    return gpio_set_level(led_gpio_num, 0u);
+  }
 }
 
 /// \todo document
@@ -227,23 +243,37 @@ esp_err_t mdns_init(wifi_mode_t mode) {
   return ESP_OK;
 }
 
-}  // namespace
+} // namespace
 
 /// Initialize either
 /// - AP (access point) if NVS doesn't contain SSID/pass or GPIO2 is high
 /// - STA (station) if NVS contains SSID/pass and GPIO is low
-esp_err_t init() {
+esp_err_t init(BaseType_t xCoreID) {
   ESP_ERROR_CHECK(gpio_init());
   ESP_ERROR_CHECK(wifi_init());
 
-  // Initialize AP if there is no STA config
   auto const sta_config{optional_sta_config()};
   auto const mode{!sta_config ? WIFI_MODE_AP : WIFI_MODE_STA};
-  ESP_ERROR_CHECK(mode == WIFI_MODE_AP ? ap_init(ap_config())
-                                       : sta_init(*sta_config));
+
+  // Initialize AP if there is no STA config
+  if (mode == WIFI_MODE_AP) ESP_ERROR_CHECK(ap_init(ap_config()));
+  //
+  else {
+    ESP_ERROR_CHECK(sta_init(*sta_config));
+
+    //
+    if (!xTaskCreatePinnedToCore(task_function,
+                                 task.name,
+                                 task.stack_size,
+                                 NULL,
+                                 task.priority,
+                                 &task.handle,
+                                 xCoreID))
+      assert(false);
+  }
 
   // mDNS
   return mdns_init(mode);
 }
 
-}  // namespace wifi
+} // namespace wifi

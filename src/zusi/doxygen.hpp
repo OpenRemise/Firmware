@@ -28,4 +28,4 @@ namespace zusi {
 /// \todo document ZUSI page
 ///
 
-}  // namespace zusi
+} // namespace zusi

@@ -43,7 +43,7 @@ private:
   void loop();
   uint8_t write(std::vector<uint8_t> const& payload);
   void end();
-  void close();
+  void reset();
 
   std::queue<http::Message> _queue{};
   esp_partition_t const* _partition{};
@@ -51,4 +51,4 @@ private:
   uint8_t _ack{};
 };
 
-}  // namespace ota
+} // namespace ota

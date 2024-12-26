@@ -127,31 +127,36 @@
 inline constexpr auto default_notify_index{tskDEFAULT_INDEX_TO_NOTIFY + 1u};
 static_assert(configTASK_NOTIFICATION_ARRAY_ENTRIES > 1);
 
+/// BOOT pin used to boot into bootloader or resetting WiFi station settings
+inline constexpr auto boot_gpio_num{GPIO_NUM_0};
+
+/// Bug LED pin used to indicate errors or updates
 inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
+/// System state
 enum class State : uint16_t {
   // Flags (8 bits)
-  Suspended = 0u << 0u,          ///<
-  Suspend = !Suspended << 0u,    ///<
-  ShortCircuit = Suspend << 1u,  ///<
+  Suspended = 0u << 0u,         ///< Idle
+  Suspend = !Suspended << 0u,   ///< About to be idle
+  ShortCircuit = Suspend << 1u, ///< Short circuit
 
   // Outputs
-  DCCOperations = 1u << CHAR_BIT,  ///<
-  DCCService = 2u << CHAR_BIT,     ///<
-  DECUPZpp = 3u << CHAR_BIT,       ///<
-  DECUPZsu = 4u << CHAR_BIT,       ///<
-  MDUZpp = 5u << CHAR_BIT,         ///<
-  MDUZsu = 6u << CHAR_BIT,         ///<
-  ZUSI = 7u << CHAR_BIT,           ///<
+  DCCOperations = 1u << CHAR_BIT, ///< DCC operation mode
+  DCCService = 2u << CHAR_BIT,    ///< DCC service mode
+  DECUPZpp = 3u << CHAR_BIT,      ///< DECUP ZPP update
+  DECUPZsu = 4u << CHAR_BIT,      ///< DECUP ZSU update
+  MDUZpp = 5u << CHAR_BIT,        ///< MDU ZPP update
+  MDUZsu = 6u << CHAR_BIT,        ///< MDU ZSU update
+  ZUSI = 7u << CHAR_BIT,          ///< ZUSI mode
 
   // USB protocols
-  DCC_EIN = 8u << CHAR_BIT,    ///<
-  DECUP_EIN = 9u << CHAR_BIT,  ///<
-  MDU_EIN = 10u << CHAR_BIT,   ///<
-  SUSIV2 = 11u << CHAR_BIT,    ///<
+  ULF_DCC_EIN = 8u << CHAR_BIT,   ///<
+  ULF_DECUP_EIN = 9u << CHAR_BIT, ///<
+  ULF_MDU_EIN = 10u << CHAR_BIT,  ///<
+  ULF_SUSIV2 = 11u << CHAR_BIT,   ///<
 
   // System
-  OTA = 12u << CHAR_BIT,  ///<
+  OTA = 12u << CHAR_BIT, ///<
 };
 static_assert(std::to_underlying(State::OTA) < MAGIC_ENUM_RANGE_MAX);
 
@@ -184,11 +189,14 @@ inline constexpr auto current_channel{ADC_CHANNEL_9};
 inline constexpr auto attenuation{ADC_ATTEN_DB_0};
 inline constexpr std::array channels{current_channel, voltage_channel};
 
-/// Sample frequency [Hz] (sample takes 100µs, conversion frame 20ms)
-inline constexpr auto sample_freq_hz{10000u};
+/// Sample frequency [Hz] (sample takes 125µs, conversion frame 20ms)
+///
+/// This frequency was chosen explicitly to avoid any beats with the DCC signal
+/// (~58/100µs).
+inline constexpr auto sample_freq_hz{8'000u};
 
 /// Number of samples per frame
-inline constexpr auto conversion_frame_samples{200uz};
+inline constexpr auto conversion_frame_samples{160uz};
 
 /// Time per frame [ms]
 inline constexpr auto conversion_frame_time{(conversion_frame_samples * 1000u) /
@@ -215,7 +223,6 @@ inline struct TempTask {
   static constexpr auto name{"analog::temp"};
   static constexpr auto stack_size{2048uz};
   static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
-  static constexpr auto timeout{1000u};
   TaskHandle_t handle{};
 } temp_task;
 
@@ -256,7 +263,7 @@ inline struct TemperatureQueue {
   QueueHandle_t handle{};
 } temperature_queue;
 
-}  // namespace analog
+} // namespace analog
 
 namespace dcc {
 
@@ -274,7 +281,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace dcc
+} // namespace dcc
 
 namespace decup {
 
@@ -286,7 +293,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace decup
+} // namespace decup
 
 namespace http {
 
@@ -301,9 +308,9 @@ namespace sta {
 class Server;
 inline std::shared_ptr<Server> server;
 
-}  // namespace sta
+} // namespace sta
 
-}  // namespace http
+} // namespace http
 
 namespace mdu {
 
@@ -315,7 +322,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace mdu
+} // namespace mdu
 
 namespace ota {
 
@@ -333,7 +340,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace ota
+} // namespace ota
 
 namespace zusi {
 
@@ -345,7 +352,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace zusi
+} // namespace zusi
 
 namespace out {
 
@@ -414,7 +421,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace dcc
+} // namespace dcc
 
 namespace decup {
 
@@ -426,7 +433,7 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace decup
+} // namespace decup
 
 namespace mdu {
 
@@ -438,9 +445,9 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace mdu
+} // namespace mdu
 
-}  // namespace track
+} // namespace track
 
 namespace zusi {
 
@@ -456,16 +463,16 @@ inline struct Task {
   TaskHandle_t handle{};
 } task;
 
-}  // namespace zusi
+} // namespace zusi
 
-}  // namespace out
+} // namespace out
 
 namespace udp {
 
 inline constexpr uint16_t port{21105u};
 inline int sock_fd;
 
-}  // namespace udp
+} // namespace udp
 
 namespace usb {
 
@@ -502,32 +509,32 @@ inline struct TxStreamBuffer {
   StreamBufferHandle_t handle{};
 } tx_stream_buffer;
 
-namespace dcc_ein {
+namespace ulf_dcc_ein {
 
 ///
 inline struct Task {
-  static constexpr auto name{"usb::dcc_ein"};
+  static constexpr auto name{"usb::ulf_dcc_ein"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
   static constexpr auto timeout{100u};
   TaskHandle_t handle{};
 } task;
 
-}  // namespace dcc_ein
+} // namespace ulf_dcc_ein
 
-namespace decup_ein {
+namespace ulf_decup_ein {
 
 ///
 inline struct Task {
-  static constexpr auto name{"usb::decup_ein"};
+  static constexpr auto name{"usb::ulf_decup_ein"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
   TaskHandle_t handle{};
 } task;
 
-}  // namespace decup_ein
+} // namespace ulf_decup_ein
 
-namespace susiv2 {
+namespace ulf_susiv2 {
 
 /// SUSIV2 buffer size
 ///
@@ -537,16 +544,16 @@ inline constexpr auto buffer_size{268uz};
 
 ///
 inline struct Task {
-  static constexpr auto name{"usb::susiv2"};
+  static constexpr auto name{"usb::ulf_susiv2"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
   static constexpr auto timeout{100u};
   TaskHandle_t handle{};
 } task;
 
-}  // namespace susiv2
+} // namespace ulf_susiv2
 
-}  // namespace usb
+} // namespace usb
 
 namespace wifi {
 
@@ -562,7 +569,15 @@ inline struct ApRecordsQueue {
   QueueHandle_t handle{};
 } ap_records_queue;
 
-}  // namespace wifi
+///
+inline struct Task {
+  static constexpr auto name{"wifi"};
+  static constexpr auto stack_size{3072uz};
+  static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
+  TaskHandle_t handle{};
+} task;
+
+} // namespace wifi
 
 namespace z21 {
 
@@ -578,4 +593,4 @@ inline struct RxTask {
 class Service;
 inline std::shared_ptr<Service> service;
 
-}  // namespace z21
+} // namespace z21

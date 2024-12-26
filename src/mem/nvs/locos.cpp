@@ -77,4 +77,4 @@ dcc::Address::value_type Locos::key2address(std::string_view key) const {
   return addr;
 }
 
-}  // namespace mem::nvs
+} // namespace mem::nvs

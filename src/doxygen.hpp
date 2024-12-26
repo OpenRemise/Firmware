@@ -26,7 +26,7 @@
 ///
 /// \note
 /// This documentation is intended for developers. General information on usage
-/// can be found on the main page at [openremise.at](https://openremise.at/).
+/// can be found on the main page at [openremise.at](https://openremise.at).
 ///
 // clang-format off
 /// \mainpage Introduction
@@ -74,11 +74,11 @@
 /// ([ESP-IDF](https://github.com/espressif/esp-idf)) which, in addition to the
 /// obvious support for ESP chips, can also be compiled for Linux. This has the
 /// advantage that our unit tests can run directly [on the
-/// host](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/host-apps.html).
+/// host](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/host-apps.html).
 ///
-/// We recommend either an [Arch](https://archlinux.org/) (e.g.
-/// [Garuda](https://garudalinux.org/) or [Manjaro](https://manjaro.org/)) or
-/// [Ubuntu](https://ubuntu.com/) based distribution, so all of the following
+/// We recommend either an [Arch](https://archlinux.org) (e.g.
+/// [Garuda](https://garudalinux.org) or [Manjaro](https://manjaro.org)) or
+/// [Ubuntu](https://ubuntu.com) based distribution, so all of the following
 /// steps refer to those.
 ///
 /// \section section_development_prerequisites Prerequisites
@@ -102,14 +102,14 @@
 /// build tool, Doxygen, a documentation generator, and Graphviz, a graph
 /// visualization software.
 ///
-/// - [CMake](https://cmake.org/) ( >= 3.25 )
-/// - [GCC](https://gcc.gnu.org/) ( >= 13.2.0 )
+/// - [CMake](https://cmake.org) ( >= 3.25 )
+/// - [GCC](https://gcc.gnu.org) ( >= 13.2.0 )
 /// - [ESP-IDF](https://github.com/espressif/esp-idf) ( >= 5.3 )
-/// - [Ninja](https://ninja-build.org/) ( >= 1.10.2 )
+/// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
 /// - Optional
 ///   - for building documentation
 ///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.12.0 )
-///     - [Graphviz](https://graphviz.org/) ( >= 12.1.1 )
+///     - [Graphviz](https://graphviz.org) ( >= 12.1.1 )
 ///
 // clang-format off
 /// \page page_development Development
@@ -131,11 +131,11 @@
 /// \subsection subsection_development_esp_idf ESP-IDF
 /// The ESP-IDF framework is the only dependency that we cannot get directly
 /// from the packet manager. Instead, we follow [Espressif's
-/// instructions](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
+/// instructions](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
 /// and clone the ESP-IDF repository into a directory called `esp` in our home
 /// directory.
 ///
-/// [GitHub](https://github.com/) allows you to clone a repository either over
+/// [GitHub](https://github.com) allows you to clone a repository either over
 /// SSH or HTTPS. If you have the option, we recommend using SSH as we believe
 /// it [simplifies commit
 /// signing](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification).
@@ -144,21 +144,21 @@
 ///   ```sh
 ///   mkdir -p ~/esp
 ///   cd ~/esp
-///   git clone -b v5.3 --recursive git@github.com:espressif/esp-idf.git
+///   git clone -b v5.3.2 --recursive git@github.com:espressif/esp-idf.git
 ///   ```
 /// - <b class="tab-title">HTTPS</b>
 ///   ```sh
 ///   mkdir -p ~/esp
 ///   cd ~/esp
-///   git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
+///   git clone -b v5.3.2 --recursive https://github.com/espressif/esp-idf.git
 ///   ```
 /// </div>
 ///
 /// Attentive readers will immediately notice that we have explicitly checked
-/// out version [5.3](https://github.com/espressif/esp-idf/releases/tag/v5.3)
-/// here. We advise against using a different version than the one currently
-/// used by the [master
-/// branch](https://github.com/OpenRemise/Firmware/tree/master).
+/// out version
+/// [5.3.2](https://github.com/espressif/esp-idf/releases/tag/v5.3.2) here. We
+/// advise against using a different version than the one currently used by the
+/// [master branch](https://github.com/OpenRemise/Firmware/tree/master).
 ///
 /// In addition to the ESP-IDF source code, the framework also requires some
 /// tools such as the Xtensa compiler or various Python packages. To set these
@@ -187,6 +187,32 @@
 /// ```
 /// It prints the path to the executable of the shell from which it was
 /// executed.
+///
+/// \subsection subsection_development_flutter Flutter (optional)
+/// It is optionally possible to build the
+/// [Frontend](https://github.com/OpenRemise/Frontend) from source while
+/// compiling the firmware. However, this requires the installation of
+/// [Flutter](https://flutter.dev/), which is currently only available in
+/// [chaotic-aur](https://github.com/chaotic-aur) or
+/// [snap](https://snapcraft.io/). We recommend using chaotic-aur over snap, but
+/// cannot provide a guide on how to set it up.
+///
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch (chaotic-aur)</b>
+///   ```sh
+///   sudo pacman -S --noconfirm flutter-bin
+///   ```
+/// - <b class="tab-title">Arch (snap)</b>
+///   ```sh
+///   sudo pacman -S --noconfirm snapd
+///   sudo systemctl enable --now snapd.socket
+///   sudo snap install flutter --classic
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   ```sh
+///   sudo snap install flutter --classic
+///   ```
+/// </div>
 ///
 /// \subsection subsection_development_vscode VSCode (optional)
 /// We generally recommend [VSCode](https://code.visualstudio.com) for
@@ -255,7 +281,7 @@
 /// configurations. These configurations differ in the compiler's optimization
 /// level (Debug corresponds to `-Og`, Release corresponds to `-Os`), and above
 /// all in whether the USB peripheral is initialized as a [built-in JTAG
-/// interface](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
+/// interface](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
 ///   ```sh
@@ -300,7 +326,7 @@
 /// - Switching on the power supply
 ///
 /// Afterwards we can use the `flash` command of the
-/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/tools/idf-py.html)
+/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/tools/idf-py.html)
 /// frontend to upload the firmware.
 /// ```sh
 /// idf.py flash
@@ -309,11 +335,11 @@
 /// \warning
 /// Be careful, this command actually flashes 5 binaries at once and not just
 /// the application. This includes things like the
-/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/bootloader.html),
+/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/bootloader.html),
 /// the [partition
-/// table](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-guides/partition-tables.html)
+/// table](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/partition-tables.html)
 /// and the [NVS
-/// storage](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html).
+/// storage](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/storage/nvs_flash.html).
 /// Again, you can find further details in \ref page_config. If you already have
 /// a board with a running firmware and just want to flash the application, you
 /// can do this with the following command.
@@ -412,6 +438,13 @@
 /// [  PASSED  ] 18 tests.
 /// ```
 ///
+/// \section section_doc Doc
+/// If Doxygen was found during CMake's configuration phase, the `FirmwareDocs`
+/// target can be built to create the documentation.
+/// ```sh
+/// cmake --build build --target FirmwareDocs
+/// ```
+///
 /// <div class="section_buttons">
 /// | Previous                  | Next             |
 /// | :------------------------ | ---------------: |
@@ -504,7 +537,7 @@
 /// Although these modules do not necessarily represent a layer, they are still
 /// a separate part of the architecture and manage the different flash memory
 /// partitions. Currently this only involves the
-/// [nvs](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/storage/nvs_flash.html)
+/// [nvs](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/storage/nvs_flash.html)
 /// module which stores settings or locomotives in a key-value pair system. All
 /// modules are considered global and can be accessed from all other layers.
 ///
@@ -561,8 +594,8 @@
 ///     [Service] as ota_service
 ///   }
 ///   package "usb" as middlewares_usb {
-///     [DCC_EIN]
-///     [DECUP_EIN]
+///     [ULF_DCC_EIN]
+///     [ULF_DECUP_EIN]
 ///     [SUSIV2]
 ///   }
 ///   package "z21" {
@@ -605,8 +638,8 @@
 /// sta_server <--> z21_service
 /// sta_server <--> zusi_service
 ///
-/// usb_tasks <--> DCC_EIN
-/// usb_tasks <--> DECUP_EIN
+/// usb_tasks <--> ULF_DCC_EIN
+/// usb_tasks <--> ULF_DECUP_EIN
 /// usb_tasks <--> SUSIV2
 ///
 /// z21_service <-l-> dcc_service
@@ -616,8 +649,8 @@
 /// mdu_service <--> out_track_mdu_task
 /// zusi_service <--> out_zusi_task
 ///
-/// [DCC_EIN] <--> out_track_dcc_task
-/// [DECUP_EIN] <--> out_track_decup_task
+/// [ULF_DCC_EIN] <--> out_track_dcc_task
+/// [ULF_DECUP_EIN] <--> out_track_decup_task
 /// [SUSIV2] <--> out_zusi_task
 ///
 /// UDP <--> z21_service
@@ -687,21 +720,27 @@
 /// The module definition is similar to the one from
 /// [C++20](https://en.cppreference.com/w/cpp/language/modules).
 ///
-/// | Chapter                | Content                                         |
-/// | ---------------------- | ----------------------------------------------- |
-/// | \subpage page_analog   | Analog                                          |
-/// | \subpage page_dcc      | DCC                                             |
-/// | \subpage page_decup    | DECUP                                           |
-/// | \subpage page_http     | HTTP                                            |
-/// | \subpage page_mdu      | MDU                                             |
-/// | \subpage page_mem      | NVS memory                                      |
-/// | \subpage page_ota      | OTA                                             |
-/// | \subpage page_out      | Blub                                            |
-/// | \subpage page_udp      | UDP                                             |
-/// | \subpage page_usb      | USB                                             |
-/// | \subpage page_wifi     | WiFi                                            |
-/// | \subpage page_z21      | Z21                                             |
-/// | \subpage page_zusi     | ZUSI                                            |
+// clang-format off
+/// \page page_api_reference API Reference
+/// \details
+/// | Chapter                | Content                                                           |
+/// | ---------------------- | ----------------------------------------------------------------- |
+/// | \subpage page_analog   | ADC measurements, overcurrent                                     |
+/// | \subpage page_dcc      | Operation and service mode, DCC command generation, BiDi decoding |
+/// | \subpage page_decup    | DECUP ZPP and ZSU updates (WebSocket service)                     |
+/// | \subpage page_http     | Access point (AP) and station (STA) HTTP servers                  |
+/// | \subpage page_mdu      | MDU ZPP and ZSU updates (WebSocket service)                       |
+/// | \subpage page_mem      | NVS memory for settings, locos, accessories                       |
+/// | \subpage page_ota      | OTA update (WebSocket service)                                    |
+/// | \subpage page_out      | Drivers, signal generation of DCC, DECUP, MDU and ZUSI            |
+/// | \subpage page_udp      | UDP                                                               |
+/// | \subpage page_usb      | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) modes       |
+/// | \subpage page_wifi     | WiFi                                                              |
+/// | \subpage page_z21      | Z21 server (UDP and WebSocket service)                            |
+/// | \subpage page_zusi     | ZUSI ZPP updates (WebSocket service)                              |
+// clang-format on
+/// \page page_api_reference API Reference
+/// \details
 ///
 /// <div class="section_buttons">
 /// | Previous               | Next             |
