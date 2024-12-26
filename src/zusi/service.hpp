@@ -37,10 +37,10 @@ private:
   void loop();
   ztl::inplace_vector<uint8_t, 8uz - 1uz>
   transmit(std::vector<uint8_t> const& payload) const;
-  void close();
+  void reset();
 
   ztl::inplace_vector<uint8_t, 8uz - 1uz> _data{};
   std::queue<http::Message> _queue{};
 };
 
-}  // namespace zusi
+} // namespace zusi

@@ -13,18 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Trace (IO pins to toggle for debug purposes)
+/// ULF_DECUP_EIN protocol task function
 ///
-/// \file   trace.hpp
+/// \file   usb/ulf_decup_ein/task_function.hpp
 /// \author Vincent Hamp
-/// \date   09/02/2023
+/// \date   10/08/2024
 
 #pragma once
 
-#include <esp_err.h>
+namespace usb::ulf_decup_ein {
 
-namespace trace {
+void task_function(void*);
 
-esp_err_t init();
-
-}  // namespace trace
+} // namespace usb::ulf_decup_ein

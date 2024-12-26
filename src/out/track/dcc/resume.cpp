@@ -85,4 +85,4 @@ esp_err_t resume(dcc_encoder_config_t const& encoder_config,
   return init_gpio();
 }
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

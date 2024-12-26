@@ -27,4 +27,4 @@ namespace mem {
 
 esp_err_t init();
 
-}  // namespace mem
+} // namespace mem

@@ -26,8 +26,8 @@
 namespace http {
 
 struct Request {
-  std::string uri;  // endpoint + query
+  std::string uri; // endpoint + query
   std::string body;
 };
 
-}  // namespace http
+} // namespace http

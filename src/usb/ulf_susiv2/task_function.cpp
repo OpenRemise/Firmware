@@ -15,7 +15,7 @@
 
 /// SUSIV2 protocol task function
 ///
-/// \file   usb/susiv2/task_function.cpp
+/// \file   usb/ulf_susiv2/task_function.cpp
 /// \author Vincent Hamp
 /// \date   10/02/2023
 
@@ -24,7 +24,7 @@
 #include "../tx_task_function.hpp"
 #include "log.h"
 
-namespace usb::susiv2 {
+namespace usb::ulf_susiv2 {
 
 /// \todo document this shit needs to be in a SUSIV2 lib
 std::optional<std::span<uint8_t>>
@@ -148,7 +148,7 @@ void loop() {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
@@ -157,7 +157,7 @@ void task_function(void*) {
 
     //
     if (auto expected{State::Suspended};
-        state.compare_exchange_strong(expected, State::SUSIV2)) {
+        state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
       transmit_ok();
       LOGI_TASK_RESUME(out::zusi::task.handle);
       loop();
@@ -170,4 +170,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace usb::susiv2
+} // namespace usb::ulf_susiv2

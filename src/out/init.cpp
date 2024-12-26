@@ -30,8 +30,8 @@ esp_err_t init_gptimer() {
   static constexpr gptimer_config_t timer_config{
     .clk_src = GPTIMER_CLK_SRC_DEFAULT,
     .direction = GPTIMER_COUNT_UP,
-    .resolution_hz = 1'000'000u,  // 1 MHz
-    .intr_priority = 2            // Priority 3 is taken by RMT!
+    .resolution_hz = 1'000'000u, // 1 MHz
+    .intr_priority = 2           // Priority 3 is taken by RMT!
   };
   ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
 
@@ -55,4 +55,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace out
+} // namespace out

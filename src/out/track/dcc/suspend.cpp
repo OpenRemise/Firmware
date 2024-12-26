@@ -72,4 +72,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

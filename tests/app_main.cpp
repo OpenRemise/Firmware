@@ -13,7 +13,7 @@ char** argv;
   ::argv = argv;
 }
 
-}  // namespace
+} // namespace
 
 extern "C" void app_main() {
   testing::InitGoogleTest(&argc, argv);

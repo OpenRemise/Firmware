@@ -33,25 +33,18 @@ esp_err_t init_encoder(decup_encoder_config_t const& encoder_config) {
 namespace {
 
 /// \todo document
-esp_err_t init_alarm() {
-  ESP_ERROR_CHECK(gptimer_enable(gptimer));
-  return gptimer_start(gptimer);
-}
-
-/// \todo document
 esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(gpio_isr_handler_add(ack_gpio_num, gpio_isr_handler, NULL));
   return gpio_set_level(enable_gpio_num, 1u);
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t resume(decup_encoder_config_t const& encoder_config,
                  gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(init_encoder(encoder_config));
-  ESP_ERROR_CHECK(init_alarm());
   return init_gpio(gpio_isr_handler);
 }
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

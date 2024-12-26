@@ -13,16 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// DECUP_EIN protocol task function
+/// ULF_DCC_EIN protocol task function
 ///
-/// \file   usb/decup_ein/task_function.hpp
+/// \file   usb/ulf_dcc_ein/task_function.hpp
 /// \author Vincent Hamp
-/// \date   10/08/2024
+/// \date   10/02/2023
 
 #pragma once
 
-namespace usb::decup_ein {
+#include <optional>
+#include <span>
 
+namespace usb::ulf_dcc_ein {
+
+std::optional<dcc::Packet> receive_dcc_packet();
 void task_function(void*);
 
-}  // namespace usb::decup_ein
+} // namespace usb::ulf_dcc_ein

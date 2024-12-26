@@ -35,4 +35,4 @@ esp_err_t resume(dcc_encoder_config_t const& encoder_config,
                  rmt_tx_done_callback_t rmt_cb,
                  gptimer_alarm_cb_t gptimer_cb);
 
-}  // namespace out::track::dcc
+} // namespace out::track::dcc

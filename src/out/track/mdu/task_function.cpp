@@ -89,8 +89,8 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   // Start timer
   ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
 
-  // Clear any stored counts
-  xTaskNotifyStateClearIndexed(NULL, default_notify_index);
+  // Clear any glitches
+  ulTaskNotifyValueClearIndexed(NULL, default_notify_index, -1);
 
   // Wait
   return rmt_tx_wait_all_done(channel, -1);
@@ -121,8 +121,8 @@ packet2ack_counts(mdu_encoder_config_t const& encoder_config,
       return a + std::popcount(b);
     })};
   auto const zeros{size(packet) * CHAR_BIT - ones};
-  count += ones * timings[encoder_config.transfer_rate].one +   // Ones
-           zeros * timings[encoder_config.transfer_rate].zero;  // Zeros
+  count += ones * timings[encoder_config.transfer_rate].one +  // Ones
+           zeros * timings[encoder_config.transfer_rate].zero; // Zeros
 
   // End
   count += timings[encoder_config.transfer_rate].one;
@@ -235,7 +235,7 @@ esp_err_t zpp_entry() {
   }
 
   //
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
 
   //
   ESP_ERROR_CHECK(out::track::dcc::deinit_bidi());
@@ -255,7 +255,7 @@ esp_err_t zsu_entry() {
   ESP_ERROR_CHECK(transmit_packet_blocking_for(make_busy_packet(), 200'000u));
 
   //
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
 
   return ESP_OK;
 }
@@ -303,14 +303,14 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   }
 }
 
-}  // namespace
+} // namespace
 
 /// \todo document
 void task_function(void*) {
   for (;;) switch (auto encoder_config{mdu_encoder_config()}; state.load()) {
       case State::MDUZpp: ESP_ERROR_CHECK(zpp_entry()); [[fallthrough]];
       case State::MDUZsu: [[fallthrough]];
-      case State::MDU_EIN:
+      case State::ULF_MDU_EIN:
         ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
         ESP_ERROR_CHECK(zsu_entry());
         ESP_ERROR_CHECK(loop(encoder_config));
@@ -320,4 +320,4 @@ void task_function(void*) {
     }
 }
 
-}  // namespace out::track::mdu
+} // namespace out::track::mdu

@@ -8,7 +8,7 @@ set(COMMON_SRC
     mem/nvs/settings.cpp
     mem/init.cpp
     out/track/current_limit.cpp
-    usb/dcc_ein/task_function.cpp
+    usb/ulf_dcc_ein/task_function.cpp
     usb/rx_task_function.cpp
     utility.cpp)
 
@@ -51,7 +51,6 @@ else()
     out/track/dcc/suspend.cpp
     out/track/dcc/task_function.cpp
     out/track/decup/resume.cpp
-    out/track/decup/rmt_decup_encoder.c
     out/track/decup/suspend.cpp
     out/track/decup/task_function.cpp
     out/track/mdu/resume.cpp
@@ -64,19 +63,20 @@ else()
     out/zusi/task_function.cpp
     out/init.cpp
     out/suspend.cpp
+    trace/init.cpp
     udp/init.cpp
-    usb/decup_ein/task_function.cpp
-    usb/susiv2/task_function.cpp
+    usb/ulf_decup_ein/task_function.cpp
+    usb/ulf_susiv2/task_function.cpp
     usb/init.cpp
     usb/rx_task_function.cpp
     usb/tx_task_function.cpp
     wifi/init.cpp
+    wifi/task_function.cpp
     z21/init.cpp
     z21/service.cpp
     zusi/init.cpp
     zusi/service.cpp
     app_main.cpp
-    trace.cpp
     INCLUDE_DIRS
     .
     ${CMAKE_BINARY_DIR}
@@ -110,7 +110,6 @@ idf_build_set_property(
   "-Wno-error=all;-Wno-error=extra;-Wno-error=implicit-function-declaration;-Wno-error=format;-Wno-error=switch"
   APPEND)
 
-cpmaddpackage("gh:ZIMO-Elektronik/DECUP#develop")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.3.2")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN#develop")
@@ -142,8 +141,7 @@ cpmaddpackage(
 
 target_link_libraries(
   ${COMPONENT_LIB}
-  PUBLIC DECUP::DECUP
-         fmt::fmt
+  PUBLIC fmt::fmt
          magic_enum::magic_enum
          Microsoft.GSL::GSL
          ULF::COM

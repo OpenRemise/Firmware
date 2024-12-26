@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// DCC_EIN protocol task function
+/// ULF_DCC_EIN protocol task function
 ///
-/// \file   usb/dcc_ein/task_function.cpp
+/// \file   usb/ulf_dcc_ein/task_function.cpp
 /// \author Vincent Hamp
 /// \date   10/02/2023
 
@@ -28,7 +28,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace usb::dcc_ein {
+namespace usb::ulf_dcc_ein {
 
 /// Receive DCC packet from senddcc string
 ///
@@ -153,9 +153,9 @@ void loop() {
   }
 }
 
-}  // namespace
+} // namespace
 
-/// DCC_EIN receive task function
+/// ULF_DCC_EIN receive task function
 ///
 /// Immediately suspends itself after creation. It's only resumed after
 /// usb::rx_task_function receives a "DCC_EIN\r" protocol entry string. Once
@@ -167,7 +167,7 @@ void task_function(void*) {
 
     //
     if (auto expected{State::Suspended};
-        state.compare_exchange_strong(expected, State::DCC_EIN)) {
+        state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
       transmit_ok();
       send_idle_packets_to_back();
       LOGI_TASK_RESUME(out::track::dcc::task.handle);
@@ -181,4 +181,4 @@ void task_function(void*) {
   }
 }
 
-}  // namespace usb::dcc_ein
+} // namespace usb::ulf_dcc_ein

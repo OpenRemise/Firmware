@@ -24,14 +24,18 @@
 
 namespace analog {
 
-/// \todo document
+/// Temperature task function
+///
+/// Once started, the temperature task runs continuously. The internal
+/// temperature sensor is read once per second and the result is converted into
+/// degrees Celsius. The result is written to the corresponding queue.
 void temp_task_function(void*) {
   for (;;) {
     TemperatureQueue::value_type temp;
     ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_sensor, &temp));
     xQueueOverwrite(temperature_queue.handle, &temp);
-    vTaskDelay(pdMS_TO_TICKS(temp_task.timeout));
+    vTaskDelay(pdMS_TO_TICKS(1000u));
   }
 }
 
-}  // namespace analog
+} // namespace analog

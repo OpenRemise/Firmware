@@ -13,20 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// DCC_EIN protocol task function
+/// WiFi task function
 ///
-/// \file   usb/dcc_ein/task_function.hpp
+/// \file   wifi/task_function.hpp
 /// \author Vincent Hamp
-/// \date   10/02/2023
+/// \date   06/12/2024
 
 #pragma once
 
-#include <optional>
-#include <span>
+namespace wifi {
 
-namespace usb::dcc_ein {
-
-std::optional<dcc::Packet> receive_dcc_packet();
 void task_function(void*);
 
-}  // namespace usb::dcc_ein
+} // namespace wifi

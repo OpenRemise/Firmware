@@ -34,7 +34,7 @@ namespace {
   esp_restart();
 }
 
-}  // namespace
+} // namespace
 
 void esp_delayed_restart() {
   LOGI("esp_delayed_restart");

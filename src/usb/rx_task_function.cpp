@@ -51,9 +51,9 @@ void transmit_ping() {
 /// \return true if any protocol task is active
 /// \return false if no protocol task is active
 bool any_protocol_task_active() {
-  return eTaskGetState(dcc_ein::task.handle) < eSuspended ||
-         eTaskGetState(decup_ein::task.handle) < eSuspended ||
-         eTaskGetState(susiv2::task.handle) < eSuspended;
+  return eTaskGetState(ulf_dcc_ein::task.handle) < eSuspended ||
+         eTaskGetState(ulf_decup_ein::task.handle) < eSuspended ||
+         eTaskGetState(ulf_susiv2::task.handle) < eSuspended;
 }
 
 namespace {
@@ -79,22 +79,22 @@ void loop() {
       if (cmd == std::nullopt) continue;
       // Ping
       else if (cmd == "PING\r"sv) transmit_ping();
-      // Resume DCC_EIN protocol tasks
+      // Resume ULF_DCC_EIN protocol tasks
       else if (cmd == "DCC_EIN\r"sv) {
-        LOGI_TASK_RESUME(dcc_ein::task.handle);
+        LOGI_TASK_RESUME(ulf_dcc_ein::task.handle);
         break;
       }
-      // Resume DECUP_EIN protocol tasks
+      // Resume ULF_DECUP_EIN protocol tasks
       else if (cmd == "DECUP_EIN\r"sv) {
-        LOGI_TASK_RESUME(decup_ein::task.handle);
+        LOGI_TASK_RESUME(ulf_decup_ein::task.handle);
         break;
       }
-      // Resume MDU_EIN protocol tasks
+      // Resume ULF_MDU_EIN protocol tasks
       else if (cmd == "MDU_EIN\r"sv)
         LOGW("MDU_EIN protocol not implemented");
-      // Resume SUSIV2 protocol tasks
+      // Resume ULF_SUSIV2 protocol tasks
       else if (cmd == "SUSIV2\r"sv) {
-        LOGI_TASK_RESUME(susiv2::task.handle);
+        LOGI_TASK_RESUME(ulf_susiv2::task.handle);
         break;
       }
     }
@@ -108,7 +108,7 @@ void wait_for_all_protocol_tasks_to_suspend() {
   while (any_protocol_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
 }
 
-}  // namespace
+} // namespace
 
 /// USB receive task function
 ///
@@ -123,4 +123,4 @@ void rx_task_function(void*) {
   }
 }
 
-}  // namespace usb
+} // namespace usb

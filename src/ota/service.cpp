@@ -52,11 +52,13 @@ esp_err_t Service::socket(http::Message& msg) {
   //
   if (auto expected{State::Suspended};
       msg.type != HTTPD_WS_TYPE_CLOSE &&
-      state.compare_exchange_strong(expected, State::OTA))
+      state.compare_exchange_strong(expected, State::OTA)) {
+    _queue.push(std::move(msg));
     LOGI_TASK_RESUME(task.handle);
-
+    return ESP_OK;
+  }
   //
-  if (state.load() == State::OTA) {
+  else if (state.load() == State::OTA) {
     _queue.push(std::move(msg));
     return ESP_OK;
   }
@@ -67,34 +69,34 @@ esp_err_t Service::socket(http::Message& msg) {
 
 /// \todo document
 void Service::taskFunction(void*) {
-  for (;;) switch (state.load()) {
-      case State::OTA: loop(); break;
-      default: LOGI_TASK_SUSPEND(task.handle); break;
+  for (;;) {
+    LOGI_TASK_SUSPEND(task.handle);
+    switch (state.load()) {
+      case State::OTA:
+        bug_led(true);
+        loop();
+        bug_led(false);
+        break;
+      default: assert(false); break;
     }
+  }
 }
 
 /// \todo document
 void Service::loop() {
-  bug_led(true);
-
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {
-    TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
-    while (empty(_queue))
-      if (xTaskGetTickCount() >= then) {
-        LOGI("WebSocket timeout");
-        return close();
-      }
-
-    auto const& msg{_queue.front()};
+    assert(_queue.size());
+    auto const msg{std::move(_queue.front())};
+    _queue.pop();
 
     switch (msg.type) {
       case HTTPD_WS_TYPE_BINARY: _ack = write(msg.payload); break;
       case HTTPD_WS_TYPE_CLOSE:
         LOGI("WebSocket closed");
         if (_handle) end();
-        return close();
+        return reset();
       default:
         LOGE("WebSocket packet type neither binary nor close");
         _ack = nak;
@@ -107,12 +109,22 @@ void Service::loop() {
       .payload = &_ack,
       .len = sizeof(_ack),
     };
-    httpd_ws_send_frame_async(msg.sock_fd, &frame);
+    if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
+      LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+      return reset();
+    }
 
     // We can't continue in case of error... so abort
-    if (_ack == nak) return close();
+    if (_ack == nak) return reset();
 
-    _queue.pop();
+    TickType_t const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
+    while (empty(_queue))
+      if (xTaskGetTickCount() >= then) {
+        LOGI("WebSocket timeout");
+        if (auto const err{httpd_sess_trigger_close(msg.sock_fd)})
+          LOGE("httpd_sess_trigger_close failed %s", esp_err_to_name(err));
+        return reset();
+      }
   }
 }
 
@@ -144,14 +156,13 @@ void Service::end() {
   if (err == ESP_OK) err = esp_ota_set_boot_partition(_partition);
   if (err == ESP_OK) {
     LOGI("Update successful, restarting...");
-    bug_led(false);
     esp_restart();
   }
   LOGE("Update failed %s", esp_err_to_name(err));
 }
 
 /// \todo document
-void Service::close() {
+void Service::reset() {
   _queue = {};
   _partition = NULL;
   if (_handle) esp_ota_abort(_handle);
@@ -160,7 +171,6 @@ void Service::close() {
   if (auto expected{State::OTA};
       !state.compare_exchange_strong(expected, State::Suspended))
     assert(false);
-  bug_led(false);
 }
 
-}  // namespace ota
+} // namespace ota

@@ -53,7 +53,7 @@ esp_err_t init(BaseType_t xCoreID) {
     .command_bits = 0u,
     .address_bits = 0u,
     .dummy_bits = 0u,
-    .mode = 1u,  // Fuck the docs, mode ain't 3...
+    .mode = 1u, // Fuck the docs, mode ain't 3...
     .duty_cycle_pos = 0u,
     .cs_ena_pretrans = 0u,
     .cs_ena_posttrans = 0u,
@@ -62,7 +62,7 @@ esp_err_t init(BaseType_t xCoreID) {
     .spics_io_num = -1,
     .flags = SPI_DEVICE_BIT_LSBFIRST | SPI_DEVICE_HALFDUPLEX | SPI_DEVICE_3WIRE,
     .queue_size = 7};
-  spi_bus_add_device(SPI2_HOST, &devcfg, &spis[0uz]);  // Fallback and resync
+  spi_bus_add_device(SPI2_HOST, &devcfg, &spis[0uz]); // Fallback and resync
 
   devcfg.clock_speed_hz = static_cast<int>(1.0 / 3.5e-6);
   spi_bus_add_device(SPI2_HOST, &devcfg, &spis[1uz]);
@@ -85,4 +85,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace out::zusi
+} // namespace out::zusi

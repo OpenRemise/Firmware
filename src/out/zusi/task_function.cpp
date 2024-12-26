@@ -183,8 +183,8 @@ void loop() {
 /// \todo document
 void task_function(void*) {
   for (;;) switch (state.load()) {
-      case State::SUSIV2: [[fallthrough]];
-      case State::ZUSI:
+      case State::ZUSI: [[fallthrough]];
+      case State::ULF_SUSIV2:
         ESP_ERROR_CHECK(resume());
         loop();
         ESP_ERROR_CHECK(suspend());
@@ -193,4 +193,4 @@ void task_function(void*) {
     }
 }
 
-}  // namespace out::zusi
+} // namespace out::zusi

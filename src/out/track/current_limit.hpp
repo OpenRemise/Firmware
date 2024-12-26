@@ -28,4 +28,4 @@ namespace out::track {
 CurrentLimit get_current_limit();
 esp_err_t set_current_limit(CurrentLimit current_limit);
 
-}  // namespace out::track
+} // namespace out::track

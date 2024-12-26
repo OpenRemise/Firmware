@@ -33,4 +33,4 @@ inline temperature_sensor_handle_t temp_sensor{};
 
 esp_err_t init(BaseType_t xCoreID);
 
-}  // namespace analog
+} // namespace analog

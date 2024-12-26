@@ -28,4 +28,4 @@ namespace mdu {
 /// \todo document MDU page
 ///
 
-}  // namespace mdu
+} // namespace mdu

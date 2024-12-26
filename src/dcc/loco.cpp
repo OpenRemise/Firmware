@@ -60,4 +60,4 @@ JsonDocument Loco::toJsonDocument() const {
   return doc;
 }
 
-}  // namespace dcc
+} // namespace dcc

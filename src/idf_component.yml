@@ -15,9 +15,12 @@ dependencies:
     rules:
       - if: "target != linux"
   zimo-elektronik/dcc:
-    version: "0.38.1"
+    version: "0.39.0"
   zimo-elektronik/mdu:
     version: "0.17.1"
+  DECUP:
+    version: "develop"
+    git: https://github.com/ZIMO-Elektronik/DECUP.git
   Z21:
     version: "develop"
     git: https://github.com/ZIMO-Elektronik/Z21.git

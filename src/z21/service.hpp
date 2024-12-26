@@ -74,4 +74,4 @@ private:
   std::mutex _internal_mutex;
 };
 
-}  // namespace z21
+} // namespace z21

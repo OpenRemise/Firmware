@@ -25,8 +25,6 @@ namespace analog {
 
 /// \page page_analog Analog
 /// \tableofcontents
-/// \todo document Analog page
-///
 /// This module takes over all analog functions of the firmware. This includes
 /// measuring track voltage and current, measuring temperature, and monitoring
 /// all of those measurements.
@@ -41,9 +39,11 @@ namespace analog {
 /// \copydetails temp_task_function
 ///
 /// \section section_analog_conversions Conversions
+/// The convert.hpp header provides some conversion functions to convert between
+/// raw ADC values ​​and Si units. The following functions are defined:
 /// - measurement2mV(VoltageMeasurement)
 /// - mV2measurement(Voltage)
 /// - measurement2mA(CurrentMeasurement)
 /// - mA2measurement(Current)
 
-}  // namespace analog
+} // namespace analog

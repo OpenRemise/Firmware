@@ -46,4 +46,4 @@ esp_err_t suspend() {
   return ESP_OK;
 }
 
-}  // namespace out
+} // namespace out

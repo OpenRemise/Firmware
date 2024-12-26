@@ -33,17 +33,7 @@ esp_err_t deinit_gpio() {
   return gpio_isr_handler_remove(ack_gpio_num);
 }
 
-/// \todo document
-esp_err_t deinit_alarm() {
-  gptimer_stop(gptimer);
-  ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
-  ESP_ERROR_CHECK(gptimer_disable(gptimer));
-  gptimer_event_callbacks_t cbs{};
-  ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, NULL));
-  return gptimer_set_alarm_action(gptimer, NULL);
-}
-
-}  // namespace
+} // namespace
 
 /// \todo document
 esp_err_t deinit_encoder() {
@@ -55,9 +45,8 @@ esp_err_t deinit_encoder() {
 /// \todo document
 esp_err_t suspend() {
   ESP_ERROR_CHECK(deinit_gpio());
-  ESP_ERROR_CHECK(deinit_alarm());
   ESP_ERROR_CHECK(deinit_encoder());
   return out::suspend();
 }
 
-}  // namespace out::track::decup
+} // namespace out::track::decup

@@ -39,4 +39,4 @@ namespace out {
 /// \section section_out_zusi ZUSI
 /// YOLO
 
-}  // namespace out
+} // namespace out

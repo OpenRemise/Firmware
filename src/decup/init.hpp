@@ -21,4 +21,4 @@ namespace decup {
 
 esp_err_t init(BaseType_t xCoreID);
 
-}  // namespace decup
+} // namespace decup

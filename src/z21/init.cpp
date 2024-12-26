@@ -37,4 +37,4 @@ esp_err_t init(BaseType_t xCoreID) {
   return ESP_OK;
 }
 
-}  // namespace z21
+} // namespace z21

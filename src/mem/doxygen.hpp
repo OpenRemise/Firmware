@@ -35,8 +35,9 @@ namespace mem {
 /// | bla             | sta_pass        | Binary | -   | -   | ""       |
 /// | bla             | http_rx_timeout | u8     | 5   | 60  | 5        |
 /// | bla             | http_tx_timeout | u8     | 5   | 60  | 5        |
-/// | bla             | current_limit   | u8     | 0   | 3   | 3        |
-/// | bla             | current_sc_time | u8     | 20  | 240 | 20       |
+/// | bla             | cur_lim         | u8     | 0   | 3   | 3        |
+/// | bla             | cur_lim_serv    | u8     | 0   | 3   | 1        |
+/// | bla             | cur_sc_time     | u8     | 20  | 240 | 20       |
 /// | bla             | dcc_preamble    | u8     | 17  | 30  | 17       |
 /// | bla             | dcc_bit1_dur    | u8     | 56  | 60  | 58       |
 /// | bla             | dcc_bit0_dur    | u8     | 97  | 114 | 100      |
@@ -52,4 +53,4 @@ namespace mem {
 /// | bla             | mdu_ackreq      | u8     | 10  | 30  | 10       |
 ///
 
-}  // namespace mem
+} // namespace mem

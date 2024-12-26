@@ -30,7 +30,7 @@ namespace analog {
 
 namespace {
 
-/// Convert the NVS setting "current_sc_time" to a counter value
+/// Convert the NVS setting "cur_sc_time" to a counter value
 ///
 /// For convenience, the \ref mem::nvs::Settings::getCurrentShortCircuitTime()
 /// "short circuit detection time" is stored in milliseconds. In order for this
@@ -42,9 +42,21 @@ auto get_short_circuit_count() {
          conversion_frame_time;
 }
 
-}  // namespace
+} // namespace
 
 /// ADC task function
+///
+/// Once started, the ADC task runs continuously. It measures voltages and
+/// currents at a frequency of \ref sample_freq_hz "8kHz". A total of \ref
+/// conversion_frame_samples "160" samples are recorded within one conversion
+/// frame meaning one frame lasts exactly \ref conversion_frame_time "20ms". All
+/// measurements are written to the corresponding \ref voltages_queue "voltages"
+/// or \ref currents_queue "currents" queue.
+///
+/// If the measured currents indicate a short circuit, the \ref bug_led
+/// "bug LED" is switched, \ref state is set to \ref State::ShortCircuit
+/// "short circuit" and a \ref page_z21 track short circuit message is
+/// broadcast.
 void adc_task_function(void*) {
   std::array<uint8_t, conversion_frame_size> conversion_frame{};
   auto short_circuit_count{get_short_circuit_count()};
@@ -95,7 +107,7 @@ void adc_task_function(void*) {
       bug_led(true);
       z21::service->broadcastTrackShortCircuit();
     }
-    //
+    // Clear count if no short circuit
     else
       short_circuit_count = get_short_circuit_count();
   }
@@ -105,4 +117,4 @@ void adc_task_function(void*) {
   ESP_ERROR_CHECK(adc_continuous_stop(adc1_handle));
 }
 
-}  // namespace analog
+} // namespace analog
