@@ -24,7 +24,9 @@
 
 namespace mem {
 
+/// Initialize memory
 ///
+/// init() initializes all memory types used. Currently this is only NVS.
 esp_err_t init() { return nvs::init(); }
 
 } // namespace mem

@@ -27,6 +27,9 @@
 
 namespace mem::nvs {
 
+/// Locos stored in NVS
+///
+/// \todo document
 class Locos : public Base {
 public:
   explicit Locos() : Base{"locos", NVS_READWRITE} {}

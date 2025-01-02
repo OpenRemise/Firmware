@@ -184,9 +184,7 @@ esp_err_t zpp_entry() {
     .bit1_duration = nvs.getDccBit1Duration(),
     .bit0_duration = nvs.getDccBit0Duration(),
   };
-  auto const startup_reset_packet_count{nvs.getDccStartupResetPacketCount()};
   auto const program_packet_count{nvs.getDccProgramPacketCount()};
-  auto const continue_reset_packet_count{nvs.getDccContinueResetPacketCount()};
   nvs.~Settings();
 
   //
@@ -195,9 +193,9 @@ esp_err_t zpp_entry() {
   //
   ESP_ERROR_CHECK(out::track::dcc::resume(encoder_config, nullptr, nullptr));
 
-  // Transmit at least 25 reset packets to ensure entry
-  auto packet{::dcc::make_reset_packet()};
-  for (auto i{0uz}; i < startup_reset_packet_count + 3uz; ++i) {
+  // Transmit 500 idle packets (~4s)
+  auto packet{::dcc::make_idle_packet()};
+  for (auto i{0uz}; i < 500uz; ++i) {
     ESP_ERROR_CHECK(
       rmt_transmit(channel, encoder, data(packet), size(packet), &config));
     ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
@@ -216,18 +214,10 @@ esp_err_t zpp_entry() {
     {106u - 1u, 0x00u},
   }};
 
+  // CV verifies
   for (auto const& [cv_addr, byte] : sequence) {
-    // CV verify
-    packet = ::dcc::make_cv_access_long_verify_service_packet(cv_addr, byte);
+    packet = ::dcc::make_cv_access_long_verify_packet(0u, cv_addr, byte);
     for (auto i{0uz}; i < program_packet_count; ++i) {
-      ESP_ERROR_CHECK(
-        rmt_transmit(channel, encoder, data(packet), size(packet), &config));
-      ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
-    }
-
-    // Transmit at least 3 reset packets to ensure sequence
-    packet = ::dcc::make_reset_packet();
-    for (auto i{0uz}; i < continue_reset_packet_count; ++i) {
       ESP_ERROR_CHECK(
         rmt_transmit(channel, encoder, data(packet), size(packet), &config));
       ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));

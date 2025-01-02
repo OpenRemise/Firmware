@@ -28,55 +28,72 @@
 
 namespace mem::nvs {
 
+/// NVS base
+///
+/// Base is a convenience wrapper over the NVS C-API and forms the basis of all
+/// NVS classes. The [RAII](https://en.cppreference.com/w/cpp/language/raii)
+/// idiom ensures that the desired namespace is opened in the constructor and
+/// that any write operations are committed in the destructor and the namespace
+/// is closed again.
+///
+/// A nested iterator type (\ref nvs::Base::Iterator "Base::Iterator") ensures
+/// that the keys of the namespace can be iterated over.
 class Base {
 public:
-  ///
+  /// Sentinel type for Iterator
   struct Sentinel {};
 
-  ///
+  /// Wrapper around C-style [NVS
+  /// iterators](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/storage/nvs_flash.html#nvs-iterators)
   struct Iterator {
     using value_type = nvs_entry_info_t;
     using difference_type = std::ptrdiff_t;
     using reference = value_type;
     using iterator_category = std::input_iterator_tag;
 
+    /// Ctor
     ///
+    /// Creates an iterator to enumerate NVS entries.
+    ///
+    /// \param namespace_name Namespace to iterate over
     Iterator(char const* namespace_name)
-      : err_{nvs_entry_find(
-          NVS_DEFAULT_PART_NAME, namespace_name, NVS_TYPE_ANY, &it_)} {}
+      : _err{nvs_entry_find(
+          NVS_DEFAULT_PART_NAME, namespace_name, NVS_TYPE_ANY, &_it)} {}
 
+    /// Dtor
     ///
-    ~Iterator() { nvs_release_iterator(it_); }
+    /// Release iterator.
+    ~Iterator() { nvs_release_iterator(_it); }
 
-    ///
     reference operator*() const {
       nvs_entry_info_t info;
-      nvs_entry_info(it_, &info);
+      nvs_entry_info(_it, &info);
       return info;
     }
 
-    ///
     Iterator& operator++() {
-      err_ = nvs_entry_next(&it_);
+      _err = nvs_entry_next(&_it);
       return *this;
     }
 
-    /// (void)r++
     void operator++(int) { this->operator++(); }
 
+    /// Equality comparison
     ///
+    /// esp_err_t implicitly converts to bool. Any other value than 'ESP_OK'
+    /// indicates that we have reached the end.
+    ///
+    /// \return Return value of last call to nvs_entry_next
     friend constexpr bool operator==(Iterator const& lhs, Sentinel) {
-      return lhs.err_;
+      return lhs._err;
     }
 
   private:
-    nvs_iterator_t it_{};
-    esp_err_t err_{};
+    nvs_iterator_t _it{};
+    esp_err_t _err{};
   };
 
-#if __GNUC__ > 11 || (__GNUC__ == 11 && __GNUC_MINOR__ > 2)
   static_assert(std::input_iterator<Iterator>);
-#endif
 
   auto begin() const { return Iterator{_namespace_name}; }
   auto cbegin() const { return begin(); }
@@ -100,8 +117,13 @@ protected:
   esp_err_t setU16(std::string const& key, uint16_t value);
 
 private:
+  /// Store namespace name (mainly for iterator)
   char const* _namespace_name{};
+
+  /// Opaque pointer type representing non-volatile storage handle
   nvs_handle_t _handle{};
+
+  /// Flag to indicate commit pending
   bool _commit_pending{};
 };
 

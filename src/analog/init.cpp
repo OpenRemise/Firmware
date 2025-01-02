@@ -37,7 +37,7 @@ namespace {
 /// Initializes the higher resolution current sense switching of the
 /// TPS281C100x. This feature is currently not used.
 ///
-/// \return ESP_OK  Success
+/// \retval ESP_OK  Success
 esp_err_t init_gpio() {
   static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ol_on_gpio_num,
                                          .mode = GPIO_MODE_OUTPUT,

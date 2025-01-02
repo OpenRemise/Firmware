@@ -32,8 +32,8 @@ namespace usb::ulf_dcc_ein {
 
 /// Receive DCC packet from senddcc string
 ///
-/// \return dcc::Packet dcc::Packet created from senddcc string
-/// \return std::nullopt on timeout
+/// \retval dcc::Packet created from senddcc string
+/// \retval std::nullopt on timeout
 std::optional<dcc::Packet> receive_dcc_packet() {
   std::array<char, rx_stream_buffer.size> stack;
   size_t count{};
@@ -102,8 +102,8 @@ void ack_senddcc_str() {
 
 /// Receive addressed datagram
 ///
-/// \return Addressed BiDi datagram received from out::track::rx_queue
-/// \return std::nullopt on timeout
+/// \retval AddressedDatagram received from out::track::rx_queue
+/// \retval std::nullopt on timeout
 std::optional<ulf::dcc_ein::AddressedDatagram> receive_addressed_datagram() {
   out::track::RxQueue::value_type item;
   if (xQueueReceive(
@@ -119,8 +119,7 @@ std::optional<ulf::dcc_ein::AddressedDatagram> receive_addressed_datagram() {
 /// `sendbidi [ubsalrtei][0-9a-fA-F]{4}( [0-9a-fA-F]{2}){8}\r` prior to
 /// transmission. The string is then send to usb::tx_stream_buffer.
 ///
-/// \param  addr_datagram Addressed BiDi datagram received from
-///                       out::track::rx_queue
+/// \param  addr_datagram AddressedDatagram received from out::track::rx_queue
 void transmit_addressed_datagram(
   ulf::dcc_ein::AddressedDatagram const& addr_datagram) {
   auto const str{ulf::dcc_ein::addressed_datagram2sendbidi_str(addr_datagram)};

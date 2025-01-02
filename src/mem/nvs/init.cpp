@@ -21,10 +21,16 @@
 
 #include "init.hpp"
 #include <nvs_flash.h>
+#include "settings.hpp"
 
 namespace mem::nvs {
 
 /// Initialize NVS
+///
+/// nvs::init() is responsible for initializing the NVS memory during the boot
+/// phase. If the NVS partition is truncated for any reason, the entire memory
+/// is erased and then reinitialized. The default settings will be restored in
+/// this case.
 esp_err_t init() {
   auto err{nvs_flash_init()};
 
@@ -32,8 +38,32 @@ esp_err_t init() {
       err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
     // NVS partition was truncated and needs to be erased
     ESP_ERROR_CHECK(nvs_flash_erase());
-    // Retry nvs_flash_init
-    err = nvs_flash_init();
+
+    // Retry nvs_flash_init and restore defaults
+    if (err = nvs_flash_init(); err == ESP_OK) {
+      mem::nvs::Settings nvs;
+      nvs.setStationmDNS("remise");
+      nvs.setStationSSID("");
+      nvs.setStationPassword("");
+      nvs.setHttpReceiveTimeout(5u);
+      nvs.setHttpTransmitTimeout(5u);
+      nvs.setCurrentLimit(out::track::CurrentLimit::_4100mA);
+      nvs.setCurrentLimitService(out::track::CurrentLimit::_1300mA);
+      nvs.setCurrentShortCircuitTime(20u);
+      nvs.setDccPreamble(DCC_TX_MIN_PREAMBLE_BITS);
+      nvs.setDccBit1Duration(dcc::tx::Timing::Bit1);
+      nvs.setDccBit0Duration(dcc::tx::Timing::Bit0);
+      nvs.setDccBit0Duration(60u);
+      nvs.setDccProgrammingType(3u);
+      nvs.setDccStartupResetPacketCount(25u);
+      nvs.setDccContinueResetPacketCount(6u);
+      nvs.setDccProgramPacketCount(7u);
+      nvs.setDccBitVerifyTo1(true);
+      nvs.setDccProgrammingAckCurrent(50u);
+      nvs.setDccFlags(2u);
+      nvs.setMduPreamble(MDU_TX_MIN_PREAMBLE_BITS);
+      nvs.setMduAckreq(MDU_TX_MIN_ACKREQ_BITS);
+    }
   }
 
   return err;
