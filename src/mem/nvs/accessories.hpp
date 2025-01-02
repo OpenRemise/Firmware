@@ -26,6 +26,9 @@
 
 namespace mem::nvs {
 
+/// Accessories stored in NVS
+///
+/// \todo not yet implemented
 class Accessories : public Base {
 public:
   explicit Accessories() : Base{"accessories", NVS_READWRITE} {}

@@ -26,6 +26,9 @@
 
 namespace mem::nvs {
 
+/// Settings stored in NVS
+///
+/// \todo document
 class Settings : public Base {
 public:
   explicit Settings() : Base{"settings", NVS_READWRITE} {}

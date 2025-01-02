@@ -24,22 +24,34 @@
 
 namespace mem::nvs {
 
-/// \todo document
+/// Ctor
+///
+/// Open non-volatile storage with a given namespace from the default NVS
+/// partition.
+///
+/// \param  namespace_name  Namespace to open
+/// \param  open_mode       Mode of opening the non-volatile storage
 Base::Base(char const* namespace_name, nvs_open_mode_t open_mode)
   : _namespace_name{namespace_name} {
   assert(namespace_name);
   ESP_ERROR_CHECK(nvs_open(namespace_name, open_mode, &_handle));
 }
 
-/// \todo document
+/// Dtor
+///
+/// Write any pending changes to non-volatile storage, then close the storage
+/// handle and free any allocated resources.
 Base::~Base() {
   if (_commit_pending) ESP_ERROR_CHECK(nvs_commit(_handle));
   nvs_close(_handle);
 }
 
-/// \todo document
+/// Erase key-value pair with given key name
 ///
-/// std::string enforces null-terminated string
+/// \param  key                   Key name
+/// \retval ESP_OK                Erase operation was successful
+/// \retval ESP_FAIL              Internal error
+/// \retval ESP_ERR_NVS_NOT_FOUND Requested key doesn't exist
 esp_err_t Base::erase(std::string const& key) {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   auto const err{nvs_erase_key(_handle, key.c_str())};
@@ -47,14 +59,20 @@ esp_err_t Base::erase(std::string const& key) {
   return err;
 }
 
-/// \todo document
+/// Erase all key-value pairs in a namespace
+///
+/// \retval ESP_OK    Erase operation was successful
+/// \retval ESP_FAIL  Internal error
 esp_err_t Base::eraseAll() {
   auto const err{nvs_erase_all(_handle)};
   if (err == ESP_OK) _commit_pending = true;
   return err;
 }
 
-/// \todo document
+/// Get blob value for given key
+///
+/// \param  key Key name
+/// \return Blob value as `std::string`
 std::string Base::getBlob(std::string const& key) const {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   size_t len;
@@ -64,7 +82,17 @@ std::string Base::getBlob(std::string const& key) const {
   return blob;
 }
 
-/// \todo document
+/// Set blob value for given key
+///
+/// \param  key                           Key name
+/// \param  str                           Blob value
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Base::setBlob(std::string const& key, std::string_view str) {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   auto const err{nvs_set_blob(_handle, key.c_str(), data(str), size(str))};
@@ -72,7 +100,10 @@ esp_err_t Base::setBlob(std::string const& key, std::string_view str) {
   return err;
 }
 
-/// \todo document
+/// Get uint8_t value for given key
+///
+/// \param  key Key name
+/// \return uint8_t value
 uint8_t Base::getU8(std::string const& key) const {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   uint8_t value;
@@ -80,7 +111,16 @@ uint8_t Base::getU8(std::string const& key) const {
   return value;
 }
 
-/// \todo document
+/// Set uint8_t value for given key
+///
+/// \param  key                           Key name
+/// \param  value                         uint8_t value
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
 esp_err_t Base::setU8(std::string const& key, uint8_t value) {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   auto const err{nvs_set_u8(_handle, key.c_str(), value)};
@@ -88,7 +128,10 @@ esp_err_t Base::setU8(std::string const& key, uint8_t value) {
   return err;
 }
 
-/// \todo document
+/// Get uint16_t value for given key
+///
+/// \param  key Key name
+/// \return uint16_t value
 uint8_t Base::getU16(std::string const& key) const {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   uint16_t value;
@@ -96,7 +139,16 @@ uint8_t Base::getU16(std::string const& key) const {
   return value;
 }
 
-/// \todo document
+/// Set uint16_t value for given key
+///
+/// \param  key                           Key name
+/// \param  value                         uint16_t value
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
 esp_err_t Base::setU16(std::string const& key, uint16_t value) {
   assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
   auto const err{nvs_set_u16(_handle, key.c_str(), value)};
