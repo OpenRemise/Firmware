@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -132,7 +132,7 @@ Service::transmit(std::vector<uint8_t> const& payload) const {
   //
   xMessageBufferSend(out::tx_message_buffer.front_handle,
                      data(payload),
-                     size(payload),
+                     std::min(size(payload), MDU_MAX_PACKET_SIZE),
                      portMAX_DELAY);
 
   //

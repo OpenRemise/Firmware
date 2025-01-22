@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,5 +31,10 @@ namespace http {
 ///
 /// \section section_http_sta Station
 ///
+/// <div class="section_buttons">
+/// | Previous        | Next          |
+/// | :-------------- | ------------: |
+/// | \ref page_decup | \ref page_mdu |
+/// </div>
 
 } // namespace http

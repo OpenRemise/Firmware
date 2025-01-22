@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -491,51 +491,25 @@ void Service::sendToBack(Packet const& packet, size_t n) {
 }
 
 /// \todo document
-z21::LocoInfo::Mode Service::locoMode(uint16_t addr) {
+z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
   std::lock_guard lock{_internal_mutex};
-  auto& loco{_locos[addr]};
+  auto& loco{_locos[loco_addr]};
 
   //
-  if (empty(loco.name)) loco.name = std::to_string(addr);
+  if (empty(loco.name)) loco.name = std::to_string(loco_addr);
   mem::nvs::Locos nvs;
-  nvs.set(addr, loco);
+  nvs.set(loco_addr, loco);
 
-  return loco.mode;
+  return loco;
 }
 
 /// \todo document
-void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
-  if (mode == z21::LocoInfo::MM) LOGW("MM not supported");
-}
-
-/// \todo document
-void Service::function(uint16_t addr, uint32_t mask, uint32_t state) {
+void Service::locoDrive(uint16_t loco_addr,
+                        z21::LocoInfo::SpeedSteps speed_steps,
+                        uint8_t rvvvvvvv) {
   {
     std::lock_guard lock{_internal_mutex};
-    auto& loco{_locos[addr]};
-
-    //
-    state = (~mask & loco.f31_0) | (mask & state);
-    if (loco.f31_0 == state) return;
-    loco.f31_0 = state;
-
-    //
-    if (empty(loco.name)) loco.name = std::to_string(addr);
-    mem::nvs::Locos nvs;
-    nvs.set(addr, loco);
-  }
-
-  //
-  broadcastLocoInfo(addr);
-}
-
-/// \todo document
-void Service::drive(uint16_t addr,
-                    z21::LocoInfo::SpeedSteps speed_steps,
-                    uint8_t rvvvvvvv) {
-  {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{_locos[addr]};
+    auto& loco{_locos[loco_addr]};
 
     //
     if (loco.speed_steps == speed_steps && loco.rvvvvvvv == rvvvvvvv) return;
@@ -543,26 +517,52 @@ void Service::drive(uint16_t addr,
     loco.rvvvvvvv = rvvvvvvv;
 
     //
-    if (empty(loco.name)) loco.name = std::to_string(addr);
+    if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
-    nvs.set(addr, loco);
+    nvs.set(loco_addr, loco);
   }
 
   //
-  broadcastLocoInfo(addr);
+  broadcastLocoInfo(loco_addr);
 }
 
 /// \todo document
-z21::LocoInfo Service::locoInfo(uint16_t addr) {
-  std::lock_guard lock{_internal_mutex};
-  auto& loco{_locos[addr]};
+void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
+  {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{_locos[loco_addr]};
+
+    //
+    state = (~mask & loco.f31_0) | (mask & state);
+    if (loco.f31_0 == state) return;
+    loco.f31_0 = state;
+
+    //
+    if (empty(loco.name)) loco.name = std::to_string(loco_addr);
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
 
   //
-  if (empty(loco.name)) loco.name = std::to_string(addr);
-  mem::nvs::Locos nvs;
-  nvs.set(addr, loco);
+  broadcastLocoInfo(loco_addr);
+}
 
-  return loco;
+/// \todo document
+z21::LocoInfo::Mode Service::locoMode(uint16_t loco_addr) {
+  std::lock_guard lock{_internal_mutex};
+  auto& loco{_locos[loco_addr]};
+
+  //
+  if (empty(loco.name)) loco.name = std::to_string(loco_addr);
+  mem::nvs::Locos nvs;
+  nvs.set(loco_addr, loco);
+
+  return loco.mode;
+}
+
+/// \todo document
+void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
+  if (mode == z21::LocoInfo::MM) LOGW("MM not supported");
 }
 
 /// \todo document
@@ -585,16 +585,16 @@ bool Service::cvWrite(uint16_t cv_addr, uint8_t byte) {
 }
 
 /// \todo document
-void Service::cvPomRead(uint16_t addr, uint16_t cv_addr) {
+void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
   if (full(_cv_pom_request_deque)) return cvNack();
 
   auto const program_packet_count{programPacketCount()};
-  sendToFront(make_cv_access_long_verify_packet(addr, cv_addr),
+  sendToFront(make_cv_access_long_verify_packet(loco_addr, cv_addr),
               program_packet_count);
 
   _cv_pom_request_deque.push_back(
     {.then = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
-     .addr = addr,
+     .addr = loco_addr,
      .cv_addr = cv_addr});
 
   /// \todo reset loco prio here
@@ -605,14 +605,26 @@ void Service::cvPomRead(uint16_t addr, uint16_t cv_addr) {
 }
 
 /// \todo document
-void Service::cvPomWrite(uint16_t addr, uint16_t cv_addr, uint8_t byte) {
+void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
   auto const program_packet_count{programPacketCount()};
-  sendToFront(make_cv_access_long_write_packet(addr, cv_addr, byte),
+  sendToFront(make_cv_access_long_write_packet(loco_addr, cv_addr, byte),
               program_packet_count);
 
   // Mandatory delay
   vTaskDelay(
     pdMS_TO_TICKS((program_packet_count + 1u) * 10u)); // ~10ms per packet
+}
+
+/// \todo document
+void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) {
+  assert(false);
+}
+
+/// \todo document
+void Service::cvPomAccessoryWrite(uint16_t accy_addr,
+                                  uint16_t cv_addr,
+                                  uint8_t byte) {
+  assert(false);
 }
 
 /// \todo document

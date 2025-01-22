@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,5 +27,16 @@ namespace zusi {
 /// \tableofcontents
 /// \todo document ZUSI page
 ///
+/// \section section_zusi_init Initialization
+/// \copydetails init
+///
+/// \section section_zusi_service Service
+/// \copydetails Service
+///
+/// <div class="section_buttons">
+/// | Previous      | Next                   |
+/// | :------------ | ---------------------: |
+/// | \ref page_z21 | \ref page_hw_reference |
+/// </div>
 
 } // namespace zusi

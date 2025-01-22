@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ std::unique_ptr<Server> server;
 
 } // namespace
 
-///
+/// \todo document
 esp_err_t init() {
   server.reset(new Server{wifi::ap_records_queue.handle});
   return ESP_OK;

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -60,7 +60,6 @@ esp_err_t init() {
       nvs.setDccProgramPacketCount(7u);
       nvs.setDccBitVerifyTo1(true);
       nvs.setDccProgrammingAckCurrent(50u);
-      nvs.setDccFlags(2u);
       nvs.setMduPreamble(MDU_TX_MIN_PREAMBLE_BITS);
       nvs.setMduAckreq(MDU_TX_MIN_ACKREQ_BITS);
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,21 +30,21 @@ namespace mem::nvs {
 
 /// NVS base
 ///
-/// Base is a convenience wrapper over the NVS C-API and forms the basis of all
-/// NVS classes. The [RAII](https://en.cppreference.com/w/cpp/language/raii)
+/// nvs::Base is a convenience wrapper over the NVS C-API and forms the basis of
+/// all NVS classes. The [RAII](https://en.cppreference.com/w/cpp/language/raii)
 /// idiom ensures that the desired namespace is opened in the constructor and
 /// that any write operations are committed in the destructor and the namespace
 /// is closed again.
 ///
-/// A nested iterator type (\ref nvs::Base::Iterator "Base::Iterator") ensures
-/// that the keys of the namespace can be iterated over.
+/// A nested iterator type (nvs::Base::Iterator) ensures that the keys of the
+/// namespace can be iterated over.
 class Base {
 public:
   /// Sentinel type for Iterator
   struct Sentinel {};
 
   /// Wrapper around C-style [NVS
-  /// iterators](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/storage/nvs_flash.html#nvs-iterators)
+  /// iterators](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/storage/nvs_flash.html#nvs-iterators)
   struct Iterator {
     using value_type = nvs_entry_info_t;
     using difference_type = std::ptrdiff_t;
@@ -117,6 +117,19 @@ protected:
   esp_err_t setU16(std::string const& key, uint16_t value);
 
 private:
+  // The getters and setters in this class rely on SSO inside the std::string
+  // class. The default capacity of std::string must be large enough to hold a
+  // string of length NVS_KEY_NAME_MAX_SIZE.
+  //
+  // The memory layout of std::string looks something like this
+  // char*
+  // size_t
+  // char[15+1]
+  static_assert(sizeof(std::string) == sizeof(std::string::pointer) +
+                                         sizeof(std::string::size_type) +
+                                         (15uz + 1uz));
+  static_assert(NVS_KEY_NAME_MAX_SIZE <= 15uz + 1uz);
+
   /// Store namespace name (mainly for iterator)
   char const* _namespace_name{};
 

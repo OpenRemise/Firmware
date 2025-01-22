@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ protected:
     auto const it{_async_map.find(key)};
     if (it == cend(_async_map)) return ESP_FAIL;
     httpd_ws_frame_t frame{};
-    if (httpd_ws_recv_frame(req, &frame, 0)) return ESP_FAIL;
+    if (httpd_ws_recv_frame(req, &frame, 0uz)) return ESP_FAIL;
 
     // WebSocket frame must be red in one go
     Message msg{.sock_fd = httpd_req_to_sockfd(req),

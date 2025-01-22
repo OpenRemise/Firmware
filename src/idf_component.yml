@@ -1,7 +1,7 @@
 dependencies:
   idf: ">=5.2"
   bblanchon/arduinojson:
-    version: "7.2.1"
+    version: "7.3.0"
   espressif/esp_tinyusb:
     version: "1.4.4"
     rules:
@@ -17,7 +17,7 @@ dependencies:
   zimo-elektronik/dcc:
     version: "0.39.0"
   zimo-elektronik/mdu:
-    version: "0.17.1"
+    version: "0.18.0"
   DECUP:
     version: "develop"
     git: https://github.com/ZIMO-Elektronik/DECUP.git

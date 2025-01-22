@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,5 +32,10 @@ namespace wifi {
 /// station is created. In the latter case, mDNS services for HTTP (\todo and
 /// UDP?) are also started.
 ///
+/// <div class="section_buttons">
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_usb | \ref page_z21 |
+/// </div>
 
 } // namespace wifi

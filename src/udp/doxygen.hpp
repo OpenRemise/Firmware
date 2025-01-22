@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,5 +30,10 @@ namespace udp {
 /// The sole responsibility of this module is to initialize UDP and open
 /// endpoints for communications.
 ///
+/// <div class="section_buttons">
+/// | Previous        | Next          |
+/// | :-------------- | ------------: |
+/// | \ref page_trace | \ref page_usb |
+/// </div>
 
 } // namespace udp

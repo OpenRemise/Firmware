@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -53,6 +53,9 @@ namespace mem {
 /// \subsection subsection_mem_nvs_settings Settings
 /// \copydetails nvs::Settings
 ///
+/// The following table contains an overview of all currently available
+/// settings, their NVS key, value range and default.
+///
 // clang-format off
 /// \page page_mem Memory
 /// \details \tableofcontents
@@ -75,13 +78,17 @@ namespace mem {
 /// | Number of DCC reset packets when continuing the service mode programming sequence                                                                | dcc_cntn_rs_pc  | u8     | 3   | 64  | 6        |
 /// | Number of DCC programming packets in the service mode programming sequence                                                                       | dcc_prog_pc     | u8     | 2   | 64  | 7        |
 /// | Comparing bits to either 0 or 1 during a service mode verify                                                                                     | dcc_verify_bit1 | u8     | 0   | 1   | 1        |
-/// | DCC acknowledge pulse current (60mA according to [S-9.2.3](https://www.nmra.org/sites/default/files/standards/sandrp/DCC/S/S-9.2.3_2012_07.pdf)) | dcc_ack_cur     | u8     | 5   | 255 | 50       |
-/// | ?                                                                                                                                                | dcc_flags       | u8     | ?   | ?   | ?        |
+/// | DCC acknowledge pulse current (60mA according to [S-9.2.3](https://www.nmra.org/sites/default/files/standards/sandrp/DCC/S/S-9.2.3_2012_07.pdf)) | dcc_ack_cur     | u8     | 10  | 250 | 50       |
 /// | Number of [MDU](https://github.com/ZIMO-Elektronik/MDU) preamble bits                                                                            | mdu_preamble    | u8     | 14  | 30  | 14       |
 /// | Number of MDU ackreq bits                                                                                                                        | mdu_ackreq      | u8     | 10  | 30  | 10       |
 // clang-format on
 /// \page page_mem Memory
 /// \details \tableofcontents
 ///
+/// <div class="section_buttons">
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_mdu | \ref page_ota |
+/// </div>
 
 } // namespace mem

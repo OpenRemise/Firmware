@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,12 +35,12 @@ esp_err_t init_alarm() {
   return gptimer_start(gptimer);
 }
 
-///
+/// \todo document
 esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
 
 } // namespace
 
-///
+/// \todo document
 esp_err_t resume() {
   ESP_ERROR_CHECK(init_alarm());
   return init_gpio();

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,8 +61,8 @@
 /// | \subpage page_control_flow | From bootloader to scheduler    |
 ///
 /// <div class="section_buttons">
-/// | Previous   | Next                   |
-/// | :--------- | ---------------------: |
+/// | Previous   | Next                  |
+/// | :--------- | --------------------: |
 /// | \ref index | \ref page_development |
 /// </div>
 
@@ -74,7 +74,7 @@
 /// ([ESP-IDF](https://github.com/espressif/esp-idf)) which, in addition to the
 /// obvious support for ESP chips, can also be compiled for Linux. This has the
 /// advantage that our unit tests can run directly [on the
-/// host](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/host-apps.html).
+/// host](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/host-apps.html).
 ///
 /// We recommend either an [Arch](https://archlinux.org) (e.g.
 /// [Garuda](https://garudalinux.org) or [Manjaro](https://manjaro.org)) or
@@ -131,7 +131,7 @@
 /// \subsection subsection_development_esp_idf ESP-IDF
 /// The ESP-IDF framework is the only dependency that we cannot get directly
 /// from the packet manager. Instead, we follow [Espressif's
-/// instructions](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
+/// instructions](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/get-started/linux-macos-setup.html#get-started-get-esp-idf)
 /// and clone the ESP-IDF repository into a directory called `esp` in our home
 /// directory.
 ///
@@ -144,21 +144,21 @@
 ///   ```sh
 ///   mkdir -p ~/esp
 ///   cd ~/esp
-///   git clone -b v5.3.2 --recursive git@github.com:espressif/esp-idf.git
+///   git clone -b \idf_ver --recursive git@github.com:espressif/esp-idf.git
 ///   ```
 /// - <b class="tab-title">HTTPS</b>
 ///   ```sh
 ///   mkdir -p ~/esp
 ///   cd ~/esp
-///   git clone -b v5.3.2 --recursive https://github.com/espressif/esp-idf.git
+///   git clone -b \idf_ver --recursive https://github.com/espressif/esp-idf.git
 ///   ```
 /// </div>
 ///
 /// Attentive readers will immediately notice that we have explicitly checked
 /// out version
-/// [5.3.2](https://github.com/espressif/esp-idf/releases/tag/v5.3.2) here. We
-/// advise against using a different version than the one currently used by the
-/// [master branch](https://github.com/OpenRemise/Firmware/tree/master).
+/// [\idf_ver](https://github.com/espressif/esp-idf/releases/tag/\idf_ver) here.
+/// We advise against using a different version than the one currently used by
+/// the [master branch](https://github.com/OpenRemise/Firmware/tree/master).
 ///
 /// In addition to the ESP-IDF source code, the framework also requires some
 /// tools such as the Xtensa compiler or various Python packages. To set these
@@ -281,7 +281,7 @@
 /// configurations. These configurations differ in the compiler's optimization
 /// level (Debug corresponds to `-Og`, Release corresponds to `-Os`), and above
 /// all in whether the USB peripheral is initialized as a [built-in JTAG
-/// interface](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
+/// interface](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/jtag-debugging/configure-builtin-jtag.html).
 /// <div class="tabbed">
 /// - <b class="tab-title">Debug</b>
 ///   ```sh
@@ -301,7 +301,7 @@
 /// In principle, the `sdkconfig` files can be stacked in any way, e.g. to
 /// create a Release JTAG build. For obvious reasons though, a firmware compiled
 /// with the built-in JTAG interface can no longer be used for other USB
-/// connections. See the \ref page_config for more details.
+/// connections. See \ref page_config for more details.
 ///
 /// After the CMake configure stage has been successful, we just need to run the
 /// actual build stage.
@@ -326,7 +326,7 @@
 /// - Switching on the power supply
 ///
 /// Afterwards we can use the `flash` command of the
-/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/tools/idf-py.html)
+/// [idf.py](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/tools/idf-py.html)
 /// frontend to upload the firmware.
 /// ```sh
 /// idf.py flash
@@ -335,11 +335,11 @@
 /// \warning
 /// Be careful, this command actually flashes 5 binaries at once and not just
 /// the application. This includes things like the
-/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/bootloader.html),
+/// [bootloader](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/bootloader.html),
 /// the [partition
-/// table](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-guides/partition-tables.html)
+/// table](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/partition-tables.html)
 /// and the [NVS
-/// storage](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/storage/nvs_flash.html).
+/// storage](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/storage/nvs_flash.html).
 /// Again, you can find further details in \ref page_config. If you already have
 /// a board with a running firmware and just want to flash the application, you
 /// can do this with the following command.
@@ -409,11 +409,11 @@
 /// \section section_development_test Test
 /// A very useful feature of the ESP-IDF framework is the ability to run
 /// applications on the
-/// [host](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/host-apps.html).
+/// [host](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/host-apps.html).
 /// This allows us to write [unit
-/// tests](https://en.wikipedia.org/wiki/Unit_testing) that do not have to run
-/// directly on a board but also on the host (and in the CI pipeline). The tests
-/// themselves are written with
+/// tests](https://en.wikipedia.org/wiki/Unit_testing) that do not need to be
+/// run directly on a board, but can be run on the host (and in the CI
+/// pipeline). The tests themselves are written with
 /// [GoogleTest](https://github.com/google/googletest).
 ///
 /// To build the tests executable we run the `Tests` build configuration.
@@ -452,11 +452,51 @@
 /// </div>
 
 /// \page page_config Configuration
-/// \todo partition table, OTA, NVS?, Frontend? (Storage), config.hpp, pins,
-/// performance, which core does what
+/// \details \tableofcontents
+/// The configuration of the firmware takes place in two phases. First of all,
+/// the Kconfig language (known from the Linux kernel) is used to define
+/// hundreds of different compile-time constants for the ESP-IDF framework. And
+/// then project-specific constants and globals are defined in a header file.
 ///
-/// [partition
-/// tables](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-guides/partition-tables.html)
+/// \section section_config_kconfig Kconfig
+/// With the help of
+/// [Kconfig](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/kconfig.html),
+/// hundreds of different definitions are managed within the ESP-IDF framework.
+/// These definitions range from rather unimportant (e.g. type of newlib line
+/// ending) to absolutely essential (e.g. CPU frequency). As output, Kconfig
+/// creates a file called `sdkconfig`, which contains all the definitions
+/// necessary for the build. However, this file is not tracked by Git, only a
+/// file called
+/// [`sdkconfig.defaults`](https://github.com/OpenRemise/Firmware/raw/master/sdkconfig.defaults)
+/// ends up in the repository, which contains the deviations from the default
+/// settings.
+///
+/// \section section_config_config_hpp config.hpp
+/// The project-specific definitions are made in a header called `config.hpp`,
+/// which gets **included in all translation units by default**. It contains,
+/// among other things, pin assignments, constants such as the ADC sampling
+/// rate, general global variables, FreeRTOS task handler and stack size, etc.
+/// etc.
+///
+/// An example of the FreeRTOS definitions would be the struct for the ADC task.
+/// ```cpp
+/// inline struct AdcTask {
+///   static constexpr auto name{"analog::adc"};
+///   static constexpr auto stack_size{4096uz};
+///   static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 2u};
+///   static constexpr auto timeout{200u};
+///   TaskHandle_t handle{};
+/// } adc_task;
+/// ```
+///
+/// \section section_config_partition_table Partition Table
+/// The firmware has a [partition
+/// table](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/partition-tables.html)
+/// that allows us to divide the entire available flash memory into partitions
+/// for different uses. Specifically, this division is done through a CSV file
+/// called
+/// [`partitions.csv`](https://github.com/OpenRemise/Firmware/raw/master/partitions.csv).
+/// The following table shows the distribution.
 ///
 // clang-format off
 /// \page page_config Configuration
@@ -466,15 +506,102 @@
 /// | otadata | data | ota      | 8K     | Bootloader uses this data to know which ota partition to execute     |
 /// | ota_0   | app  | ota_0    | 6M     | First application partition (toggles to second on successful update) |
 /// | ota_1   | app  | ota_1    | 6M     | Second application partition (toggles to first on successful update) |
-/// | nvs     | data | nvs      | 6M     | Stores settings and locomotives                                      |
+/// | nvs     | data | nvs      | 6M     | Stores settings, locomotives and accessories                         |
 /// | data    | data | littlefs | 14272K | Stores additional data (e.g. images)                                 |
 // clang-format on
 /// \page page_config Configuration
 /// \details \tableofcontents
 ///
+/// \warning
+/// The partition table cannot be divided completely freely but is subject to
+/// certain
+/// [restrictions](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/peripherals/spi_flash/spi_flash_optional_feature.html#restrictions).
+///
+/// \subsection subsection_config_ota OTA
+/// The `ota_0` and `ota_1` entries are the actual app partitions, i.e. the
+/// complete firmware **including the frontend** is stored here. The
+/// abbreviation
+/// [OTA](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/ota.html)
+/// refers to the so-called <b>O</b>ver <b>T</b>he <b>A</b>ir update capability
+/// of the ESP32-S3. The update mechanism of the ESP-IDF framework toggles the
+/// active partition after each successful update. This also ensures that an
+/// error during the update does not lead to a bricked device.
+///
+/// \subsection subsection_config_nvs NVS
+/// The `nvs` partition uses key-value pairs to store device settings,
+/// locomotives and accessories. The default settings are contained in a CVS
+/// file called
+/// [`nvs.csv`](https://github.com/OpenRemise/Firmware/raw/master/nvs.csv) and
+/// are included when flashing a firmware.
+///
+/// \subsection subsection_config_data Data
+/// The data partition is currently reserved but unused. It is planned to use a
+/// [LittleFS](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/file-system-considerations.html#littlefs-fs-section)
+/// file system for this partition.
+///
+/// \section section_config_performance Performance
+/// To ensure that the firmware runs smoothly, there are a few important points
+/// to consider regarding performance. With the dual core architecture of the
+/// ESP32-S3, it is **very important** to pay close attention to which task is
+/// running on which core. To simplify this, Espressif provides a FreeRTOS
+/// extension in the form of the
+/// [`xTaskCreatePinnedToCore`](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/freertos_additions.html?highlight=xtaskcreatepinnedtocore#_CPPv423xTaskCreatePinnedToCore14TaskFunction_tPCKcK8uint32_tPCv11UBaseType_tPC12TaskHandle_tK10BaseType_t)
+/// function, which allows to explicitly specify the core to which the task
+/// should get pinned to.
+///
+/// One pitfall that can easily occur here is not considering the initialization
+/// of the peripherals. Although Espressif offers its own core-considering API
+/// when creating tasks, this is completely missing for all peripherals. This
+/// means that while initializing a peripheral, tasks and interrupts may be
+/// allocated in the background, which either have their own Kconfig option
+/// (e.g.
+/// [LWIP_TCPIP_TASK_AFFINITY_CPU0](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/kconfig.html#config-lwip-tcpip-task-affinity)),
+/// or are simply allocated on the core that called the function. To work around
+/// this, there is the utility function `invoke_on_core()`, which executes a
+/// passed function on an assigned core.
+///
+/// \note
+/// `invoke_on_core()` works in blocking mode and is really only used during
+/// startup.
+///
+/// The following table provides an overview of the distribution of tasks across
+/// cores.
+///
+/// | Task                     | Core |
+/// | ------------------------ | ---- |
+/// | analog::adc_task         | 1    |
+/// | analog::temp_task        | 1    |
+/// | dcc::task                | 1    |
+/// | decup::task              | 1    |
+/// | mdu::task                | 1    |
+/// | ota::task                | 1    |
+/// | out::track::dcc::task    | 1    |
+/// | out::track::decup::task  | 1    |
+/// | out::track::mdu::task    | 1    |
+/// | out::zusi::task          | 1    |
+/// | usb::rx_task             | 1    |
+/// | usb::tx_task             | 1    |
+/// | usb::ulf_dcc_ein::task   | 1    |
+/// | usb::ulf_decup_ein::task | 1    |
+/// | usb::ulf_susiv2::task    | 1    |
+/// | wifi::task               | 0    |
+/// | z21::task                | 0    |
+/// | zusi::task               | 1    |
+///
+/// All other ESP-IDF internal tasks ([ESP
+/// Timer](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/esp_timer.html),
+/// FreeRTOS Timer, [Event
+/// Loop](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/esp_event.html),
+/// [lwIP](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/lwip.html)
+/// and the [Wi-Fi
+/// Driver](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/wifi.html))
+/// are pinned to core 0 either by default or by Kconfig options. For further
+/// details regarding performance I recommend the Espressif article [Speed
+/// Optimization](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/performance/speed.html).
+///
 /// <div class="section_buttons">
-/// | Previous              | Next                    |
-/// | :-------------------- | ----------------------: |
+/// | Previous              | Next                   |
+/// | :-------------------- | ---------------------: |
 /// | \ref page_development | \ref page_architecture |
 /// </div>
 
@@ -537,7 +664,7 @@
 /// Although these modules do not necessarily represent a layer, they are still
 /// a separate part of the architecture and manage the different flash memory
 /// partitions. Currently this only involves the
-/// [nvs](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/storage/nvs_flash.html)
+/// [nvs](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/storage/nvs_flash.html)
 /// module which stores settings or locomotives in a key-value pair system. All
 /// modules are considered global and can be accessed from all other layers.
 ///
@@ -694,9 +821,6 @@
 /// \details \tableofcontents
 /// \todo \ref state, how to change between different operating modes
 ///
-/// \section A
-/// Some text in this section
-///
 /// <div class="section_buttons">
 /// | Previous               | Next             |
 /// | :--------------------- | ---------------: |
@@ -733,6 +857,7 @@
 /// | \subpage page_mem      | NVS memory for settings, locos, accessories                                                                                                                                                                                       |
 /// | \subpage page_ota      | OTA update (WebSocket service)                                                                                                                                                                                                    |
 /// | \subpage page_out      | Drivers, signal generation of [DCC](https://github.com/ZIMO-Elektronik/DCC), [DECUP](https://github.com/ZIMO-Elektronik/DECUP), [MDU](https://github.com/ZIMO-Elektronik/MDU) and [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) |
+/// | \subpage page_trace    | Debug purposes                                                                                                                                                                                                                    |
 /// | \subpage page_udp      | UDP                                                                                                                                                                                                                               |
 /// | \subpage page_usb      | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) modes                                                                                                                                                                       |
 /// | \subpage page_wifi     | WiFi                                                                                                                                                                                                                              |
@@ -767,3 +892,9 @@
 ///   <kicanvas-source src="drv8323shield.kicad_pcb"></kicanvas-source>
 /// </kicanvas-embed>
 /// \endhtmlonly
+///
+/// <div class="section_buttons">
+/// | Previous       |
+/// | :------------- |
+/// | \ref page_zusi |
+/// </div>

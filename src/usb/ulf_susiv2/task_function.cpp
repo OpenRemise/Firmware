@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,99 +20,37 @@
 /// \date   10/02/2023
 
 #include "task_function.hpp"
-#include <zusi/zusi.hpp>
+#include <ulf/susiv2.hpp>
 #include "../tx_task_function.hpp"
 #include "log.h"
+#include "utility.hpp"
 
 namespace usb::ulf_susiv2 {
 
-/// \todo document this shit needs to be in a SUSIV2 lib
-std::optional<std::span<uint8_t>>
-receive_susiv2_command(std::span<uint8_t> stack) {
-  size_t count{};
-
-  // Command is always 6 bytes
-  count += xStreamBufferReceive(
-    rx_stream_buffer.handle, &stack[count], 6uz, pdMS_TO_TICKS(task.timeout));
-  if (count != 6uz) return std::nullopt;
-
-  // Data size depends on command
-  /// \todo this is horrible, DRY?
-  switch (static_cast<zusi::Command>(stack[5uz])) {
-    case zusi::Command::None: break;
-
-    case zusi::Command::CvRead:
-      if (count += xStreamBufferReceive(rx_stream_buffer.handle,
-                                        &stack[count],
-                                        6uz,
-                                        pdMS_TO_TICKS(task.timeout));
-          count != 6uz + 6uz)
-        return std::nullopt;
-      break;
-
-    case zusi::Command::CvWrite:
-      if (count += xStreamBufferReceive(rx_stream_buffer.handle,
-                                        &stack[count],
-                                        7uz,
-                                        pdMS_TO_TICKS(task.timeout));
-          count != 6uz + 7uz)
-        return std::nullopt;
-      break;
-
-    case zusi::Command::ZppErase:
-      if (count += xStreamBufferReceive(rx_stream_buffer.handle,
-                                        &stack[count],
-                                        3uz,
-                                        pdMS_TO_TICKS(task.timeout));
-          count != 6uz + 3uz)
-        return std::nullopt;
-      break;
-
-    case zusi::Command::ZppWrite:
-      // USB packets only come 64B at a time...
-      while (count < size(stack)) {
-        auto const bytes_received{
-          xStreamBufferReceive(rx_stream_buffer.handle,
-                               &stack[count],
-                               size(stack) - count,
-                               pdMS_TO_TICKS(task.timeout))};
-        if (!bytes_received) return std::nullopt;
-        count += bytes_received;
-      }
-      break;
-
-    case zusi::Command::Features:
-      if (count += xStreamBufferReceive(rx_stream_buffer.handle,
-                                        &stack[count],
-                                        1uz,
-                                        pdMS_TO_TICKS(task.timeout));
-          count != 6uz + 1uz)
-        return std::nullopt;
-      break;
-
-    case zusi::Command::Exit:
-      if (count += xStreamBufferReceive(rx_stream_buffer.handle,
-                                        &stack[count],
-                                        4uz,
-                                        pdMS_TO_TICKS(task.timeout));
-          count != 6uz + 4uz)
-        return std::nullopt;
-      break;
-
-    /// \todo implement encrypt
-    case zusi::Command::Encrypt:
-      LOGW("'Encrypt' command not implemented");
-      break;
-  }
-
-  //
-  return stack.subspan(5uz, count);
-}
-
 namespace {
 
+std::optional<std::span<uint8_t const>>
+receive_susiv2_packet(std::span<uint8_t> stack) {
+  auto const timeout{http_receive_timeout2ms()};
+  size_t count{};
+
+  for (;;) {
+    // Receive single character
+    auto const bytes_received{xStreamBufferReceive(
+      rx_stream_buffer.handle, &stack[count], 1uz, pdMS_TO_TICKS(timeout))};
+    count += bytes_received;
+    if (!bytes_received || count > size(stack)) return std::nullopt;
+
+    // Check if data contains a SUSIV2 frame, convert it inplace
+    std::span<uint8_t const> frame{data(stack), count};
+    auto const success{ulf::susiv2::frame2packet(frame)};
+    if (!success) return std::nullopt;
+    else if (*success) return frame;
+  }
+}
+
 /// \todo document
-void send_to_front(std::span<uint8_t> stack) {
+void send_to_front(std::span<uint8_t const> stack) {
   xMessageBufferSend(out::tx_message_buffer.front_handle,
                      data(stack),
                      size(stack),
@@ -120,7 +58,7 @@ void send_to_front(std::span<uint8_t> stack) {
 }
 
 /// \todo document
-bool return_on_exit(std::span<uint8_t> stack) {
+bool return_on_exit(std::span<uint8_t const> stack) {
   return size(stack) &&
          static_cast<zusi::Command>(stack.front()) == zusi::Command::Exit;
 }
@@ -131,20 +69,18 @@ void transmit_response(std::span<uint8_t> stack) {
         xMessageBufferReceive(out::rx_message_buffer.handle,
                               data(stack),
                               size(stack),
-                              pdMS_TO_TICKS(task.timeout))})
-    xStreamBufferSend(tx_stream_buffer.handle,
-                      data(stack),
-                      bytes_received,
-                      pdMS_TO_TICKS(task.timeout));
+                              portMAX_DELAY)})
+    xStreamBufferSend(
+      tx_stream_buffer.handle, data(stack), bytes_received, portMAX_DELAY);
 }
 
 /// \todo document
 void loop() {
-  ::zusi::Buffer<buffer_size> stack;
-  while (auto const cmd{receive_susiv2_command(stack)}) {
-    send_to_front(*cmd);
+  std::array<uint8_t, ULF_SUSIV2_MAX_FRAME_SIZE> stack;
+  while (auto const packet{receive_susiv2_packet(stack)}) {
+    send_to_front(*packet);
     transmit_response(stack);
-    if (return_on_exit(*cmd)) return;
+    if (return_on_exit(*packet)) return;
   }
 }
 

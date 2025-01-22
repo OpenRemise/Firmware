@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -536,18 +536,11 @@ inline struct Task {
 
 namespace ulf_susiv2 {
 
-/// SUSIV2 buffer size
-///
-/// Biggest command received by SUSIV2. Don't change since receive logic relies
-/// on this.
-inline constexpr auto buffer_size{268uz};
-
 ///
 inline struct Task {
   static constexpr auto name{"usb::ulf_susiv2"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
-  static constexpr auto timeout{100u};
   TaskHandle_t handle{};
 } task;
 

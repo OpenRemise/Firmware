@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes) {
   if (auto const timeout{http_receive_timeout2ms()};
       !xMessageBufferSend(out::tx_message_buffer.front_handle,
                           data(bytes),
-                          size(bytes),
+                          std::min(size(bytes), DECUP_MAX_PACKET_SIZE),
                           pdMS_TO_TICKS(timeout)))
     return acks;
   else

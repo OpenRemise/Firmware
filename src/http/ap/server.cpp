@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ Server::Server(QueueHandle_t ap_records_queue_handle) {
 
   //
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-  config.core_id = 0;
+  config.core_id = WIFI_TASK_CORE_ID;
   config.lru_purge_enable = true;
   config.keep_alive_enable = true;
   config.uri_match_fn = httpd_uri_match_wildcard;
@@ -71,7 +71,7 @@ Server::~Server() {
   handle = NULL;
 }
 
-///
+/// \todo document
 void Server::buildApRecordsStrings(QueueHandle_t ap_records_queue_handle) {
   wifi_ap_record_t ap_record;
   while (xQueueReceive(ap_records_queue_handle, &ap_record, 0u)) {
@@ -95,7 +95,7 @@ void Server::buildApRecordsStrings(QueueHandle_t ap_records_queue_handle) {
   }
 }
 
-///
+/// \todo document
 void Server::buildGetString() {
   auto const result{fmt::format_to_n(
     begin(_get_str),
@@ -111,7 +111,7 @@ void Server::buildGetString() {
   _get_str.resize(result.size);
 }
 
-///
+/// \todo document
 void Server::getConfig() {
   mem::nvs::Settings nvs;
 
@@ -125,7 +125,7 @@ void Server::getConfig() {
   _sta_pass_str = nvs.getStationPassword();
 }
 
-///
+/// \todo document
 void Server::setConfig() const {
   mem::nvs::Settings nvs;
   ESP_ERROR_CHECK(nvs.setStationmDNS(_sta_mdns_str));
@@ -133,7 +133,7 @@ void Server::setConfig() const {
   ESP_ERROR_CHECK(nvs.setStationPassword(_sta_pass_str));
 }
 
-///
+/// \todo document
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
   buildGetString();
@@ -141,7 +141,7 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   return ESP_OK;
 }
 
-///
+/// \todo document
 esp_err_t Server::savePostHandler(httpd_req_t* req) {
   LOGD("POST request %s", req->uri);
 

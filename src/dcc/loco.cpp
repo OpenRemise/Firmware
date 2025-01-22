@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 namespace dcc {
 
-///
+/// \todo document
 void NvLocoBase::fromJsonDocument(JsonDocument const& doc) {
   // Copy name
   if (JsonVariantConst doc_name{doc["name"]}; doc_name.is<std::string>())
@@ -30,7 +30,7 @@ void NvLocoBase::fromJsonDocument(JsonDocument const& doc) {
     speed_steps = doc_speed_steps.as<z21::LocoInfo::SpeedSteps>();
 }
 
-///
+/// \todo document
 JsonDocument NvLocoBase::toJsonDocument() const {
   JsonDocument doc;
   doc["name"] = name;
@@ -38,7 +38,7 @@ JsonDocument NvLocoBase::toJsonDocument() const {
   return doc;
 }
 
-///
+/// \todo document
 void Loco::fromJsonDocument(JsonDocument const& doc) {
   NvLocoBase::fromJsonDocument(doc);
 
@@ -52,7 +52,7 @@ void Loco::fromJsonDocument(JsonDocument const& doc) {
     f31_0 = doc_f31_0;
 }
 
-///
+/// \todo document
 JsonDocument Loco::toJsonDocument() const {
   auto doc{NvLocoBase::toJsonDocument()};
   doc["rvvvvvvv"] = rvvvvvvv;

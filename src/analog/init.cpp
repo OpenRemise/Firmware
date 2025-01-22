@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ esp_err_t init_gpio() {
 ///   currents_queue "current" vales as well as \ref temperature_queue
 ///   "temperatures" in Si units
 /// - Initializes the ADC in [continuous
-///   mode](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/peripherals/adc_continuous.html)
+///   mode](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/peripherals/adc_continuous.html)
 ///   and applies a curve fitting calibration
 /// - Initializes the internal temperature sensor
 /// - Creates an ADC and temperature task

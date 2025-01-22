@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ Service::~Service() {
   if (task.handle) vTaskDelete(task.handle);
 }
 
-///
+/// \todo document
 void Service::dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service) {
   _dcc_service = dcc_service;
 }
@@ -118,7 +118,7 @@ void Service::taskFunction(void*) {
   }
 }
 
-///
+/// \todo document
 void Service::transmit(z21::Socket const& sock,
                        std::span<uint8_t const> datasets) {
   //
@@ -145,12 +145,12 @@ void Service::transmit(z21::Socket const& sock,
   }
 }
 
-///
+/// \todo document
 bool Service::trackPower(bool on) {
   return trackPower(on, State::DCCOperations);
 }
 
-///
+/// \todo document
 bool Service::stop() {
   printf("%s\n", __PRETTY_FUNCTION__);
   return true;
@@ -163,55 +163,67 @@ void Service::logoff(z21::Socket const& sock) {
   if (empty(clients())) trackPower(false);
 }
 
-///
-z21::LocoInfo::Mode Service::locoMode(uint16_t addr) {
-  return _dcc_service->locoMode(addr);
+/// \todo document
+z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
+  return _dcc_service->locoInfo(loco_addr);
 }
 
-///
-void Service::locoMode(uint16_t addr, z21::LocoInfo::Mode mode) {
-  _dcc_service->locoMode(addr, mode);
+/// \todo document
+void Service::locoDrive(uint16_t loco_addr,
+                        z21::LocoInfo::SpeedSteps speed_steps,
+                        uint8_t rvvvvvvv) {
+  _dcc_service->locoDrive(loco_addr, speed_steps, rvvvvvvv);
 }
 
-///
-void Service::function(uint16_t addr, uint32_t mask, uint32_t state) {
-  _dcc_service->function(addr, mask, state);
+/// \todo document
+void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
+  _dcc_service->locoFunction(loco_addr, mask, state);
 }
 
-///
-void Service::drive(uint16_t addr,
-                    z21::LocoInfo::SpeedSteps speed_steps,
-                    uint8_t rvvvvvvv) {
-  _dcc_service->drive(addr, speed_steps, rvvvvvvv);
+/// \todo document
+z21::LocoInfo::Mode Service::locoMode(uint16_t loco_addr) {
+  return _dcc_service->locoMode(loco_addr);
 }
 
-///
-z21::LocoInfo Service::locoInfo(uint16_t addr) {
-  return _dcc_service->locoInfo(addr);
+/// \todo document
+void Service::locoMode(uint16_t loco_addr, z21::LocoInfo::Mode mode) {
+  _dcc_service->locoMode(loco_addr, mode);
 }
 
-///
+/// \todo document
 bool Service::cvRead(uint16_t cv_addr) {
   return trackPower(true, State::DCCService) && _dcc_service->cvRead(cv_addr);
 }
 
-///
+/// \todo document
 bool Service::cvWrite(uint16_t cv_addr, uint8_t byte) {
   return trackPower(true, State::DCCService) &&
          _dcc_service->cvWrite(cv_addr, byte);
 }
 
-///
-void Service::cvPomRead(uint16_t addr, uint16_t cv_addr) {
-  _dcc_service->cvPomRead(addr, cv_addr);
+/// \todo document
+void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
+  _dcc_service->cvPomRead(loco_addr, cv_addr);
 }
 
-///
-void Service::cvPomWrite(uint16_t addr, uint16_t cv_addr, uint8_t byte) {
-  _dcc_service->cvPomWrite(addr, cv_addr, byte);
+/// \todo document
+void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
+  _dcc_service->cvPomWrite(loco_addr, cv_addr, byte);
 }
 
-///
+/// \todo document
+void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) {
+  _dcc_service->cvPomAccessoryRead(accy_addr, cv_addr);
+}
+
+/// \todo document
+void Service::cvPomAccessoryWrite(uint16_t accy_addr,
+                                  uint16_t cv_addr,
+                                  uint8_t byte) {
+  _dcc_service->cvPomAccessoryWrite(accy_addr, cv_addr, byte);
+}
+
+/// \todo document
 bool Service::trackPower(bool on, State dcc_state) {
   if (on) {
     switch (state.load()) {

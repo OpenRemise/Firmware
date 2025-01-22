@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ struct Offsets {
 /// \bug DCC/RailCom timings seem to get worse when the DCC tasks runs the
 /// second time?
 consteval Offsets make_offsets() {
-  static_assert(CONFIG_IDF_INIT_VERSION == "5.3.2"sv);
+  static_assert(CONFIG_IDF_INIT_VERSION == "5.4.0"sv);
 
   return {
 #if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)

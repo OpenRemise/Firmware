@@ -13,21 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// HTTP request
+/// Trace documentation
 ///
-/// \file   http/request.hpp
+/// \file   z21/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   01/03/2023
+/// \date   21/01/2025
 
 #pragma once
 
-#include <string>
+namespace z21 {
 
-namespace http {
+/// \page page_trace Trace
+/// \tableofcontents
+/// \todo document Z21 page
+///
+/// <div class="section_buttons">
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_out | \ref page_udp |
+/// </div>
 
-struct Request {
-  std::string uri; // endpoint + query
-  std::string body;
-};
-
-} // namespace http
+} // namespace z21

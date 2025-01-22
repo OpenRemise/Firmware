@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,7 +26,11 @@ namespace mem::nvs {
 
 namespace {
 
-/// \todo document
+/// Round integer towards
+///
+/// \param  n   Value to round
+/// \param  to  Value to round towards to
+/// \return Rounded value
 constexpr auto round_to(std::integral auto n, std::integral auto to) {
   auto const a{(n / to) * to};
   auto const b{a + to};
@@ -35,59 +39,126 @@ constexpr auto round_to(std::integral auto n, std::integral auto to) {
 
 } // namespace
 
-/// \todo document
+/// Get station mDNS
+///
+/// \return Station mDNS
 std::string Settings::getStationmDNS() const { return getBlob("sta_mdns"); }
 
-/// \todo document
+/// Set station mDNS
+///
+/// \param  str                           Station mDNS
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+/// \retval ESP_ERR_INVALID_ARG           Invalid mDNS
 esp_err_t Settings::setStationmDNS(std::string_view str) {
   return str.ends_with("remise") ? setBlob("sta_mdns", str)
                                  : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get station SSID
+///
+/// \return Station SSID
 std::string Settings::getStationSSID() const { return getBlob("sta_ssid"); }
 
-/// \todo document
+/// Set station SSID
+///
+/// \param  str                           Station SSID
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Settings::setStationSSID(std::string_view str) {
   return setBlob("sta_ssid", str);
 }
 
-/// \todo document
+/// Get station password
+///
+/// \return Station password
 std::string Settings::getStationPassword() const { return getBlob("sta_pass"); }
 
-/// \todo document
+/// Set station password
+///
+/// \param  str                           Station password
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Settings::setStationPassword(std::string_view str) {
   return setBlob("sta_pass", str);
 }
 
-/// \todo document
+/// Get HTTP receive timeout
+///
+/// \return HTTP receive timeout [s]
 uint8_t Settings::getHttpReceiveTimeout() const {
   return getU8("http_rx_timeout");
 }
 
-/// \todo document
+/// Set HTTP receive timeout
+///
+/// \param  value                         HTTP receive timeout [s]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           HTTP receive timeout out of range
 esp_err_t Settings::setHttpReceiveTimeout(uint8_t value) {
   return value >= 5u && value <= 60u ? setU8("http_rx_timeout", value)
                                      : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get HTTP transmit timeout
+///
+/// \return HTTP transmit timeout [s]
 uint8_t Settings::getHttpTransmitTimeout() const {
   return getU8("http_tx_timeout");
 }
 
-/// \todo document
+/// Set HTTP transmit timeout
+///
+/// \param  value                         HTTP transmit timeout [s]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           HTTP transmit timeout out of range
 esp_err_t Settings::setHttpTransmitTimeout(uint8_t value) {
   return value >= 5u && value <= 60u ? setU8("http_tx_timeout", value)
                                      : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get current limit
+///
+/// \return Current limit
 out::track::CurrentLimit Settings::getCurrentLimit() const {
   return static_cast<out::track::CurrentLimit>(getU8("cur_lim"));
 }
 
-/// \todo document
+/// Set current limit
+///
+/// \param  value                         Current limit
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           Current limit out of range
 esp_err_t Settings::setCurrentLimit(out::track::CurrentLimit value) {
   return std::to_underlying(value) <=
              std::to_underlying(out::track::CurrentLimit::_4100mA)
@@ -95,12 +166,24 @@ esp_err_t Settings::setCurrentLimit(out::track::CurrentLimit value) {
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get current limit in service mode
+///
+/// \return Current limit in service mode
 out::track::CurrentLimit Settings::getCurrentLimitService() const {
   return static_cast<out::track::CurrentLimit>(getU8("cur_lim_serv"));
 }
 
-/// \todo document
+/// Set current limit in service mode
+///
+/// \param  value                         Current limit in service mode
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           Current limit in service mode out of
+///                                       range
 esp_err_t Settings::setCurrentLimitService(out::track::CurrentLimit value) {
   return std::to_underlying(value) <=
              std::to_underlying(out::track::CurrentLimit::_4100mA)
@@ -108,148 +191,283 @@ esp_err_t Settings::setCurrentLimitService(out::track::CurrentLimit value) {
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get current short circuit time
+///
+/// \return Current short circuit time [ms]
 uint8_t Settings::getCurrentShortCircuitTime() const {
   return getU8("cur_sc_time");
 }
 
-/// \todo document
+/// Set current short circuit time
+///
+/// \param  value                         Current short circuit time [ms]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           Current short circuit time out of
+///                                       range
 esp_err_t Settings::setCurrentShortCircuitTime(uint8_t value) {
-  return value >= 20u
-           ? setU8("cur_sc_time",
-                   round_to(value,
-                            (analog::conversion_frame_samples * 1000u) /
-                              analog::sample_freq_hz))
-           : ESP_ERR_INVALID_ARG;
+  return value >= 20u ? setU8("cur_sc_time",
+                              round_to(value, analog::conversion_frame_time))
+                      : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC preamble count
+///
+/// \return DCC preamble count
 uint8_t Settings::getDccPreamble() const { return getU8("dcc_preamble"); }
 
-/// \todo document
+/// Set DCC preamble count
+///
+/// \param  value                         DCC preamble count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC preamble count out of range
 esp_err_t Settings::setDccPreamble(uint8_t value) {
   return value >= DCC_TX_MIN_PREAMBLE_BITS && value <= DCC_TX_MAX_PREAMBLE_BITS
            ? setU8("dcc_preamble", value)
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC bit 1 duration
+///
+/// \return DCC bit 1 duration [µs]
 uint8_t Settings::getDccBit1Duration() const { return getU8("dcc_bit1_dur"); }
 
-/// \todo document
+/// Set DCC bit 1 duration
+///
+/// \param  value                         DCC bit 1 duration [µs]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC bit 1 duration out of range
 esp_err_t Settings::setDccBit1Duration(uint8_t value) {
   return value >= DCC_TX_MIN_BIT_1_TIMING && value <= DCC_TX_MAX_BIT_1_TIMING
            ? setU8("dcc_bit1_dur", value)
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC bit 0 duration
+///
+/// \return DCC bit 0 duration [µs]
 uint8_t Settings::getDccBit0Duration() const { return getU8("dcc_bit0_dur"); }
 
-/// \todo document
+/// Set DCC bit 0 duration
+///
+/// \param  value                         DCC bit 0 duration [µs]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC bit 0 duration out of range
 esp_err_t Settings::setDccBit0Duration(uint8_t value) {
   return value >= DCC_TX_MIN_BIT_0_TIMING && value <= DCC_TX_MAX_BIT_0_TIMING
            ? setU8("dcc_bit0_dur", value)
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC BiDi bit duration
+///
+/// \return DCC BiDi bit duration [µs]
 uint8_t Settings::getDccBiDiBitDuration() const {
   return getU8("dcc_bidibit_dur");
 }
 
-/// \todo document
+/// Set DCC BiDi bit duration
+///
+/// \param  value                         DCC BiDi bit duration [µs]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC BiDi bit duration out of range
 esp_err_t Settings::setDccBiDiBitDuration(uint8_t value) {
   return !value || (value >= 57u && value <= 61u)
            ? setU8("dcc_bidibit_dur", value)
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC programming type
+///
+/// \return DCC programming type
 uint8_t Settings::getDccProgrammingType() const {
   return getU8("dcc_prog_type");
 }
 
-/// \todo document
+/// Set DCC programming type
+///
+/// \param  value                         DCC programming type
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC programming type out of range
 esp_err_t Settings::setDccProgrammingType(uint8_t value) {
   return value <= 0x03u ? setU8("dcc_prog_type", value) : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC startup reset packet count
+///
+/// \return DCC startup reset packet count
 uint8_t Settings::getDccStartupResetPacketCount() const {
   return getU8("dcc_strtp_rs_pc");
 }
 
-/// \todo document
+/// Set DCC startup reset packet count
+///
+/// \param  value                         DCC startup reset packet count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC startup reset packet count out of
+///                                       range
 esp_err_t Settings::setDccStartupResetPacketCount(uint8_t value) {
   return value >= 25u ? setU8("dcc_strtp_rs_pc", value) : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC continue reset packet count
+///
+/// \return DCC continue reset packet count
 uint8_t Settings::getDccContinueResetPacketCount() const {
   return getU8("dcc_cntn_rs_pc");
 }
 
-/// \todo document
+/// Set DCC continue reset packet count
+///
+/// \param  value                         DCC continue reset packet count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC continue reset packet count out of
+///                                       range
 esp_err_t Settings::setDccContinueResetPacketCount(uint8_t value) {
   return value >= 3u && value <= 64u ? setU8("dcc_cntn_rs_pc", value)
                                      : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC program packet count
+///
+/// \return DCC program packet count
 uint8_t Settings::getDccProgramPacketCount() const {
   return getU8("dcc_prog_pc");
 }
 
-/// \todo document
+/// Set DCC program packet count
+///
+/// \param  value                         DCC program packet count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC program packet count out of range
 esp_err_t Settings::setDccProgramPacketCount(uint8_t value) {
   return value >= 2u && value <= 64u ? setU8("dcc_prog_pc", value)
                                      : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get DCC bit verify
+///
+/// \return DCC bit verify
 bool Settings::getDccBitVerifyTo1() const {
   return static_cast<bool>(getU8("dcc_verify_bit1"));
 }
 
-/// \todo document
+/// Set DCC bit verify
+///
+/// \param  value                         DCC bit verify
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
 esp_err_t Settings::setDccBitVerifyTo1(bool value) {
   return setU8("dcc_verify_bit1", value);
 }
 
-/// \todo document
+/// Get DCC programming ack current
+///
+/// \return DCC programming ack current [mA]
 uint8_t Settings::getDccProgrammingAckCurrent() const {
   return getU8("dcc_ack_cur");
 }
 
-/// \todo document
+/// Set DCC programming ack current
+///
+/// \param  value                         DCC programming ack current [mA]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC programming ack current out of
+///                                       range
 esp_err_t Settings::setDccProgrammingAckCurrent(uint8_t value) {
-  return value >= 5u ? setU8("dcc_ack_cur", value) : ESP_ERR_INVALID_ARG;
+  return value >= 10u && value <= 250u ? setU8("dcc_ack_cur", value)
+                                       : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
-uint8_t Settings::getDccFlags() const { return getU8("dcc_flags"); }
-
-/// \todo document
-/// \todo replace the bit masks with definitions from the Z21 lib
-esp_err_t Settings::setDccFlags(uint8_t value) {
-  return setU8("dcc_flags", (value & ~0x03u) | 0x02u); // Force DCC
-}
-
-/// \todo document
+/// Get MDU preamble count
+///
+/// \return MDU preamble count
 uint8_t Settings::getMduPreamble() const { return getU8("mdu_preamble"); }
 
-/// \todo document
+/// Set MDU preamble count
+///
+/// \param  value                         MDU preamble count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           MDU preamble count out of range
 esp_err_t Settings::setMduPreamble(uint8_t value) {
   return value >= MDU_TX_MIN_PREAMBLE_BITS && value <= MDU_TX_MAX_PREAMBLE_BITS
            ? setU8("mdu_preamble", value)
            : ESP_ERR_INVALID_ARG;
 }
 
-/// \todo document
+/// Get MDU ackreq count
+///
+/// \return MDU ackreq count
 uint8_t Settings::getMduAckreq() const { return getU8("mdu_ackreq"); }
 
-/// \todo document
+/// Set MDU ackreq count
+///
+/// \param  value                         MDU ackreq count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           MDU ackreq count out of range
 esp_err_t Settings::setMduAckreq(uint8_t value) {
   return value >= MDU_TX_MIN_ACKREQ_BITS && value <= MDU_TX_MAX_ACKREQ_BITS
            ? setU8("mdu_ackreq", value)
