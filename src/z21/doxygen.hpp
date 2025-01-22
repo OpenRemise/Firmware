@@ -27,5 +27,10 @@ namespace z21 {
 /// \tableofcontents
 /// \todo document Z21 page
 ///
+/// <div class="section_buttons">
+/// | Previous       | Next           |
+/// | :------------- | -------------: |
+/// | \ref page_wifi | \ref page_zusi |
+/// </div>
 
 } // namespace z21

@@ -27,5 +27,10 @@ namespace usb {
 /// \tableofcontents
 /// \todo document USB page
 ///
+/// <div class="section_buttons">
+/// | Previous      | Next           |
+/// | :------------ | -------------: |
+/// | \ref page_udp | \ref page_wifi |
+/// </div>
 
 } // namespace usb

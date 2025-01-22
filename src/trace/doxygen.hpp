@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,28 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "init.hpp"
-#include <memory>
-#include "http/sta/server.hpp"
-#include "service.hpp"
-
-namespace zusi {
-
-namespace {
-
-std::shared_ptr<Service> service;
-
-} // namespace
-
-/// Initialize ZUSI service
+/// Trace documentation
 ///
-/// Those are the init details
-esp_err_t init(BaseType_t xCoreID) {
-  if (http::sta::server) {
-    service = std::make_shared<Service>(xCoreID);
-    http::sta::server->subscribe({.uri = "/zusi/"}, service, &Service::socket);
-  }
-  return ESP_OK;
-}
+/// \file   z21/doxygen.hpp
+/// \author Vincent Hamp
+/// \date   21/01/2025
 
-} // namespace zusi
+#pragma once
+
+namespace z21 {
+
+/// \page page_trace Trace
+/// \tableofcontents
+/// \todo document Z21 page
+///
+/// <div class="section_buttons">
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_out | \ref page_udp |
+/// </div>
+
+} // namespace z21

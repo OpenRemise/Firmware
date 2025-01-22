@@ -30,5 +30,10 @@ namespace udp {
 /// The sole responsibility of this module is to initialize UDP and open
 /// endpoints for communications.
 ///
+/// <div class="section_buttons">
+/// | Previous        | Next          |
+/// | :-------------- | ------------: |
+/// | \ref page_trace | \ref page_usb |
+/// </div>
 
 } // namespace udp

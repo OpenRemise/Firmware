@@ -86,20 +86,20 @@ void Service::loop() {
     _queue.pop();
 
     switch (msg.type) {
-      case HTTPD_WS_TYPE_BINARY: _data = transmit(msg.payload); break;
+      case HTTPD_WS_TYPE_BINARY: _resp = transmit(msg.payload); break;
       case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return reset();
       default:
         LOGE("WebSocket packet type neither binary nor close");
-        _data.front() = nak;
-        _data.resize(sizeof(nak));
+        _resp.front() = nak;
+        _resp.resize(sizeof(nak));
         break;
     }
 
     // Send frame
     httpd_ws_frame_t frame{
       .type = HTTPD_WS_TYPE_BINARY,
-      .payload = data(_data),
-      .len = size(_data),
+      .payload = data(_resp),
+      .len = size(_resp),
     };
     if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
       LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
@@ -118,21 +118,22 @@ void Service::loop() {
 }
 
 /// \todo document
-ztl::inplace_vector<uint8_t, 8uz - 1uz>
+ulf::susiv2::Response
 Service::transmit(std::vector<uint8_t> const& payload) const {
   //
   xMessageBufferSend(out::tx_message_buffer.front_handle,
                      data(payload),
-                     size(payload),
+                     std::min(size(payload), ZUSI_MAX_PACKET_SIZE),
                      portMAX_DELAY);
 
   //
-  decltype(_data) retval;
+  decltype(_resp) retval;
   auto const bytes_received{xMessageBufferReceive(out::rx_message_buffer.handle,
                                                   data(retval),
                                                   retval.max_size(),
                                                   portMAX_DELAY)};
   retval.resize(bytes_received);
+
   return retval;
 }
 

@@ -27,5 +27,10 @@ namespace ota {
 /// \tableofcontents
 /// \todo document OTA page
 ///
+/// <div class="section_buttons">
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_mem | \ref page_out |
+/// </div>
 
 } // namespace ota

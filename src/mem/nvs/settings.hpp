@@ -28,7 +28,11 @@ namespace mem::nvs {
 
 /// Settings stored in NVS
 ///
-/// \todo document
+/// nvs::Settings stores various firmware preferences in the NVS namespace
+/// "settings". Most settings are either directly strings or integer types, all
+/// others (e.g. out::track::CurrentLimit) are converted accordingly within the
+/// class. Each setting has a getter and a setter, the latter of which may
+/// perform various checks (e.g. value range).
 class Settings : public Base {
 public:
   explicit Settings() : Base{"settings", NVS_READWRITE} {}
@@ -86,9 +90,6 @@ public:
 
   uint8_t getDccProgrammingAckCurrent() const;
   esp_err_t setDccProgrammingAckCurrent(uint8_t value);
-
-  uint8_t getDccFlags() const;
-  esp_err_t setDccFlags(uint8_t value);
 
   uint8_t getMduPreamble() const;
   esp_err_t setMduPreamble(uint8_t value);

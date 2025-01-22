@@ -60,7 +60,6 @@ esp_err_t init() {
       nvs.setDccProgramPacketCount(7u);
       nvs.setDccBitVerifyTo1(true);
       nvs.setDccProgrammingAckCurrent(50u);
-      nvs.setDccFlags(2u);
       nvs.setMduPreamble(MDU_TX_MIN_PREAMBLE_BITS);
       nvs.setMduAckreq(MDU_TX_MIN_ACKREQ_BITS);
     }

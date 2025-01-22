@@ -26,7 +26,7 @@
 
 namespace out::zusi {
 
-///
+/// \todo document
 esp_err_t init(BaseType_t xCoreID) {
   static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull
                                                          << enable_gpio_num,

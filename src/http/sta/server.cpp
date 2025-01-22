@@ -23,6 +23,7 @@
 #include <ArduinoJson.h>
 #include <driver/gpio.h>
 #include <esp_app_desc.h>
+#include <esp_wifi.h>
 #include <dcc/dcc.hpp>
 #include <gsl/util>
 #include <ztl/string.hpp>
@@ -42,7 +43,7 @@ Server::Server() {
   mem::nvs::Settings nvs;
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.stack_size = stack_size;
-  config.core_id = 0;
+  config.core_id = WIFI_TASK_CORE_ID;
   config.max_uri_handlers = 16u;
   config.lru_purge_enable = true;
   config.recv_wait_timeout = nvs.getHttpReceiveTimeout();
@@ -183,7 +184,6 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["dcc_prog_pc"] = nvs.getDccProgramPacketCount();
   doc["dcc_verify_bit1"] = nvs.getDccBitVerifyTo1();
   doc["dcc_ack_cur"] = nvs.getDccProgrammingAckCurrent();
-  doc["dcc_flags"] = nvs.getDccFlags();
   doc["mdu_preamble"] = nvs.getMduPreamble();
   doc["mdu_ackreq"] = nvs.getMduAckreq();
 
@@ -287,10 +287,6 @@ Response Server::settingsPostRequest(Request const& req) {
 
   if (JsonVariantConst v{doc["dcc_ack_cur"]}; v.is<uint8_t>())
     if (nvs.setDccProgrammingAckCurrent(v.as<uint8_t>()) != ESP_OK)
-      return std::unexpected<std::string>{"422 Unprocessable Entity"};
-
-  if (JsonVariantConst v{doc["dcc_flags"]}; v.is<uint8_t>())
-    if (nvs.setDccFlags(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["mdu_preamble"]}; v.is<uint8_t>())

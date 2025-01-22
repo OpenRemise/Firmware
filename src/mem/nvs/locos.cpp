@@ -26,12 +26,37 @@
 
 namespace mem::nvs {
 
-/// \todo document
+/// Convert address to key
+///
+/// \param  addr  Address
+/// \return Key
+std::string Locos::address2key(dcc::Address::value_type addr) {
+  return std::to_string(addr);
+}
+
+/// Convert key to address
+///
+/// \param  key Key
+/// \return Address
+dcc::Address::value_type Locos::key2address(std::string_view key) {
+  dcc::Address::value_type addr;
+  auto const [ptr, ec]{std::from_chars(std::cbegin(key), std::cend(key), addr)};
+  if (ec != std::errc{}) return {};
+  return addr;
+}
+
+/// Get loco by address
+///
+/// \param  addr  Address
+/// \return Loco
 dcc::NvLocoBase Locos::get(dcc::Address::value_type addr) const {
   return get(address2key(addr));
 }
 
-/// \todo document
+/// Get loco by key
+///
+/// \param  addr  key
+/// \return Loco
 dcc::NvLocoBase Locos::get(std::string const& key) const {
   auto const json{getBlob(key)};
   JsonDocument doc;
@@ -44,13 +69,33 @@ dcc::NvLocoBase Locos::get(std::string const& key) const {
   return loco;
 }
 
-/// \todo document
+/// Set loco from address
+///
+/// \param  addr                          Address
+/// \param  loco                          Loco
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Locos::set(dcc::Address::value_type addr,
                      dcc::NvLocoBase const& loco) {
   return set(address2key(addr), loco);
 }
 
-/// \todo document
+/// Set loco from key
+///
+/// \param  key                           Key
+/// \param  loco                          Loco
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Locos::set(std::string const& key, dcc::NvLocoBase const& loco) {
   auto const doc{loco.toJsonDocument()};
   std::string json;
@@ -59,22 +104,14 @@ esp_err_t Locos::set(std::string const& key, dcc::NvLocoBase const& loco) {
   return setBlob(key, json);
 }
 
-/// \todo document
+/// Erase loco from address
+///
+/// \param  addr                  Address
+/// \retval ESP_OK                Erase operation was successful
+/// \retval ESP_FAIL              Internal error
+/// \retval ESP_ERR_NVS_NOT_FOUND Requested key doesn't exist
 esp_err_t Locos::erase(dcc::Address::value_type addr) {
   return Base::erase(address2key(addr));
-}
-
-/// \todo document
-std::string Locos::address2key(dcc::Address::value_type addr) const {
-  return std::to_string(addr);
-}
-
-/// \todo document
-dcc::Address::value_type Locos::key2address(std::string_view key) const {
-  dcc::Address::value_type addr;
-  auto const [ptr, ec]{std::from_chars(std::cbegin(key), std::cend(key), addr)};
-  if (ec != std::errc{}) return {};
-  return addr;
 }
 
 } // namespace mem::nvs

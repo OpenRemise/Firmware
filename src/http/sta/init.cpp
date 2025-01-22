@@ -26,7 +26,7 @@
 
 namespace http::sta {
 
-///
+/// \todo document
 esp_err_t init() {
   server = std::make_shared<Server>();
   server->subscribe({.uri = "/settings/", .method = HTTP_GET},

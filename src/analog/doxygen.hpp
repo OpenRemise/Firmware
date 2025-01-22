@@ -45,5 +45,11 @@ namespace analog {
 /// - mV2measurement(Voltage)
 /// - measurement2mA(CurrentMeasurement)
 /// - mA2measurement(Current)
+///
+/// <div class="section_buttons">
+/// | Previous                | Next          |
+/// | :---------------------- | ------------: |
+/// | \ref page_api_reference | \ref page_dcc |
+/// </div>
 
 } // namespace analog

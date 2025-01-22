@@ -24,7 +24,7 @@
 
 namespace trace {
 
-///
+/// \todo document
 esp_err_t init() {
   //
   {

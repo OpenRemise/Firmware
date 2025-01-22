@@ -27,5 +27,10 @@ namespace mdu {
 /// \tableofcontents
 /// \todo document MDU page
 ///
+/// <div class="section_buttons">
+/// | Previous       | Next          |
+/// | :------------- | ------------: |
+/// | \ref page_http | \ref page_mem |
+/// </div>
 
 } // namespace mdu

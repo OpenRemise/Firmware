@@ -132,7 +132,7 @@ Service::transmit(std::vector<uint8_t> const& payload) const {
   //
   xMessageBufferSend(out::tx_message_buffer.front_handle,
                      data(payload),
-                     size(payload),
+                     std::min(size(payload), MDU_MAX_PACKET_SIZE),
                      portMAX_DELAY);
 
   //

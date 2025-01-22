@@ -27,7 +27,7 @@
 
 namespace http {
 
-///
+/// \todo document
 esp_err_t init() {
   wifi_mode_t mode;
   ESP_ERROR_CHECK(esp_wifi_get_mode(&mode));

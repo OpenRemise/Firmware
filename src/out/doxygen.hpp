@@ -28,7 +28,6 @@ namespace out {
 /// \todo document out page
 ///
 /// \section section_out_track Track
-/// YOLO
 ///
 /// \subsection subsection_out_track_dcc DCC
 ///
@@ -37,6 +36,11 @@ namespace out {
 /// \subsection subsection_out_track_mdu MDU
 ///
 /// \section section_out_zusi ZUSI
-/// YOLO
+///
+/// <div class="section_buttons">
+/// | Previous      | Next            |
+/// | :------------ | --------------: |
+/// | \ref page_ota | \ref page_trace |
+/// </div>
 
 } // namespace out

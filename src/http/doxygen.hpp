@@ -31,5 +31,10 @@ namespace http {
 ///
 /// \section section_http_sta Station
 ///
+/// <div class="section_buttons">
+/// | Previous        | Next          |
+/// | :-------------- | ------------: |
+/// | \ref page_decup | \ref page_mdu |
+/// </div>
 
 } // namespace http

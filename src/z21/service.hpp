@@ -48,19 +48,22 @@ private:
   void logoff(z21::Socket const& sock) final;
 
   // Driving interface
-  z21::LocoInfo::Mode locoMode(uint16_t addr) final;
-  void locoMode(uint16_t addr, z21::LocoInfo::Mode mode) final;
-  void function(uint16_t addr, uint32_t mask, uint32_t state) final;
-  void drive(uint16_t addr,
-             z21::LocoInfo::SpeedSteps speed_steps,
-             uint8_t rvvvvvvv) final;
-  z21::LocoInfo locoInfo(uint16_t addr) final;
+  z21::LocoInfo locoInfo(uint16_t loco_addr) final;
+  void locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) final;
+  void locoDrive(uint16_t loco_addr,
+                 z21::LocoInfo::SpeedSteps speed_steps,
+                 uint8_t rvvvvvvv) final;
+  z21::LocoInfo::Mode locoMode(uint16_t loco_addr) final;
+  void locoMode(uint16_t loco_addr, z21::LocoInfo::Mode mode) final;
 
   // Programming interface
   [[nodiscard]] bool cvRead(uint16_t cv_addr) final;
   [[nodiscard]] bool cvWrite(uint16_t cv_addr, uint8_t byte) final;
-  void cvPomRead(uint16_t addr, uint16_t cv_addr) final;
-  void cvPomWrite(uint16_t addr, uint16_t cv_addr, uint8_t byte) final;
+  void cvPomRead(uint16_t loco_addr, uint16_t cv_addr) final;
+  void cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) final;
+  void cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) final;
+  void
+  cvPomAccessoryWrite(uint16_t accy_addr, uint16_t cv_addr, uint8_t byte) final;
 
   //
   bool trackPower(bool on, State dcc_state);

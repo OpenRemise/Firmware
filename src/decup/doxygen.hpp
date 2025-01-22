@@ -27,5 +27,10 @@ namespace decup {
 /// \tableofcontents
 /// \todo document DECUP page
 ///
+/// <div class="section_buttons">
+/// | Previous      | Next           |
+/// | :------------ | -------------: |
+/// | \ref page_dcc | \ref page_http |
+/// </div>
 
 } // namespace decup

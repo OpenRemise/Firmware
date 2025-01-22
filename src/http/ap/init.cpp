@@ -31,7 +31,7 @@ std::unique_ptr<Server> server;
 
 } // namespace
 
-///
+/// \todo document
 esp_err_t init() {
   server.reset(new Server{wifi::ap_records_queue.handle});
   return ESP_OK;

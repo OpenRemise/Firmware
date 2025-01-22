@@ -25,7 +25,7 @@
 
 namespace udp {
 
-///
+/// \todo document
 esp_err_t init() {
   //
   sock_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);

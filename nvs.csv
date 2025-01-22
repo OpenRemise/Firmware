@@ -19,6 +19,6 @@ dcc_cntn_rs_pc,data,u8,6
 dcc_prog_pc,data,u8,7
 dcc_verify_bit1,data,u8,1
 dcc_ack_cur,data,u8,50
-dcc_flags,data,u8,2
+dcc_flags,data,u8,194
 mdu_preamble,data,u8,14
 mdu_ackreq,data,u8,10

@@ -27,5 +27,16 @@ namespace zusi {
 /// \tableofcontents
 /// \todo document ZUSI page
 ///
+/// \section section_zusi_init Initialization
+/// \copydetails init
+///
+/// \section section_zusi_service Service
+/// \copydetails Service
+///
+/// <div class="section_buttons">
+/// | Previous      | Next                   |
+/// | :------------ | ---------------------: |
+/// | \ref page_z21 | \ref page_hw_reference |
+/// </div>
 
 } // namespace zusi

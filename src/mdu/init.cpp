@@ -26,7 +26,7 @@ std::shared_ptr<Service> service;
 
 } // namespace
 
-///
+/// \todo document
 esp_err_t init(BaseType_t xCoreID) {
   if (http::sta::server) {
     service = std::make_shared<Service>(xCoreID);

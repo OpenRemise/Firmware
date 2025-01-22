@@ -46,7 +46,7 @@ std::optional<dcc::Packet> receive_dcc_packet() {
                            1uz,
                            pdMS_TO_TICKS(task.timeout))};
     count += bytes_received;
-    if (!bytes_received || count >= size(stack)) return std::nullopt;
+    if (!bytes_received || count > size(stack)) return std::nullopt;
 
     // Convert senddcc string to DCC packet
     auto const packet{

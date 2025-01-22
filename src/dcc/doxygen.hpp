@@ -29,5 +29,10 @@ namespace dcc {
 ///
 /// The DCC module runs a service that...
 ///
+/// <div class="section_buttons">
+/// | Previous         | Next            |
+/// | :--------------- | --------------: |
+/// | \ref page_analog | \ref page_decup |
+/// </div>
 
 } // namespace dcc
