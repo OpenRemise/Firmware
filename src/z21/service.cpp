@@ -16,6 +16,7 @@
 #include "service.hpp"
 #include <lwip/sockets.h>
 #include <ztl/string.hpp>
+#include "bug_led.hpp"
 #include "log.h"
 #include "utility.hpp"
 

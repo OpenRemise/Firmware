@@ -33,6 +33,12 @@ esp_err_t init_encoder(decup_encoder_config_t const& encoder_config) {
 namespace {
 
 /// \todo document
+esp_err_t init_rmt(rmt_tx_done_callback_t rmt_cb) {
+  rmt_tx_event_callbacks_t cbs{.on_trans_done = rmt_cb};
+  return rmt_tx_register_event_callbacks(channel, &cbs, NULL);
+}
+
+/// \todo document
 esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(gpio_isr_handler_add(ack_gpio_num, gpio_isr_handler, NULL));
   return gpio_set_level(enable_gpio_num, 1u);
@@ -42,8 +48,10 @@ esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
 
 /// \todo document
 esp_err_t resume(decup_encoder_config_t const& encoder_config,
+                 rmt_tx_done_callback_t rmt_cb,
                  gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(init_encoder(encoder_config));
+  ESP_ERROR_CHECK(init_rmt(rmt_cb));
   return init_gpio(gpio_isr_handler);
 }
 

@@ -21,6 +21,7 @@
 
 #include "task_function.hpp"
 #include <driver/gpio.h>
+#include "bug_led.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"

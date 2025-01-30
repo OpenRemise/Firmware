@@ -13,23 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize peripherals when resuming DECUP task
+/// Bug LED
 ///
-/// \file   out/track/decup/resume.hpp
+/// \file   bug_led.hpp
 /// \author Vincent Hamp
-/// \date   14/08/2024
+/// \date   25/01/2025
 
 #pragma once
 
-#include <driver/gpio.h>
-#include <esp_err.h>
-#include "rmt_decup_encoder.h"
+#include <cstdint>
 
-namespace out::track::decup {
+///
+void bug_led(uint32_t level);
 
-esp_err_t init_encoder(decup_encoder_config_t const& encoder_config);
-esp_err_t resume(decup_encoder_config_t const& encoder_config,
-                 rmt_tx_done_callback_t rmt_cb,
-                 gpio_isr_t gpio_isr_handler);
+struct BugLed {
+  BugLed(uint32_t level);
+  ~BugLed();
 
-} // namespace out::track::decup
+  void on();
+  void off();
+};

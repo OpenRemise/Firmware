@@ -15,6 +15,7 @@
 
 #include "service.hpp"
 #include <zusi/zusi.hpp>
+#include "bug_led.hpp"
 #include "log.h"
 #include "utility.hpp"
 
@@ -76,11 +77,7 @@ void Service::taskFunction(void*) {
     LOGI_TASK_SUSPEND(task.handle);
     switch (state.load()) {
       case State::DECUPZpp: [[fallthrough]];
-      case State::DECUPZsu:
-        bug_led(true);
-        loop();
-        bug_led(false);
-        break;
+      case State::DECUPZsu: loop(); break;
       default: assert(false); break;
     }
   }
@@ -88,7 +85,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
-  auto const timeout{http_receive_timeout2ms()};
+  BugLed const bug_led{true};
 
   for (;;) {
     assert(_queue.size());
@@ -100,7 +97,7 @@ void Service::loop() {
         std::ranges::for_each(msg.payload,
                               [&](uint8_t byte) { _ack = receive(byte); });
         break;
-      case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return reset();
+      case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return close();
       default:
         LOGE("WebSocket packet type neither binary nor close");
         _ack = nak;
@@ -115,16 +112,16 @@ void Service::loop() {
     };
     if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
       LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
-      return reset();
+      return close();
     }
 
-    TickType_t const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
+    TickType_t const then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
     while (empty(_queue))
       if (xTaskGetTickCount() >= then) {
         LOGI("WebSocket timeout");
         if (auto const err{httpd_sess_trigger_close(msg.sock_fd)})
           LOGE("httpd_sess_trigger_close failed %s", esp_err_to_name(err));
-        return reset();
+        return close();
       }
   }
 }
@@ -132,27 +129,21 @@ void Service::loop() {
 /// \todo document
 uint8_t Service::transmit(std::span<uint8_t const> bytes) {
   uint8_t acks{};
-
-  if (auto const timeout{http_receive_timeout2ms()};
-      !xMessageBufferSend(out::tx_message_buffer.front_handle,
+  if (!xMessageBufferSend(out::tx_message_buffer.front_handle,
                           data(bytes),
                           std::min(size(bytes), DECUP_MAX_PACKET_SIZE),
-                          pdMS_TO_TICKS(timeout)))
+                          portMAX_DELAY))
     return acks;
   else
-    xMessageBufferReceive(out::rx_message_buffer.handle,
-                          &acks,
-                          sizeof(acks),
-                          pdMS_TO_TICKS(timeout));
-
-  /// \todo remove
-  // for (auto c : bytes) printf("%X ", c);
-  // printf(" -> %d\n", acks);
-
+    xMessageBufferReceive(
+      out::rx_message_buffer.handle, &acks, sizeof(acks), portMAX_DELAY);
   return acks;
 }
 
 /// \todo document
-void Service::reset() { _queue = {}; }
+void Service::close() {
+  _queue = {};
+  state.store(State::Suspend);
+}
 
 } // namespace decup

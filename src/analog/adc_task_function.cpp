@@ -20,6 +20,7 @@
 /// \date   05/07/2023
 
 #include <driver/gpio.h>
+#include "bug_led.hpp"
 #include "init.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"

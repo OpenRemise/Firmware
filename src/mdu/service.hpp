@@ -34,7 +34,7 @@ private:
   void taskFunction(void*);
   void loop();
   std::array<uint8_t, 2uz> transmit(std::vector<uint8_t> const& payload) const;
-  void reset();
+  void close();
 
   std::queue<http::Message> _queue{};
   std::array<uint8_t, 2uz> _acks{};

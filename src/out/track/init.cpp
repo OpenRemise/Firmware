@@ -25,6 +25,7 @@
 #include <array>
 #include <cstring>
 #include <limits>
+#include "bug_led.hpp"
 #include "dcc/task_function.hpp"
 #include "decup/task_function.hpp"
 #include "log.h"

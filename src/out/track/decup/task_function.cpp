@@ -41,28 +41,46 @@ bool gpio1_state{};
 bool gpio2_state{};
 
 /// \todo document
+bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
+                            rmt_tx_done_event_data_t const*,
+                            void*) {
+  BaseType_t high_task_awoken{pdFALSE};
+
+  // Clear any glitches
+  xTaskNotifyIndexedFromISR(task.handle,
+                            default_notify_index,
+                            0u,
+                            eSetValueWithOverwrite,
+                            &high_task_awoken);
+
+  return high_task_awoken == pdTRUE;
+}
+
+/// \todo document
 void IRAM_ATTR ack_isr_handler(void*) {
   xTaskNotifyIndexedFromISR(
     task.handle, default_notify_index, 0u, eIncrement, NULL);
-
-  gpio_set_level(GPIO_NUM_1, gpio1_state = !gpio1_state);
 }
 
 /// \todo document
 std::optional<Packet> receive_packet() {
   Packet packet;
-  //
-  if (auto const bytes_received{
-        xMessageBufferReceive(tx_message_buffer.front_handle,
-                              data(packet),
-                              packet.max_size(),
-                              pdMS_TO_TICKS(http_receive_timeout2ms()))}) {
-    packet.resize(bytes_received);
-    return packet;
-  }
-  //
-  else
-    return std::nullopt;
+  auto const then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
+  while (xTaskGetTickCount() < then)
+    //
+    if (auto const bytes_received{
+          xMessageBufferReceive(tx_message_buffer.front_handle,
+                                data(packet),
+                                packet.max_size(),
+                                pdMS_TO_TICKS(100u))}) {
+      packet.resize(bytes_received);
+      return packet;
+    }
+    //
+    else if (std::to_underlying(state.load() &
+                                (State::Suspend | State::ShortCircuit)))
+      break;
+  return std::nullopt;
 }
 
 /// \todo document
@@ -70,23 +88,14 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   static constexpr rmt_transmit_config_t config{.flags = {.eot_level = 1u}};
   ESP_ERROR_CHECK(
     rmt_transmit(channel, encoder, data(packet), size(packet), &config));
-
-  // Wait
-  ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
-
-  // Clear any glitches
-  ulTaskNotifyValueClearIndexed(NULL, default_notify_index, -1);
-
-  return ESP_OK;
+  return rmt_tx_wait_all_done(channel, -1);
 }
 
 /// \todo document
 uint8_t receive_acks(uint32_t us) {
   uint8_t retval{};
 
-  // Wait either
-  // 100ms after data or
-  // 5ms otherwise
+  // Wait for up to 2 acks
   auto then{esp_timer_get_time() + us};
   while (esp_timer_get_time() < then)
     if (retval += static_cast<uint8_t>(
@@ -123,7 +132,8 @@ esp_err_t loop() {
     // Transmit packet
     else {
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const acks{receive_acks(size(*packet) > 1uz ? 100'000u : 5000u)};
+      auto const us{decup::packet2pulse_timeout(*packet)};
+      auto const acks{receive_acks(us)};
       ESP_ERROR_CHECK(transmit_acks(acks));
     }
   }
@@ -159,9 +169,10 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 /// \todo document
 void task_function(void*) {
   for (;;) switch (decup_encoder_config_t encoder_config{}; state.load()) {
+      case State::DECUPZpp: [[fallthrough]];
       case State::DECUPZsu: [[fallthrough]];
       case State::ULF_DECUP_EIN:
-        ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
+        ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, ack_isr_handler));
         ESP_ERROR_CHECK(loop());
         ESP_ERROR_CHECK(suspend());
         break;

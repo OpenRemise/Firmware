@@ -10,6 +10,7 @@ set(COMMON_SRC
     out/track/current_limit.cpp
     usb/ulf_dcc_ein/task_function.cpp
     usb/rx_task_function.cpp
+    bug_led.cpp
     utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
@@ -30,6 +31,7 @@ if(IDF_TARGET STREQUAL linux)
 else()
   idf_component_register(
     SRCS
+    DECUP_FAKES.cpp # REMOVE THIS
     ${COMMON_SRC}
     analog/adc_task_function.cpp
     analog/convert.cpp

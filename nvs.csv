@@ -8,7 +8,7 @@ http_rx_timeout,data,u8,5
 http_tx_timeout,data,u8,5
 cur_lim,data,u8,3
 cur_lim_serv,data,u8,1
-cur_sc_time,data,u8,20
+cur_sc_time,data,u8,100
 dcc_preamble,data,u8,17
 dcc_bit1_dur,data,u8,58
 dcc_bit0_dur,data,u8,100
@@ -19,6 +19,7 @@ dcc_cntn_rs_pc,data,u8,6
 dcc_prog_pc,data,u8,7
 dcc_verify_bit1,data,u8,1
 dcc_ack_cur,data,u8,50
-dcc_flags,data,u8,194
+dcc_loco_flags,data,u8,226
+dcc_accy_flags,data,u8,4
 mdu_preamble,data,u8,14
 mdu_ackreq,data,u8,10
