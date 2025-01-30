@@ -48,6 +48,11 @@ void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
     xStreamBufferSend(rx_stream_buffer.handle, data(buf), bytes_received, 0u);
 }
 
+/// CDC line state changed callback
+void tinyusb_cdc_line_state_changed_callback(int, cdcacm_event_t* event) {
+  rts = event->line_state_changed_data.rts;
+}
+
 } // namespace
 
 /// Initialize USB
@@ -119,7 +124,8 @@ esp_err_t init(BaseType_t xCoreID) {
     .usb_dev = TINYUSB_USBDEV_0,
     .cdc_port = TINYUSB_CDC_ACM_0,
     .rx_unread_buf_sz = buffer_size,
-    .callback_rx = &tinyusb_cdc_rx_callback};
+    .callback_rx = &tinyusb_cdc_rx_callback,
+    .callback_line_state_changed = &tinyusb_cdc_line_state_changed_callback};
   ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
 
   return ESP_OK;

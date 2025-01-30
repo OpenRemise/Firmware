@@ -46,6 +46,12 @@ if(Doxygen_FOUND)
   # Get KiCanvas (https://kicanvas.org) and schematics/boards
   file(DOWNLOAD "https://kicanvas.org/kicanvas/kicanvas.js"
        ${CMAKE_CURRENT_BINARY_DIR}/html/kicanvas.js)
+  file(DOWNLOAD
+       "https://github.com/OpenRemise/S3Main/raw/master/s3main.kicad_sch"
+       ${CMAKE_CURRENT_BINARY_DIR}/html/s3main.kicad_sch)
+  file(DOWNLOAD
+       "https://github.com/OpenRemise/S3Main/raw/master/s3main.kicad_pcb"
+       ${CMAKE_CURRENT_BINARY_DIR}/html/s3main.kicad_pcb)
   file(
     DOWNLOAD
     "https://github.com/OpenRemise/ESP32S3Board/raw/master/esp32s3board.kicad_sch"

@@ -1,5 +1,5 @@
 dependencies:
-  idf: ">=5.2"
+  idf: "5.4"
   bblanchon/arduinojson:
     version: "7.3.0"
   espressif/esp_tinyusb:
@@ -16,11 +16,10 @@ dependencies:
       - if: "target != linux"
   zimo-elektronik/dcc:
     version: "0.39.0"
+  zimo-elektronik/decup:
+    version: "0.1.0"
   zimo-elektronik/mdu:
     version: "0.18.0"
-  DECUP:
-    version: "develop"
-    git: https://github.com/ZIMO-Elektronik/DECUP.git
   Z21:
     version: "develop"
     git: https://github.com/ZIMO-Elektronik/Z21.git

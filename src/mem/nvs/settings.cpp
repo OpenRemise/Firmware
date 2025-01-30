@@ -432,6 +432,44 @@ esp_err_t Settings::setDccProgrammingAckCurrent(uint8_t value) {
                                        : ESP_ERR_INVALID_ARG;
 }
 
+/// Get DCC loco flags
+///
+/// \return DCC loco flags
+uint8_t Settings::getDccLocoFlags() const { return getU8("dcc_loco_flags"); }
+
+/// Set DCC loco flags
+///
+/// \param  value                         DCC loco flags
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+esp_err_t Settings::setDccLocoFlags(uint8_t value) {
+  return setU8("dcc_loco_flags", (value & 0xFCu) | 0x02u);
+}
+
+/// Get DCC accessory flags
+///
+/// \return DCC accessory flags
+uint8_t Settings::getDccAccessoryFlags() const {
+  return getU8("dcc_accy_flags");
+}
+
+/// Set DCC accessory flags
+///
+/// \param  value                         DCC accessory flags
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+esp_err_t Settings::setDccAccessoryFlags(uint8_t value) {
+  return setU8("dcc_accy_flags", value);
+}
+
 /// Get MDU preamble count
 ///
 /// \return MDU preamble count

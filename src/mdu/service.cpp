@@ -15,6 +15,7 @@
 
 #include "service.hpp"
 #include <ulf/mdu_ein.hpp>
+#include "bug_led.hpp"
 #include "log.h"
 #include "utility.hpp"
 
@@ -76,11 +77,7 @@ void Service::taskFunction(void*) {
     LOGI_TASK_SUSPEND(task.handle);
     switch (state.load()) {
       case State::MDUZpp: [[fallthrough]];
-      case State::MDUZsu:
-        bug_led(true);
-        loop();
-        bug_led(false);
-        break;
+      case State::MDUZsu: loop(); break;
       default: assert(false); break;
     }
   }
@@ -88,6 +85,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
+  BugLed const bug_led{true};
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {
@@ -97,7 +95,7 @@ void Service::loop() {
 
     switch (msg.type) {
       case HTTPD_WS_TYPE_BINARY: _acks = transmit(msg.payload); break;
-      case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return reset();
+      case HTTPD_WS_TYPE_CLOSE: LOGI("WebSocket closed"); return close();
       default:
         LOGE("WebSocket packet type neither binary nor close");
         _acks = {ack, nak};
@@ -112,7 +110,7 @@ void Service::loop() {
     };
     if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
       LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
-      return reset();
+      return close();
     }
 
     TickType_t const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
@@ -121,7 +119,7 @@ void Service::loop() {
         LOGI("WebSocket timeout");
         if (auto const err{httpd_sess_trigger_close(msg.sock_fd)})
           LOGE("httpd_sess_trigger_close failed %s", esp_err_to_name(err));
-        return reset();
+        return close();
       }
   }
 }
@@ -146,6 +144,6 @@ Service::transmit(std::vector<uint8_t> const& payload) const {
 }
 
 /// \todo document
-void Service::reset() { _queue = {}; }
+void Service::close() { _queue = {}; }
 
 } // namespace mdu

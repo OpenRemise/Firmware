@@ -64,14 +64,14 @@ mdu_encoder_config_t mdu_encoder_config() {
 }
 
 /// \todo document
-std::optional<Packet> receive_packet() {
+std::optional<Packet> receive_packet(uint32_t timeout) {
   Packet packet;
   //
   if (auto const bytes_received{
         xMessageBufferReceive(tx_message_buffer.front_handle,
                               data(packet),
                               packet.max_size(),
-                              pdMS_TO_TICKS(http_receive_timeout2ms()))}) {
+                              pdMS_TO_TICKS(timeout))}) {
     packet.resize(bytes_received);
     return packet;
   }
@@ -252,11 +252,12 @@ esp_err_t zsu_entry() {
 
 /// \todo document
 esp_err_t loop(mdu_encoder_config_t& encoder_config) {
+  auto const timeout{http_receive_timeout2ms()};
   auto const busy_packet{make_busy_packet()};
 
   for (;;) {
     // Return on empty packet, suspend or short circuit
-    if (auto const packet{receive_packet()};
+    if (auto const packet{receive_packet(timeout)};
         !packet || std::to_underlying(state.load() &
                                       (State::Suspend | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);

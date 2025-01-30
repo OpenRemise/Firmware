@@ -96,14 +96,14 @@ class ZppLoad final : public ::zusi::tx::Base {
 };
 
 /// \todo document
-std::optional<Packet> receive_packet() {
+std::optional<Packet> receive_packet(uint32_t timeout) {
   Packet packet;
   //
   if (auto const bytes_received{
         xMessageBufferReceive(tx_message_buffer.front_handle,
                               data(packet),
                               packet.max_size(),
-                              pdMS_TO_TICKS(http_receive_timeout2ms()))}) {
+                              pdMS_TO_TICKS(timeout))}) {
     packet.resize(bytes_received);
     return packet;
   }
@@ -119,13 +119,15 @@ void transmit_response(ulf::susiv2::Response resp) {
 
 /// \todo document
 void loop() {
+  auto const timeout{http_receive_timeout2ms()};
+
   // Give decoder some time to boot...
   vTaskDelay(pdMS_TO_TICKS(1000u));
 
   ZppLoad zpp_load;
   zpp_load.enter();
 
-  while (auto const packet{receive_packet()}) {
+  while (auto const packet{receive_packet(timeout)}) {
     auto const fb{zpp_load.transmit(*packet)};
     auto const resp{ulf::susiv2::feedback2response(fb)};
     transmit_response(resp);

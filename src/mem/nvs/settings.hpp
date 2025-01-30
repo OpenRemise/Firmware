@@ -91,6 +91,12 @@ public:
   uint8_t getDccProgrammingAckCurrent() const;
   esp_err_t setDccProgrammingAckCurrent(uint8_t value);
 
+  uint8_t getDccLocoFlags() const;
+  esp_err_t setDccLocoFlags(uint8_t value);
+
+  uint8_t getDccAccessoryFlags() const;
+  esp_err_t setDccAccessoryFlags(uint8_t value);
+
   uint8_t getMduPreamble() const;
   esp_err_t setMduPreamble(uint8_t value);
 

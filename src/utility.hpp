@@ -154,9 +154,6 @@ constexpr auto make_unique_caps(size_t size, uint32_t caps) {
 }
 
 ///
-void bug_led(uint32_t level);
-
-///
 uint32_t http_receive_timeout2ms();
 
 ///

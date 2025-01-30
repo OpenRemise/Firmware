@@ -24,6 +24,7 @@
 #include "service.hpp"
 #include <esp_app_desc.h>
 #include <esp_app_format.h>
+#include "bug_led.hpp"
 #include "log.h"
 #include "utility.hpp"
 
@@ -72,11 +73,7 @@ void Service::taskFunction(void*) {
   for (;;) {
     LOGI_TASK_SUSPEND(task.handle);
     switch (state.load()) {
-      case State::OTA:
-        bug_led(true);
-        loop();
-        bug_led(false);
-        break;
+      case State::OTA: loop(); break;
       default: assert(false); break;
     }
   }
@@ -84,6 +81,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
+  BugLed const bug_led{true};
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {
@@ -96,7 +94,7 @@ void Service::loop() {
       case HTTPD_WS_TYPE_CLOSE:
         LOGI("WebSocket closed");
         if (_handle) end();
-        return reset();
+        return close();
       default:
         LOGE("WebSocket packet type neither binary nor close");
         _ack = nak;
@@ -111,11 +109,11 @@ void Service::loop() {
     };
     if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
       LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
-      return reset();
+      return close();
     }
 
     // We can't continue in case of error... so abort
-    if (_ack == nak) return reset();
+    if (_ack == nak) return close();
 
     TickType_t const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
     while (empty(_queue))
@@ -123,7 +121,7 @@ void Service::loop() {
         LOGI("WebSocket timeout");
         if (auto const err{httpd_sess_trigger_close(msg.sock_fd)})
           LOGE("httpd_sess_trigger_close failed %s", esp_err_to_name(err));
-        return reset();
+        return close();
       }
   }
 }
@@ -162,7 +160,7 @@ void Service::end() {
 }
 
 /// \todo document
-void Service::reset() {
+void Service::close() {
   _queue = {};
   _partition = NULL;
   if (_handle) esp_ota_abort(_handle);

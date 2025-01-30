@@ -30,8 +30,7 @@ namespace usb::ulf_susiv2 {
 namespace {
 
 std::optional<std::span<uint8_t const>>
-receive_susiv2_packet(std::span<uint8_t> stack) {
-  auto const timeout{http_receive_timeout2ms()};
+receive_susiv2_frame(std::span<uint8_t> stack, uint32_t timeout) {
   size_t count{};
 
   for (;;) {
@@ -76,11 +75,12 @@ void transmit_response(std::span<uint8_t> stack) {
 
 /// \todo document
 void loop() {
+  auto const timeout{http_receive_timeout2ms()};
   std::array<uint8_t, ULF_SUSIV2_MAX_FRAME_SIZE> stack;
-  while (auto const packet{receive_susiv2_packet(stack)}) {
-    send_to_front(*packet);
+  while (auto const frame{receive_susiv2_frame(stack, timeout)}) {
+    send_to_front(*frame);
     transmit_response(stack);
-    if (return_on_exit(*packet)) return;
+    if (return_on_exit(*frame)) return;
   }
 }
 

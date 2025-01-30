@@ -20,7 +20,6 @@
 /// \date   10/08/2024
 
 #include "task_function.hpp"
-#include <expected>
 #include <ulf/decup_ein.hpp>
 #include "../tx_task_function.hpp"
 #include "log.h"
@@ -33,52 +32,56 @@ using namespace ulf::decup_ein;
 namespace {
 
 /// \todo document
-class ZsuLoad : public ::ulf::decup_ein::rx::Base {
+class Decup : public ::ulf::decup_ein::rx::Base {
+  /// \todo document
   uint8_t transmit(std::span<uint8_t const> bytes) final {
     uint8_t acks{};
-
-    if (auto const timeout{http_receive_timeout2ms()};
-        !xMessageBufferSend(out::tx_message_buffer.front_handle,
+    if (!xMessageBufferSend(out::tx_message_buffer.front_handle,
                             data(bytes),
                             size(bytes),
-                            pdMS_TO_TICKS(timeout)))
+                            task.timeout))
       return acks;
     else
-      xMessageBufferReceive(out::rx_message_buffer.handle,
-                            &acks,
-                            sizeof(acks),
-                            pdMS_TO_TICKS(timeout));
-
-    /// \todo remove
-    // for (auto c : bytes) printf("%X ", c);
-    // printf(" -> %d\n", acks);
-
+      xMessageBufferReceive(
+        out::rx_message_buffer.handle, &acks, sizeof(acks), task.timeout);
     return acks;
   }
 };
 
 /// \todo document
 void transmit_response(uint8_t byte) {
-  xStreamBufferSend(
-    tx_stream_buffer.handle, &byte, sizeof(byte), portMAX_DELAY);
+  xStreamBufferSend(tx_stream_buffer.handle, &byte, sizeof(byte), task.timeout);
 }
 
 /// Actual usb::decup_ein::task loop
 void loop() {
-  ZsuLoad zsu_load{};
+  Decup decup{};
 
-  for (;;) {
+  // Wait for RTS on
+  auto then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
+  while (!rts && xTaskGetTickCount() < then) vTaskDelay(pdMS_TO_TICKS(100u));
+  while (!xStreamBufferReset(rx_stream_buffer.handle)) {
+    LOGW("Can't reset usb::rx_stream_buffer");
+    vTaskDelay(pdMS_TO_TICKS(20u));
+  }
+
+  // While RTS
+  while (rts && xTaskGetTickCount() < then) {
     // Receive single character
     uint8_t byte;
-    if (!xStreamBufferReceive(rx_stream_buffer.handle,
-                              &byte,
-                              sizeof(byte),
-                              pdMS_TO_TICKS(http_receive_timeout2ms())))
-      return;
+    if (!xStreamBufferReceive(
+          rx_stream_buffer.handle, &byte, sizeof(byte), pdMS_TO_TICKS(100u)))
+      continue;
 
-    //
-    if (auto const resp{zsu_load.receive(byte)}) transmit_response(*resp);
+    // Reset timeout
+    then = xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout);
+
+    // Transmit optional response
+    if (auto const resp{decup.receive(byte)}) transmit_response(*resp);
   }
+
+  //
+  state.store(State::Suspend);
 }
 
 } // namespace

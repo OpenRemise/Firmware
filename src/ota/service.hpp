@@ -43,7 +43,7 @@ private:
   void loop();
   uint8_t write(std::vector<uint8_t> const& payload);
   void end();
-  void reset();
+  void close();
 
   std::queue<http::Message> _queue{};
   esp_partition_t const* _partition{};

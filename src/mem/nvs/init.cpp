@@ -40,6 +40,7 @@ esp_err_t init() {
     ESP_ERROR_CHECK(nvs_flash_erase());
 
     // Retry nvs_flash_init and restore defaults
+    /// \todo replace some defaults (e.g. loco flags) with Z21 definitions
     if (err = nvs_flash_init(); err == ESP_OK) {
       mem::nvs::Settings nvs;
       nvs.setStationmDNS("remise");
@@ -49,7 +50,7 @@ esp_err_t init() {
       nvs.setHttpTransmitTimeout(5u);
       nvs.setCurrentLimit(out::track::CurrentLimit::_4100mA);
       nvs.setCurrentLimitService(out::track::CurrentLimit::_1300mA);
-      nvs.setCurrentShortCircuitTime(20u);
+      nvs.setCurrentShortCircuitTime(100u);
       nvs.setDccPreamble(DCC_TX_MIN_PREAMBLE_BITS);
       nvs.setDccBit1Duration(dcc::tx::Timing::Bit1);
       nvs.setDccBit0Duration(dcc::tx::Timing::Bit0);
@@ -60,6 +61,8 @@ esp_err_t init() {
       nvs.setDccProgramPacketCount(7u);
       nvs.setDccBitVerifyTo1(true);
       nvs.setDccProgrammingAckCurrent(50u);
+      nvs.setDccLocoFlags(0x80u | 0x40u | 0x20u | 0x02u);
+      nvs.setDccAccessoryFlags(0x04u);
       nvs.setMduPreamble(MDU_TX_MIN_PREAMBLE_BITS);
       nvs.setMduAckreq(MDU_TX_MIN_ACKREQ_BITS);
     }

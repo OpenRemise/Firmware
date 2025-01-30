@@ -36,7 +36,7 @@ private:
   void taskFunction(void*);
   void loop();
   ulf::susiv2::Response transmit(std::vector<uint8_t> const& payload) const;
-  void reset();
+  void close();
 
   ulf::susiv2::Response _resp{};
   std::queue<http::Message> _queue{};

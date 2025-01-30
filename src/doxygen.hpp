@@ -875,17 +875,29 @@
 
 /// \page page_hw_reference HW Reference
 /// \details \tableofcontents
-/// \section section_hw_reference Deprecated
-/// \subsection subsection_hw_reference_esp32s3board ESP32S3 Board
 /// \htmlonly
 /// <script type="module" src="kicanvas.js"></script>
+/// \endhtmlonly
+///
+/// \section section_hw_reference_active Active
+/// \subsection subsection_hw_reference_active_s3main S3Main
+/// \htmlonly
+/// <kicanvas-embed controls="full">
+///   <kicanvas-source src="s3main.kicad_sch"></kicanvas-source>
+///   <kicanvas-source src="s3main.kicad_pcb"></kicanvas-source>
+/// </kicanvas-embed>
+/// \endhtmlonly
+///
+/// \section section_hw_reference_deprecated Deprecated
+/// \subsection subsection_hw_reference_deprecated_esp32s3board ESP32S3Board
+/// \htmlonly
 /// <kicanvas-embed controls="full">
 ///   <kicanvas-source src="esp32s3board.kicad_sch"></kicanvas-source>
 ///   <kicanvas-source src="esp32s3board.kicad_pcb"></kicanvas-source>
 /// </kicanvas-embed>
 /// \endhtmlonly
 ///
-/// \subsection subsection_hw_reference_drv8323shield DRV8323 Shield
+/// \subsection subsection_hw_reference__deprecated_drv8323shield DRV8323Shield
 /// \htmlonly
 /// <kicanvas-embed controls="full">
 ///   <kicanvas-source src="drv8323shield.kicad_sch"></kicanvas-source>

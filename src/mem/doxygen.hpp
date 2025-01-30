@@ -68,17 +68,19 @@ namespace mem {
 /// | Timeout for transmitting HTTP response                                                                                                           | http_tx_timeout | u8     | 5   | 60  | 5        |
 /// | Current limit in [DCC](https://github.com/ZIMO-Elektronik/DCC) operation mode                                                                    | cur_lim         | u8     | 0   | 3   | 3        |
 /// | Current limit in DCC service mode                                                                                                                | cur_lim_serv    | u8     | 0   | 3   | 1        |
-/// | Time after which an overcurrent is considered a short circuit                                                                                    | cur_sc_time     | u8     | 20  | 240 | 20       |
+/// | Time after which an overcurrent is considered a short circuit                                                                                    | cur_sc_time     | u8     | 20  | 240 | 100      |
 /// | Number of DCC preamble bits                                                                                                                      | dcc_preamble    | u8     | 17  | 30  | 17       |
 /// | Duration of a DCC 1 bit                                                                                                                          | dcc_bit1_dur    | u8     | 56  | 60  | 58       |
 /// | Duration of a DCC 0 bit                                                                                                                          | dcc_bit0_dur    | u8     | 97  | 114 | 100      |
-/// | Duration of a DCC BiDi bit (during cutout)                                                                                                       | dcc_bidibit_dur | u8     | 57  | 61  | 60       |
-/// | How a DCC service mode verify is performed                                                                                                       | dcc_prog_type   | u8     | 0   | 3   | 3        |
+/// | Duration of a BiDi bit during cutout (0=BiDi off)                                                                                                | dcc_bidibit_dur | u8     | 57  | 61  | 60       |
+/// | How a service mode verify is performed (bitwise, bytewise, or both)                                                                              | dcc_prog_type   | u8     | 0   | 3   | 3        |
 /// | Number of DCC reset packets at the start of the service mode programming sequence                                                                | dcc_strtp_rs_pc | u8     | 25  | 255 | 25       |
 /// | Number of DCC reset packets when continuing the service mode programming sequence                                                                | dcc_cntn_rs_pc  | u8     | 3   | 64  | 6        |
 /// | Number of DCC programming packets in the service mode programming sequence                                                                       | dcc_prog_pc     | u8     | 2   | 64  | 7        |
 /// | Comparing bits to either 0 or 1 during a service mode verify                                                                                     | dcc_verify_bit1 | u8     | 0   | 1   | 1        |
 /// | DCC acknowledge pulse current (60mA according to [S-9.2.3](https://www.nmra.org/sites/default/files/standards/sandrp/DCC/S/S-9.2.3_2012_07.pdf)) | dcc_ack_cur     | u8     | 10  | 250 | 50       |
+/// | DCC locos flags                                                                                                                                  | dcc_loco_flags  |        | -   | -   | 226      |
+/// | DCC accessory flags                                                                                                                              | dcc_accy_flags  |        | -   | -   | 4        |
 /// | Number of [MDU](https://github.com/ZIMO-Elektronik/MDU) preamble bits                                                                            | mdu_preamble    | u8     | 14  | 30  | 14       |
 /// | Number of MDU ackreq bits                                                                                                                        | mdu_ackreq      | u8     | 10  | 30  | 10       |
 // clang-format on

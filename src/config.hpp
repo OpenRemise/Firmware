@@ -290,6 +290,7 @@ inline struct Task {
   static constexpr auto name{"decup"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{2u};
+  static constexpr auto timeout{60'000u};
   TaskHandle_t handle{};
 } task;
 
@@ -430,6 +431,7 @@ inline struct Task {
   static constexpr auto name{"out::track::decup"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
+  static constexpr auto timeout{::decup::Task::timeout};
   TaskHandle_t handle{};
 } task;
 
@@ -476,6 +478,7 @@ inline int sock_fd;
 
 namespace usb {
 
+inline bool volatile rts{};
 inline constexpr auto vbus_gpio_num{GPIO_NUM_7};
 inline constexpr auto buffer_size{512uz};
 
@@ -529,6 +532,7 @@ inline struct Task {
   static constexpr auto name{"usb::ulf_decup_ein"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority};
+  static constexpr auto timeout{::decup::Task::timeout};
   TaskHandle_t handle{};
 } task;
 

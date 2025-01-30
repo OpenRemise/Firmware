@@ -21,7 +21,6 @@
 
 #include "utility.hpp"
 #include <ArduinoJson.h>
-#include <driver/gpio.h>
 #include <esp_system.h>
 #include "log.h"
 #include "mem/nvs/settings.hpp"
@@ -68,12 +67,8 @@ std::optional<dcc::Address> uri2loco_address(std::string_view uri) {
                                            : dcc::Address::Long};
 }
 
-///
-void bug_led(uint32_t level) {
-  ESP_ERROR_CHECK(gpio_set_level(bug_led_gpio_num, level));
-}
-
-///
+/// \warning
+/// Do not use this function in time-critical code. Always cache the value!
 uint32_t http_receive_timeout2ms() {
   mem::nvs::Settings nvs;
   return nvs.getHttpReceiveTimeout() * 1000u;
