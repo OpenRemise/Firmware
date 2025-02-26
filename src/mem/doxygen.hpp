@@ -81,8 +81,6 @@ namespace mem {
 /// | DCC acknowledge pulse current (60mA according to [S-9.2.3](https://www.nmra.org/sites/default/files/standards/sandrp/DCC/S/S-9.2.3_2012_07.pdf)) | dcc_ack_cur     | u8     | 10  | 250 | 50       |
 /// | DCC locos flags                                                                                                                                  | dcc_loco_flags  |        | -   | -   | 226      |
 /// | DCC accessory flags                                                                                                                              | dcc_accy_flags  |        | -   | -   | 4        |
-/// | Number of [MDU](https://github.com/ZIMO-Elektronik/MDU) preamble bits                                                                            | mdu_preamble    | u8     | 14  | 30  | 14       |
-/// | Number of MDU ackreq bits                                                                                                                        | mdu_ackreq      | u8     | 10  | 30  | 10       |
 // clang-format on
 /// \page page_mem Memory
 /// \details \tableofcontents

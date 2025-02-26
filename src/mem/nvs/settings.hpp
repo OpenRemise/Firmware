@@ -96,12 +96,6 @@ public:
 
   uint8_t getDccAccessoryFlags() const;
   esp_err_t setDccAccessoryFlags(uint8_t value);
-
-  uint8_t getMduPreamble() const;
-  esp_err_t setMduPreamble(uint8_t value);
-
-  uint8_t getMduAckreq() const;
-  esp_err_t setMduAckreq(uint8_t value);
 };
 
 } // namespace mem::nvs

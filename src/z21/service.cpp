@@ -192,6 +192,39 @@ void Service::locoMode(uint16_t loco_addr, z21::LocoInfo::Mode mode) {
 }
 
 /// \todo document
+z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+  return {};
+}
+
+/// \todo document
+z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+  return {};
+}
+
+/// \todo document
+void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
+void Service::accessory(uint16_t accy_addr, uint8_t dddddddd) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
+z21::TurnoutInfo::Mode Service::turnoutMode(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+  return {};
+}
+
+/// \todo document
+void Service::turnoutMode(uint16_t accy_addr, z21::TurnoutInfo::Mode mode) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
 bool Service::cvRead(uint16_t cv_addr) {
   return trackPower(true, State::DCCService) && _dcc_service->cvRead(cv_addr);
 }

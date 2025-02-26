@@ -63,8 +63,8 @@ std::optional<dcc::Address> uri2loco_address(std::string_view uri) {
   auto addr{uri2address(uri)};
   if (!addr) return std::nullopt;
   return dcc::Address{.value = *addr,
-                      .type = *addr < 128u ? dcc::Address::Short
-                                           : dcc::Address::Long};
+                      .type = *addr < 128u ? dcc::Address::BasicLoco
+                                           : dcc::Address::ExtendedLoco};
 }
 
 /// \warning

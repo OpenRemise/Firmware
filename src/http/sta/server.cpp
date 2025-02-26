@@ -186,8 +186,6 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["dcc_ack_cur"] = nvs.getDccProgrammingAckCurrent();
   doc["dcc_loco_flags"] = nvs.getDccLocoFlags();
   doc["dcc_accy_flags"] = nvs.getDccAccessoryFlags();
-  doc["mdu_preamble"] = nvs.getMduPreamble();
-  doc["mdu_ackreq"] = nvs.getMduAckreq();
 
   //
   std::string json;
@@ -297,14 +295,6 @@ Response Server::settingsPostRequest(Request const& req) {
 
   if (JsonVariantConst v{doc["dcc_accy_flags"]}; v.is<uint8_t>())
     if (nvs.setDccAccessoryFlags(v.as<uint8_t>()) != ESP_OK)
-      return std::unexpected<std::string>{"422 Unprocessable Entity"};
-
-  if (JsonVariantConst v{doc["mdu_preamble"]}; v.is<uint8_t>())
-    if (nvs.setMduPreamble(v.as<uint8_t>()) != ESP_OK)
-      return std::unexpected<std::string>{"422 Unprocessable Entity"};
-
-  if (JsonVariantConst v{doc["mdu_ackreq"]}; v.is<uint8_t>())
-    if (nvs.setMduAckreq(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   return {};
