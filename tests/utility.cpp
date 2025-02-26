@@ -35,11 +35,11 @@ TEST(utility, uri2address) {
 }
 
 TEST(utility, uri2loco_address) {
-  auto addr_short{uri2loco_address("http://remise.local/dcc/locos/3")};
-  EXPECT_EQ(addr_short, 3);
-  EXPECT_EQ(addr_short->type, dcc::Address::Short);
-  auto addr_long{uri2loco_address("http://remise.local/dcc/locos/266")};
-  EXPECT_EQ(addr_long, 266);
-  EXPECT_EQ(addr_long->type, dcc::Address::Long);
+  auto addr_basic_loco{uri2loco_address("http://remise.local/dcc/locos/3")};
+  EXPECT_EQ(addr_basic_loco, 3);
+  EXPECT_EQ(addr_basic_loco->type, dcc::Address::BasicLoco);
+  auto addr_ext_loco{uri2loco_address("http://remise.local/dcc/locos/266")};
+  EXPECT_EQ(addr_ext_loco, 266);
+  EXPECT_EQ(addr_ext_loco->type, dcc::Address::ExtendedLoco);
   EXPECT_FALSE(uri2address("http://remise.local/dcc/locos/.dk182"));
 }

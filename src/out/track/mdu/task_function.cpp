@@ -54,12 +54,11 @@ void IRAM_ATTR ack_isr_handler(void*) {
 }
 
 /// \todo document
-mdu_encoder_config_t mdu_encoder_config() {
-  mem::nvs::Settings nvs;
+constexpr mdu_encoder_config_t mdu_encoder_config() {
   return {
     .transfer_rate = std::to_underlying(TransferRate::Default),
-    .num_preamble = nvs.getMduPreamble(),
-    .num_ackreq = nvs.getMduAckreq(),
+    .num_preamble = MDU_TX_MIN_PREAMBLE_BITS,
+    .num_ackreq = MDU_TX_MIN_ACKREQ_BITS,
   };
 }
 

@@ -470,46 +470,4 @@ esp_err_t Settings::setDccAccessoryFlags(uint8_t value) {
   return setU8("dcc_accy_flags", value);
 }
 
-/// Get MDU preamble count
-///
-/// \return MDU preamble count
-uint8_t Settings::getMduPreamble() const { return getU8("mdu_preamble"); }
-
-/// Set MDU preamble count
-///
-/// \param  value                         MDU preamble count
-/// \retval ESP_OK                        Value was set successfully
-/// \retval ESP_FAIL                      Internal error
-/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
-/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
-/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
-///                                       write operation has failed
-/// \retval ESP_ERR_INVALID_ARG           MDU preamble count out of range
-esp_err_t Settings::setMduPreamble(uint8_t value) {
-  return value >= MDU_TX_MIN_PREAMBLE_BITS && value <= MDU_TX_MAX_PREAMBLE_BITS
-           ? setU8("mdu_preamble", value)
-           : ESP_ERR_INVALID_ARG;
-}
-
-/// Get MDU ackreq count
-///
-/// \return MDU ackreq count
-uint8_t Settings::getMduAckreq() const { return getU8("mdu_ackreq"); }
-
-/// Set MDU ackreq count
-///
-/// \param  value                         MDU ackreq count
-/// \retval ESP_OK                        Value was set successfully
-/// \retval ESP_FAIL                      Internal error
-/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
-/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
-/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
-///                                       write operation has failed
-/// \retval ESP_ERR_INVALID_ARG           MDU ackreq count out of range
-esp_err_t Settings::setMduAckreq(uint8_t value) {
-  return value >= MDU_TX_MIN_ACKREQ_BITS && value <= MDU_TX_MAX_ACKREQ_BITS
-           ? setU8("mdu_ackreq", value)
-           : ESP_ERR_INVALID_ARG;
-}
-
 } // namespace mem::nvs

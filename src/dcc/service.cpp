@@ -266,7 +266,8 @@ void Service::operationsBiDi() {
   while (xQueueReceive(out::track::rx_queue.handle, &item, 0u)) {
     // Currently only care for loco addresses
     auto const addr{decode_address(item.packet)};
-    if (addr.type != Address::Short && addr.type != Address::Long) continue;
+    if (addr.type != Address::BasicLoco && addr.type != Address::ExtendedLoco)
+      continue;
 
     // Channel 1 (which I don't care about currently)
     std::span const ch1{cbegin(item.datagram), cbegin(item.datagram) + 2};
@@ -294,7 +295,7 @@ void Service::operationsBiDi() {
       case 0u:
         if (!empty(_cv_pom_request_deque)) {
 
-          auto const off{addr.type == Address::Long};
+          auto const off{addr.type == Address::ExtendedLoco};
 
           if (decode_instruction(item.packet) == Instruction::CvLong) {
             auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
@@ -568,6 +569,49 @@ void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
 /// \todo document
 void Service::broadcastLocoInfo(uint16_t addr) {
   _z21_dcc_service->broadcastLocoInfo(addr);
+}
+
+/// \todo document
+z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+  return {};
+}
+
+/// \todo document
+z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+  return {};
+}
+
+/// \todo document
+void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
+void Service::accessory(uint16_t accy_addr, uint8_t dddddddd) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
+z21::TurnoutInfo::Mode Service::turnoutMode(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+  return {};
+}
+
+/// \todo document
+void Service::turnoutMode(uint16_t accy_addr, z21::TurnoutInfo::Mode mode) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
+void Service::broadcastTurnoutInfo(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
+}
+
+/// \todo document
+void Service::broadcastExtAccessoryInfo(uint16_t accy_addr) {
+  LOGW("TODO IMPLEMENTED");
 }
 
 /// \todo document

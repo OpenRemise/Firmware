@@ -30,6 +30,14 @@ if(Doxygen_FOUND)
   # Get Doxygen Awesome
   cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.3.4")
 
+  # GitHub API does not allow different origin, so pack releases to docs
+  # https://github.com/orgs/community/discussions/106849#discussioncomment-8534514
+  file(
+    DOWNLOAD
+    "https://github.com/OpenRemise/Firmware/releases/download/v${VERSION_FROM_GIT}/Firmware-${VERSION_FROM_GIT}.zip"
+    ${CMAKE_CURRENT_BINARY_DIR}/html/releases/download/v${VERSION_FROM_GIT}/Firmware-${VERSION_FROM_GIT}.zip
+  )
+
   # Get logo and fonts
   file(DOWNLOAD
        "https://github.com/OpenRemise/.github/raw/master/data/images/logo.svg"

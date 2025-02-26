@@ -21,5 +21,3 @@ dcc_verify_bit1,data,u8,1
 dcc_ack_cur,data,u8,50
 dcc_loco_flags,data,u8,226
 dcc_accy_flags,data,u8,4
-mdu_preamble,data,u8,14
-mdu_ackreq,data,u8,10

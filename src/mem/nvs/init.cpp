@@ -63,8 +63,6 @@ esp_err_t init() {
       nvs.setDccProgrammingAckCurrent(50u);
       nvs.setDccLocoFlags(0x80u | 0x40u | 0x20u | 0x02u);
       nvs.setDccAccessoryFlags(0x04u);
-      nvs.setMduPreamble(MDU_TX_MIN_PREAMBLE_BITS);
-      nvs.setMduAckreq(MDU_TX_MIN_ACKREQ_BITS);
     }
   }
 

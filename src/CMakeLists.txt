@@ -31,7 +31,6 @@ if(IDF_TARGET STREQUAL linux)
 else()
   idf_component_register(
     SRCS
-    DECUP_FAKES.cpp # REMOVE THIS
     ${COMMON_SRC}
     analog/adc_task_function.cpp
     analog/convert.cpp
@@ -113,11 +112,11 @@ idf_build_set_property(
   APPEND)
 
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.0")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.3.2")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.4.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN#develop")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN#master")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2#develop")
-cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.0")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.1.1")
+cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.1")
 cpmaddpackage("gh:microsoft/GSL@4.1.0")
 cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
 

@@ -1,8 +1,6 @@
 name: docs
 
-on:
-  push:
-    branches: [master]
+on: workflow_dispatch
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -24,7 +22,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
       - name: Install prerequisites
