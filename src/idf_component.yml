@@ -1,7 +1,7 @@
 dependencies:
   idf: "5.4"
   bblanchon/arduinojson:
-    version: "7.3.0"
+    version: "7.3.1"
   espressif/esp_tinyusb:
     version: "1.4.4"
     rules:

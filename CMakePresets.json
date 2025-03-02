@@ -13,6 +13,7 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug",
                 "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "esp32s3",
                 "PYTHON_DEPS_CHECKED": "ON",
@@ -26,6 +27,7 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug",
                 "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "esp32s3",
                 "PYTHON_DEPS_CHECKED": "ON",
@@ -39,6 +41,7 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
+                "CMAKE_BUILD_TYPE": "Release",
                 "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "esp32s3",
                 "PYTHON_DEPS_CHECKED": "ON",

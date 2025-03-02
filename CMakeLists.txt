@@ -24,38 +24,50 @@ project(
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES ASM C CXX)
 
-# Build Frontend during config time
+# Frontend
 if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
-   AND NOT EXISTS ${Frontend_BINARY_DIR}/web)
-  cpmaddpackage(
-    NAME
-    Frontend
-    GITHUB_REPOSITORY
-    "OpenRemise/Frontend"
-    GIT_TAG
-    develop # TODO release should build from tag
-    DOWNLOAD_ONLY
-    TRUE)
+   AND NOT EXISTS ${Frontend_BINARY_DIR})
 
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
-            -DOPENREMISE_FRONTEND_BUILD_DOCS=OFF
-    WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
-                      COMMAND_ERROR_IS_FATAL ANY)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} --build ${Frontend_BINARY_DIR} --target Frontend
-            COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
+  # Build from develop branch at config time
+  if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    cpmaddpackage(
+      NAME
+      Frontend
+      GITHUB_REPOSITORY
+      "OpenRemise/Frontend"
+      GIT_TAG
+      develop
+      DOWNLOAD_ONLY
+      TRUE)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
+      WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
+                        COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} --build ${Frontend_BINARY_DIR} --target Frontend
+              COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
+    set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
 
-  if(NOT EXISTS ${Frontend_BINARY_DIR}/web)
-    message(FATAL_ERROR "Failed to build frontend")
+    # .. or use pre-built
+  elseif(CMAKE_BUILD_TYPE STREQUAL Release)
+    cpmaddpackage(
+      NAME
+      Frontend
+      URL
+      "https://github.com/OpenRemise/Frontend/releases/download/v0.0.1/Frontend-0.0.1.zip"
+      VERSION
+      0.0.1
+      DOWNLOAD_ONLY
+      ON)
+    set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})
   endif()
 
   # Create a list of absolute paths, relative paths and a flat representation
   # used by ESP-IDF embed
-  file(GLOB_RECURSE SRC ${Frontend_BINARY_DIR}/web/*)
+  file(GLOB_RECURSE SRC ${FRONTEND_WEB_DIR}/*)
   set(REL_SRC ${SRC})
-  list(TRANSFORM REL_SRC REPLACE ${Frontend_BINARY_DIR}/web/ "")
+  list(TRANSFORM REL_SRC REPLACE ${FRONTEND_WEB_DIR}/ "")
   set(FLAT_SRC ${REL_SRC})
   list(TRANSFORM FLAT_SRC REPLACE "[,-\/]" "_")
 

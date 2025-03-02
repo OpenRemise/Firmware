@@ -1,7 +1,7 @@
 # Changelog
 
-## 0.1.0
-- Initial release
+## 0.0.1
+- Bugfix MX decoders don't support ZUSI exit ([#11](https://github.com/OpenRemise/Firmware/issues/11))
 
 ## 0.0.0
 - Test release for [Flasher](https://github.com/OpenRemise/Flasher)

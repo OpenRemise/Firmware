@@ -131,9 +131,11 @@ void loop() {
     auto const fb{zpp_load.transmit(*packet)};
     auto const resp{ulf::susiv2::feedback2response(fb)};
     transmit_response(resp);
-    if (static_cast<Command>((*packet)[0uz]) != Command::Exit) continue;
-    vTaskDelay(pdMS_TO_TICKS(1000u));
-    return;
+    if (static_cast<Command>((*packet)[0uz]) == Command::Exit &&
+        resp[0uz] == ack) {
+      vTaskDelay(pdMS_TO_TICKS(1000u));
+      return;
+    }
   }
 }
 
