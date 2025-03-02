@@ -25,8 +25,6 @@
 namespace out::track {
 
 /// \todo document
-/// \bug currently ignored... should be 500mA for DCC serv, MDU and DECUP, user
-/// setting for DCC op
 CurrentLimit get_current_limit() {
   return static_cast<CurrentLimit>((gpio_get_level(ilim1_gpio_num) << 1u) |
                                    (gpio_get_level(ilim0_gpio_num) << 0u));
