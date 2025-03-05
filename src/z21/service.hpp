@@ -45,6 +45,7 @@ private:
   //
   [[nodiscard]] bool trackPower(bool on) final;
   [[nodiscard]] bool stop() final;
+  [[nodiscard]] int32_t serialNumber() const final;
   void logoff(z21::Socket const& sock) final;
 
   // Driving interface

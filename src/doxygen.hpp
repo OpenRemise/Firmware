@@ -192,27 +192,9 @@
 /// It is optionally possible to build the
 /// [Frontend](https://github.com/OpenRemise/Frontend) from source while
 /// compiling the firmware. However, this requires the installation of
-/// [Flutter](https://flutter.dev/), which is currently only available in
-/// [chaotic-aur](https://github.com/chaotic-aur) or
-/// [snap](https://snapcraft.io/). We recommend using chaotic-aur over snap, but
-/// cannot provide a guide on how to set it up.
-///
-/// <div class="tabbed">
-/// - <b class="tab-title">Arch (chaotic-aur)</b>
-///   ```sh
-///   sudo pacman -S --noconfirm flutter-bin
-///   ```
-/// - <b class="tab-title">Arch (snap)</b>
-///   ```sh
-///   sudo pacman -S --noconfirm snapd
-///   sudo systemctl enable --now snapd.socket
-///   sudo snap install flutter --classic
-///   ```
-/// - <b class="tab-title">Ubuntu 24.04</b>
-///   ```sh
-///   sudo snap install flutter --classic
-///   ```
-/// </div>
+/// [Flutter](https://flutter.dev/). For more information please visit the
+/// [Getting Started](https://openremise.at/Frontend/page_getting_started.html)
+/// section of the frontend documentation.
 ///
 /// \subsection subsection_development_vscode VSCode (optional)
 /// We generally recommend [VSCode](https://code.visualstudio.com) for
