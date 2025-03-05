@@ -23,6 +23,10 @@ project(
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES ASM C CXX)
 
+set(OPENREMISE_FRONTEND_VERSION
+    0.0.1
+    CACHE STRING "Frontend version")
+
 # Frontend
 if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
@@ -54,9 +58,9 @@ if(ESP_PLATFORM
       NAME
       Frontend
       URL
-      "https://github.com/OpenRemise/Frontend/releases/download/v0.0.1/Frontend-0.0.1.zip"
+      "https://github.com/OpenRemise/Frontend/releases/download/v${OPENREMISE_FRONTEND_VERSION}/Frontend-${OPENREMISE_FRONTEND_VERSION}.zip"
       VERSION
-      0.0.1
+      ${OPENREMISE_FRONTEND_VERSION}
       DOWNLOAD_ONLY
       ON)
     set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})

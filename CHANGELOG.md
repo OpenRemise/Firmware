@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.0.2
-- Bugfix ZCS does not establish a Z21 protocol connection
+- Bugfix ZCS does not establish a Z21 protocol connection ([#17](https://github.com/OpenRemise/Firmware/issues/17))
 
 ## 0.0.1
 - Bugfix MX decoders don't support ZUSI exit ([#11](https://github.com/OpenRemise/Firmware/issues/11))
