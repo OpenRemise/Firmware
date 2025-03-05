@@ -158,6 +158,11 @@ bool Service::stop() {
 }
 
 /// \todo document
+int32_t Service::serialNumber() const {
+  return static_cast<int32_t>(data2uint32(data(wifi::mac)));
+}
+
+/// \todo document
 void Service::logoff(z21::Socket const& sock) {
   printf("%s\n", __PRETTY_FUNCTION__);
   /// \todo should this broadcast stop? if there are no more clients?
