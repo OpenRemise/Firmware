@@ -15,8 +15,7 @@ if(IDF_TARGET STREQUAL linux)
   list(APPEND EXTRA_COMPONENT_DIRS tests $ENV{IDF_PATH}/tools/mocks/driver)
 endif()
 
-# Make optional to allow building docs without ESP-IDF
-include($ENV{IDF_PATH}/tools/cmake/project.cmake OPTIONAL)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 version_from_git()
 project(
