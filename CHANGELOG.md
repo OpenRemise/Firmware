@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.3
+- Update to Frontend 0.0.2
+
 ## 0.0.2
 - Bugfix ZCS does not establish a Z21 protocol connection ([#17](https://github.com/OpenRemise/Firmware/issues/17))
 

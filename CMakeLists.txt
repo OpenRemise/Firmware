@@ -24,7 +24,7 @@ project(
   LANGUAGES ASM C CXX)
 
 set(OPENREMISE_FRONTEND_VERSION
-    0.0.1
+    0.0.2
     CACHE STRING "Frontend version")
 
 # Frontend
