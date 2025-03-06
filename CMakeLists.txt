@@ -23,10 +23,6 @@ project(
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES ASM C CXX)
 
-set(OPENREMISE_FRONTEND_VERSION
-    0.0.2
-    CACHE STRING "Frontend version")
-
 # Frontend
 if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
@@ -54,15 +50,14 @@ if(ESP_PLATFORM
 
     # .. or use pre-built
   elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-    cpmaddpackage(
-      NAME
-      Frontend
-      URL
-      "https://github.com/OpenRemise/Frontend/releases/download/v${OPENREMISE_FRONTEND_VERSION}/Frontend-${OPENREMISE_FRONTEND_VERSION}.zip"
-      VERSION
-      ${OPENREMISE_FRONTEND_VERSION}
-      DOWNLOAD_ONLY
-      ON)
+    # https://stackoverflow.com/a/26738019/5840652
+    execute_process(
+      COMMAND
+        bash -c
+        "curl -s https://api.github.com/repos/OpenRemise/Frontend/releases/latest | grep browser_download_url | cut -d '\"' -f 4"
+      OUTPUT_VARIABLE OPENREMISE_FRONTEND_URL
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    cpmaddpackage(NAME Frontend URL ${OPENREMISE_FRONTEND_URL} DOWNLOAD_ONLY ON)
     set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})
   endif()
 
