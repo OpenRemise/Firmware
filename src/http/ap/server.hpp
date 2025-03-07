@@ -28,11 +28,11 @@ namespace http::ap {
 
 class Server {
 public:
-  explicit Server(QueueHandle_t ap_records_queue_handle);
+  explicit Server();
   ~Server();
 
 private:
-  void buildApRecordsStrings(QueueHandle_t ap_records_queue_handle);
+  void buildApRecordsStrings();
   void buildGetString();
   void getConfig();
   void setConfig() const;
@@ -47,6 +47,8 @@ private:
   std::string _sta_mdns_str;
   std::string _sta_ssid_str;
   std::string _sta_pass_str;
+  std::string _sta_alt_ssid_str;
+  std::string _sta_alt_pass_str;
 };
 
 } // namespace http::ap

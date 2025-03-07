@@ -193,8 +193,8 @@
 /// [Frontend](https://github.com/OpenRemise/Frontend) from source while
 /// compiling the firmware. However, this requires the installation of
 /// [Flutter](https://flutter.dev/). For more information please visit the
-/// [Getting Started](https://openremise.at/Frontend/page_getting_started.html)
-/// section of the frontend documentation.
+/// [Development](https://openremise.at/Frontend/page_development.html) section
+/// of the frontend documentation.
 ///
 /// \subsection subsection_development_vscode VSCode (optional)
 /// We generally recommend [VSCode](https://code.visualstudio.com) for

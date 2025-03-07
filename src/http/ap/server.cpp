@@ -36,12 +36,12 @@ extern char const _binary_captive_portal_html_end;
 namespace http::ap {
 
 /// Ctor
-Server::Server(QueueHandle_t ap_records_queue_handle) {
+Server::Server() {
   _ap_records_str.reserve(1024uz);
   _ap_options_str.reserve(1024uz);
   _get_str.reserve(2048uz);
   getConfig();
-  buildApRecordsStrings(ap_records_queue_handle);
+  buildApRecordsStrings();
   buildGetString();
 
   //
@@ -72,9 +72,8 @@ Server::~Server() {
 }
 
 /// \todo document
-void Server::buildApRecordsStrings(QueueHandle_t ap_records_queue_handle) {
-  wifi_ap_record_t ap_record;
-  while (xQueueReceive(ap_records_queue_handle, &ap_record, 0u)) {
+void Server::buildApRecordsStrings() {
+  for (auto const& ap_record : wifi::ap_records) {
     //
     _ap_records_str.append("<li>");
     _ap_records_str.append(std::bit_cast<char const*>(&ap_record.ssid));
@@ -107,6 +106,9 @@ void Server::buildGetString() {
     _sta_ssid_str,
     _ap_options_str,
     _sta_pass_str,
+    _sta_alt_ssid_str,
+    _ap_options_str,
+    _sta_alt_pass_str,
     _ap_records_str)};
   _get_str.resize(result.size);
 }
@@ -123,6 +125,12 @@ void Server::getConfig() {
 
   // Read password
   _sta_pass_str = nvs.getStationPassword();
+
+  // Read alternative SSID
+  _sta_alt_ssid_str = nvs.getAlternativeStationSSID();
+
+  // Read alternative password
+  _sta_alt_pass_str = nvs.getAlternativeStationPassword();
 }
 
 /// \todo document
@@ -131,6 +139,8 @@ void Server::setConfig() const {
   ESP_ERROR_CHECK(nvs.setStationmDNS(_sta_mdns_str));
   ESP_ERROR_CHECK(nvs.setStationSSID(_sta_ssid_str));
   ESP_ERROR_CHECK(nvs.setStationPassword(_sta_pass_str));
+  ESP_ERROR_CHECK(nvs.setAlternativeStationSSID(_sta_alt_ssid_str));
+  ESP_ERROR_CHECK(nvs.setAlternativeStationPassword(_sta_alt_pass_str));
 }
 
 /// \todo document
@@ -167,6 +177,10 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
   assert(sta_ssid_pos != std::string_view::npos);
   auto const sta_pass_pos{decoded.find("&sta_pass=")};
   assert(sta_pass_pos != std::string_view::npos);
+  auto const sta_alt_ssid_pos{decoded.find("&sta_alt_ssid=")};
+  assert(sta_alt_ssid_pos != std::string_view::npos);
+  auto const sta_alt_pass_pos{decoded.find("&sta_alt_pass=")};
+  assert(sta_alt_pass_pos != std::string_view::npos);
 
   // Build strings from found positions
   _sta_mdns_str.replace(begin(_sta_mdns_str),
@@ -182,7 +196,17 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
                         end(_sta_pass_str),
                         begin(decoded) + sta_pass_pos +
                           ztl::strlen("&sta_pass="),
-                        last);
+                        begin(decoded) + sta_alt_ssid_pos);
+  _sta_alt_ssid_str.replace(begin(_sta_alt_ssid_str),
+                            end(_sta_alt_ssid_str),
+                            begin(decoded) + sta_alt_ssid_pos +
+                              ztl::strlen("&sta_alt_ssid="),
+                            begin(decoded) + sta_alt_pass_pos);
+  _sta_alt_pass_str.replace(begin(_sta_alt_pass_str),
+                            end(_sta_alt_pass_str),
+                            begin(decoded) + sta_alt_pass_pos +
+                              ztl::strlen("&sta_alt_pass="),
+                            last);
 
   // Store values in NVS
   setConfig();

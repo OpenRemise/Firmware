@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Add alternative SSID/password ([#16](https://github.com/OpenRemise/Firmware/issues/16))
+
 ## 0.0.3
 - Update to Frontend 0.0.2
 
