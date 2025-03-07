@@ -64,6 +64,8 @@ namespace mem {
 /// | [mDNS](https://en.wikipedia.org/wiki/Multicast_DNS) hostname under which the device appears (e.g. my-remise.local)                               | sta_mdns        | Binary | -   | -   | "remise" |
 /// | Name of the network to connect to                                                                                                                | sta_ssid        | Binary | -   | -   | ""       |
 /// | Password of the network to connect to                                                                                                            | sta_pass        | Binary | -   | -   | ""       |
+/// | Name of the alternative network to connect to                                                                                                    | sta_alt_ssid    | Binary | -   | -   | ""       |
+/// | Password of the alternative network to connect to                                                                                                | sta_alt_pass    | Binary | -   | -   | ""       |
 /// | Timeout for receiving [HTTP](https://en.wikipedia.org/wiki/HTTP) requests (also used for USB)                                                    | http_rx_timeout | u8     | 5   | 60  | 5        |
 /// | Timeout for transmitting HTTP response                                                                                                           | http_tx_timeout | u8     | 5   | 60  | 5        |
 /// | Current limit in [DCC](https://github.com/ZIMO-Elektronik/DCC) operation mode                                                                    | cur_lim         | u8     | 0   | 3   | 3        |

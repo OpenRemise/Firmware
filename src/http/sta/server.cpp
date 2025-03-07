@@ -160,15 +160,19 @@ Server::~Server() {
 Response Server::settingsGetRequest(Request const& req) {
   mem::nvs::Settings nvs;
 
-  // Read password (and hide it)
+  // Read passwords (and hide them)
   auto sta_pass{nvs.getStationPassword()};
   std::ranges::fill(sta_pass, '*');
+  auto sta_alt_pass{nvs.getAlternativeStationPassword()};
+  std::ranges::fill(sta_alt_pass, '*');
 
   //
   JsonDocument doc;
   doc["sta_mdns"] = nvs.getStationmDNS();
   doc["sta_ssid"] = nvs.getStationSSID();
   doc["sta_pass"] = sta_pass;
+  doc["sta_alt_ssid"] = nvs.getAlternativeStationSSID();
+  doc["sta_alt_pass"] = sta_alt_pass;
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
   doc["cur_lim"] = std::to_underlying(nvs.getCurrentLimit());
@@ -225,6 +229,16 @@ Response Server::settingsPostRequest(Request const& req) {
   if (JsonVariantConst v{doc["sta_pass"]}; v.is<std::string>())
     if (auto const str{v.as<std::string>()};
         nvs.setStationPassword(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["sta_alt_ssid"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAlternativeStationSSID(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["sta_alt_pass"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAlternativeStationPassword(str) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["http_rx_timeout"]}; v.is<uint8_t>())

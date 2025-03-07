@@ -61,30 +61,36 @@ wifi_ap_config_t ap_config() {
 }
 
 /// \todo document
-std::optional<wifi_sta_config_t> optional_sta_config() {
+std::optional<std::pair<wifi_sta_config_t, wifi_sta_config_t>>
+optional_sta_configs() {
   mem::nvs::Settings nvs;
-  wifi_sta_config_t sta{};
+  std::pair<wifi_sta_config_t, wifi_sta_config_t> stas;
 
   // Read SSID
-  if (auto const sta_ssid_str{nvs.getStationSSID()}; size(sta_ssid_str))
-    std::ranges::copy(sta_ssid_str, std::bit_cast<char*>(&sta.ssid));
+  if (auto const ssid{nvs.getStationSSID()}; size(ssid))
+    std::ranges::copy(ssid, std::bit_cast<char*>(&stas.first.ssid));
   else {
     LOGI("sta_ssid setting doesn't exist");
     return std::nullopt;
   }
 
   // Read password
-  if (auto const sta_pass_str{nvs.getStationPassword()}; size(sta_pass_str)) {
-    std::ranges::copy(sta_pass_str, std::bit_cast<char*>(&sta.password));
-  } else {
-    LOGI("sta_pass setting doesn't exist");
-    return std::nullopt;
-  }
+  if (auto const pass{nvs.getStationPassword()}; size(pass))
+    std::ranges::copy(pass, std::bit_cast<char*>(&stas.first.password));
+
+  // Read alternative SSID
+  if (auto const ssid{nvs.getAlternativeStationSSID()}; size(ssid))
+    std::ranges::copy(ssid, std::bit_cast<char*>(&stas.second.ssid));
+
+  // Read alternative password
+  if (auto const pass{nvs.getAlternativeStationPassword()}; size(pass))
+    std::ranges::copy(pass, std::bit_cast<char*>(&stas.second.password));
 
   // Allow connecting to open networks
-  sta.threshold.authmode = WIFI_AUTH_OPEN;
+  stas.first.threshold.authmode = WIFI_AUTH_OPEN;
+  stas.second.threshold.authmode = WIFI_AUTH_OPEN;
 
-  return sta;
+  return stas;
 }
 
 /// \todo document
@@ -189,40 +195,51 @@ esp_err_t wifi_init() {
   return esp_wifi_start();
 }
 
-/// \todo document
-esp_err_t ap_init(wifi_ap_config_t const& ap_config) {
-  LOGI("ap init");
-
-  if (!esp_netif_create_default_wifi_ap()) assert(false);
-
-  // Temporarily set mode to STA because AP doesn't support scanning
+/// Scan access points and sort by RSSI
+esp_err_t scan_ap_records() {
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   esp_wifi_scan_start(NULL, true);
   uint16_t ap_count{};
   ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
-  std::vector<wifi_ap_record_t> ap_records(ap_count);
+  ap_records.resize(ap_count);
   ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, data(ap_records)));
-  ap_records_queue.handle = xQueueCreate(ap_count, sizeof(wifi_ap_record_t));
-  std::ranges::for_each(ap_records, [](auto&& ap_record) {
-    if (!xQueueSend(ap_records_queue.handle, &ap_record, portMAX_DELAY))
-      assert(false);
-  });
-
-  // Switch to access point
-  wifi_config_t wifi_config{.ap = ap_config};
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-  ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+  std::ranges::sort(
+    ap_records, [](auto const& a, auto const& b) { return a.rssi > b.rssi; });
   return ESP_OK;
 }
 
 /// \todo document
-esp_err_t sta_init(wifi_sta_config_t const& sta_config) {
+esp_err_t ap_init(wifi_ap_config_t const& ap_config) {
+  LOGI("ap init");
+  if (!esp_netif_create_default_wifi_ap()) assert(false);
+  wifi_config_t wifi_config{.ap = ap_config};
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+  return esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+}
+
+/// \todo document
+esp_err_t
+sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
   LOGI("sta init");
-  wifi_config_t wifi_config{.sta = sta_config};
+  wifi_config_t wifi_config{};
+  auto first{cbegin(ap_records)};
+  auto const last{cend(ap_records)};
+  while (first < last) {
+    if (!strcmp(std::bit_cast<char*>(&first->ssid),
+                std::bit_cast<char*>(&sta_configs.first.ssid))) {
+      wifi_config.sta = sta_configs.first;
+      break;
+    } else if (!strcmp(std::bit_cast<char*>(&first->ssid),
+                       std::bit_cast<char*>(&sta_configs.second.ssid))) {
+      wifi_config.sta = sta_configs.second;
+      break;
+    }
+    ++first;
+  }
+  if (first == last) return ESP_FAIL;
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-  ESP_ERROR_CHECK(esp_wifi_connect());
-  return ESP_OK;
+  return esp_wifi_connect();
 }
 
 /// \todo document
@@ -246,22 +263,16 @@ esp_err_t mdns_init(wifi_mode_t mode) {
 } // namespace
 
 /// Initialize either
-/// - AP (access point) if NVS doesn't contain SSID/pass or GPIO2 is high
-/// - STA (station) if NVS contains SSID/pass and GPIO is low
+/// - STA (station) if NVS contains SSID/pass or
+/// - AP (access point) if NVS doesn't contain SSID/pass or network not found
 esp_err_t init(BaseType_t xCoreID) {
   ESP_ERROR_CHECK(gpio_init());
   ESP_ERROR_CHECK(wifi_init());
+  ESP_ERROR_CHECK(scan_ap_records());
 
-  auto const sta_config{optional_sta_config()};
-  auto const mode{!sta_config ? WIFI_MODE_AP : WIFI_MODE_STA};
-
-  // Initialize AP if there is no STA config
-  if (mode == WIFI_MODE_AP) ESP_ERROR_CHECK(ap_init(ap_config()));
-  //
-  else {
-    ESP_ERROR_CHECK(sta_init(*sta_config));
-
-    //
+  // Try to connect to network
+  if (auto const sta_configs{optional_sta_configs()};
+      sta_configs && sta_init(*sta_configs) == ESP_OK) {
     if (!xTaskCreatePinnedToCore(task_function,
                                  task.name,
                                  task.stack_size,
@@ -270,10 +281,13 @@ esp_err_t init(BaseType_t xCoreID) {
                                  &task.handle,
                                  xCoreID))
       assert(false);
+    return mdns_init(WIFI_MODE_STA);
   }
-
-  // mDNS
-  return mdns_init(mode);
+  // ... or fallback to AP
+  else {
+    ESP_ERROR_CHECK(ap_init(ap_config()));
+    return mdns_init(WIFI_MODE_AP);
+  }
 }
 
 } // namespace wifi

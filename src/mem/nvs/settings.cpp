@@ -98,6 +98,48 @@ esp_err_t Settings::setStationPassword(std::string_view str) {
   return setBlob("sta_pass", str);
 }
 
+/// Get alternative station SSID
+///
+/// \return Alternative station SSID
+std::string Settings::getAlternativeStationSSID() const {
+  return getBlob("sta_alt_ssid");
+}
+
+/// Set alternative station SSID
+///
+/// \param  str                           Alternative station SSID
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAlternativeStationSSID(std::string_view str) {
+  return setBlob("sta_alt_ssid", str);
+}
+
+/// Get alternative station password
+///
+/// \return Alternative station password
+std::string Settings::getAlternativeStationPassword() const {
+  return getBlob("sta_alt_pass");
+}
+
+/// Set alternative station password
+///
+/// \param  str                           Alternative station password
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAlternativeStationPassword(std::string_view str) {
+  return setBlob("sta_alt_pass", str);
+}
+
 /// Get HTTP receive timeout
 ///
 /// \return HTTP receive timeout [s]

@@ -33,7 +33,7 @@ std::unique_ptr<Server> server;
 
 /// \todo document
 esp_err_t init() {
-  server.reset(new Server{wifi::ap_records_queue.handle});
+  server.reset(new Server{});
   return ESP_OK;
 }
 

@@ -24,6 +24,7 @@
 #include <driver/rmt_tx.h>
 #include <esp_http_server.h>
 #include <esp_task.h>
+#include <esp_wifi.h>
 #include <freertos/message_buffer.h>
 #include <freertos/queue.h>
 #include <freertos/stream_buffer.h>
@@ -36,6 +37,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <string>
+#include <vector>
 #include <ztl/enum.hpp>
 #include <ztl/implicit_wrapper.hpp>
 #include <ztl/limits.hpp>
@@ -556,15 +558,11 @@ namespace wifi {
 
 inline constexpr auto led_gpio_num{GPIO_NUM_47};
 
+inline std::vector<wifi_ap_record_t> ap_records;
 inline std::string mdns_str;
 inline std::string ip_str;
 inline std::array<uint8_t, 6uz> mac;
 inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
-
-///
-inline struct ApRecordsQueue {
-  QueueHandle_t handle{};
-} ap_records_queue;
 
 ///
 inline struct Task {
