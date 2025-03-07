@@ -24,7 +24,6 @@
 #include <driver/rmt_tx.h>
 #include <esp_http_server.h>
 #include <esp_task.h>
-#include <esp_wifi.h>
 #include <freertos/message_buffer.h>
 #include <freertos/queue.h>
 #include <freertos/stream_buffer.h>
@@ -44,6 +43,7 @@
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #  include <driver/gptimer.h>
+#  include <esp_wifi.h>
 #  include <hal/adc_types.h>
 #elif CONFIG_IDF_TARGET_LINUX
 #  define ADC_CHANNEL_1 1
@@ -558,7 +558,9 @@ namespace wifi {
 
 inline constexpr auto led_gpio_num{GPIO_NUM_47};
 
+#if CONFIG_IDF_TARGET_ESP32S3
 inline std::vector<wifi_ap_record_t> ap_records;
+#endif
 inline std::string mdns_str;
 inline std::string ip_str;
 inline std::array<uint8_t, 6uz> mac;
