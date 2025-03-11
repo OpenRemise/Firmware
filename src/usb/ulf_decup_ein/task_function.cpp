@@ -80,8 +80,10 @@ void loop() {
     if (auto const resp{decup.receive(byte)}) transmit_response(*resp);
   }
 
-  //
-  state.store(State::Suspend);
+  // Suspend out::track::decup (if not already done so itself)
+  if (auto expected{State::ULF_DECUP_EIN};
+      state.compare_exchange_strong(expected, State::Suspend))
+    ;
 }
 
 } // namespace

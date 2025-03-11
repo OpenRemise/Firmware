@@ -420,7 +420,7 @@
 /// [  PASSED  ] 18 tests.
 /// ```
 ///
-/// \section section_doc Doc
+/// \section section_development_doc Doc
 /// If Doxygen was found during CMake's configuration phase, the `FirmwareDocs`
 /// target can be built to create the documentation.
 /// ```sh
@@ -596,6 +596,9 @@
 /// are drivers that use these signals to control the hardware outputs. A more
 /// detailed version of the upcoming diagram can be found at the [bottom of the
 /// page](#section_architecture_diagram) (\emoji :warning: not mobile friendly).
+// clang-format off
+/// \page page_architecture Architecture
+/// \details \tableofcontents
 /// \startuml "Architecture overview"
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
@@ -614,7 +617,16 @@
 ///
 /// Interfaces -d-> Middlewares
 /// Middlewares -d-> Drivers
+///
+/// 'Links
+/// url of Storage is [[page_architecture.html#section_architecture_storage]]
+/// url of Interfaces is [[page_architecture.html#section_architecture_interfaces]]
+/// url of Middlewares is [[page_architecture.html#section_architecture_middlewares]]
+/// url of Drivers is [[page_architecture.html#section_architecture_drivers]]
 /// \enduml
+// clang-format on
+/// \page page_architecture Architecture
+/// \details \tableofcontents
 ///
 /// \section section_architecture_interfaces Interfaces
 /// The interface layer contains modules that are used to receive and transmit
@@ -627,7 +639,7 @@
 /// interfaces with the outputs in the driver layer. An example of this is the
 /// mdu::Service, which can accept a
 /// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
-/// http::sta::Server and then processes commands for an update of the decoder
+/// ::http::sta::Server and then processes commands for an update of the decoder
 /// software. The service then starts the corresponding \ref
 /// out::track::mdu::task_function "MDU task" in the driver layer, which then
 /// generates the necessary signals on the track. The communication is
