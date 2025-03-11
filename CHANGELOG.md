@@ -1,7 +1,9 @@
 # Changelog
 
-##
+## 0.0.4
 - Add alternative SSID/password ([#16](https://github.com/OpenRemise/Firmware/issues/16))
+- Update to Frontend 0.0.3
+- Bugfix DECUP_EIN timeout locks firmware in `Suspend` state ([#21](https://github.com/OpenRemise/Firmware/issues/21))
 
 ## 0.0.3
 - Update to Frontend 0.0.2
