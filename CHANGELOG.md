@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.5
+- Add `LAN_X_SET_LOCO_FUNCTION_GROUP`
+
 ## 0.0.4
 - Add alternative SSID/password ([#16](https://github.com/OpenRemise/Firmware/issues/16))
 - Update to Frontend 0.0.3
