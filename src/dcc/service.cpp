@@ -96,10 +96,10 @@ http::Response Service::locosGetRequest(http::Request const& req) {
 /// \todo document
 /// \todo filters?
 http::Response Service::locosDeleteRequest(http::Request const& req) {
-  std::lock_guard lock{_internal_mutex};
+  auto const addr{uri2address(req.uri).value_or(0u)};
 
   // Singleton
-  if (auto const addr{uri2address(req.uri).value_or(0u)}) {
+  if (std::lock_guard lock{_internal_mutex}; addr) {
     // Erase (doesn't matter if it exists or not)
     _locos.erase(addr);
     mem::nvs::Locos nvs;
@@ -134,21 +134,40 @@ http::Response Service::locosPutRequest(http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
-  // Document contains address and it's not equal to URI
-  if (JsonVariantConst doc_addr{doc["address"]};
-      doc_addr.as<Address::value_type>() != addr) {
-    LOGW("json contains address which is NOT equal to URI");
-    /// \todo CHANGE ADDRESS OF EXISTING LOCO HERE!!!
-  }
-
-  std::lock_guard lock{_internal_mutex};
-
-  // Get reference to loco, insert if key doesn't exist
-  auto& loco{_locos[addr]};
-  loco.fromJsonDocument(doc);
-
+  auto it{_locos.find(addr)};
   mem::nvs::Locos nvs;
-  nvs.set(addr, loco);
+
+  // Address not found
+  if (std::lock_guard lock{_internal_mutex}; it == cend(_locos)) {
+    // Address in URI does not match body
+    if (JsonVariantConst loco_addr{doc["address"]};
+        loco_addr.as<Address::value_type>() != addr)
+      return std::unexpected<std::string>{"417 Expectation Failed"};
+    // Insert new loco
+    else if (auto const ret{_locos.insert({addr, Loco{doc}})}; ret.second)
+      it = ret.first;
+    // Insertion failed
+    else return std::unexpected<std::string>{"500 Internal Server Error"};
+  }
+  // Address found, but changing
+  else if (JsonVariantConst loco_addr{doc["address"]};
+           loco_addr.as<Address::value_type>() != addr) {
+    auto node{_locos.extract(addr)};
+    node.key() = loco_addr.as<Address::value_type>();
+    // Re-insert loco with new address
+    if (auto const ret{_locos.insert(move(node))}; ret.inserted) {
+      it = ret.position;
+      nvs.erase(addr);
+    }
+    // Insertion failed
+    else
+      return std::unexpected<std::string>{"500 Internal Server Error"};
+  }
+  // Address found, just update loco
+  else
+    it->second.fromJsonDocument(doc);
+
+  nvs.set(addr, it->second);
 
   return {};
 }

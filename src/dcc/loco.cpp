@@ -41,6 +41,9 @@ JsonDocument NvLocoBase::toJsonDocument() const {
 }
 
 /// \todo document
+Loco::Loco(JsonDocument const& doc) { fromJsonDocument(doc); }
+
+/// \todo document
 void Loco::fromJsonDocument(JsonDocument const& doc) {
   NvLocoBase::fromJsonDocument(doc);
 

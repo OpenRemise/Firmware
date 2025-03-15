@@ -2,6 +2,7 @@
 
 ## 0.0.5
 - Add `LAN_X_SET_LOCO_FUNCTION_GROUP`
+- Allow changing loco address ([#25](https://github.com/OpenRemise/Firmware/issues/25))
 
 ## 0.0.4
 - Add alternative SSID/password ([#16](https://github.com/OpenRemise/Firmware/issues/16))
