@@ -9,7 +9,7 @@ TEST_F(DccTest, loco_to_base_to_json) {
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
-  EXPECT_EQ(json, "{\"name\":\"BR85\",\"speed_steps\":2}");
+  EXPECT_EQ(json, "{\"name\":\"BR85\",\"mode\":0,\"speed_steps\":2}");
 }
 
 TEST_F(DccTest, json_to_base_to_loco) {
@@ -33,14 +33,16 @@ TEST_F(DccTest, loco_to_json) {
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
-  EXPECT_EQ(json,
-            "{\"name\":\"Reihe "
-            "2190\",\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10}");
+  EXPECT_EQ(
+    json,
+    "{\"name\":\"Reihe "
+    "2190\",\"mode\":0,\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10}");
 }
 
 TEST_F(DccTest, json_to_loco) {
-  std::string json{"{\"name\":\"Reihe "
-                   "2190\",\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10}"};
+  std::string json{
+    "{\"name\":\"Reihe "
+    "2190\",\"mode\":0,\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10}"};
   JsonDocument doc;
   deserializeJson(doc, json);
   dcc::Loco loco;
