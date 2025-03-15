@@ -328,7 +328,7 @@ Response Server::sysGetRequest(Request const& req) {
   doc["project_name"] = app_desc->project_name;
   doc["compile_time"] = app_desc->time;
   doc["compile_date"] = app_desc->date;
-  doc["idf_version"] = app_desc->idf_ver;
+  doc["idf_version"] = app_desc->idf_ver + 1; // Remove 'v' prefix
 
   doc["mdns"] = wifi::mdns_str;
   doc["ip"] = wifi::ip_str;
@@ -431,10 +431,8 @@ esp_err_t Server::putPostHandler(httpd_req_t* req) {
 // https://github.com/espressif/esp-idf/issues/11661
 #define GENERIC_WS_HANDLER(NAME, URI)                                          \
   esp_err_t Server::NAME(httpd_req_t* req) {                                   \
-    if (req->method == HTTP_GET) {                                             \
-      LOGI("WS open");                                                         \
-      return ESP_OK;                                                           \
-    } else {                                                                   \
+    if (req->method == HTTP_GET) return ESP_OK;                                \
+    else {                                                                     \
       httpd_req_t cpy{.handle = req->handle,                                   \
                       .method = req->method,                                   \
                       .uri = URI,                                              \

@@ -33,6 +33,9 @@ struct NvLocoBase : z21::LocoInfo {
 
 /// Actual object with volatile and non-volatile stuff
 struct Loco : NvLocoBase {
+  constexpr Loco() = default;
+  Loco(JsonDocument const& doc);
+
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
 
