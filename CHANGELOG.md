@@ -1,6 +1,11 @@
 # Changelog
 
+## 0.0.6
+- Update to Frontend 0.0.7
+- Add RSSI to `/sys/` GET request ([#27](https://github.com/OpenRemise/Firmware/issues/27))
+
 ## 0.0.5
+- Update to Frontend 0.0.6
 - Add `LAN_X_SET_LOCO_FUNCTION_GROUP`
 - Allow changing loco address ([#25](https://github.com/OpenRemise/Firmware/issues/25))
 
