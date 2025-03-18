@@ -24,7 +24,7 @@
 namespace analog {
 
 /// \page page_analog Analog
-/// \tableofcontents
+/// \details \tableofcontents
 /// This module takes over all analog functions of the firmware. This includes
 /// measuring track voltage and current, measuring temperature, and monitoring
 /// all of those measurements.

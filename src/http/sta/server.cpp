@@ -333,9 +333,9 @@ Response Server::sysGetRequest(Request const& req) {
   doc["mdns"] = wifi::mdns_str;
   doc["ip"] = wifi::ip_str;
   doc["mac"] = wifi::mac_str;
-
-  doc["heap"] = esp_get_free_heap_size();
-  doc["internal_heap"] = esp_get_free_internal_heap_size();
+  if (wifi_ap_record_t ap_record;
+      esp_wifi_sta_get_ap_info(&ap_record) == ESP_OK)
+    doc["rssi"] = ap_record.rssi;
 
   if (VoltagesQueue::value_type voltages;
       xQueuePeek(voltages_queue.handle, &voltages, 0u))
@@ -356,6 +356,9 @@ Response Server::sysGetRequest(Request const& req) {
   if (TemperatureQueue::value_type temp;
       xQueuePeek(temperature_queue.handle, &temp, 0u))
     doc["temperature"] = temp;
+
+  doc["heap"] = esp_get_free_heap_size();
+  doc["internal_heap"] = esp_get_free_internal_heap_size();
 
   //
   std::string json;
