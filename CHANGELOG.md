@@ -1,7 +1,9 @@
 # Changelog
 
 ##
+- Add `_z21` mDNS service ([#32](https://github.com/OpenRemise/Firmware/issues/32))
 - Bugfix wrong loco address in NVS when changing address ([#31](https://github.com/OpenRemise/Firmware/issues/31))
+- Bugfix increase brown-out level to 2.98V ([#30](https://github.com/OpenRemise/Firmware/issues/30))
 
 ## 0.0.6
 - Update to Frontend 0.0.7
