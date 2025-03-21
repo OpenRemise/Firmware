@@ -25,7 +25,6 @@
 #include <driver/gpio.h>
 #include <esp_mac.h>
 #include <esp_wifi.h>
-#include <mdns.h>
 #include <bit>
 #include <cstring>
 #include <optional>
@@ -242,24 +241,6 @@ sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
   return esp_wifi_connect();
 }
 
-/// \todo document
-esp_err_t mdns_init(wifi_mode_t mode) {
-  ESP_ERROR_CHECK(::mdns_init());
-
-  mem::nvs::Settings nvs;
-  auto const sta_mdns_str{nvs.getStationmDNS()};
-
-  // STA mode: hostname is user setting
-  // AP mode:  hostname fixed to "remise"
-  mdns_str =
-    mode == WIFI_MODE_STA && !empty(sta_mdns_str) ? sta_mdns_str : "remise";
-  ESP_ERROR_CHECK(mdns_hostname_set(mdns_str.c_str()));
-
-  mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
-
-  return ESP_OK;
-}
-
 } // namespace
 
 /// Initialize either
@@ -281,13 +262,11 @@ esp_err_t init(BaseType_t xCoreID) {
                                  &task.handle,
                                  xCoreID))
       assert(false);
-    return mdns_init(WIFI_MODE_STA);
+    return ESP_OK;
   }
   // ... or fallback to AP
-  else {
-    ESP_ERROR_CHECK(ap_init(ap_config()));
-    return mdns_init(WIFI_MODE_AP);
-  }
+  else
+    return ap_init(ap_config());
 }
 
 } // namespace wifi

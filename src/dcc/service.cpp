@@ -124,7 +124,7 @@ http::Response Service::locosPutRequest(http::Request const& req) {
 
   // Address not found or other characters appended to it
   // We currently only support singleton
-  auto const addr{uri2address(req.uri).value_or(0u)};
+  auto addr{uri2address(req.uri).value_or(0u)};
   if (!addr) return std::unexpected<std::string>{"417 Expectation Failed"};
 
   // Deserialize
@@ -145,7 +145,7 @@ http::Response Service::locosPutRequest(http::Request const& req) {
       return std::unexpected<std::string>{"417 Expectation Failed"};
     // Insert new loco
     else if (auto const ret{_locos.insert({addr, Loco{doc}})}; ret.second)
-      it = ret.first;
+      it = ret.first; // Update iterator
     // Insertion failed
     else return std::unexpected<std::string>{"500 Internal Server Error"};
   }
@@ -156,8 +156,9 @@ http::Response Service::locosPutRequest(http::Request const& req) {
     node.key() = loco_addr.as<Address::value_type>();
     // Re-insert loco with new address
     if (auto const ret{_locos.insert(move(node))}; ret.inserted) {
-      it = ret.position;
-      nvs.erase(addr);
+      it = ret.position;                          // Update iterator
+      nvs.erase(addr);                            // Erase old address
+      addr = loco_addr.as<Address::value_type>(); // Update address
     }
     // Insertion failed
     else
@@ -165,7 +166,7 @@ http::Response Service::locosPutRequest(http::Request const& req) {
   }
   // Address found, just update loco
   else
-    it->second.fromJsonDocument(doc);
+    it->second.fromJsonDocument(doc); // Update iterator
 
   nvs.set(addr, it->second);
 

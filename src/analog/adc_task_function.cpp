@@ -101,9 +101,10 @@ void adc_task_function(void*) {
     // >90% of all current measurements indicate short circuit
     if (static constexpr auto ninty_pct{
           static_cast<size_t>(0.9 * size(currents))};
-        state.load() != State::ShortCircuit &&
-        std::ranges::count(currents, max_measurement) > ninty_pct &&
-        !--short_circuit_count) {
+        state.load() != State::ShortCircuit &&                       //
+        std::ranges::count(currents, max_measurement) > ninty_pct && //
+        !--short_circuit_count &&                                    //
+        gpio_get_level(out::track::enable_gpio_num)) {               //
       state.store(State::ShortCircuit);
       bug_led(true);
       z21::service->broadcastTrackShortCircuit();

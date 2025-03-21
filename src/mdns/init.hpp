@@ -13,28 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// HTTP documentation
+/// Initialize mDNS
 ///
-/// \file   http/doxygen.hpp
+/// \file   mdns/init.hpp
 /// \author Vincent Hamp
-/// \date   19/02/2023
+/// \date   21/03/2025
 
 #pragma once
 
-namespace http {
+#include <esp_err.h>
 
-/// \page page_http HTTP
-/// \tableofcontents
-/// \todo document HTTP page
-///
-/// \section section_http_ap Access Point
-///
-/// \section section_http_sta Station
-///
-/// <div class="section_buttons">
-/// | Previous        | Next           |
-/// | :-------------- | -------------: |
-/// | \ref page_decup | \ref page_mdns |
-/// </div>
+namespace mdns {
 
-} // namespace http
+esp_err_t init();
+
+} // namespace mdns
