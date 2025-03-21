@@ -13,28 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// HTTP documentation
+/// mDNS documentation
 ///
-/// \file   http/doxygen.hpp
+/// \file   mdns/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   19/02/2023
+/// \date   21/03/2025
 
 #pragma once
 
-namespace http {
+namespace udp {
 
-/// \page page_http HTTP
+/// \page page_mdns mDNS
 /// \tableofcontents
-/// \todo document HTTP page
-///
-/// \section section_http_ap Access Point
-///
-/// \section section_http_sta Station
+/// \todo document mDNS page
 ///
 /// <div class="section_buttons">
-/// | Previous        | Next           |
-/// | :-------------- | -------------: |
-/// | \ref page_decup | \ref page_mdns |
+/// | Previous       | Next          |
+/// | :------------- | ------------: |
+/// | \ref page_http | \ref page_mdu |
 /// </div>
 
-} // namespace http
+} // namespace udp

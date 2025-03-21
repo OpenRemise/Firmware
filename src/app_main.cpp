@@ -24,6 +24,7 @@
 #include "dcc/init.hpp"
 #include "decup/init.hpp"
 #include "http/init.hpp"
+#include "mdns/init.hpp"
 #include "mdu/init.hpp"
 #include "mem/init.hpp"
 #include "ota/init.hpp"
@@ -56,6 +57,7 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(1, ota::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(0, z21::init, 0));
   ESP_ERROR_CHECK(invoke_on_core(1, zusi::init, 1));
+  ESP_ERROR_CHECK(invoke_on_core(0, mdns::init));
 
   // Don't disable serial JTAG
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)

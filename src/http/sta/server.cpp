@@ -330,7 +330,7 @@ Response Server::sysGetRequest(Request const& req) {
   doc["compile_date"] = app_desc->date;
   doc["idf_version"] = app_desc->idf_ver + 1; // Remove 'v' prefix
 
-  doc["mdns"] = wifi::mdns_str;
+  doc["mdns"] = mdns::str;
   doc["ip"] = wifi::ip_str;
   doc["mac"] = wifi::mac_str;
   if (wifi_ap_record_t ap_record;

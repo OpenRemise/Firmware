@@ -44,6 +44,7 @@ else()
     http/sta/init.cpp
     http/sta/server.cpp
     http/init.cpp
+    mdns/init.cpp
     mdu/init.cpp
     mdu/service.cpp
     ota/init.cpp

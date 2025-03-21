@@ -30,7 +30,7 @@ namespace mdu {
 /// <div class="section_buttons">
 /// | Previous       | Next          |
 /// | :------------- | ------------: |
-/// | \ref page_http | \ref page_mem |
+/// | \ref page_mdns | \ref page_mem |
 /// </div>
 
 } // namespace mdu
