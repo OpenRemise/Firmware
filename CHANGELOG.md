@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix wrong loco address in NVS when changing address ([#31](https://github.com/OpenRemise/Firmware/issues/31))
+
 ## 0.0.6
 - Update to Frontend 0.0.7
 - Add RSSI to `/sys/` GET request ([#27](https://github.com/OpenRemise/Firmware/issues/27))
