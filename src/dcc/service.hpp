@@ -91,12 +91,15 @@ private:
   void suspend();
 
   uint8_t programPacketCount() const;
+  Address basicOrExtendedLocoAddress(Address::value_type addr) const;
 
   Locos _locos;
   std::mutex _internal_mutex;
   std::shared_ptr<z21::server::intf::System> _z21_system_service;
   std::shared_ptr<z21::server::intf::Dcc> _z21_dcc_service;
   uint8_t _priority_count{Loco::min_priority};
+
+  uint8_t _dcc_loco_flags{};
 
   /// \todo document
   struct CvRequest {

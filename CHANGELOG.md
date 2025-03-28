@@ -1,6 +1,7 @@
 # Changelog
 
-##
+## 0.0.7
+- Add short loco addresses and repeat higher functions DCC flags ([#29](https://github.com/OpenRemise/Firmware/issues/29))
 - Add `_z21` mDNS service ([#32](https://github.com/OpenRemise/Firmware/issues/32))
 - Bugfix wrong loco address in NVS when changing address ([#31](https://github.com/OpenRemise/Firmware/issues/31))
 - Bugfix increase brown-out level to 2.98V ([#30](https://github.com/OpenRemise/Firmware/issues/30))
