@@ -249,22 +249,40 @@ void Service::operationsDcc() {
 
         // Speed and direction
         switch (loco.speed_steps) {
-          case z21::LocoInfo::DCC14: [[fallthrough]]; //  break;
-          case z21::LocoInfo::DCC28: [[fallthrough]]; // break;
+          case z21::LocoInfo::DCC14:
+            sendToBack(make_speed_and_direction_packet(
+              basicOrExtendedLocoAddress(addr),
+              (loco.rvvvvvvv & 0x80u) >> 2u | // R
+                (loco.f31_0 & 0x01u) << 4u |  // F0
+                (loco.rvvvvvvv & 0x0Fu)));    // GGGG
+            break;
+          case z21::LocoInfo::DCC28:
+            sendToBack(make_speed_and_direction_packet(
+              basicOrExtendedLocoAddress(addr),
+              (loco.rvvvvvvv & 0x80u) >> 2u  // R
+                | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
+            break;
           case z21::LocoInfo::DCC128:
-            sendToBack(
-              make_advanced_operations_speed_packet(addr, loco.rvvvvvvv));
+            sendToBack(make_advanced_operations_speed_packet(
+              basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
             break;
         }
 
         // Lower functions
-        sendToBack(make_function_group_f4_f0_packet(addr, loco.f31_0 & 0x1Fu));
-        sendToBack(
-          make_function_group_f8_f5_packet(addr, loco.f31_0 >> 5u & 0xFu));
-        sendToBack(
-          make_function_group_f12_f9_packet(addr, loco.f31_0 >> 9u & 0xFu));
+        sendToBack(make_function_group_f4_f0_packet(
+          basicOrExtendedLocoAddress(addr), loco.f31_0 & 0x1Fu));
+        sendToBack(make_function_group_f8_f5_packet(
+          basicOrExtendedLocoAddress(addr), loco.f31_0 >> 5u & 0xFu));
+        sendToBack(make_function_group_f12_f9_packet(
+          basicOrExtendedLocoAddress(addr), loco.f31_0 >> 9u & 0xFu));
 
-        // Higher functions?
+        // Higher functions
+        if (_dcc_loco_flags & 0x40u) {
+          sendToBack(make_feature_expansion_f20_f13_packet(
+            basicOrExtendedLocoAddress(addr), loco.f31_0 >> 13u));
+          sendToBack(make_feature_expansion_f28_f21_packet(
+            basicOrExtendedLocoAddress(addr), loco.f31_0 >> 21u));
+        }
 
         loco.priority = std::clamp<decltype(loco.priority)>(
           loco.priority + 1u, Loco::min_priority, Loco::max_priority);
@@ -558,6 +576,16 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     if (loco.f31_0 == state) return;
     loco.f31_0 = state;
 
+    // Higher functions don't get repeated, send them now
+    if (mask >= (1u << 13u) && !(_dcc_loco_flags & 0x40u)) {
+      if (mask & (0xFFu << 13u))
+        sendToBack(make_feature_expansion_f20_f13_packet(
+          basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 13u));
+      if (mask & (0xFFu << 21u))
+        sendToBack(make_feature_expansion_f28_f21_packet(
+          basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 21u));
+    }
+
     //
     if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
@@ -653,7 +681,8 @@ void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
   if (full(_cv_pom_request_deque)) return cvNack();
 
   auto const program_packet_count{programPacketCount()};
-  sendToFront(make_cv_access_long_verify_packet(loco_addr, cv_addr),
+  sendToFront(make_cv_access_long_verify_packet(
+                basicOrExtendedLocoAddress(loco_addr), cv_addr),
               program_packet_count);
 
   _cv_pom_request_deque.push_back(
@@ -671,7 +700,8 @@ void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
 /// \todo document
 void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
   auto const program_packet_count{programPacketCount()};
-  sendToFront(make_cv_access_long_write_packet(loco_addr, cv_addr, byte),
+  sendToFront(make_cv_access_long_write_packet(
+                basicOrExtendedLocoAddress(loco_addr), cv_addr, byte),
               program_packet_count);
 
   // Mandatory delay
@@ -711,11 +741,18 @@ void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
 
 /// \todo document
 void Service::resume() {
+  // Update DCC flags
+  mem::nvs::Settings nvs;
+  _dcc_loco_flags = nvs.getDccLocoFlags();
+
+  // Preload
   auto const packet{state.load() == State::DCCOperations ? make_idle_packet()
                                                          : make_reset_packet()};
   while (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) >
          out::tx_message_buffer.size * 0.5)
     sendToBack(packet);
+
+  // Resume out::track::dcc task
   LOGI_TASK_RESUME(out::track::dcc::task.handle);
 }
 
@@ -731,6 +768,14 @@ void Service::suspend() {
 uint8_t Service::programPacketCount() const {
   mem::nvs::Settings nvs;
   return nvs.getDccProgramPacketCount();
+}
+
+/// \todo document
+Address Service::basicOrExtendedLocoAddress(Address::value_type addr) const {
+  return {.value = addr,
+          .type = addr <= (_dcc_loco_flags & 0x80u ? 127u : 99u)
+                    ? Address::BasicLoco
+                    : Address::ExtendedLoco};
 }
 
 } // namespace dcc
