@@ -476,8 +476,15 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
            it != cend(frontend_embeds)) {
     // Set content encoding and type
     httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
-    if (uri.ends_with(".css")) httpd_resp_set_type(req, "text/css");
+    if (uri.ends_with(".bin"))
+      httpd_resp_set_type(req, "application/octet-stream");
+    else if (uri.ends_with(".css")) httpd_resp_set_type(req, "text/css");
+    else if (uri.ends_with(".gif")) httpd_resp_set_type(req, "image/gif");
+    else if (uri.ends_with(".ico"))
+      httpd_resp_set_type(req, "image/vnd.microsoft.icon");
     else if (uri.ends_with(".js")) httpd_resp_set_type(req, "text/javascript");
+    else if (uri.ends_with(".json"))
+      httpd_resp_set_type(req, "application/json");
     else if (uri.ends_with(".otf")) httpd_resp_set_type(req, "font/otf");
     else if (uri.ends_with(".png")) httpd_resp_set_type(req, "image/png");
     else if (uri.ends_with(".svg")) httpd_resp_set_type(req, "image/svg+xml");

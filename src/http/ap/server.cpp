@@ -155,8 +155,8 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
 esp_err_t Server::savePostHandler(httpd_req_t* req) {
   LOGD("POST request %s", req->uri);
 
-  assert(req->content_len < HTTPD_MAX_URI_LEN);
-  std::array<char, HTTPD_MAX_URI_LEN> stack;
+  assert(req->content_len < CONFIG_HTTPD_MAX_URI_LEN);
+  std::array<char, CONFIG_HTTPD_MAX_URI_LEN> stack;
 
   int len;
   if (len = httpd_req_recv(req, data(stack), req->content_len); len <= 0) {
