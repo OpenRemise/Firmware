@@ -13,7 +13,7 @@ jobs:
       pre-build: |
         sudo apt update -y
         sudo apt install -y libbsd-dev ninja-build
-      esp_idf_version: v5.5.0
+      esp_idf_version: master
       target: linux
       command: |
         cmake --preset "Tests"
