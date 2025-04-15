@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.8
+- Bugfix WebSocket frame parsing errors ([#9](https://github.com/OpenRemise/Firmware/issues/9))
+- Bugfix mDNS does not support subdomains ([#39](https://github.com/OpenRemise/Firmware/issues/39))
+
 ## 0.0.7
 - Add short loco addresses and repeat higher functions DCC flags ([#29](https://github.com/OpenRemise/Firmware/issues/29))
 - Add `_z21` mDNS service ([#32](https://github.com/OpenRemise/Firmware/issues/32))

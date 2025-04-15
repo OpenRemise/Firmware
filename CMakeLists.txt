@@ -28,7 +28,7 @@ if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
    AND NOT EXISTS ${Frontend_BINARY_DIR})
 
-  # Build from develop branch at config time
+  # Build from devel branch at config time
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
     cpmaddpackage(
       NAME
@@ -36,7 +36,7 @@ if(ESP_PLATFORM
       GITHUB_REPOSITORY
       "OpenRemise/Frontend"
       GIT_TAG
-      develop
+      devel
       DOWNLOAD_ONLY
       TRUE)
     execute_process(
@@ -59,6 +59,10 @@ if(ESP_PLATFORM
       OUTPUT_STRIP_TRAILING_WHITESPACE)
     cpmaddpackage(NAME Frontend URL ${OPENREMISE_FRONTEND_URL} DOWNLOAD_ONLY ON)
     set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})
+  endif()
+
+  if(NOT EXISTS ${FRONTEND_WEB_DIR})
+    message(FATAL_ERROR "Failed to build frontend")
   endif()
 
   # Create a list of absolute paths, relative paths and a flat representation

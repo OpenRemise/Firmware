@@ -40,6 +40,9 @@ if(Doxygen_FOUND)
 
   # Get logo and fonts
   file(DOWNLOAD
+       "https://github.com/OpenRemise/.github/raw/master/data/icons/favicon.ico"
+       ${CMAKE_CURRENT_BINARY_DIR}/html/favicon.ico)
+  file(DOWNLOAD
        "https://github.com/OpenRemise/.github/raw/master/data/images/logo.svg"
        ${CMAKE_CURRENT_BINARY_DIR}/html/logo.svg)
   file(
@@ -78,6 +81,7 @@ if(Doxygen_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}/html/drv8323shield.kicad_pcb)
 
   set(DOXYGEN_PROJECT_LOGO ${CMAKE_CURRENT_BINARY_DIR}/html/logo.svg)
+  set(DOXYGEN_PROJECT_ICON ${CMAKE_CURRENT_BINARY_DIR}/html/favicon.ico)
   set(DOXYGEN_REPEAT_BRIEF NO)
   set(DOXYGEN_ALIASES idf_ver=${IDF_VER})
   set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)

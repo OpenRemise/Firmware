@@ -40,7 +40,7 @@ https://www.codetinkerer.com/2015/12/04/choosing-an-http-status-code.html
 httpd_resp_send* functions of the ESP-IDF implicitly set content type text/html and status code 200!
 
 ## mDNS
-I've restricted the mDNS name to (.+\.)?remise  
+I've restricted the mDNS name to [^\.]*remise  
 This ensures that the DNS can be found by lookup, even when using an app or desktop version instead of web.
 For some reason mDNS will never be supported by "older" android versions...
 https://issuetracker.google.com/issues/140786115?pli=1  
