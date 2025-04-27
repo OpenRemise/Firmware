@@ -64,6 +64,8 @@ esp_err_t init() {
       nvs.setCurrentLimit(out::track::CurrentLimit::_4100mA);
     if (nvs.find("cur_lim_serv") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setCurrentLimitService(out::track::CurrentLimit::_1300mA);
+    if (nvs.find("cur_lim_updt") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setCurrentLimitUpdate(out::track::CurrentLimit::_500mA);
     if (nvs.find("cur_sc_time") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setCurrentShortCircuitTime(100u);
     if (nvs.find("led_dc_bug") == ESP_ERR_NVS_NOT_FOUND)

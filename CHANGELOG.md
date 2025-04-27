@@ -2,8 +2,8 @@
 
 ##
 - Update to Frontend ?
-- Add setting to dim LEDs ([#42](https://github.com/OpenRemise/Firmware/issues/42))
-- Add setting to change current limit during updates ([#46](https://github.com/OpenRemise/Firmware/issues/46))
+- LED duty cycle settings ([#42](https://github.com/OpenRemise/Firmware/issues/42))
+- Current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
 - Bugfixes WebSocket ([#45](https://github.com/OpenRemise/Firmware/issues/45))
   - Send messages on `WIFI_TASK_CORE_ID` using `httpd_queue_work`
 

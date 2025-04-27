@@ -70,6 +70,7 @@ namespace mem {
 /// | Timeout for transmitting HTTP response                                                                                                           | http_tx_timeout | u8     | 5   | 60  | 5        |
 /// | Current limit in [DCC](https://github.com/ZIMO-Elektronik/DCC) operation mode                                                                    | cur_lim         | u8     | 0   | 3   | 3        |
 /// | Current limit in DCC service mode                                                                                                                | cur_lim_serv    | u8     | 0   | 3   | 1        |
+/// | Current limit in update mode                                                                                                                     | cur_lim_updt    | u8     | 0   | 3   | 0        |
 /// | Time after which an overcurrent is considered a short circuit                                                                                    | cur_sc_time     | u8     | 20  | 240 | 100      |
 /// | Duty cycle of the bug LED                                                                                                                        | led_dc_bug      | u8     | 0   | 100 | 100      |
 /// | Duty cycle of the WiFi LED                                                                                                                       | led_dc_wifi     | u8     | 0   | 100 | 100      |

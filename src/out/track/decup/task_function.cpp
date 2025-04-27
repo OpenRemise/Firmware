@@ -121,7 +121,8 @@ esp_err_t transmit_acks(uint8_t acks) {
 
 /// \todo document
 esp_err_t loop() {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(
+    set_current_limit(mem::nvs::Settings{}.getCurrentLimitUpdate()));
 
   for (;;) {
     // Return on empty packet, suspend or short circuit
@@ -141,7 +142,8 @@ esp_err_t loop() {
 
 /// \todo document that this pings a decoder (default MX645)
 esp_err_t test_loop(uint8_t decoder_id = 221u) {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_500mA));
+  ESP_ERROR_CHECK(
+    set_current_limit(mem::nvs::Settings{}.getCurrentLimitUpdate()));
 
   for (auto i{0uz}; i < 200uz; ++i) {
     Packet packet{0xEFu};

@@ -177,6 +177,7 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
   doc["cur_lim"] = std::to_underlying(nvs.getCurrentLimit());
   doc["cur_lim_serv"] = std::to_underlying(nvs.getCurrentLimitService());
+  doc["cur_lim_updt"] = std::to_underlying(nvs.getCurrentLimitUpdate());
   doc["cur_sc_time"] = nvs.getCurrentShortCircuitTime();
   doc["led_dc_bug"] = nvs.getLedDutyCycleBug();
   doc["led_dc_wifi"] = nvs.getLedDutyCycleWiFi();
@@ -258,6 +259,11 @@ Response Server::settingsPostRequest(Request const& req) {
 
   if (JsonVariantConst v{doc["cur_lim_serv"]}; v.is<uint8_t>())
     if (nvs.setCurrentLimitService(
+          static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["cur_lim_updt"]}; v.is<uint8_t>())
+    if (nvs.setCurrentLimitUpdate(
           static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
