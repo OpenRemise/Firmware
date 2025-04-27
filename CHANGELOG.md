@@ -1,5 +1,12 @@
 # Changelog
 
+##
+- Update to Frontend ?
+- Add setting to dim LEDs ([#42](https://github.com/OpenRemise/Firmware/issues/42))
+- Add setting to change current limit during updates ([#46](https://github.com/OpenRemise/Firmware/issues/46))
+- Bugfixes WebSocket ([#45](https://github.com/OpenRemise/Firmware/issues/45))
+  - Send messages on `WIFI_TASK_CORE_ID` using `httpd_queue_work`
+
 ## 0.0.8
 - Bugfix WebSocket frame parsing errors ([#9](https://github.com/OpenRemise/Firmware/issues/9))
 - Bugfix mDNS does not support subdomains ([#39](https://github.com/OpenRemise/Firmware/issues/39))

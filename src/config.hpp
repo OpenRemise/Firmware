@@ -279,7 +279,7 @@ inline struct Task {
   static constexpr auto name{"dcc"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{2u};
-  static constexpr auto timeout{100u};
+  static constexpr auto timeout{50u};
   TaskHandle_t handle{};
 } task;
 

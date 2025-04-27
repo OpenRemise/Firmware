@@ -31,6 +31,8 @@
 #include <numeric>
 #include <span>
 #include <string_view>
+#include "http/message.hpp"
+#include "log.h"
 
 template<typename>
 struct signature;
@@ -218,12 +220,29 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
 
 ///
 template<typename... Ts>
-auto httpd_ws_send_frame_async(Ts&&... ts) {
-  return httpd_ws_send_frame_async(http::handle, std::forward<Ts>(ts)...);
+auto httpd_sess_trigger_close(Ts&&... ts) {
+  return httpd_sess_trigger_close(http::handle, std::forward<Ts>(ts)...);
 }
 
 ///
-template<typename... Ts>
-auto httpd_sess_trigger_close(Ts&&... ts) {
-  return httpd_sess_trigger_close(http::handle, std::forward<Ts>(ts)...);
+inline auto httpd_queue_work(http::Message* msg) {
+  return httpd_queue_work(
+    http::handle,
+    [](void* arg) {
+      auto msg{std::bit_cast<http::Message*>(arg)};
+
+      // Wrap message in httpd_ws_frame_t
+      httpd_ws_frame_t frame{
+        .type = msg->type,
+        .payload = data(msg->payload),
+        .len = size(msg->payload),
+      };
+      if (auto const err{
+            httpd_ws_send_frame_async(http::handle, msg->sock_fd, &frame)})
+        LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+
+      // Delete
+      delete msg;
+    },
+    msg);
 }

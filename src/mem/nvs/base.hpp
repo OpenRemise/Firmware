@@ -100,6 +100,7 @@ public:
   auto end() const { return Sentinel{}; }
   auto cend() const { return end(); }
 
+  esp_err_t find(std::string const& key) const;
   esp_err_t erase(std::string const& key);
   esp_err_t eraseAll();
 

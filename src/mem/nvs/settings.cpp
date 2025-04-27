@@ -233,6 +233,44 @@ esp_err_t Settings::setCurrentLimitService(out::track::CurrentLimit value) {
            : ESP_ERR_INVALID_ARG;
 }
 
+/// Get LED duty cycle for bug LED
+///
+/// \return LED duty cycle for bug LED [%]
+uint8_t Settings::getLedDutyCycleBug() const { return getU8("led_dc_bug"); }
+
+/// Set LED duty cycle for bug LED
+///
+/// \param  value                         LED duty cycle [%]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           LED duty cycle out of range
+esp_err_t Settings::setLedDutyCycleBug(uint8_t value) {
+  return value <= 100u ? setU8("led_dc_bug", value) : ESP_ERR_INVALID_ARG;
+}
+
+/// Get LED duty cycle for WiFi LED
+///
+/// \return LED duty cycle for WiFi LED [%]
+uint8_t Settings::getLedDutyCycleWiFi() const { return getU8("led_dc_wifi"); }
+
+/// Set LED duty cycle for WiFi LED
+///
+/// \param  value                         LED duty cycle [%]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           LED duty cycle out of range
+esp_err_t Settings::setLedDutyCycleWiFi(uint8_t value) {
+  return value <= 100u ? setU8("led_dc_wifi", value) : ESP_ERR_INVALID_ARG;
+}
+
 /// Get current short circuit time
 ///
 /// \return Current short circuit time [ms]
@@ -489,7 +527,10 @@ uint8_t Settings::getDccLocoFlags() const { return getU8("dcc_loco_flags"); }
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 esp_err_t Settings::setDccLocoFlags(uint8_t value) {
-  return setU8("dcc_loco_flags", (value & 0xFCu) | 0x02u);
+  return setU8("dcc_loco_flags",
+               (value & ~(z21::MmDccSettings::Flags::DccOnly |
+                          z21::MmDccSettings::Flags::MmOnly)) |
+                 z21::MmDccSettings::Flags::DccOnly);
 }
 
 /// Get DCC accessory flags

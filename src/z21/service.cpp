@@ -47,7 +47,7 @@ void Service::dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service) {
 }
 
 /// \todo document
-/// \bug if the socket cloases for any reason we're fucked, there must be some
+/// \bug if the socket closes for any reason we're fucked, there must be some
 /// way to detect such cases and restart the socket in the Frontend?
 esp_err_t Service::socket(http::Message& msg) {
   switch (msg.type) {
@@ -124,13 +124,12 @@ void Service::transmit(z21::Socket const& sock,
                        std::span<uint8_t const> datasets) {
   //
   if (_ws_sock_fds.contains(sock.fd)) {
-    httpd_ws_frame_t frame{
-      .type = HTTPD_WS_TYPE_BINARY,
-      .payload = std::bit_cast<uint8_t*>(data(datasets)),
-      .len = size(datasets),
-    };
-    if (auto const err{httpd_ws_send_frame_async(sock.fd, &frame)})
-      LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+    if (auto const err{httpd_queue_work(new http::Message{
+          .sock_fd = sock.fd,
+          .type = HTTPD_WS_TYPE_BINARY,
+          .payload = {cbegin(datasets), cend(datasets)},
+        })})
+      LOGD("httpd_queue_work failed %s", esp_err_to_name(err));
   }
   //
   else {
@@ -159,7 +158,7 @@ bool Service::stop() {
 
 /// \todo document
 int32_t Service::serialNumber() const {
-  return static_cast<int32_t>(data2uint32(data(wifi::mac)));
+  return static_cast<int32_t>(little_endian_data2uint32(data(wifi::mac)));
 }
 
 /// \todo document
@@ -263,6 +262,23 @@ void Service::cvPomAccessoryWrite(uint16_t accy_addr,
 }
 
 /// \todo document
+z21::RailComData Service::railComData(uint16_t loco_addr) {
+  return _dcc_service->railComData(loco_addr);
+}
+
+/// \todo document
+z21::CommonSettings Service::commonSettings() { return {}; }
+
+/// \todo document
+void Service::commonSettings(z21::CommonSettings const& common_settings) {}
+
+/// \todo document
+z21::MmDccSettings Service::mmDccSettings() { return {}; }
+
+/// \todo document
+void Service::mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) {}
+
+/// \todo document
 bool Service::trackPower(bool on, State dcc_state) {
   if (on) {
     switch (state.load()) {
@@ -309,5 +325,8 @@ bool Service::trackPower(bool on, State dcc_state) {
     return true;
   }
 }
+
+/// \todo document
+// void Service::log(char const* str) { printf("%s\n", str); }
 
 } // namespace z21

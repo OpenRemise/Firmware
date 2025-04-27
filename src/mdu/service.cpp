@@ -102,14 +102,12 @@ void Service::loop() {
         break;
     }
 
-    // Send frame
-    httpd_ws_frame_t frame{
-      .type = HTTPD_WS_TYPE_BINARY,
-      .payload = data(_acks),
-      .len = size(_acks),
-    };
-    if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
-      LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+    if (auto const err{httpd_queue_work(new http::Message{
+          .sock_fd = msg.sock_fd,
+          .type = HTTPD_WS_TYPE_BINARY,
+          .payload = {cbegin(_acks), cend(_acks)},
+        })}) {
+      LOGE("httpd_queue_work failed %s", esp_err_to_name(err));
       return close();
     }
 
