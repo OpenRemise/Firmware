@@ -32,9 +32,9 @@ namespace http {
 /// \section section_http_sta Station
 ///
 /// <div class="section_buttons">
-/// | Previous        | Next           |
-/// | :-------------- | -------------: |
-/// | \ref page_decup | \ref page_mdns |
+/// | Previous        | Next          |
+/// | :-------------- | ------------: |
+/// | \ref page_decup | \ref page_led |
 /// </div>
 
 } // namespace http

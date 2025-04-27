@@ -13,28 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Bug LED
+/// LED documentation
 ///
-/// \file   bug_led.cpp
+/// \file   led/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   25/01/2025
+/// \date   27/04/2025
 
-#include "bug_led.hpp"
-#include <driver/gpio.h>
+#pragma once
 
-/// \todo document
-void bug_led(uint32_t level) {
-  ESP_ERROR_CHECK(gpio_set_level(bug_led_gpio_num, level));
-}
+namespace udp {
 
-/// \todo document
-BugLed::BugLed(uint32_t level) { bug_led(level); }
+/// \page page_led LED
+/// \tableofcontents
+/// \todo document LED page
+///
+/// <div class="section_buttons">
+/// | Previous       | Next          |
+/// | :------------- | ------------: |
+/// | \ref page_http | \ref page_mdns |
+/// </div>
 
-/// \todo document
-BugLed::~BugLed() { bug_led(false); }
-
-/// \todo document
-void BugLed::on() { bug_led(true); }
-
-/// \todo document
-void BugLed::off() { bug_led(false); }
+} // namespace udp

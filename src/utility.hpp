@@ -144,21 +144,21 @@ OutputIt decode_uri(std::string_view uri, OutputIt out) {
   return out;
 }
 
-///
+/// \todo document
 template<typename T>
 using unique_caps_ptr = std::unique_ptr<T, decltype(heap_caps_free)*>;
 
-///
+/// \todo document
 template<typename T>
 constexpr auto make_unique_caps(size_t size, uint32_t caps) {
   return unique_caps_ptr<T>{std::bit_cast<T*>(heap_caps_malloc(size, caps)),
                             heap_caps_free};
 }
 
-///
+/// \todo document
 uint32_t http_receive_timeout2ms();
 
-///
+/// \todo document
 template<typename F, typename... Ts>
 auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
   using R = decltype(f(std::forward<Ts>(ts)...));
@@ -218,13 +218,13 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
   }
 }
 
-///
+/// \todo document
 template<typename... Ts>
 auto httpd_sess_trigger_close(Ts&&... ts) {
   return httpd_sess_trigger_close(http::handle, std::forward<Ts>(ts)...);
 }
 
-///
+/// \todo document
 inline auto httpd_queue_work(http::Message* msg) {
   return httpd_queue_work(
     http::handle,

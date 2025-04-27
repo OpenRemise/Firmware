@@ -20,8 +20,8 @@
 /// \date   05/07/2023
 
 #include <driver/gpio.h>
-#include "bug_led.hpp"
 #include "init.hpp"
+#include "led/bug.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
@@ -106,7 +106,7 @@ void adc_task_function(void*) {
         !--short_circuit_count &&                                    //
         gpio_get_level(out::track::enable_gpio_num)) {               //
       state.store(State::ShortCircuit);
-      bug_led(true);
+      led::bug(true);
       z21::service->broadcastTrackShortCircuit();
     }
     // Clear count if no short circuit

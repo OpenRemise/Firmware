@@ -12,8 +12,8 @@ cur_lim,data,u8,3
 cur_lim_serv,data,u8,1
 cur_lim_updt,data,u8,0
 cur_sc_time,data,u8,100
-led_dc_bug,data,u8,100
-led_dc_wifi,data,u8,100
+led_dc_bug,data,u8,5
+led_dc_wifi,data,u8,50
 dcc_preamble,data,u8,17
 dcc_bit1_dur,data,u8,58
 dcc_bit0_dur,data,u8,100

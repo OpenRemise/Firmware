@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <driver/ledc.h>
 #include <driver/rmt_tx.h>
 #include <esp_http_server.h>
 #include <esp_task.h>
@@ -131,9 +132,6 @@ static_assert(configTASK_NOTIFICATION_ARRAY_ENTRIES > 1);
 
 /// BOOT pin used to boot into bootloader or resetting WiFi station settings
 inline constexpr auto boot_gpio_num{GPIO_NUM_0};
-
-/// Bug LED pin used to indicate errors or updates
-inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
 /// System state
 enum class State : uint16_t {
@@ -314,6 +312,22 @@ inline std::shared_ptr<Server> server;
 } // namespace sta
 
 } // namespace http
+
+namespace led {
+
+/// Bug LED pin used to indicate errors or updates
+inline constexpr auto bug_gpio_num{GPIO_NUM_48};
+
+/// Bug LED channel
+inline constexpr auto bug_channel{LEDC_CHANNEL_0};
+
+/// WiFi LED used to indicate WiFi connection status
+inline constexpr auto wifi_gpio_num{GPIO_NUM_47};
+
+/// WiFi LED channel
+inline constexpr auto wifi_channel{LEDC_CHANNEL_1};
+
+} // namespace led
 
 namespace mdns {
 
@@ -566,8 +580,6 @@ static_assert(ulf_susiv2::task.priority < rx_task.priority);
 } // namespace usb
 
 namespace wifi {
-
-inline constexpr auto led_gpio_num{GPIO_NUM_47};
 
 #if CONFIG_IDF_TARGET_ESP32S3
 inline std::vector<wifi_ap_record_t> ap_records;

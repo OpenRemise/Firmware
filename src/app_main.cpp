@@ -24,6 +24,7 @@
 #include "dcc/init.hpp"
 #include "decup/init.hpp"
 #include "http/init.hpp"
+#include "led/init.hpp"
 #include "mdns/init.hpp"
 #include "mdu/init.hpp"
 #include "mem/init.hpp"
@@ -48,6 +49,7 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(1, out::init, 1));
 
   // Don't change initialization order
+  ESP_ERROR_CHECK(invoke_on_core(1, led::init));
   ESP_ERROR_CHECK(invoke_on_core(0, wifi::init, WIFI_TASK_CORE_ID));
   ESP_ERROR_CHECK(invoke_on_core(0, http::init));
   ESP_ERROR_CHECK(invoke_on_core(0, udp::init));

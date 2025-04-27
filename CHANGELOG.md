@@ -6,6 +6,10 @@
 - Current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
 - Bugfixes WebSocket ([#45](https://github.com/OpenRemise/Firmware/issues/45))
   - Send messages on `WIFI_TASK_CORE_ID` using `httpd_queue_work`
+  - Set `CONFIG_HTTPD_QUEUE_WORK_BLOCKING=y` because otherwise work in the queue got lost
+  - Set `CONFIG_LWIP_TCPIP_RECVMBOX_SIZE=64` to allow for bigger batch sizes when receiving WebSocket messages
+  - Set `CONFIG_LWIP_TCP_RECVMBOX_SIZE=64` (see above)
+  - Set `CONFIG_LWIP_UDP_RECVMBOX_SIZE=64` (see above)
 
 ## 0.0.8
 - Bugfix WebSocket frame parsing errors ([#9](https://github.com/OpenRemise/Firmware/issues/9))

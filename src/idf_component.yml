@@ -21,5 +21,4 @@ dependencies:
   zimo-elektronik/mdu:
     version: "0.18.1"
   zimo-elektronik/z21:
-    version: "devel"
-    git: https://github.com/ZIMO-Elektronik/Z21.git
+    version: "0.3.0"

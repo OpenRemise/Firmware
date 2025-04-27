@@ -13,46 +13,43 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// WiFi task function
+/// Bug LED
 ///
-/// \file   wifi/task_function.cpp
+/// \file   led/bug.cpp
 /// \author Vincent Hamp
-/// \date   06/12/2024
+/// \date   27/04/2025
 
-#include "task_function.hpp"
-#include <driver/gpio.h>
-#include "led/bug.hpp"
-#include "log.h"
+#include "bug.hpp"
+#include <driver/ledc.h>
 #include "mem/nvs/settings.hpp"
-#include "utility.hpp"
 
-namespace wifi {
-
-namespace {
+namespace led {
 
 /// \todo document
-void reset_sta_settings() {
-  mem::nvs::Settings settings;
-  settings.setStationmDNS("remise");
-  settings.setStationSSID("");
-  settings.setStationPassword("");
-}
-
-} // namespace
-
-/// \todo document
-void task_function(void*) {
-  size_t seconds{};
-
-  for (;;) {
-    vTaskDelay(pdMS_TO_TICKS(1000u));
-    seconds = gpio_get_level(boot_gpio_num) ? 0uz : seconds + 1uz;
-    if (seconds < 5uz) continue;
-    led::bug(true);
-    reset_sta_settings();
-    esp_delayed_restart();
-    vTaskDelete(NULL);
+void bug(bool on) {
+  // Apply duty cycle
+  if (on) {
+    mem::nvs::Settings nvs;
+    auto const dc{nvs.getLedDutyCycleBug()};
+    ESP_ERROR_CHECK(
+      ledc_set_duty(LEDC_LOW_SPEED_MODE, bug_channel, (dc * 256u) / 100u));
   }
+  // ... don't care
+  else
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, bug_channel, 0u));
+  ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, bug_channel));
 }
 
-} // namespace wifi
+/// \todo document
+Bug::Bug(bool on) { bug(on); }
+
+/// \todo document
+Bug::~Bug() { off(); }
+
+/// \todo document
+void Bug::on() { bug(true); }
+
+/// \todo document
+void Bug::off() { bug(false); }
+
+} // namespace led

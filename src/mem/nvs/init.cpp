@@ -69,9 +69,9 @@ esp_err_t init() {
     if (nvs.find("cur_sc_time") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setCurrentShortCircuitTime(100u);
     if (nvs.find("led_dc_bug") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setLedDutyCycleBug(100u);
+      nvs.setLedDutyCycleBug(5u);
     if (nvs.find("led_dc_wifi") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setLedDutyCycleWiFi(100u);
+      nvs.setLedDutyCycleWiFi(50u);
     if (nvs.find("dcc_preamble") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setDccPreamble(DCC_TX_MIN_PREAMBLE_BITS);
     if (nvs.find("dcc_bit1_dur") == ESP_ERR_NVS_NOT_FOUND)
@@ -93,12 +93,10 @@ esp_err_t init() {
     if (nvs.find("dcc_ack_cur") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setDccProgrammingAckCurrent(50u);
     if (nvs.find("dcc_loco_flags") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setDccLocoFlags(
-        z21::MmDccSettings::Flags::DccShort127 |
-        z21::MmDccSettings::Flags::RepeatHfx |
-        0x20u | /// \todo not sure how to deal with this yet, idea is to use
-                /// this bit for "CV29 automatic address"
-        z21::MmDccSettings::Flags::DccOnly);
+      nvs.setDccLocoFlags(z21::MmDccSettings::Flags::DccShort127 |
+                          z21::MmDccSettings::Flags::RepeatHfx |
+                          z21::MmDccSettings::Flags::CV29AutomaticAddress |
+                          z21::MmDccSettings::Flags::DccOnly);
     if (nvs.find("dcc_accy_flags") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setDccAccessoryFlags(0x04u);
   }

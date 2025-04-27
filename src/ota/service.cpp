@@ -24,7 +24,7 @@
 #include "service.hpp"
 #include <esp_app_desc.h>
 #include <esp_app_format.h>
-#include "bug_led.hpp"
+#include "led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
 
@@ -81,7 +81,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
-  BugLed const bug_led{true};
+  led::Bug const led_bug{true};
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {

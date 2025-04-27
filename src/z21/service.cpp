@@ -16,7 +16,7 @@
 #include "service.hpp"
 #include <lwip/sockets.h>
 #include <ztl/string.hpp>
-#include "bug_led.hpp"
+#include "led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
 
@@ -291,7 +291,7 @@ bool Service::trackPower(bool on, State dcc_state) {
       // Clear errors
       case State::ShortCircuit:
         state.store(State::Suspended);
-        bug_led(false);
+        led::bug(false);
         [[fallthrough]];
 
       //

@@ -13,24 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// mDNS documentation
+/// Initialize LED
 ///
-/// \file   mdns/doxygen.hpp
+/// \file   led/init.hpp
 /// \author Vincent Hamp
-/// \date   21/03/2025
+/// \date   27/04/2025
 
 #pragma once
 
-namespace udp {
+#include <esp_err.h>
 
-/// \page page_mdns mDNS
-/// \tableofcontents
-/// \todo document mDNS page
-///
-/// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_led | \ref page_mdu |
-/// </div>
+namespace led {
 
-} // namespace udp
+esp_err_t init();
+
+} // namespace led
