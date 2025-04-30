@@ -43,6 +43,14 @@ struct Loco : NvLocoBase {
   static constexpr uint8_t max_priority{smath::pow(2, priority_bits) - 1};
   uint8_t priority{min_priority};
 
+  struct BiDi {
+    friend constexpr bool operator==(BiDi const&, BiDi const&) = default;
+
+    z21::RailComData::Options options{};
+    uint8_t speed{};
+    uint8_t qos{};
+  } bidi{};
+
   /// \todo remove
   void print() const {
     printf("Loco object:\n");

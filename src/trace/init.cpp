@@ -26,28 +26,13 @@ namespace trace {
 
 /// \todo document
 esp_err_t init() {
-  //
-  {
-    static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << GPIO_NUM_2 | 1ull << GPIO_NUM_1,
-      .mode = GPIO_MODE_OUTPUT,
-      .pull_up_en = GPIO_PULLUP_DISABLE,
-      .pull_down_en = GPIO_PULLDOWN_DISABLE,
-      .intr_type = GPIO_INTR_DISABLE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
-  }
-
-  //
-  {
-    static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << bug_led_gpio_num,
-      .mode = GPIO_MODE_OUTPUT,
-      .pull_up_en = GPIO_PULLUP_DISABLE,
-      .pull_down_en = GPIO_PULLDOWN_DISABLE,
-      .intr_type = GPIO_INTR_DISABLE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
-    return gpio_set_level(bug_led_gpio_num, 0u);
-  }
+  static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << GPIO_NUM_2 |
+                                                         1ull << GPIO_NUM_1,
+                                         .mode = GPIO_MODE_OUTPUT,
+                                         .pull_up_en = GPIO_PULLUP_DISABLE,
+                                         .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                         .intr_type = GPIO_INTR_DISABLE};
+  return gpio_config(&io_conf);
 }
 
 } // namespace trace

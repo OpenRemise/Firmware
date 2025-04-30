@@ -22,8 +22,9 @@
 
 namespace z21 {
 
-using ServerBase =
-  z21::server::Base<z21::server::intf::System, z21::server::intf::Dcc>;
+using ServerBase = z21::server::Base<z21::server::intf::System,
+                                     z21::server::intf::Dcc,
+                                     z21::server::intf::Settings>;
 
 class Service : public ServerBase {
 public:
@@ -73,6 +74,18 @@ private:
   void cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) final;
   void
   cvPomAccessoryWrite(uint16_t accy_addr, uint16_t cv_addr, uint8_t byte) final;
+
+  // RailCom interface
+  [[nodiscard]] z21::RailComData railComData(uint16_t loco_addr) final;
+
+  // Settings interface
+  [[nodiscard]] z21::CommonSettings commonSettings() final;
+  void commonSettings(z21::CommonSettings const& common_settings) final;
+  [[nodiscard]] z21::MmDccSettings mmDccSettings() final;
+  void mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) final;
+
+  // Logging interface
+  // void log(char const* str) final;
 
   //
   bool trackPower(bool on, State dcc_state);

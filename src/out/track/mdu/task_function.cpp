@@ -224,7 +224,8 @@ esp_err_t zpp_entry() {
   }
 
   //
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
+  ESP_ERROR_CHECK(
+    set_current_limit(mem::nvs::Settings{}.getCurrentLimitUpdate()));
 
   //
   ESP_ERROR_CHECK(out::track::dcc::deinit_bidi());
@@ -244,7 +245,8 @@ esp_err_t zsu_entry() {
   ESP_ERROR_CHECK(transmit_packet_blocking_for(make_busy_packet(), 200'000u));
 
   //
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
+  ESP_ERROR_CHECK(
+    set_current_limit(mem::nvs::Settings{}.getCurrentLimitUpdate()));
 
   return ESP_OK;
 }

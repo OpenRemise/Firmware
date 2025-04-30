@@ -13,24 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// mDNS documentation
+/// Bug LED
 ///
-/// \file   mdns/doxygen.hpp
+/// \file   led/bug.hpp
 /// \author Vincent Hamp
-/// \date   21/03/2025
+/// \date   27/04/2025
 
 #pragma once
 
-namespace udp {
+namespace led {
 
-/// \page page_mdns mDNS
-/// \tableofcontents
-/// \todo document mDNS page
-///
-/// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_led | \ref page_mdu |
-/// </div>
+void bug(bool on);
 
-} // namespace udp
+struct Bug {
+  Bug(bool);
+  ~Bug();
+
+  void on();
+  void off();
+};
+
+} // namespace led

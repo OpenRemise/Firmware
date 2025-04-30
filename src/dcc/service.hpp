@@ -87,6 +87,10 @@ private:
   void cvNack() final;
   void cvAck(uint16_t cv_addr, uint8_t byte) final;
 
+  // RailCom interface
+  [[nodiscard]] z21::RailComData railComData(uint16_t loco_addr) final;
+  void broadcastRailComData(uint16_t loco_addr) final;
+
   void resume();
   void suspend();
 

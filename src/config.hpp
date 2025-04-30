@@ -43,6 +43,7 @@
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #  include <driver/gptimer.h>
+#  include <driver/ledc.h>
 #  include <esp_wifi.h>
 #  include <hal/adc_types.h>
 #elif CONFIG_IDF_TARGET_LINUX
@@ -59,6 +60,14 @@
 #  define ADC_ATTEN_DB_2_5 1
 #  define ADC_ATTEN_DB_6 2
 #  define ADC_ATTEN_DB_11 3
+#  define LEDC_CHANNEL_0 0
+#  define LEDC_CHANNEL_1 1
+#  define LEDC_CHANNEL_2 2
+#  define LEDC_CHANNEL_3 3
+#  define LEDC_CHANNEL_4 4
+#  define LEDC_CHANNEL_5 5
+#  define LEDC_CHANNEL_6 6
+#  define LEDC_CHANNEL_7 7
 #  define SOC_ADC_PATT_LEN_MAX 24
 #  define SOC_ADC_DIGI_MAX_BITWIDTH 12
 #  define SOC_ADC_DIGI_DATA_BYTES_PER_CONV 4
@@ -131,9 +140,6 @@ static_assert(configTASK_NOTIFICATION_ARRAY_ENTRIES > 1);
 
 /// BOOT pin used to boot into bootloader or resetting WiFi station settings
 inline constexpr auto boot_gpio_num{GPIO_NUM_0};
-
-/// Bug LED pin used to indicate errors or updates
-inline constexpr auto bug_led_gpio_num{GPIO_NUM_48};
 
 /// System state
 enum class State : uint16_t {
@@ -279,7 +285,7 @@ inline struct Task {
   static constexpr auto name{"dcc"};
   static constexpr auto stack_size{4096uz};
   static constexpr UBaseType_t priority{2u};
-  static constexpr auto timeout{100u};
+  static constexpr auto timeout{50u};
   TaskHandle_t handle{};
 } task;
 
@@ -314,6 +320,22 @@ inline std::shared_ptr<Server> server;
 } // namespace sta
 
 } // namespace http
+
+namespace led {
+
+/// Bug LED pin used to indicate errors or updates
+inline constexpr auto bug_gpio_num{GPIO_NUM_48};
+
+/// Bug LED channel
+inline constexpr auto bug_channel{LEDC_CHANNEL_0};
+
+/// WiFi LED used to indicate WiFi connection status
+inline constexpr auto wifi_gpio_num{GPIO_NUM_47};
+
+/// WiFi LED channel
+inline constexpr auto wifi_channel{LEDC_CHANNEL_1};
+
+} // namespace led
 
 namespace mdns {
 
@@ -566,8 +588,6 @@ static_assert(ulf_susiv2::task.priority < rx_task.priority);
 } // namespace usb
 
 namespace wifi {
-
-inline constexpr auto led_gpio_num{GPIO_NUM_47};
 
 #if CONFIG_IDF_TARGET_ESP32S3
 inline std::vector<wifi_ap_record_t> ap_records;

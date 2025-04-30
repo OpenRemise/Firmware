@@ -22,6 +22,7 @@
 #pragma once
 
 #include <string>
+#include <z21/z21.hpp>
 #include "base.hpp"
 
 namespace mem::nvs {
@@ -63,6 +64,15 @@ public:
 
   out::track::CurrentLimit getCurrentLimitService() const;
   esp_err_t setCurrentLimitService(out::track::CurrentLimit value);
+
+  out::track::CurrentLimit getCurrentLimitUpdate() const;
+  esp_err_t setCurrentLimitUpdate(out::track::CurrentLimit value);
+
+  uint8_t getLedDutyCycleBug() const;
+  esp_err_t setLedDutyCycleBug(uint8_t value);
+
+  uint8_t getLedDutyCycleWiFi() const;
+  esp_err_t setLedDutyCycleWiFi(uint8_t value);
 
   uint8_t getCurrentShortCircuitTime() const;
   esp_err_t setCurrentShortCircuitTime(uint8_t value);

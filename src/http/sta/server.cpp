@@ -177,7 +177,10 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
   doc["cur_lim"] = std::to_underlying(nvs.getCurrentLimit());
   doc["cur_lim_serv"] = std::to_underlying(nvs.getCurrentLimitService());
+  doc["cur_lim_updt"] = std::to_underlying(nvs.getCurrentLimitUpdate());
   doc["cur_sc_time"] = nvs.getCurrentShortCircuitTime();
+  doc["led_dc_bug"] = nvs.getLedDutyCycleBug();
+  doc["led_dc_wifi"] = nvs.getLedDutyCycleWiFi();
   doc["dcc_preamble"] = nvs.getDccPreamble();
   doc["dcc_bit1_dur"] = nvs.getDccBit1Duration();
   doc["dcc_bit0_dur"] = nvs.getDccBit0Duration();
@@ -259,8 +262,21 @@ Response Server::settingsPostRequest(Request const& req) {
           static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
+  if (JsonVariantConst v{doc["cur_lim_updt"]}; v.is<uint8_t>())
+    if (nvs.setCurrentLimitUpdate(
+          static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
   if (JsonVariantConst v{doc["cur_sc_time"]}; v.is<uint8_t>())
     if (nvs.setCurrentShortCircuitTime(v.as<uint8_t>()) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["led_dc_bug"]}; v.is<uint8_t>())
+    if (nvs.setLedDutyCycleBug(v.as<uint8_t>()) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["led_dc_wifi"]}; v.is<uint8_t>())
+    if (nvs.setLedDutyCycleWiFi(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["dcc_preamble"]}; v.is<uint8_t>())

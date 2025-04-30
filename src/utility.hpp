@@ -31,6 +31,8 @@
 #include <numeric>
 #include <span>
 #include <string_view>
+#include "http/message.hpp"
+#include "log.h"
 
 template<typename>
 struct signature;
@@ -142,21 +144,21 @@ OutputIt decode_uri(std::string_view uri, OutputIt out) {
   return out;
 }
 
-///
+/// \todo document
 template<typename T>
 using unique_caps_ptr = std::unique_ptr<T, decltype(heap_caps_free)*>;
 
-///
+/// \todo document
 template<typename T>
 constexpr auto make_unique_caps(size_t size, uint32_t caps) {
   return unique_caps_ptr<T>{std::bit_cast<T*>(heap_caps_malloc(size, caps)),
                             heap_caps_free};
 }
 
-///
+/// \todo document
 uint32_t http_receive_timeout2ms();
 
-///
+/// \todo document
 template<typename F, typename... Ts>
 auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
   using R = decltype(f(std::forward<Ts>(ts)...));
@@ -216,14 +218,31 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
   }
 }
 
-///
-template<typename... Ts>
-auto httpd_ws_send_frame_async(Ts&&... ts) {
-  return httpd_ws_send_frame_async(http::handle, std::forward<Ts>(ts)...);
-}
-
-///
+/// \todo document
 template<typename... Ts>
 auto httpd_sess_trigger_close(Ts&&... ts) {
   return httpd_sess_trigger_close(http::handle, std::forward<Ts>(ts)...);
+}
+
+/// \todo document
+inline auto httpd_queue_work(http::Message* msg) {
+  return httpd_queue_work(
+    http::handle,
+    [](void* arg) {
+      auto msg{std::bit_cast<http::Message*>(arg)};
+
+      // Wrap message in httpd_ws_frame_t
+      httpd_ws_frame_t frame{
+        .type = msg->type,
+        .payload = data(msg->payload),
+        .len = size(msg->payload),
+      };
+      if (auto const err{
+            httpd_ws_send_frame_async(http::handle, msg->sock_fd, &frame)})
+        LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+
+      // Delete
+      delete msg;
+    },
+    msg);
 }

@@ -25,9 +25,9 @@
 #include <array>
 #include <cstring>
 #include <limits>
-#include "bug_led.hpp"
 #include "dcc/task_function.hpp"
 #include "decup/task_function.hpp"
+#include "led/bug.hpp"
 #include "log.h"
 #include "mdu/task_function.hpp"
 #include "utility.hpp"
@@ -39,7 +39,7 @@ namespace {
 /// \todo document this should never happen
 void IRAM_ATTR nfault_isr_handler(void*) {
   DRAM_LOGE("nFAULT");
-  bug_led(true);
+  led::bug(true);
 }
 
 /// \todo document RMT pin no longer tristate after that

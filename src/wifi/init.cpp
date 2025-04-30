@@ -30,6 +30,7 @@
 #include <optional>
 #include <vector>
 #include <ztl/string.hpp>
+#include "led/wifi.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "task_function.hpp"
@@ -37,11 +38,6 @@
 namespace wifi {
 
 namespace {
-
-/// \todo document
-void led(uint32_t level) {
-  ESP_ERROR_CHECK(gpio_set_level(led_gpio_num, level));
-}
 
 /// \todo document
 wifi_ap_config_t ap_config() {
@@ -110,7 +106,7 @@ void event_handler(void*,
       // Set global MAC string
       ESP_ERROR_CHECK(esp_base_mac_addr_get(data(mac)));
       snprintf(data(mac_str), size(mac_str), MACSTR, MAC2STR(mac));
-      led(true);
+      led::wifi(true);
     }
   }
   // WiFi events
@@ -122,7 +118,7 @@ void event_handler(void*,
       LOGI("AP: STA " MACSTR " connected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      led(true);
+      led::wifi(true);
     }
     // STA disconnected from own AP
     else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
@@ -131,7 +127,7 @@ void event_handler(void*,
       LOGI("AP: STA " MACSTR " disconnected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      led(false);
+      led::wifi(false);
     }
     // STA disconnected from external AP
     else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
@@ -140,7 +136,7 @@ void event_handler(void*,
       LOGI("STA: " MACSTR " disconnected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      led(false);
+      led::wifi(false);
       ip_str.clear();
       esp_wifi_connect();
     }
@@ -149,28 +145,12 @@ void event_handler(void*,
 
 /// \todo document
 esp_err_t gpio_init() {
-  // BOOT
-  {
-    static constexpr gpio_config_t io_conf{
-      .pin_bit_mask = 1ull << boot_gpio_num,
-      .mode = GPIO_MODE_INPUT,
-      .pull_up_en = GPIO_PULLUP_ENABLE,
-      .pull_down_en = GPIO_PULLDOWN_DISABLE,
-      .intr_type = GPIO_INTR_DISABLE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
-  }
-
-  // LED
-  {
-    static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << led_gpio_num,
-                                           .mode = GPIO_MODE_OUTPUT,
-                                           .pull_up_en = GPIO_PULLUP_DISABLE,
-                                           .pull_down_en =
-                                             GPIO_PULLDOWN_DISABLE,
-                                           .intr_type = GPIO_INTR_DISABLE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
-    return gpio_set_level(led_gpio_num, 0u);
-  }
+  static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << boot_gpio_num,
+                                         .mode = GPIO_MODE_INPUT,
+                                         .pull_up_en = GPIO_PULLUP_ENABLE,
+                                         .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                         .intr_type = GPIO_INTR_DISABLE};
+  return gpio_config(&io_conf);
 }
 
 /// \todo document

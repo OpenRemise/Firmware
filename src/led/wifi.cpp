@@ -13,23 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Bug LED
+/// WiFi LED
 ///
-/// \file   bug_led.hpp
+/// \file   led/wifi.cpp
 /// \author Vincent Hamp
-/// \date   25/01/2025
+/// \date   27/04/2025
 
-#pragma once
+#include "wifi.hpp"
+#include <driver/ledc.h>
+#include "mem/nvs/settings.hpp"
 
-#include <cstdint>
+namespace led {
 
-///
-void bug_led(uint32_t level);
+/// \todo document
+void wifi(bool on) {
+  // Apply duty cycle
+  if (on) {
+    mem::nvs::Settings nvs;
+    auto const dc{nvs.getLedDutyCycleWiFi()};
+    ESP_ERROR_CHECK(
+      ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, (dc * 256u) / 100u));
+  }
+  // ... don't care
+  else
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, 0u));
+  ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
+}
 
-struct BugLed {
-  BugLed(uint32_t level);
-  ~BugLed();
-
-  void on();
-  void off();
-};
+} // namespace led

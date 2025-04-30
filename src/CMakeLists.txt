@@ -10,7 +10,6 @@ set(COMMON_SRC
     out/track/current_limit.cpp
     usb/ulf_dcc_ein/task_function.cpp
     usb/rx_task_function.cpp
-    bug_led.cpp
     utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
@@ -44,6 +43,9 @@ else()
     http/sta/init.cpp
     http/sta/server.cpp
     http/init.cpp
+    led/bug.cpp
+    led/init.cpp
+    led/wifi.cpp
     mdns/init.cpp
     mdu/init.cpp
     mdu/service.cpp
@@ -114,8 +116,8 @@ idf_build_set_property(
 
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.4.1")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN#develop")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN#master")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.0")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.1")
 cpmaddpackage("gh:microsoft/GSL@4.1.0")

@@ -213,9 +213,6 @@ void Service::operationsDcc() {
       out::tx_message_buffer.size * 0.5)
     return;
 
-  /// \todo necessary?
-  std::lock_guard lock{_internal_mutex};
-
   // So, we iterate over each loco and check it's priority
   // if it's
   // if (!(_priority_count % priority))
@@ -277,7 +274,7 @@ void Service::operationsDcc() {
           basicOrExtendedLocoAddress(addr), loco.f31_0 >> 9u & 0xFu));
 
         // Higher functions
-        if (_dcc_loco_flags & 0x40u) {
+        if (_dcc_loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
           sendToBack(make_feature_expansion_f20_f13_packet(
             basicOrExtendedLocoAddress(addr), loco.f31_0 >> 13u));
           sendToBack(make_feature_expansion_f28_f21_packet(
@@ -301,8 +298,10 @@ void Service::operationsDcc() {
 /// \todo document
 void Service::operationsBiDi() {
   out::track::RxQueue::value_type item;
+
   while (xQueueReceive(out::track::rx_queue.handle, &item, 0u)) {
     // Currently only care for loco addresses
+    /// \todo remove that once we care for other addresses
     auto const addr{decode_address(item.packet)};
     if (addr.type != Address::BasicLoco && addr.type != Address::ExtendedLoco)
       continue;
@@ -314,12 +313,16 @@ void Service::operationsBiDi() {
     std::span const ch2{cbegin(item.datagram) + 2, cend(item.datagram)};
     // No data
     if (std::ranges::all_of(ch2, [](uint8_t b) { return !b; })) continue;
-    // Invalid data or ACK
+    // Invalid data
+    else if (std::ranges::any_of(ch2, [](uint8_t b) {
+               return b && std::popcount(b) != CHAR_BIT / 2;
+             }))
+      continue;
+    // ACK
     /// \todo remove that later, not caring for acks is just temporarily!
-    if (std::ranges::any_of(ch2, [](uint8_t b) {
-          return (b && std::popcount(b) != CHAR_BIT / 2) ||
-                 (b == dcc::bidi::acks[0uz] || b == dcc::bidi::acks[1uz]);
-        }))
+    else if (std::ranges::any_of(ch2, [](uint8_t b) {
+               return b == dcc::bidi::acks[0uz] || b == dcc::bidi::acks[1uz];
+             }))
       continue;
 
     // Make data
@@ -328,67 +331,108 @@ void Service::operationsBiDi() {
     // Remove channel 1 address part (bits 48-36)
     data &= 0xF'FFFF'FFFFull;
 
-    switch (data >> 32u) {
-      // app:pom
-      case 0u:
-        if (!empty(_cv_pom_request_deque)) {
-
-          auto const off{addr.type == Address::ExtendedLoco};
-
-          if (decode_instruction(item.packet) == Instruction::CvLong) {
-            auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
-                               item.packet[2uz]};
-
-            if (auto const& req{_cv_pom_request_deque.front()};
-                req.addr == addr && req.cv_addr == cv_addr) {
-              cvAck(cv_addr, static_cast<uint8_t>(data >> 24u));
-              _cv_pom_request_deque.pop_front();
+    for (auto i{static_cast<int32_t>(bidi::Bits::_36)}; i > 0;) {
+      assert(i > 4);
+      switch (
+        auto const id{static_cast<uint8_t>((data >> (i - 4)) & 0b1111u)}) {
+        // app:pom
+        case 0u:
+          if (!empty(_cv_pom_request_deque)) {
+            auto const off{addr.type == Address::ExtendedLoco};
+            if (decode_instruction(item.packet) == Instruction::CvLong) {
+              auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
+                                 item.packet[2uz]};
+              if (auto const& req{_cv_pom_request_deque.front()};
+                  req.addr == addr && req.cv_addr == cv_addr) {
+                cvAck(cv_addr, static_cast<uint8_t>(data >> 24u));
+                _cv_pom_request_deque.pop_front();
+              }
             }
           }
+          i -= static_cast<int32_t>(bidi::Bits::_12);
+          break;
+
+        // app:adr_high
+        case 1u: i = 0; break;
+
+        // app:adr_low
+        case 2u: i = 0; break;
+
+        // app:ext
+        case 3u: i = 0; break;
+
+        // app:info
+        case 4u: i = 0; break;
+
+        // app:dyn
+        case 7u: {
+          if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
+            auto const x{static_cast<uint8_t>((data >> (i - 18)) & 0b11'1111u)};
+            auto const d{static_cast<uint8_t>(data >> (i - 12))};
+            auto const bidi_before{it->second.bidi};
+            switch (x) {
+              // Speed (<=255)
+              case 0u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    (it->second.bidi.options &
+                     ~(z21::RailComData::Options::Speed2 |
+                       z21::RailComData::Options::Speed1)) |
+                    z21::RailComData::Options::Speed1);
+                it->second.bidi.speed = d;
+                break;
+              // Speed (>255)
+              case 1u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    (it->second.bidi.options &
+                     ~(z21::RailComData::Options::Speed2 |
+                       z21::RailComData::Options::Speed1)) |
+                    z21::RailComData::Options::Speed2);
+                it->second.bidi.speed = d;
+                break;
+              // QoS
+              case 7u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    it->second.bidi.options | z21::RailComData::Options::QoS);
+                it->second.bidi.qos = d;
+                break;
+            }
+            if (it->second.bidi != bidi_before) broadcastRailComData(addr);
+          }
+          i -= static_cast<int32_t>(bidi::Bits::_18);
+          break;
         }
-        break;
 
-      // app:adr_high
-      case 1u: break;
+        // app:xpom
+        case 8u: i = 0; break;
 
-      // app:adr_low
-      case 2u: break;
+        // app:xpom
+        case 9u: i = 0; break;
 
-      // app:ext
-      case 3u: break;
+        // app:xpom
+        case 10u: i = 0; break;
 
-      // app:info
-      case 4u: break;
+        // app:xpom
+        case 11u: i = 0; break;
 
-      // app:dyn
-      case 7u:
-        // might contain another one of those
-        break;
+        // app:CV-auto
+        case 12u: i = 0; break;
 
-      // app:xpom
-      case 8u: break;
+        // app:block
+        case 13u: i = 0; break;
 
-      // app:xpom
-      case 9u: break;
+        // app:zeit
+        case 14u: i = 0; break;
 
-      // app:xpom
-      case 10u: break;
-
-      // app:xpom
-      case 11u: break;
-
-      // app:CV-auto
-      case 12u: break;
-
-      // app:block
-      case 13u: break;
-
-      // app:zeit
-      case 14u: break;
+        // Error
+        default: i = 0; break;
+      }
     }
   }
 
-  //
+  // Handle POM timeouts
   if (!empty(_cv_pom_request_deque) &&
       xTaskGetTickCount() > _cv_pom_request_deque.front().then) {
     _cv_pom_request_deque.pop_front();
@@ -444,10 +488,11 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
   nvs.~Settings();
 
   // Nothing
-  if (programming_type == 0x00u) return std::nullopt;
+  if (programming_type == z21::CommonSettings::ProgrammingType::Nothing)
+    return std::nullopt;
 
   // Byte verify only
-  if (programming_type == 0x02u) {
+  if (programming_type == z21::CommonSettings::ProgrammingType::ByteOnly) {
     for (auto i{0u}; i < std::numeric_limits<uint8_t>::max(); ++i) {
       sendToFront(make_cv_access_long_verify_service_packet(cv_addr, i),
                   program_packet_count);
@@ -456,7 +501,7 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
   }
 
   // Bit verify
-  if (programming_type & 0x01u) {
+  if (programming_type & z21::CommonSettings::ProgrammingType::BitOnly) {
     for (uint8_t i{0u}; i < CHAR_BIT; ++i)
       sendToFront(
         make_cv_access_long_verify_service_packet(cv_addr, bit_verify_to_1, i),
@@ -464,11 +509,12 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
     byte = serviceReceiveByte(bit_verify_to_1);
 
     // Only
-    if (programming_type == 0x01u) return byte;
+    if (programming_type == z21::CommonSettings::ProgrammingType::BitOnly)
+      return byte;
   }
 
   // Bit and byte verify
-  if (programming_type == 0x03u && byte) {
+  if (programming_type == z21::CommonSettings::ProgrammingType::Both && byte) {
     sendToFront(make_cv_access_long_verify_service_packet(cv_addr, *byte),
                 program_packet_count);
     if (serviceReceiveBit() == true) return byte;
@@ -577,7 +623,8 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     loco.f31_0 = state;
 
     // Higher functions don't get repeated, send them now
-    if (mask >= (1u << 13u) && !(_dcc_loco_flags & 0x40u)) {
+    if (mask >= (1u << 13u) &&
+        !(_dcc_loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
       if (mask & (0xFFu << 13u))
         sendToBack(make_feature_expansion_f20_f13_packet(
           basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 13u));
@@ -740,6 +787,28 @@ void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
 }
 
 /// \todo document
+z21::RailComData Service::railComData(uint16_t loco_addr) {
+  if (auto const it{_locos.find(loco_addr)}; it != cend(_locos))
+    return {
+      .loco_address = loco_addr,
+      .receive_counter = 0u,
+      .error_counter = 0u,
+      .options = it->second.bidi.options,
+      .speed = it->second.bidi.speed,
+      .qos = it->second.bidi.qos,
+    };
+  else
+    return {
+      .loco_address = loco_addr,
+    };
+}
+
+/// \todo document
+void Service::broadcastRailComData(uint16_t loco_addr) {
+  _z21_dcc_service->broadcastRailComData(loco_addr);
+}
+
+/// \todo document
 void Service::resume() {
   // Update DCC flags
   mem::nvs::Settings nvs;
@@ -773,9 +842,12 @@ uint8_t Service::programPacketCount() const {
 /// \todo document
 Address Service::basicOrExtendedLocoAddress(Address::value_type addr) const {
   return {.value = addr,
-          .type = addr <= (_dcc_loco_flags & 0x80u ? 127u : 99u)
-                    ? Address::BasicLoco
-                    : Address::ExtendedLoco};
+          .type =
+            addr <= (_dcc_loco_flags & z21::MmDccSettings::Flags::DccShort127
+                       ? 127u
+                       : 99u)
+              ? Address::BasicLoco
+              : Address::ExtendedLoco};
 }
 
 } // namespace dcc

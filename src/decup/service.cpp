@@ -15,7 +15,7 @@
 
 #include "service.hpp"
 #include <zusi/zusi.hpp>
-#include "bug_led.hpp"
+#include "led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
 
@@ -85,7 +85,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
-  BugLed const bug_led{true};
+  led::Bug const led_bug{true};
 
   for (;;) {
     assert(_queue.size());
@@ -104,14 +104,13 @@ void Service::loop() {
         break;
     }
 
-    // Send frame
-    httpd_ws_frame_t frame{
-      .type = HTTPD_WS_TYPE_BINARY,
-      .payload = _ack ? std::addressof(*_ack) : NULL,
-      .len = _ack ? sizeof(*_ack) : 0uz,
-    };
-    if (auto const err{httpd_ws_send_frame_async(msg.sock_fd, &frame)}) {
-      LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+    if (auto const err{httpd_queue_work(new http::Message{
+          .sock_fd = msg.sock_fd,
+          .type = HTTPD_WS_TYPE_BINARY,
+          .payload =
+            _ack ? std::vector<uint8_t>{*_ack} : std::vector<uint8_t>{},
+        })}) {
+      LOGE("httpd_queue_work failed %s", esp_err_to_name(err));
       return close();
     }
 

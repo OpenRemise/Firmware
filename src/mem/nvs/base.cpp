@@ -46,6 +46,17 @@ Base::~Base() {
   nvs_close(_handle);
 }
 
+/// Lookup key-value pair with given key name
+///
+/// \param  key                   Key name
+/// \retval ESP_OK                Key found
+/// \retval ESP_ERR_NVS_NOT_FOUND Key not found
+/// \retval ESP_FAIL              Internal error
+esp_err_t Base::find(std::string const& key) const {
+  assert(size(key) < NVS_KEY_NAME_MAX_SIZE);
+  return nvs_find_key(_handle, key.c_str(), NULL);
+}
+
 /// Erase key-value pair with given key name
 ///
 /// \param  key                   Key name
