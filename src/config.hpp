@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <driver/ledc.h>
 #include <driver/rmt_tx.h>
 #include <esp_http_server.h>
 #include <esp_task.h>
@@ -44,6 +43,7 @@
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #  include <driver/gptimer.h>
+#  include <driver/ledc.h>
 #  include <esp_wifi.h>
 #  include <hal/adc_types.h>
 #elif CONFIG_IDF_TARGET_LINUX
@@ -60,6 +60,14 @@
 #  define ADC_ATTEN_DB_2_5 1
 #  define ADC_ATTEN_DB_6 2
 #  define ADC_ATTEN_DB_11 3
+#  define LEDC_CHANNEL_0 0
+#  define LEDC_CHANNEL_1 1
+#  define LEDC_CHANNEL_2 2
+#  define LEDC_CHANNEL_3 3
+#  define LEDC_CHANNEL_4 4
+#  define LEDC_CHANNEL_5 5
+#  define LEDC_CHANNEL_6 6
+#  define LEDC_CHANNEL_7 7
 #  define SOC_ADC_PATT_LEN_MAX 24
 #  define SOC_ADC_DIGI_MAX_BITWIDTH 12
 #  define SOC_ADC_DIGI_DATA_BYTES_PER_CONV 4

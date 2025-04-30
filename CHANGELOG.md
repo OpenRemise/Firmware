@@ -1,7 +1,7 @@
 # Changelog
 
 ##
-- Update to Frontend ?
+- Update to Frontend 0.0.9
 - LED duty cycle settings ([#42](https://github.com/OpenRemise/Firmware/issues/42))
 - Current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
 - Bugfixes WebSocket ([#45](https://github.com/OpenRemise/Firmware/issues/45))
