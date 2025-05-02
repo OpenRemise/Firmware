@@ -233,31 +233,6 @@ esp_err_t Settings::setCurrentLimitService(out::track::CurrentLimit value) {
            : ESP_ERR_INVALID_ARG;
 }
 
-/// Get current limit in update mode
-///
-/// \return Current limit in update mode
-out::track::CurrentLimit Settings::getCurrentLimitUpdate() const {
-  return static_cast<out::track::CurrentLimit>(getU8("cur_lim_updt"));
-}
-
-/// Set current limit in update modes
-///
-/// \param  value                         Current limit in update mode
-/// \retval ESP_OK                        Value was set successfully
-/// \retval ESP_FAIL                      Internal error
-/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
-/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
-/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
-///                                       write operation has failed
-/// \retval ESP_ERR_INVALID_ARG           Current limit in update mode out of
-///                                       range
-esp_err_t Settings::setCurrentLimitUpdate(out::track::CurrentLimit value) {
-  return std::to_underlying(value) <=
-             std::to_underlying(out::track::CurrentLimit::_4100mA)
-           ? setU8("cur_lim_updt", std::to_underlying(value))
-           : ESP_ERR_INVALID_ARG;
-}
-
 /// Get LED duty cycle for bug LED
 ///
 /// \return LED duty cycle for bug LED [%]
