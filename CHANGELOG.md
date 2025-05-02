@@ -1,8 +1,12 @@
 # Changelog
 
+## 0.1.0
+- Remove current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
+
 ## 0.0.9
 - Update to Frontend [0.0.9](https://github.com/OpenRemise/Frontend/releases/tag/v0.0.9)
 - LED duty cycle settings ([#42](https://github.com/OpenRemise/Firmware/issues/42))
+- Current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
 - Bugfixes WebSocket ([#45](https://github.com/OpenRemise/Firmware/issues/45))
   - Send messages on `WIFI_TASK_CORE_ID` using `httpd_queue_work`
   - Set `CONFIG_HTTPD_QUEUE_WORK_BLOCKING=y` because otherwise work in the queue got lost
