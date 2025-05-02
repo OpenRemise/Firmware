@@ -50,14 +50,13 @@ if(ESP_PLATFORM
 
     # .. or use pre-built
   elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-    set(OPENREMISE_FRONTEND_VERSION 0.0.9)
     cpmaddpackage(
       NAME
       Frontend
       URL
-      "https://github.com/OpenRemise/Frontend/releases/download/v${OPENREMISE_FRONTEND_VERSION}/Frontend-${OPENREMISE_FRONTEND_VERSION}.zip"
+      "https://github.com/OpenRemise/Frontend/releases/download/v${VERSION_FROM_GIT}/Frontend-${VERSION_FROM_GIT}.zip"
       VERSION
-      ${OPENREMISE_FRONTEND_VERSION}
+      ${OPENREMISE_FRONTENVERSION_FROM_GITD_VERSION}
       DOWNLOAD_ONLY
       ON)
     set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})

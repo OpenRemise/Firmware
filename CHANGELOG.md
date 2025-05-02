@@ -1,7 +1,7 @@
 # Changelog
 
-##
-- Update to Frontend 0.0.9
+## 0.0.9
+- Update to Frontend [0.0.9](https://github.com/OpenRemise/Frontend/releases/tag/v0.0.9)
 - LED duty cycle settings ([#42](https://github.com/OpenRemise/Firmware/issues/42))
 - Current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
 - Bugfixes WebSocket ([#45](https://github.com/OpenRemise/Firmware/issues/45))
@@ -22,21 +22,21 @@
 - Bugfix increase brown-out level to 2.98V ([#30](https://github.com/OpenRemise/Firmware/issues/30))
 
 ## 0.0.6
-- Update to Frontend 0.0.7
+- Update to Frontend [0.0.7](https://github.com/OpenRemise/Frontend/releases/tag/v0.0.7)
 - Add RSSI to `/sys/` GET request ([#27](https://github.com/OpenRemise/Firmware/issues/27))
 
 ## 0.0.5
-- Update to Frontend 0.0.6
+- Update to Frontend [0.0.6](https://github.com/OpenRemise/Frontend/releases/tag/v0.0.6)
 - Add `LAN_X_SET_LOCO_FUNCTION_GROUP`
 - Allow changing loco address ([#25](https://github.com/OpenRemise/Firmware/issues/25))
 
 ## 0.0.4
+- Update to Frontend [0.0.3](https://github.com/OpenRemise/Frontend/releases/tag/v0.0.3)
 - Add alternative SSID/password ([#16](https://github.com/OpenRemise/Firmware/issues/16))
-- Update to Frontend 0.0.3
 - Bugfix DECUP_EIN timeout locks firmware in `Suspend` state ([#21](https://github.com/OpenRemise/Firmware/issues/21))
 
 ## 0.0.3
-- Update to Frontend 0.0.2
+- Update to Frontend [0.0.2](https://github.com/OpenRemise/Frontend/releases/tag/v0.0.2)
 
 ## 0.0.2
 - Bugfix ZCS does not establish a Z21 protocol connection ([#17](https://github.com/OpenRemise/Firmware/issues/17))
