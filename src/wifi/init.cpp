@@ -74,11 +74,11 @@ optional_sta_configs() {
     std::ranges::copy(pass, std::bit_cast<char*>(&stas.first.password));
 
   // Read alternative SSID
-  if (auto const ssid{nvs.getAlternativeStationSSID()}; size(ssid))
+  if (auto const ssid{nvs.getStationAlternativeSSID()}; size(ssid))
     std::ranges::copy(ssid, std::bit_cast<char*>(&stas.second.ssid));
 
   // Read alternative password
-  if (auto const pass{nvs.getAlternativeStationPassword()}; size(pass))
+  if (auto const pass{nvs.getStationAlternativePassword()}; size(pass))
     std::ranges::copy(pass, std::bit_cast<char*>(&stas.second.password));
 
   // Allow connecting to open networks
@@ -158,7 +158,9 @@ esp_err_t wifi_init() {
   // Common stuff
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
-  if (!esp_netif_create_default_wifi_sta()) assert(false);
+  if (auto sta_netif{esp_netif_create_default_wifi_sta()})
+    esp_netif_set_default_netif(sta_netif);
+  else assert(false);
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
   ESP_ERROR_CHECK(esp_event_handler_register(
@@ -189,8 +191,9 @@ esp_err_t scan_ap_records() {
 
 /// \todo document
 esp_err_t ap_init(wifi_ap_config_t const& ap_config) {
-  LOGI("ap init");
-  if (!esp_netif_create_default_wifi_ap()) assert(false);
+  if (auto ap_netif{esp_netif_create_default_wifi_ap()})
+    esp_netif_set_default_netif(ap_netif);
+  else assert(false);
   wifi_config_t wifi_config{.ap = ap_config};
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
   return esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
@@ -199,7 +202,7 @@ esp_err_t ap_init(wifi_ap_config_t const& ap_config) {
 /// \todo document
 esp_err_t
 sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
-  LOGI("sta init");
+  // Pick the configuration with the best RSSI
   wifi_config_t wifi_config{};
   auto first{cbegin(ap_records)};
   auto const last{cend(ap_records)};
@@ -216,8 +219,26 @@ sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
     ++first;
   }
   if (first == last) return ESP_FAIL;
+
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+
+  // Static IP
+  mem::nvs::Settings nvs;
+  auto const sta_ip{nvs.getStationIP()};
+  auto const sta_netmask{nvs.getStationNetmask()};
+  auto const sta_gateway{nvs.getStationGateway()};
+  if (!sta_ip.empty() && !sta_netmask.empty() && !sta_gateway.empty()) {
+    esp_netif_ip_info_t ip_info;
+    ESP_ERROR_CHECK(esp_netif_str_to_ip4(sta_ip.c_str(), &ip_info.ip));
+    ESP_ERROR_CHECK(
+      esp_netif_str_to_ip4(sta_netmask.c_str(), &ip_info.netmask));
+    ESP_ERROR_CHECK(esp_netif_str_to_ip4(sta_gateway.c_str(), &ip_info.gw));
+    auto sta_netif{esp_netif_get_default_netif()};
+    ESP_ERROR_CHECK(esp_netif_dhcpc_stop(sta_netif));
+    ESP_ERROR_CHECK(esp_netif_set_ip_info(sta_netif, &ip_info));
+  }
+
   return esp_wifi_connect();
 }
 

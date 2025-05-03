@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Support static IP ([#49](https://github.com/OpenRemise/Firmware/issues/49))
+
 ## 0.1.0
 - Remove current limit during updates setting ([#46](https://github.com/OpenRemise/Firmware/issues/46))
 

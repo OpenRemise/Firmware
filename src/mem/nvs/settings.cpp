@@ -101,7 +101,7 @@ esp_err_t Settings::setStationPassword(std::string_view str) {
 /// Get alternative station SSID
 ///
 /// \return Alternative station SSID
-std::string Settings::getAlternativeStationSSID() const {
+std::string Settings::getStationAlternativeSSID() const {
   return getBlob("sta_alt_ssid");
 }
 
@@ -115,14 +115,14 @@ std::string Settings::getAlternativeStationSSID() const {
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
-esp_err_t Settings::setAlternativeStationSSID(std::string_view str) {
+esp_err_t Settings::setStationAlternativeSSID(std::string_view str) {
   return setBlob("sta_alt_ssid", str);
 }
 
 /// Get alternative station password
 ///
 /// \return Alternative station password
-std::string Settings::getAlternativeStationPassword() const {
+std::string Settings::getStationAlternativePassword() const {
   return getBlob("sta_alt_pass");
 }
 
@@ -136,8 +136,69 @@ std::string Settings::getAlternativeStationPassword() const {
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
-esp_err_t Settings::setAlternativeStationPassword(std::string_view str) {
+esp_err_t Settings::setStationAlternativePassword(std::string_view str) {
   return setBlob("sta_alt_pass", str);
+}
+
+/// Get station IP
+///
+/// \return Station IP
+std::string Settings::getStationIP() const { return getBlob("sta_ip"); }
+
+/// Set station IP
+///
+/// \param  str                           Station IP
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setStationIP(std::string_view str) {
+  return setBlob("sta_ip", str);
+}
+
+/// Get station netmask
+///
+/// \return Station netmask
+std::string Settings::getStationNetmask() const {
+  return getBlob("sta_netmask");
+}
+
+/// Set station netmask
+///
+/// \param  str                           Station netmask
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setStationNetmask(std::string_view str) {
+  return setBlob("sta_netmask", str);
+}
+
+/// Get station gateway
+///
+/// \return Station gateway
+std::string Settings::getStationGateway() const {
+  return getBlob("sta_gateway");
+}
+
+/// Set station gateway
+///
+/// \param  str                           Station gateway
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setStationGateway(std::string_view str) {
+  return setBlob("sta_gateway", str);
 }
 
 /// Get HTTP receive timeout

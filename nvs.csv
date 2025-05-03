@@ -6,6 +6,9 @@ sta_ssid,data,binary,""
 sta_pass,data,binary,""
 sta_alt_ssid,data,binary,""
 sta_alt_pass,data,binary,""
+sta_ip,data,binary,""
+sta_netmask,data,binary,""
+sta_gateway,data,binary,""
 http_rx_timeout,data,u8,5
 http_tx_timeout,data,u8,5
 cur_lim,data,u8,3
