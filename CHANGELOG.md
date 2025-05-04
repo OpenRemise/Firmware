@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.2.0
 - Support static IP ([#49](https://github.com/OpenRemise/Firmware/issues/49))
 
 ## 0.1.0
