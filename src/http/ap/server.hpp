@@ -49,6 +49,9 @@ private:
   std::string _sta_pass_str;
   std::string _sta_alt_ssid_str;
   std::string _sta_alt_pass_str;
+  std::string _sta_ip_str;
+  std::string _sta_netmask_str;
+  std::string _sta_gateway_str;
 };
 
 } // namespace http::ap

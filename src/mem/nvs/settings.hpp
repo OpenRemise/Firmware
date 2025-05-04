@@ -47,11 +47,20 @@ public:
   std::string getStationPassword() const;
   esp_err_t setStationPassword(std::string_view str);
 
-  std::string getAlternativeStationSSID() const;
-  esp_err_t setAlternativeStationSSID(std::string_view str);
+  std::string getStationAlternativeSSID() const;
+  esp_err_t setStationAlternativeSSID(std::string_view str);
 
-  std::string getAlternativeStationPassword() const;
-  esp_err_t setAlternativeStationPassword(std::string_view str);
+  std::string getStationAlternativePassword() const;
+  esp_err_t setStationAlternativePassword(std::string_view str);
+
+  std::string getStationIP() const;
+  esp_err_t setStationIP(std::string_view str);
+
+  std::string getStationNetmask() const;
+  esp_err_t setStationNetmask(std::string_view str);
+
+  std::string getStationGateway() const;
+  esp_err_t setStationGateway(std::string_view str);
 
   uint8_t getHttpReceiveTimeout() const;
   esp_err_t setHttpReceiveTimeout(uint8_t value);

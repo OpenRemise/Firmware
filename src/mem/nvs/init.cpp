@@ -53,9 +53,14 @@ esp_err_t init() {
     if (nvs.find("sta_pass") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setStationPassword("");
     if (nvs.find("sta_alt_ssid") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setAlternativeStationSSID("");
+      nvs.setStationAlternativeSSID("");
     if (nvs.find("sta_alt_pass") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setAlternativeStationPassword("");
+      nvs.setStationAlternativePassword("");
+    if (nvs.find("sta_ip") == ESP_ERR_NVS_NOT_FOUND) nvs.setStationIP("");
+    if (nvs.find("sta_netmask") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setStationNetmask("");
+    if (nvs.find("sta_gateway") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setStationGateway("");
     if (nvs.find("http_rx_timeout") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setHttpReceiveTimeout(5u);
     if (nvs.find("http_tx_timeout") == ESP_ERR_NVS_NOT_FOUND)

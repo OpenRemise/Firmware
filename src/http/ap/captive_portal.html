@@ -5,32 +5,57 @@
     <table>
       <tr>
         <td><label for="sta_mdns">mDNS:</label></td>
-        <td><input type="text" pattern="[^\.]*remise" id="sta_mdns" name="sta_mdns" maxlength="32" value="{}"></td>
+        <td><input type="text" pattern="[^\.]*remise" id="sta_mdns" name="sta_mdns" maxlength="32" placeholder="remise"
+            value="{}"></td>
       </tr>
       <tr>
         <td><label for="sta_ssid">SSID:</label></td>
-        <td><input type="text" id="sta_ssid" name="sta_ssid" list="list_sta_ssid" maxlength="32" value="{}"> <datalist
-            id="list_sta_ssid">{}</datalist></td>
+        <td><input type="text" id="sta_ssid" name="sta_ssid" list="list_sta_ssid" maxlength="32" placeholder="SSID"
+            value="{}"> <datalist id="list_sta_ssid">{}</datalist></td>
       </tr>
       <tr>
         <td><label for="sta_pass">Password:</label></td>
-        <td><input type="password" id="sta_pass" name="sta_pass" maxlength="64" value="{}" autocomplete="off"></td>
+        <td><input type="password" id="sta_pass" name="sta_pass" maxlength="64" placeholder="Password"
+            autocomplete="off" value="{}"></td>
         <td><a
             onclick="var pw = document.getElementById('sta_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
         </td>
       </tr>
       <tr>
         <td><label for="sta_alt_ssid">Alternative SSID:</label></td>
-        <td><input type="text" id="sta_alt_ssid" name="sta_alt_ssid" list="list_sta_ssid" maxlength="32" value="{}">
+        <td><input type="text" id="sta_alt_ssid" name="sta_alt_ssid" list="list_sta_ssid" maxlength="32"
+            placeholder="SSID or blank" value="{}">
           <datalist id="list_sta_ssid">{}</datalist>
         </td>
       </tr>
       <tr>
         <td><label for="sta_alt_pass">Alternative password:</label></td>
-        <td><input type="password" id="sta_alt_pass" name="sta_alt_pass" maxlength="64" value="{}" autocomplete="off">
+        <td><input type="password" id="sta_alt_pass" name="sta_alt_pass" maxlength="64" placeholder="Password or blank"
+            autocomplete="off" value="{}">
         </td>
         <td><a
             onclick="var pw = document.getElementById('sta_alt_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
+        </td>
+      </tr>
+      <tr>
+        <td><label for="sta_ip">IP:</label></td>
+        <td><input type="text"
+            pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+            id="sta_ip" name="sta_ip" maxlength="15" placeholder="IP or blank" value="{}">
+        </td>
+      </tr>
+      <tr>
+        <td><label for="sta_netmask">Netmask:</label></td>
+        <td><input type="text"
+            pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+            id="sta_netmask" name="sta_netmask" maxlength="15" placeholder="Netmask or blank" value="{}">
+        </td>
+      </tr>
+      <tr>
+        <td><label for="sta_gateway">Gateway:</label></td>
+        <td><input type="text"
+            pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+            id="sta_gateway" name="sta_gateway" maxlength="15" placeholder="Gateway or blank" value="{}">
         </td>
       </tr>
       <tr>

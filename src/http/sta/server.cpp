@@ -163,7 +163,7 @@ Response Server::settingsGetRequest(Request const& req) {
   // Read passwords (and hide them)
   auto sta_pass{nvs.getStationPassword()};
   std::ranges::fill(sta_pass, '*');
-  auto sta_alt_pass{nvs.getAlternativeStationPassword()};
+  auto sta_alt_pass{nvs.getStationAlternativePassword()};
   std::ranges::fill(sta_alt_pass, '*');
 
   //
@@ -171,8 +171,11 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["sta_mdns"] = nvs.getStationmDNS();
   doc["sta_ssid"] = nvs.getStationSSID();
   doc["sta_pass"] = sta_pass;
-  doc["sta_alt_ssid"] = nvs.getAlternativeStationSSID();
+  doc["sta_alt_ssid"] = nvs.getStationAlternativeSSID();
   doc["sta_alt_pass"] = sta_alt_pass;
+  doc["sta_ip"] = nvs.getStationIP();
+  doc["sta_netmask"] = nvs.getStationNetmask();
+  doc["sta_gateway"] = nvs.getStationGateway();
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
   doc["cur_lim"] = std::to_underlying(nvs.getCurrentLimit());
@@ -235,12 +238,26 @@ Response Server::settingsPostRequest(Request const& req) {
 
   if (JsonVariantConst v{doc["sta_alt_ssid"]}; v.is<std::string>())
     if (auto const str{v.as<std::string>()};
-        nvs.setAlternativeStationSSID(str) != ESP_OK)
+        nvs.setStationAlternativeSSID(str) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["sta_alt_pass"]}; v.is<std::string>())
     if (auto const str{v.as<std::string>()};
-        nvs.setAlternativeStationPassword(str) != ESP_OK)
+        nvs.setStationAlternativePassword(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["sta_ip"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()}; nvs.setStationIP(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["sta_netmask"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setStationNetmask(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["sta_gateway"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setStationGateway(str) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["http_rx_timeout"]}; v.is<uint8_t>())
