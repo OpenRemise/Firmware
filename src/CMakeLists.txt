@@ -120,7 +120,7 @@ cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.2")
-cpmaddpackage("gh:microsoft/GSL@4.1.0")
+cpmaddpackage("gh:microsoft/GSL@4.2.0")
 cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
 
 # According to this answer here https://stackoverflow.com/a/55312360/5840652
@@ -136,7 +136,7 @@ cpmaddpackage(
   GITHUB_REPOSITORY
   fmtlib/fmt
   GIT_TAG
-  10.1.1
+  11.2.0
   SYSTEM
   YES
   OPTIONS
