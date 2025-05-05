@@ -47,12 +47,9 @@ Loco::Loco(JsonDocument const& doc) { fromJsonDocument(doc); }
 void Loco::fromJsonDocument(JsonDocument const& doc) {
   NvLocoBase::fromJsonDocument(doc);
 
-  if (JsonVariantConst doc_rvvvvvvv{doc["rvvvvvvv"]};
-      doc_rvvvvvvv.is<uint8_t>())
-    rvvvvvvv = doc_rvvvvvvv;
+  if (JsonVariantConst v{doc["rvvvvvvv"]}; v.is<uint8_t>()) rvvvvvvv = v;
 
-  if (JsonVariantConst doc_f31_0{doc["f31_0"]}; doc_f31_0.is<uint32_t>())
-    f31_0 = doc_f31_0;
+  if (JsonVariantConst v{doc["f31_0"]}; v.is<uint32_t>()) f31_0 = v;
 }
 
 /// \todo document
