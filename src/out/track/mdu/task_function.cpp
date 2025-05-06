@@ -41,16 +41,16 @@ using ::ulf::mdu_ein::ack, ::ulf::mdu_ein::nak;
 namespace {
 
 /// \todo document
+///
+/// https://github.com/OpenRemise/Firmware/issues/52
+uint32_t volatile gptimer_count_at_first_ack{};
+
+/// \todo document
 void IRAM_ATTR ack_isr_handler(void*) {
   uint64_t value{};
   gptimer_get_raw_count(gptimer, &value);
-
-  // Send a notification to the task
-  xTaskNotifyIndexedFromISR(task.handle,
-                            default_notify_index,
-                            static_cast<uint32_t>(value),
-                            eSetValueWithoutOverwrite,
-                            NULL);
+  if (!gptimer_count_at_first_ack)
+    gptimer_count_at_first_ack = static_cast<uint32_t>(value);
 }
 
 /// \todo document
@@ -89,7 +89,7 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
   ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
 
   // Clear any glitches
-  ulTaskNotifyValueClearIndexed(NULL, default_notify_index, -1);
+  gptimer_count_at_first_ack = 0u;
 
   // Wait
   return rmt_tx_wait_all_done(channel, -1);
@@ -134,8 +134,7 @@ packet2ack_counts(mdu_encoder_config_t const& encoder_config,
 std::array<uint8_t, 2uz>
 receive_acks(mdu_encoder_config_t const& encoder_config, Packet const& packet) {
   // Get timer count
-  auto const count{static_cast<int32_t>(
-    ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u))};
+  auto const count{static_cast<int32_t>(gptimer_count_at_first_ack)};
   std::array<uint8_t, 2uz> acks{nak, nak};
 
   // ACK

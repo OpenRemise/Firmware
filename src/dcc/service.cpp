@@ -140,8 +140,7 @@ http::Response Service::locosPutRequest(http::Request const& req) {
   // Address not found
   if (std::lock_guard lock{_internal_mutex}; it == cend(_locos)) {
     // Address in URI does not match body
-    if (JsonVariantConst loco_addr{doc["address"]};
-        loco_addr.as<Address::value_type>() != addr)
+    if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
       return std::unexpected<std::string>{"417 Expectation Failed"};
     // Insert new loco
     else if (auto const ret{_locos.insert({addr, Loco{doc}})}; ret.second)
@@ -150,15 +149,15 @@ http::Response Service::locosPutRequest(http::Request const& req) {
     else return std::unexpected<std::string>{"500 Internal Server Error"};
   }
   // Address found, but changing
-  else if (JsonVariantConst loco_addr{doc["address"]};
-           loco_addr.as<Address::value_type>() != addr) {
+  else if (JsonVariantConst v{doc["address"]};
+           v.as<Address::value_type>() != addr) {
     auto node{_locos.extract(addr)};
-    node.key() = loco_addr.as<Address::value_type>();
+    node.key() = v.as<Address::value_type>();
     // Re-insert loco with new address
     if (auto const ret{_locos.insert(move(node))}; ret.inserted) {
-      it = ret.position;                          // Update iterator
-      nvs.erase(addr);                            // Erase old address
-      addr = loco_addr.as<Address::value_type>(); // Update address
+      it = ret.position;                  // Update iterator
+      nvs.erase(addr);                    // Erase old address
+      addr = v.as<Address::value_type>(); // Update address
     }
     // Insertion failed
     else

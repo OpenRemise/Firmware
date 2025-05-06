@@ -37,30 +37,20 @@ using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
 
 namespace {
 
-bool gpio1_state{};
-bool gpio2_state{};
+uint8_t volatile ack_count{};
 
 /// \todo document
 bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
                             rmt_tx_done_event_data_t const*,
                             void*) {
-  BaseType_t high_task_awoken{pdFALSE};
-
   // Clear any glitches
-  xTaskNotifyIndexedFromISR(task.handle,
-                            default_notify_index,
-                            0u,
-                            eSetValueWithOverwrite,
-                            &high_task_awoken);
+  ack_count = 0u;
 
-  return high_task_awoken == pdTRUE;
+  return pdFALSE;
 }
 
 /// \todo document
-void IRAM_ATTR ack_isr_handler(void*) {
-  xTaskNotifyIndexedFromISR(
-    task.handle, default_notify_index, 0u, eIncrement, NULL);
-}
+void IRAM_ATTR ack_isr_handler(void*) { ++ack_count; }
 
 /// \todo document
 std::optional<Packet> receive_packet() {
@@ -93,21 +83,16 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
 
 /// \todo document
 uint8_t receive_acks(uint32_t us) {
-  uint8_t retval{};
-
   // Wait for up to 2 acks
   auto then{esp_timer_get_time() + us};
   while (esp_timer_get_time() < then)
-    if (retval += static_cast<uint8_t>(
-          ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, 0u));
-        retval == 2u)
-      break;
+    if (ack_count == 2u) break;
 
   // Mandatory delay
   then = esp_timer_get_time() + 100u;
   while (esp_timer_get_time() < then);
 
-  return retval;
+  return ack_count;
 }
 
 /// \todo document
