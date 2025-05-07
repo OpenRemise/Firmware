@@ -50,6 +50,25 @@ void Loco::fromJsonDocument(JsonDocument const& doc) {
   if (JsonVariantConst v{doc["rvvvvvvv"]}; v.is<uint8_t>()) rvvvvvvv = v;
 
   if (JsonVariantConst v{doc["f31_0"]}; v.is<uint32_t>()) f31_0 = v;
+
+  if (JsonVariantConst v{doc["bidi"]}; v.is<JsonObject>()) {
+    JsonObjectConst obj{v.as<JsonObjectConst>()};
+
+    if (JsonVariantConst v{obj["receive_counter"]}; v.is<uint32_t>())
+      bidi.receive_counter = v.as<uint32_t>();
+
+    if (JsonVariantConst v{obj["error_counter"]}; v.is<uint16_t>())
+      bidi.error_counter = v.as<uint16_t>();
+
+    if (JsonVariantConst v{obj["options"]}; v.is<uint8_t>())
+      bidi.options = v.as<z21::RailComData::Options>();
+
+    if (JsonVariantConst v{obj["speed"]}; v.is<uint8_t>())
+      bidi.speed = v.as<uint8_t>();
+
+    if (JsonVariantConst v{obj["qos"]}; v.is<uint8_t>())
+      bidi.qos = v.as<uint8_t>();
+  }
 }
 
 /// \todo document
@@ -57,6 +76,14 @@ JsonDocument Loco::toJsonDocument() const {
   auto doc{NvLocoBase::toJsonDocument()};
   doc["rvvvvvvv"] = rvvvvvvv;
   doc["f31_0"] = f31_0;
+
+  JsonObject obj{doc["bidi"].to<JsonObject>()};
+  obj["receive_counter"] = bidi.receive_counter;
+  obj["error_counter"] = bidi.error_counter;
+  obj["options"] = bidi.options;
+  obj["speed"] = bidi.speed;
+  obj["qos"] = bidi.qos;
+
   return doc;
 }
 

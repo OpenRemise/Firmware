@@ -199,21 +199,19 @@ esp_err_t zpp_entry() {
     ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
   }
 
-  //
-  static constexpr std::array<std::pair<uint8_t, uint8_t>, 9uz> sequence{{
-    {8u - 1u, 0xFEu},
-    {105u - 1u, 0xAAu},
-    {106u - 1u, 0x55u},
-    {105u - 1u, 0x55u},
-    {106u - 1u, 0xAAu},
-    {105u - 1u, 0x00u},
-    {106u - 1u, 0x00u},
-    {105u - 1u, 0x00u},
-    {106u - 1u, 0x00u},
-  }};
-
   // CV verifies
-  for (auto const& [cv_addr, byte] : sequence) {
+  for (static constexpr std::array<std::pair<uint8_t, uint8_t>, 9uz> sequence{{
+         {8u - 1u, 0xFEu},
+         {105u - 1u, 0xAAu},
+         {106u - 1u, 0x55u},
+         {105u - 1u, 0x55u},
+         {106u - 1u, 0xAAu},
+         {105u - 1u, 0x00u},
+         {106u - 1u, 0x00u},
+         {105u - 1u, 0x00u},
+         {106u - 1u, 0x00u},
+       }};
+       auto const& [cv_addr, byte] : sequence) {
     packet = ::dcc::make_cv_access_long_verify_packet(0u, cv_addr, byte);
     for (auto i{0uz}; i < program_packet_count; ++i) {
       ESP_ERROR_CHECK(
