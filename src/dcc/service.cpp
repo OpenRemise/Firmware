@@ -19,6 +19,7 @@
 #include <static_math/static_math.h>
 #include <dcc/dcc.hpp>
 #include <ranges>
+#include "led/bug.hpp"
 #include "log.h"
 #include "mem/nvs/locos.hpp"
 #include "mem/nvs/settings.hpp"
@@ -30,15 +31,10 @@ using namespace std::literals;
 
 /// \todo document
 Service::Service(BaseType_t xCoreID) {
-  mem::nvs::Locos nvs;
-  for (auto const& entry_info : nvs) {
+  for (mem::nvs::Locos nvs; auto const& entry_info : nvs) {
     auto const addr{nvs.key2address(entry_info.key)};
     dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
   }
-
-  LOGI("Got %u locos from NVS", size(_locos));
-  for (auto const& [addr, loco] : _locos)
-    LOGI("Loco: addr %u, name %s", addr, loco.name.c_str());
 
   if (!xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
                                task.name,
@@ -441,6 +437,8 @@ void Service::operationsBiDi() {
 
 /// \todo document
 void Service::serviceLoop() {
+  led::Bug const led_bug{true};
+
   if (empty(_cv_request_deque)) return;
 
   /// \todo oh god please make this safer...
@@ -768,21 +766,14 @@ void Service::cvPomAccessoryWrite(uint16_t accy_addr,
 }
 
 /// \todo document
-void Service::cvNackShortCircuit() {
-  _z21_dcc_service->cvNackShortCircuit();
-  LOGI("cvNackShortCircuit");
-}
+void Service::cvNackShortCircuit() { _z21_dcc_service->cvNackShortCircuit(); }
 
 /// \todo document
-void Service::cvNack() {
-  _z21_dcc_service->cvNack();
-  LOGI("cvNack");
-}
+void Service::cvNack() { _z21_dcc_service->cvNack(); }
 
 /// \todo document
 void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
   _z21_dcc_service->cvAck(cv_addr, byte);
-  LOGI("cvAck %d %d", cv_addr, byte);
 }
 
 /// \todo document
