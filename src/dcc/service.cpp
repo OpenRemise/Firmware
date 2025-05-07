@@ -778,19 +778,9 @@ void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
 
 /// \todo document
 z21::RailComData Service::railComData(uint16_t loco_addr) {
-  if (auto const it{_locos.find(loco_addr)}; it != cend(_locos))
-    return {
-      .loco_address = loco_addr,
-      .receive_counter = 0u,
-      .error_counter = 0u,
-      .options = it->second.bidi.options,
-      .speed = it->second.bidi.speed,
-      .qos = it->second.bidi.qos,
-    };
-  else
-    return {
-      .loco_address = loco_addr,
-    };
+  auto const it{_locos.find(loco_addr)};
+  return it != cend(_locos) ? it->second.bidi
+                            : z21::RailComData{.loco_address = loco_addr};
 }
 
 /// \todo document

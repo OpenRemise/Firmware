@@ -1,6 +1,7 @@
 # Changelog
 
 ##
+- Add RailCom data to Loco JSON ([#53](https://github.com/OpenRemise/Firmware/issues/53))
 - Bugfix MN180N18 (bootloader 2.10.8) update not working (`ulTaskNotifyTakeIndexed` without time to wait not reliable) ([#52](https://github.com/OpenRemise/Firmware/issues/52))
 - Bugfix turn on Bug LED during DCC service mode ([#54](https://github.com/OpenRemise/Firmware/issues/54))
 

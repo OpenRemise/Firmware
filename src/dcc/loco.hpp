@@ -39,27 +39,11 @@ struct Loco : NvLocoBase {
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
 
+  z21::RailComData bidi{};
+
   static constexpr uint8_t min_priority{1u};
   static constexpr uint8_t max_priority{smath::pow(2, priority_bits) - 1};
   uint8_t priority{min_priority};
-
-  struct BiDi {
-    friend constexpr bool operator==(BiDi const&, BiDi const&) = default;
-
-    z21::RailComData::Options options{};
-    uint8_t speed{};
-    uint8_t qos{};
-  } bidi{};
-
-  /// \todo remove
-  void print() const {
-    printf("Loco object:\n");
-    printf("  name: %s\n", name.c_str());
-    printf("  functions: " UINT32_TO_BINARY_FORMAT "\n",
-           UINT32_TO_BINARY(f31_0));
-    printf("  dir: %d\n", static_cast<bool>(rvvvvvvv & 0x80u));
-    printf("  speed: %d\n", z21::decode_rvvvvvvv(speed_steps, rvvvvvvv));
-  }
 };
 
 } // namespace dcc

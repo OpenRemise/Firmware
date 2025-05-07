@@ -33,10 +33,11 @@ TEST_F(DccTest, loco_to_json) {
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
-  EXPECT_EQ(
-    json,
-    "{\"name\":\"Reihe "
-    "2190\",\"mode\":0,\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10}");
+  EXPECT_EQ(json,
+            "{\"name\":\"Reihe "
+            "2190\",\"mode\":0,\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10,"
+            "\"bidi\":{\"receive_counter\":0,\"error_counter\":0,\"options\":0,"
+            "\"speed\":0,\"qos\":0}}");
 }
 
 TEST_F(DccTest, json_to_loco) {
