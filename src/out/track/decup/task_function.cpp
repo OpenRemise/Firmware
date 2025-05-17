@@ -37,7 +37,7 @@ using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
 
 namespace {
 
-uint8_t volatile ack_count{};
+uint8_t volatile DRAM_ATTR ack_count{};
 
 /// \todo document
 bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,

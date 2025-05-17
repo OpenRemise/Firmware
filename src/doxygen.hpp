@@ -523,10 +523,12 @@
 ///
 /// \section section_config_performance Performance
 /// To ensure that the firmware runs smoothly, there are a few important points
-/// to consider regarding performance. With the dual core architecture of the
-/// ESP32-S3, it is **very important** to pay close attention to which task is
-/// running on which core. To simplify this, Espressif provides a FreeRTOS
-/// extension in the form of the
+/// to consider regarding performance.
+///
+/// \subsection subsection_config_performance_cpu CPU
+/// With the dual core architecture of the ESP32-S3, it is **very important** to
+/// pay close attention to which task is running on which core. To simplify
+/// this, Espressif provides a FreeRTOS extension in the form of the
 /// [`xTaskCreatePinnedToCore`](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/freertos_additions.html?highlight=xtaskcreatepinnedtocore#_CPPv423xTaskCreatePinnedToCore14TaskFunction_tPCKcK8uint32_tPCv11UBaseType_tPC12TaskHandle_tK10BaseType_t)
 /// function, which allows to explicitly specify the core to which the task
 /// should get pinned to.
@@ -577,8 +579,44 @@
 /// [lwIP](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/lwip.html)
 /// and the [Wi-Fi
 /// Driver](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/wifi.html))
-/// are pinned to core 0 either by default or by Kconfig options. For further
-/// details regarding performance I recommend the Espressif article [Speed
+/// are pinned to core 0 either by default or by Kconfig options.
+///
+/// \note
+/// Espressif itself refers to core 0 as `PRO_CPU` and core 1 as `APP_CPU`. The
+/// official recommendation is to reserve core 0 for protocol-related processing
+/// such as Wi-Fi or Bluetooth, while the rest of the application's tasks should
+/// run on core 1.
+///
+/// \subsection subsection_config_performance_iram IRAM
+/// By default, all code is executed from flash cache. This means that it is
+/// possible for the CPU to have to wait on a "cache miss" while the next
+/// instructions are loaded from flash. This is not an option for real-time
+/// critical code. Fortunately, the ESP-IDF framework offers a solution for this
+/// in the form of the IRAM (Instruction RAM) attribute. Functions that contain
+/// the `IRAM_ATTR` macro in the signature are automatically placed in the IRAM
+/// section.
+///
+/// In addition to individual application functions, ESP-IDF code from various
+/// peripherals (or at least parts of it) must also be placed in IRAM. To do
+/// this, the corresponding kConfig option, e.g.,
+/// `CONFIG_GPIO_CTRL_FUNC_IN_IRAM`, must be enabled.
+///
+/// \subsection subsection_config_performance_wifi WiFi
+/// Espressif has a dedicated article on [How to Improve Wi-Fi
+/// Performance](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/wifi.html#how-to-improve-wi-fi-performance),
+/// which, in addition to the various recommended configurations, also contains
+/// a lot of information about how the Wi-Fi/LwIP protocol stack actually works.
+/// Unfortunately, most settings consume a lot of internal RAM, which is why the
+/// firmware mainly stays at the defaults.
+///
+/// There is one exception, however. The firmware increases the size of all
+/// `*RECVMBOX` settings. The number of these mailboxes largely determines how
+/// many messages can be queued for various protocols. The default size is quite
+/// small and causes burst transmissions of many small messages to result in
+/// errors.
+///
+/// For further details regarding general performance I recommend the Espressif
+/// article [Speed
 /// Optimization](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/performance/speed.html).
 ///
 /// <div class="section_buttons">
@@ -846,6 +884,7 @@
 /// | \subpage page_analog   | ADC measurements, overcurrent                                                                                                                                                                                                     |
 /// | \subpage page_dcc      | Operation and service mode, [DCC](https://github.com/ZIMO-Elektronik/DCC) command generation, BiDi decoding                                                                                                                       |
 /// | \subpage page_decup    | DECUP [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                 |
+/// | \subpage page_led      | LED                                                                                                                                                                                                                               |
 /// | \subpage page_http     | Access point (AP) and station (STA) HTTP servers                                                                                                                                                                                  |
 /// | \subpage page_mdns     | mDNS services                                                                                                                                                                                                                     |
 /// | \subpage page_mdu      | MDU [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                   |
