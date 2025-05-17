@@ -314,17 +314,17 @@ void Service::operationsBiDi() {
              }))
       continue;
     // ACK
-    /// \todo remove that later, not caring for acks is just temporarily!
     else if (std::ranges::any_of(ch2, [](uint8_t b) {
                return b == dcc::bidi::acks[0uz] || b == dcc::bidi::acks[1uz];
              }))
-      continue;
+      ; /// \todo do something with ACK information... (e.g. lower priority)
 
     // Make data
     auto data{bidi::make_data(bidi::decode_datagram(item.datagram))};
 
     // Remove channel 1 address part (bits 48-36)
     data &= 0xF'FFFF'FFFFull;
+    if (!data) continue;
 
     for (auto i{static_cast<int32_t>(bidi::Bits::_36)}; i > 0;) {
       assert(i > 4);
@@ -364,6 +364,7 @@ void Service::operationsBiDi() {
           if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
             auto const x{static_cast<uint8_t>((data >> (i - 18)) & 0b11'1111u)};
             auto const d{static_cast<uint8_t>(data >> (i - 12))};
+            it->second.bidi.loco_address = addr;
             auto const bidi_before{it->second.bidi};
             switch (x) {
               // Speed (<=255)

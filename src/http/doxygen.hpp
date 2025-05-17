@@ -25,6 +25,9 @@ namespace http {
 
 /// \page page_http HTTP
 /// \tableofcontents
+///
+/// https://jsonviewer.stack.hu
+///
 /// \todo document HTTP page
 ///
 /// \section section_http_ap Access Point

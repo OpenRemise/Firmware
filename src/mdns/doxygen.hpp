@@ -21,11 +21,13 @@
 
 #pragma once
 
-namespace udp {
+namespace mdns {
 
 /// \page page_mdns mDNS
 /// \tableofcontents
 /// \todo document mDNS page
+///
+/// Listing mDNS services with linux `avahi-browse -a`
 ///
 /// <div class="section_buttons">
 /// | Previous      | Next          |
@@ -33,4 +35,4 @@ namespace udp {
 /// | \ref page_led | \ref page_mdu |
 /// </div>
 
-} // namespace udp
+} // namespace mdns
