@@ -1,9 +1,10 @@
 # Changelog
 
-##
+## 0.2.1
 - Add RailCom data to Loco JSON ([#53](https://github.com/OpenRemise/Firmware/issues/53))
 - Bugfix MN180N18 (bootloader 2.10.8) update not working (`ulTaskNotifyTakeIndexed` without time to wait not reliable) ([#52](https://github.com/OpenRemise/Firmware/issues/52))
 - Bugfix turn on Bug LED during DCC service mode ([#54](https://github.com/OpenRemise/Firmware/issues/54))
+- Bugfix BiDi datagram containing ACK discarded ([#58](https://github.com/OpenRemise/Firmware/issues/58))
 
 ## 0.2.0
 - Support static IP ([#49](https://github.com/OpenRemise/Firmware/issues/49))
