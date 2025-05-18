@@ -41,7 +41,7 @@ using namespace std::literals;
 void transmit_ping() {
 #if CONFIG_IDF_TARGET_ESP32S3
   auto const app_desc{esp_app_get_description()};
-  auto const ping{ulf::com::ping("OpenRemise", app_desc->version + 1, 'D')};
+  auto const ping{ulf::com::ping("OpenRemise", app_desc->version + 1)};
   xStreamBufferSend(tx_stream_buffer.handle, data(ping), size(ping), 0u);
 #endif
 }
