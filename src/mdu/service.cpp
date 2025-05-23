@@ -15,6 +15,7 @@
 
 #include "service.hpp"
 #include <ulf/mdu_ein.hpp>
+#include <ztl/utility.hpp>
 #include "led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
@@ -25,13 +26,14 @@ using ::ulf::mdu_ein::ack, ::ulf::mdu_ein::nak;
 
 /// \todo document
 Service::Service(BaseType_t xCoreID) {
-  if (!xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
-                               task.name,
-                               task.stack_size,
-                               NULL,
-                               task.priority,
-                               &task.handle,
-                               xCoreID))
+  if (!xTaskCreatePinnedToCore(
+        ztl::make_trampoline(this, &Service::taskFunction),
+        task.name,
+        task.stack_size,
+        NULL,
+        task.priority,
+        &task.handle,
+        xCoreID))
     assert(false);
 }
 

@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <ztl/fail.hpp>
+#include <ztl/type_traits.hpp>
 #include "log.h"
 #include "message.hpp"
 #include "request.hpp"
@@ -51,11 +52,15 @@ public:
   /// \todo document
   template<typename T, typename F>
   void subscribe(key_type const& key, std::shared_ptr<T> t, F&& f) {
-    if constexpr (std::invocable<typename signature<F>::type, Request const&>)
+    if constexpr (std::invocable<typename ztl::signature<F>::type,
+                                 T*,
+                                 Request const&>)
       _sync_map[key].push_back([t, f](auto&&... args) {
         return std::invoke(f, *t, std::forward<decltype(args)>(args)...);
       });
-    else if constexpr (std::invocable<typename signature<F>::type, Message&>)
+    else if constexpr (std::invocable<typename ztl::signature<F>::type,
+                                      T*,
+                                      Message&>)
       _async_map[key].push_back([t, f](auto&&... args) {
         return std::invoke(f, *t, std::forward<decltype(args)>(args)...);
       });

@@ -55,13 +55,14 @@ Server::Server() {
   //
   httpd_uri_t uri{.uri = "/*",
                   .method = HTTP_GET,
-                  .handler = make_tramp(this, &Server::wildcardGetHandler)};
+                  .handler =
+                    ztl::make_trampoline(this, &Server::wildcardGetHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 
   //
   uri = {.uri = "/save",
          .method = HTTP_POST,
-         .handler = make_tramp(this, &Server::savePostHandler)};
+         .handler = ztl::make_trampoline(this, &Server::savePostHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 }
 
