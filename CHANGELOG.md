@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix short circuit detection does not trigger ([#63](https://github.com/OpenRemise/Firmware/issues/63))
+
 ## 0.2.1
 - Add RailCom data to Loco JSON ([#53](https://github.com/OpenRemise/Firmware/issues/53))
 - Bugfix MN180N18 (bootloader 2.10.8) update not working (`ulTaskNotifyTakeIndexed` without time to wait not reliable) ([#52](https://github.com/OpenRemise/Firmware/issues/52))
