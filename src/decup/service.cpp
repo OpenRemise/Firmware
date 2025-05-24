@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "service.hpp"
+#include <ztl/utility.hpp>
 #include <zusi/zusi.hpp>
 #include "led/bug.hpp"
 #include "log.h"
@@ -25,13 +26,14 @@ using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
 
 /// \todo document
 Service::Service(BaseType_t xCoreID) {
-  if (!xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
-                               task.name,
-                               task.stack_size,
-                               NULL,
-                               task.priority,
-                               &task.handle,
-                               xCoreID))
+  if (!xTaskCreatePinnedToCore(
+        ztl::make_trampoline(this, &Service::taskFunction),
+        task.name,
+        task.stack_size,
+        NULL,
+        task.priority,
+        &task.handle,
+        xCoreID))
     assert(false);
 }
 

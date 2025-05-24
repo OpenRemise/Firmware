@@ -65,19 +65,30 @@ esp_err_t init_channel() {
 
 /// \todo document
 esp_err_t init_gpio() {
+  // Inputs and outputs
+  {
+    static constexpr gpio_config_t io_conf{
+      .pin_bit_mask = 1ull << enable_gpio_num,
+      .mode = GPIO_MODE_INPUT_OUTPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
+  }
+
   // Outputs
   {
     static constexpr gpio_config_t io_conf{
       .pin_bit_mask = 1ull << ilim0_gpio_num | 1ull << ilim1_gpio_num |
                       1ull << nsleep_gpio_num | 1ull << n_force_low_gpio_num |
-                      1ull << enable_gpio_num | 1ull << dcc::bidi_en_gpio_num,
+                      1ull << dcc::bidi_en_gpio_num,
       .mode = GPIO_MODE_OUTPUT,
       .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
     ESP_ERROR_CHECK(gpio_config(&io_conf));
     ESP_ERROR_CHECK(gpio_set_level(n_force_low_gpio_num, 1u));
-    ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
     ESP_ERROR_CHECK(gpio_set_level(dcc::bidi_en_gpio_num, 0u));
     ESP_ERROR_CHECK(gpio_set_level(nsleep_gpio_num, 1u));
   }

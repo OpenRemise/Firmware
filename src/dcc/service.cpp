@@ -36,13 +36,14 @@ Service::Service(BaseType_t xCoreID) {
     dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
   }
 
-  if (!xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
-                               task.name,
-                               task.stack_size,
-                               NULL,
-                               task.priority,
-                               &task.handle,
-                               xCoreID))
+  if (!xTaskCreatePinnedToCore(
+        ztl::make_trampoline(this, &Service::taskFunction),
+        task.name,
+        task.stack_size,
+        NULL,
+        task.priority,
+        &task.handle,
+        xCoreID))
     assert(false);
 }
 

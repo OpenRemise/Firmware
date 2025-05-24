@@ -24,6 +24,7 @@
 #include "service.hpp"
 #include <esp_app_desc.h>
 #include <esp_app_format.h>
+#include <ztl/utility.hpp>
 #include "led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
@@ -33,13 +34,14 @@ namespace ota {
 /// \todo document
 /// \bug should this broadcast Z21 programming mode?
 Service::Service(BaseType_t xCoreID) {
-  if (!xTaskCreatePinnedToCore(make_tramp(this, &Service::taskFunction),
-                               task.name,
-                               task.stack_size,
-                               NULL,
-                               task.priority,
-                               &task.handle,
-                               xCoreID))
+  if (!xTaskCreatePinnedToCore(
+        ztl::make_trampoline(this, &Service::taskFunction),
+        task.name,
+        task.stack_size,
+        NULL,
+        task.priority,
+        &task.handle,
+        xCoreID))
     assert(false);
 }
 

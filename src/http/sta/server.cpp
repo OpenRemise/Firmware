@@ -54,43 +54,44 @@ Server::Server() {
   //
   httpd_uri_t uri{.uri = "/dcc/locos/*",
                   .method = HTTP_DELETE,
-                  .handler = make_tramp(this, &Server::deleteHandler)};
+                  .handler =
+                    ztl::make_trampoline(this, &Server::deleteHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/dcc/locos/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::getHandler)};
+         .handler = ztl::make_trampoline(this, &Server::getHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/dcc/locos/*",
          .method = HTTP_PUT,
-         .handler = make_tramp(this, &Server::putPostHandler)};
+         .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/settings/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::getHandler)};
+         .handler = ztl::make_trampoline(this, &Server::getHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/settings/*",
          .method = HTTP_POST,
-         .handler = make_tramp(this, &Server::putPostHandler)};
+         .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/sys/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::getHandler)};
+         .handler = ztl::make_trampoline(this, &Server::getHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/decup/zpp/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::decupZppWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::decupZppWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -98,7 +99,7 @@ Server::Server() {
   //
   uri = {.uri = "/decup/zsu/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::decupZsuWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::decupZsuWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -106,7 +107,7 @@ Server::Server() {
   //
   uri = {.uri = "/mdu/zpp/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::mduZppWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::mduZppWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -114,7 +115,7 @@ Server::Server() {
   //
   uri = {.uri = "/mdu/zsu/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::mduZsuWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::mduZsuWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -122,7 +123,7 @@ Server::Server() {
   //
   uri = {.uri = "/ota/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::otaWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::otaWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -130,7 +131,7 @@ Server::Server() {
   //
   uri = {.uri = "/z21/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::z21WsHandler),
+         .handler = ztl::make_trampoline(this, &Server::z21WsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -138,7 +139,7 @@ Server::Server() {
   //
   uri = {.uri = "/zusi/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::zusiWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::zusiWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -146,7 +147,7 @@ Server::Server() {
   //
   uri = {.uri = "/*",
          .method = HTTP_GET,
-         .handler = make_tramp(this, &Server::wildcardGetHandler)};
+         .handler = ztl::make_trampoline(this, &Server::wildcardGetHandler)};
   httpd_register_uri_handler(handle, &uri);
 }
 

@@ -41,10 +41,10 @@ receive_susiv2_frame(std::span<uint8_t> stack, uint32_t timeout) {
     if (!bytes_received || count > size(stack)) return std::nullopt;
 
     // Check if data contains a SUSIV2 frame, convert it inplace
-    std::span<uint8_t const> frame{data(stack), count};
-    auto const success{ulf::susiv2::frame2packet(frame)};
-    if (!success) return std::nullopt;
-    else if (*success) return frame;
+    if (auto const packet{ulf::susiv2::frame2packet({data(stack), count})};
+        !packet)
+      return std::nullopt;
+    else if (*packet) return **packet;
   }
 }
 
