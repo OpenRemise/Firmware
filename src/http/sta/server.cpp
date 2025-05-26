@@ -207,9 +207,8 @@ Response Server::settingsGetRequest(Request const& req) {
 
 /// \todo document
 Response Server::settingsPostRequest(Request const& req) {
-  LOGI("%s", __PRETTY_FUNCTION__);
-  LOGI("uri %s", req.uri.c_str());
-  LOGI("body %s", req.body.c_str());
+  LOGD("uri %s", req.uri.c_str());
+  LOGD("body %s", req.body.c_str());
 
   // Validate body
   if (!validate_json(req.body))

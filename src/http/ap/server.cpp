@@ -162,6 +162,7 @@ void Server::setConfig() const {
 /// \todo document
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
+
   buildGetString();
   httpd_resp_send(req, data(_get_str), ssize(_get_str));
   return ESP_OK;
@@ -184,7 +185,6 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
   std::string_view content{begin(stack), static_cast<size_t>(len)};
   auto const last{decode_uri(content, begin(stack))};
   std::string_view decoded{begin(stack), last};
-  LOGD("%.*s", static_cast<int>(size(decoded)), data(decoded));
 
   // Find key-value pair positions in query
   auto const sta_mdns_pos{decoded.find("sta_mdns=")};

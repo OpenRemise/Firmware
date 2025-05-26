@@ -61,7 +61,7 @@ esp_err_t Service::socket(http::Message& msg) {
       if (getpeername(msg.sock_fd,
                       std::bit_cast<sockaddr*>(&dest_addr_ip4),
                       &socklen) < 0) {
-        LOGE("getpeername failed %s", strerror(errno));
+        LOGD("getpeername failed %s", strerror(errno));
         return ESP_FAIL;
       }
 
@@ -133,17 +133,13 @@ void Service::transmit(z21::Socket const& sock,
       LOGD("httpd_queue_work failed %s", esp_err_to_name(err));
   }
   //
-  else {
-    if (sendto(sock.fd,
-               std::bit_cast<char*>(data(datasets)),
-               size(datasets),
-               0,
-               std::bit_cast<sockaddr*>(&sock.addr),
-               sock.len) < 0) {
-      LOGE("sendto failed %s", strerror(errno));
-      vTaskDelay(pdMS_TO_TICKS(task.timeout));
-    }
-  }
+  else if (sendto(sock.fd,
+                  std::bit_cast<char*>(data(datasets)),
+                  size(datasets),
+                  0,
+                  std::bit_cast<sockaddr*>(&sock.addr),
+                  sock.len) < 0)
+    LOGE("sendto failed %s", strerror(errno));
 }
 
 /// \todo document

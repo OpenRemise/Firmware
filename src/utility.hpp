@@ -198,7 +198,7 @@ inline auto httpd_queue_work(http::Message* msg) {
       };
       if (auto const err{
             httpd_ws_send_frame_async(http::handle, msg->sock_fd, &frame)})
-        LOGE("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
+        LOGD("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
 
       // Delete
       delete msg;
