@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.3.0
 - Bugfix short circuit detection does not trigger ([#63](https://github.com/OpenRemise/Firmware/issues/63))
 
 ## 0.2.1
