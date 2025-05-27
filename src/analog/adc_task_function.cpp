@@ -54,8 +54,8 @@ auto get_short_circuit_count() {
 /// measurements are written to the corresponding \ref voltages_queue "voltages"
 /// or \ref currents_queue "currents" queue.
 ///
-/// If the measured currents indicate a short circuit, the \ref bug_led
-/// "bug LED" is switched, \ref state is set to \ref State::ShortCircuit
+/// If the measured currents indicate a short circuit, the \ref led::bug
+/// "bug LED" is switched on, \ref state is set to \ref State::ShortCircuit
 /// "short circuit" and a \ref page_z21 track short circuit message is
 /// broadcast.
 void adc_task_function(void*) {
