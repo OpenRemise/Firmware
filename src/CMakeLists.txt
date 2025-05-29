@@ -1,102 +1,19 @@
-set(COMMON_SRC
-    dcc/loco.cpp
-    dcc/service.cpp
-    mem/nvs/accessories.cpp
-    mem/nvs/base.cpp
-    mem/nvs/init.cpp
-    mem/nvs/locos.cpp
-    mem/nvs/settings.cpp
-    mem/init.cpp
-    out/track/current_limit.cpp
-    usb/ulf_dcc_ein/task_function.cpp
-    usb/rx_task_function.cpp
-    utility.cpp)
-
-if(IDF_TARGET STREQUAL linux)
-  idf_component_register(
-    SRCS
-    ${COMMON_SRC}
-    INCLUDE_DIRS
-    .
-    ${CMAKE_BINARY_DIR}
-    REQUIRES
-    bblanchon__arduinojson
-    driver
-    esp_app_format
-    esp_http_server
-    nvs_flash
-    EMBED_FILES
-    ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
-else()
-  idf_component_register(
-    SRCS
-    ${COMMON_SRC}
-    analog/adc_task_function.cpp
-    analog/convert.cpp
-    analog/init.cpp
-    analog/temp_task_function.cpp
-    dcc/init.cpp
-    decup/init.cpp
-    decup/service.cpp
-    http/ap/init.cpp
-    http/ap/server.cpp
-    http/sta/init.cpp
-    http/sta/server.cpp
-    http/init.cpp
-    led/bug.cpp
-    led/init.cpp
-    led/wifi.cpp
-    mdns/init.cpp
-    mdu/init.cpp
-    mdu/service.cpp
-    ota/init.cpp
-    ota/service.cpp
-    out/track/dcc/resume.cpp
-    out/track/dcc/suspend.cpp
-    out/track/dcc/task_function.cpp
-    out/track/decup/resume.cpp
-    out/track/decup/suspend.cpp
-    out/track/decup/task_function.cpp
-    out/track/mdu/resume.cpp
-    out/track/mdu/suspend.cpp
-    out/track/mdu/task_function.cpp
-    out/track/init.cpp
-    out/zusi/init.cpp
-    out/zusi/resume.cpp
-    out/zusi/suspend.cpp
-    out/zusi/task_function.cpp
-    out/init.cpp
-    out/suspend.cpp
-    trace/init.cpp
-    udp/init.cpp
-    usb/ulf_decup_ein/task_function.cpp
-    usb/ulf_susiv2/task_function.cpp
-    usb/init.cpp
-    usb/rx_task_function.cpp
-    usb/tx_task_function.cpp
-    wifi/init.cpp
-    wifi/task_function.cpp
-    z21/init.cpp
-    z21/service.cpp
-    zusi/init.cpp
-    zusi/service.cpp
-    app_main.cpp
-    INCLUDE_DIRS
-    .
-    ${CMAKE_BINARY_DIR}
-    REQUIRES
-    app_update
-    bootloader_support
-    driver
-    esp_adc
-    esp_app_format
-    esp_http_server
-    esp_wifi
-    nvs_flash
-    vfs
-    EMBED_FILES
-    ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
-endif()
+idf_component_register(
+  SRCS
+  app_main.cpp
+  INCLUDE_DIRS
+  .
+  ${CMAKE_BINARY_DIR}
+  REQUIRES
+  app_update
+  bootloader_support
+  driver
+  esp_adc
+  esp_app_format
+  esp_http_server
+  esp_wifi
+  nvs_flash
+  vfs)
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
 
@@ -155,10 +72,6 @@ target_link_libraries(
          ULF::SUSIV2
          Z21::Z21
          ZUSI::ZUSI)
-
-# Minify HTML shown by http::ap::Server
-minify_html(http/ap/captive_portal.html
-            ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
 
 # Create NVS partition image
 if(NOT IDF_TARGET STREQUAL linux)

@@ -19,50 +19,71 @@
 /// \author Vincent Hamp
 /// \date   26/12/2022
 
-#include <esp_wifi.h>
-#include "analog/init.hpp"
-#include "dcc/init.hpp"
-#include "decup/init.hpp"
-#include "http/init.hpp"
-#include "led/init.hpp"
-#include "mdns/init.hpp"
-#include "mdu/init.hpp"
-#include "mem/init.hpp"
-#include "ota/init.hpp"
-#include "out/init.hpp"
-#include "trace/init.hpp"
-#include "udp/init.hpp"
-#include "usb/init.hpp"
-#include "utility.hpp"
-#include "wifi/init.hpp"
-#include "z21/init.hpp"
-#include "zusi/init.hpp"
+#include <driver/gpio.h>
 
 /// ESP-IDF application entry point
 extern "C" void app_main() {
-  static_assert(WIFI_TASK_CORE_ID == 0);
+  // Inputs and outputs
+  {
+    static constexpr gpio_config_t io_conf{
+      .pin_bit_mask = 1ull << out::track::enable_gpio_num,
+      .mode = GPIO_MODE_INPUT_OUTPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_set_level(out::track::enable_gpio_num, 0u));
+  }
 
-  // Most important ones
-  ESP_ERROR_CHECK(invoke_on_core(0, trace::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, mem::init));
-  ESP_ERROR_CHECK(invoke_on_core(1, analog::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, out::init, 1));
+  // Outputs
+  {
+    static constexpr gpio_config_t io_conf{
+      .pin_bit_mask = 1ull << led::bug_gpio_num |
+                      1ull << out::track::p_gpio_num |
+                      1ull << out::track::ilim0_gpio_num |
+                      1ull << out::track::ilim1_gpio_num |
+                      1ull << out::track::nsleep_gpio_num |
+                      1ull << out::track::n_force_low_gpio_num |
+                      1ull << out::track::dcc::bidi_en_gpio_num,
+      .mode = GPIO_MODE_OUTPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_set_level(out::track::p_gpio_num, 1u));
+    ESP_ERROR_CHECK(gpio_set_level(out::track::n_force_low_gpio_num, 1u));
+    ESP_ERROR_CHECK(gpio_set_level(out::track::dcc::bidi_en_gpio_num, 0u));
+    ESP_ERROR_CHECK(gpio_set_level(out::track::nsleep_gpio_num, 1u));
+  }
 
-  // Don't change initialization order
-  ESP_ERROR_CHECK(invoke_on_core(1, led::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, wifi::init, WIFI_TASK_CORE_ID));
-  ESP_ERROR_CHECK(invoke_on_core(0, http::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, udp::init));
-  ESP_ERROR_CHECK(invoke_on_core(1, dcc::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, decup::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, mdu::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, ota::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(0, z21::init, 0));
-  ESP_ERROR_CHECK(invoke_on_core(1, zusi::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(0, mdns::init));
+  // Wait for device to wake up
+  // (otherwise nFAULT would immediately trigger an interrupt)
+  vTaskDelay(pdMS_TO_TICKS(100u));
 
-  // Don't disable serial JTAG
-#if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
-  ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
-#endif
+  {
+    static constexpr gpio_config_t io_conf{
+      .pin_bit_mask = 1ull << out::track::nfault_gpio_num,
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_NEGEDGE};
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+  }
+
+  // Wait 10s
+  vTaskDelay(pdMS_TO_TICKS(10000u));
+
+  // Enable outputs
+  ESP_ERROR_CHECK(gpio_set_level(out::track::enable_gpio_num, 1u));
+  vTaskDelay(pdMS_TO_TICKS(20u));
+  ESP_ERROR_CHECK(gpio_set_level(out::track::n_force_low_gpio_num, 0u));
+
+  for (;;) {
+    ESP_ERROR_CHECK(gpio_set_level(out::track::p_gpio_num, 1u));
+    ESP_ERROR_CHECK(gpio_set_level(led::bug_gpio_num, 1u));
+    vTaskDelay(pdMS_TO_TICKS(10000u));
+    ESP_ERROR_CHECK(gpio_set_level(out::track::p_gpio_num, 0u));
+    ESP_ERROR_CHECK(gpio_set_level(led::bug_gpio_num, 0u));
+    vTaskDelay(pdMS_TO_TICKS(10000u));
+  }
 }
