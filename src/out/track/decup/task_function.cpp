@@ -106,7 +106,7 @@ esp_err_t transmit_acks(uint8_t acks) {
 
 /// \todo document
 esp_err_t loop() {
-  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
+  ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
 
   for (;;) {
     // Return on empty packet, suspend or short circuit
@@ -116,6 +116,10 @@ esp_err_t loop() {
       return rmt_tx_wait_all_done(channel, -1);
     // Transmit packet
     else {
+      if (get_current_limit() == CurrentLimit::_4100mA &&
+          packet->front() != std::to_underlying(decup::Command::Preamble0) &&
+          packet->front() != std::to_underlying(decup::Command::Preamble1))
+        ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
       auto const us{decup::packet2pulse_timeout(*packet)};
       auto const acks{receive_acks(us)};
