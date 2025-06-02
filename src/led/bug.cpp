@@ -25,7 +25,9 @@
 
 namespace led {
 
-/// \todo document
+/// Turn bug LED on or off
+///
+/// \param  on  LED state
 void bug(bool on) {
   // Apply duty cycle
   if (on) {
@@ -40,16 +42,18 @@ void bug(bool on) {
   ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, bug_channel));
 }
 
-/// \todo document
+/// But LED ctor
+///
+/// \param  on  LED state
 Bug::Bug(bool on) { bug(on); }
 
-/// \todo document
+/// Bug LED dtor
 Bug::~Bug() { off(); }
 
-/// \todo document
+/// Turn bug LED on
 void Bug::on() { bug(true); }
 
-/// \todo document
+/// Turn bug LED off
 void Bug::off() { bug(false); }
 
 } // namespace led

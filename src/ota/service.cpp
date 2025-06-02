@@ -83,7 +83,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
-  led::Bug const led_bug{true};
+  led::Bug const led_bug{};
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {

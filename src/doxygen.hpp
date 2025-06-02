@@ -839,6 +839,7 @@
 /// url of middlewares_z21 is [[page_z21.html]]
 ///
 /// url of drivers_analog is [[page_analog.html]]
+/// url of drivers_led is [[page_led.html]]
 /// url of drivers_out is [[page_out.html]]
 /// url of drivers_out_track is [[page_out.html#section_out_track]]
 /// url of drivers_out_track_dcc is [[page_out.html#subsection_out_track_dcc]]
@@ -896,7 +897,7 @@
 /// | \subpage page_analog   | ADC measurements, overcurrent                                                                                                                                                                                                     |
 /// | \subpage page_dcc      | Operation and service mode, [DCC](https://github.com/ZIMO-Elektronik/DCC) command generation, BiDi decoding                                                                                                                       |
 /// | \subpage page_decup    | DECUP [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                 |
-/// | \subpage page_led      | LED                                                                                                                                                                                                                               |
+/// | \subpage page_led      | Dimming LEDs                                                                                                                                                                                                                      |
 /// | \subpage page_http     | Access point (AP) and station (STA) HTTP servers                                                                                                                                                                                  |
 /// | \subpage page_mdns     | mDNS services                                                                                                                                                                                                                     |
 /// | \subpage page_mdu      | MDU [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                   |
@@ -904,10 +905,10 @@
 /// | \subpage page_ota      | OTA update (WebSocket service)                                                                                                                                                                                                    |
 /// | \subpage page_out      | Drivers, signal generation of [DCC](https://github.com/ZIMO-Elektronik/DCC), [DECUP](https://github.com/ZIMO-Elektronik/DECUP), [MDU](https://github.com/ZIMO-Elektronik/MDU) and [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) |
 /// | \subpage page_trace    | Debug purposes                                                                                                                                                                                                                    |
-/// | \subpage page_udp      | UDP                                                                                                                                                                                                                               |
+/// | \subpage page_udp      | Create and bind UDP socket                                                                                                                                                                                                        |
 /// | \subpage page_usb      | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) modes                                                                                                                                                                       |
-/// | \subpage page_wifi     | WiFi                                                                                                                                                                                                                              |
-/// | \subpage page_z21      | Z21 server (UDP and WebSocket service)                                                                                                                                                                                            |
+/// | \subpage page_wifi     | Setup WiFi in AP or STA mode                                                                                                                                                                                                      |
+/// | \subpage page_z21      | [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket service)                                                                                                                                                  |
 /// | \subpage page_zusi     | ZUSI [ZPP](https://github.com/ZIMO-Elektronik/ZPP) updates (WebSocket service)                                                                                                                                                    |
 // clang-format on
 /// \page page_api_reference API Reference

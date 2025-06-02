@@ -25,7 +25,9 @@
 
 namespace led {
 
-/// \todo document
+/// Turn WiFi LED on or off
+///
+/// \param  on  LED state
 void wifi(bool on) {
   // Apply duty cycle
   if (on) {
