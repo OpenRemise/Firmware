@@ -333,11 +333,12 @@ void Service::operationsBiDi() {
         auto const id{static_cast<uint8_t>((data >> (i - 4)) & 0b1111u)}) {
         // app:pom
         case 0u:
-          if (!empty(_cv_pom_request_deque)) {
-            auto const off{addr.type == Address::ExtendedLoco};
+          if (i == static_cast<int32_t>(bidi::Bits::_36) &&
+              !empty(_cv_pom_request_deque)) {
             if (decode_instruction(item.packet) == Instruction::CvLong) {
+              auto const off{addr.type == Address::ExtendedLoco};
               auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
-                                 item.packet[2uz]};
+                                 item.packet[2uz + off]};
               if (auto const& req{_cv_pom_request_deque.front()};
                   req.addr == addr && req.cv_addr == cv_addr) {
                 cvAck(cv_addr, static_cast<uint8_t>(data >> 24u));
