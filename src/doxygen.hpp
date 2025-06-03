@@ -701,13 +701,16 @@
 /// modules are considered global and can be accessed from all other layers.
 ///
 /// \section section_architecture_diagram Diagram
+// clang-format off
+/// \page page_architecture Architecture
+/// \details \tableofcontents
 /// \startuml "Architecture diagram"
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
 /// database "Storage" {
-///   package "mem" {
-///     package "nvs" {
+///   package "mem" as storage_mem {
+///     package "nvs" as storage_mem_nvs {
 ///       [Accessories]
 ///       [Locos]
 ///       [Settings]
@@ -718,126 +721,136 @@
 /// }
 ///
 /// frame "Interfaces" {
-///   package "http" {
-///     package "ap" {
-///       interface "HTTP" as ap_http
-///       [Server] as ap_server
-///       ap_http - ap_server
+///   package "http" as interfaces_http {
+///     package "ap" as interfaces_http_ap {
+///       interface "HTTP" as http_ap
+///       [Server] as interfaces_http_ap_server
+///       http_ap - interfaces_http_ap_server
 ///     }
-///     package "sta" {
-///       interface "HTTP" as sta_http
-///       [Server] as sta_server
-///       sta_http - sta_server
+///     package "sta" as interfaces_http_sta {
+///       interface "HTTP" as http_sta
+///       [Server] as interfaces_http_sta_server
+///       http_sta - interfaces_http_sta_server
 ///     }
 ///   }
-///   package "udp" {
+///   package "udp" as interfaces_udp {
 ///     interface UDP
 ///   }
 ///   package "usb" as interfaces_usb {
-///     [Tasks] as usb_tasks
-///     USB - usb_tasks
+///     [Tasks] as interfaces_usb_tasks
+///     USB - interfaces_usb_tasks
 ///   }
 /// }
 ///
 /// frame "Middlewares" {
-///   package "dcc" {
-///     [Service] as dcc_service
+///   package "dcc" as middlewares_dcc {
+///     [Service] as middlewares_dcc_service
 ///   }
-///   package "decup" {
-///     [Service] as decup_service
+///   package "decup" as middlewares_decup {
+///     [Service] as middlewares_decup_service
 ///   }
-///   package "mdu" {
-///     [Service] as mdu_service
+///   package "mdu" as middlewares_mdu {
+///     [Service] as middlewares_mdu_service
 ///   }
-///   package "ota" {
-///     [Service] as ota_service
+///   package "ota" as middlewares_ota {
+///     [Service] as middlewares_ota_service
 ///   }
 ///   package "usb" as middlewares_usb {
 ///     [ULF_DCC_EIN]
 ///     [ULF_DECUP_EIN]
 ///     [SUSIV2]
 ///   }
-///   package "z21" {
-///     [Service] as z21_service
+///   package "z21" as middlewares_z21 {
+///     [Service] as middlewares_z21_service
 ///   }
 ///   package "zusi" as middlewares_zusi {
-///     [Service] as zusi_service
+///     [Service] as middlewares_zusi_service
 ///   }
 /// }
 ///
 /// frame "Drivers" {
-///   package "analog" {
+///   package "analog" as drivers_analog {
 ///     [Task] as analog_task
 ///   }
-///   package "out" {
-///     package "track" {
-///       package "dcc" as out_track_dcc {
-///         [Task] as out_track_dcc_task
+///   package "led" as drivers_led {
+///     [" "]
+///   }
+///   package "out" as drivers_out {
+///     package "track" as drivers_out_track {
+///       package "dcc" as drivers_out_track_dcc {
+///         [Task] as drivers_out_track_dcc_task
 ///       }
-///       package "decup" as out_track_decup {
-///         [Task] as out_track_decup_task
+///       package "decup" as drivers_out_track_decup {
+///         [Task] as drivers_out_track_decup_task
 ///       }
-///       package "mdu" as out_track_mdu {
-///         [Task] as out_track_mdu_task
+///       package "mdu" as drivers_out_track_mdu {
+///         [Task] as drivers_out_track_mdu_task
 ///       }
 ///     }
-///     package "zusi" as out_zusi {
-///       [Task] as out_zusi_task
+///     package "zusi" as drivers_out_zusi {
+///       [Task] as drivers_out_zusi_task
 ///     }
 ///   }
-///   package "wifi" {
-///     [Task] as wifi_task
+///   package "wifi" as drivers_wifi {
+///     [Task] as drivers_wifi_task
 ///   }
 /// }
 ///
-/// sta_server <--> dcc_service
-/// sta_server <--> decup_service
-/// sta_server <--> mdu_service
-/// sta_server <--> ota_service
-/// sta_server <--> z21_service
-/// sta_server <--> zusi_service
+/// interfaces_http_sta_server <--> middlewares_dcc_service
+/// interfaces_http_sta_server <--> middlewares_decup_service
+/// interfaces_http_sta_server <--> middlewares_mdu_service
+/// interfaces_http_sta_server <--> middlewares_ota_service
+/// interfaces_http_sta_server <--> middlewares_z21_service
+/// interfaces_http_sta_server <--> middlewares_zusi_service
 ///
-/// usb_tasks <--> ULF_DCC_EIN
-/// usb_tasks <--> ULF_DECUP_EIN
-/// usb_tasks <--> SUSIV2
+/// interfaces_usb_tasks <--> ULF_DCC_EIN
+/// interfaces_usb_tasks <--> ULF_DECUP_EIN
+/// interfaces_usb_tasks <--> SUSIV2
 ///
-/// z21_service <-l-> dcc_service
+/// middlewares_z21_service <-l-> middlewares_dcc_service
 ///
-/// dcc_service <--> out_track_dcc_task
-/// decup_service <--> out_track_decup_task
-/// mdu_service <--> out_track_mdu_task
-/// zusi_service <--> out_zusi_task
+/// middlewares_dcc_service <--> drivers_out_track_dcc_task
+/// middlewares_decup_service <--> drivers_out_track_decup_task
+/// middlewares_mdu_service <--> drivers_out_track_mdu_task
+/// middlewares_zusi_service <--> drivers_out_zusi_task
 ///
-/// [ULF_DCC_EIN] <--> out_track_dcc_task
-/// [ULF_DECUP_EIN] <--> out_track_decup_task
-/// [SUSIV2] <--> out_zusi_task
+/// [ULF_DCC_EIN] <--> drivers_out_track_dcc_task
+/// [ULF_DECUP_EIN] <--> drivers_out_track_decup_task
+/// [SUSIV2] <--> drivers_out_zusi_task
 ///
-/// UDP <--> z21_service
+/// UDP <--> middlewares_z21_service
 ///
 /// 'Links
-/// url of analog is [[page_analog.html]]
-/// url of mem is [[page_mem.html]]
-/// url of nvs is [[page_mem.html#section_mem_nvs]]
-/// url of mdu is [[page_mdu.html]]
-/// url of http is [[page_http.html]]
-/// url of ap is [[page_http.html#section_http_ap]]
-/// url of sta is [[page_http.html#section_http_sta]]
-/// url of ota is [[page_ota.html]]
-/// url of udp is [[page_udp.html]]
-/// url of dcc is [[page_dcc.html]]
-/// url of decup is [[page_decup.html]]
-/// url of out is [[page_out.html]]
-/// url of track is [[page_out.html#section_out_track]]
-/// url of out_track_dcc is [[page_out.html#subsection_out_track_dcc]]
-/// url of out_track_decup is [[page_out.html#subsection_out_track_decup]]
-/// url of out_track_mdu is [[page_out.html#subsection_out_track_mdu]]
-/// url of out_zusi is [[page_out.html#section_out_zusi]]
-/// url of middlewares_zusi is [[page_zusi.html]]
+/// url of storage_mem is [[page_mem.html]]
+/// url of storage_mem_nvs is [[page_mem.html#section_mem_nvs]]
+///
+/// url of interfaces_http is [[page_http.html]]
+/// url of interfaces_http_ap is [[page_http.html#section_http_ap]]
+/// url of interfaces_http_sta is [[page_http.html#section_http_sta]]
+/// url of interfaces_udp is [[page_udp.html]]
 /// url of interfaces_usb is [[page_usb.html]]
+///
+/// url of middlewares_dcc is [[page_dcc.html]]
+/// url of middlewares_decup is [[page_decup.html]]
+/// url of middlewares_mdu is [[page_mdu.html]]
+/// url of middlewares_ota is [[page_ota.html]]
+/// url of middlewares_zusi is [[page_zusi.html]]
 /// url of middlewares_usb is [[page_usb.html]]
-/// url of z21 is [[page_z21.html]]
-/// url of wifi is [[page_wifi.html]]
+/// url of middlewares_z21 is [[page_z21.html]]
+///
+/// url of drivers_analog is [[page_analog.html]]
+/// url of drivers_led is [[page_led.html]]
+/// url of drivers_out is [[page_out.html]]
+/// url of drivers_out_track is [[page_out.html#section_out_track]]
+/// url of drivers_out_track_dcc is [[page_out.html#subsection_out_track_dcc]]
+/// url of drivers_out_track_decup is [[page_out.html#subsection_out_track_decup]]
+/// url of drivers_out_track_mdu is [[page_out.html#subsection_out_track_mdu]]
+/// url of drivers_out_zusi is [[page_out.html#section_out_zusi]]
+/// url of drivers_wifi is [[page_wifi.html]]
 /// \enduml
+// clang-format on
+/// \page page_architecture Architecture
+/// \details \tableofcontents
 ///
 /// \note
 /// This diagram contains links. Clicking on a module takes you to the
@@ -884,7 +897,7 @@
 /// | \subpage page_analog   | ADC measurements, overcurrent                                                                                                                                                                                                     |
 /// | \subpage page_dcc      | Operation and service mode, [DCC](https://github.com/ZIMO-Elektronik/DCC) command generation, BiDi decoding                                                                                                                       |
 /// | \subpage page_decup    | DECUP [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                 |
-/// | \subpage page_led      | LED                                                                                                                                                                                                                               |
+/// | \subpage page_led      | Dimming LEDs                                                                                                                                                                                                                      |
 /// | \subpage page_http     | Access point (AP) and station (STA) HTTP servers                                                                                                                                                                                  |
 /// | \subpage page_mdns     | mDNS services                                                                                                                                                                                                                     |
 /// | \subpage page_mdu      | MDU [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                   |
@@ -892,10 +905,10 @@
 /// | \subpage page_ota      | OTA update (WebSocket service)                                                                                                                                                                                                    |
 /// | \subpage page_out      | Drivers, signal generation of [DCC](https://github.com/ZIMO-Elektronik/DCC), [DECUP](https://github.com/ZIMO-Elektronik/DECUP), [MDU](https://github.com/ZIMO-Elektronik/MDU) and [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) |
 /// | \subpage page_trace    | Debug purposes                                                                                                                                                                                                                    |
-/// | \subpage page_udp      | UDP                                                                                                                                                                                                                               |
+/// | \subpage page_udp      | Create and bind UDP socket                                                                                                                                                                                                        |
 /// | \subpage page_usb      | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) modes                                                                                                                                                                       |
-/// | \subpage page_wifi     | WiFi                                                                                                                                                                                                                              |
-/// | \subpage page_z21      | Z21 server (UDP and WebSocket service)                                                                                                                                                                                            |
+/// | \subpage page_wifi     | Setup WiFi in AP or STA mode                                                                                                                                                                                                      |
+/// | \subpage page_z21      | [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket service)                                                                                                                                                  |
 /// | \subpage page_zusi     | ZUSI [ZPP](https://github.com/ZIMO-Elektronik/ZPP) updates (WebSocket service)                                                                                                                                                    |
 // clang-format on
 /// \page page_api_reference API Reference

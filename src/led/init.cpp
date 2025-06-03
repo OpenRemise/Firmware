@@ -24,7 +24,12 @@
 
 namespace led {
 
-/// \todo document
+/// Initialize LED
+///
+/// Initialization takes place in init(). This function configures a 4kHz
+/// [LEDC](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/peripherals/ledc.html)
+/// timer with 2 channels for the bug and WiFi LEDs. The resolution of the PWM
+/// is 8 bits.
 esp_err_t init() {
   static constexpr ledc_timer_config_t timer{.speed_mode = LEDC_LOW_SPEED_MODE,
                                              .duty_resolution =

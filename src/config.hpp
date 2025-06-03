@@ -158,13 +158,13 @@ enum class State : uint16_t {
   ZUSI = 7u << CHAR_BIT,          ///< ZUSI mode
 
   // USB protocols
-  ULF_DCC_EIN = 8u << CHAR_BIT,   ///<
-  ULF_DECUP_EIN = 9u << CHAR_BIT, ///<
-  ULF_MDU_EIN = 10u << CHAR_BIT,  ///<
-  ULF_SUSIV2 = 11u << CHAR_BIT,   ///<
+  ULF_DCC_EIN = 8u << CHAR_BIT,   ///< ULF_DCC_EIN USB mode
+  ULF_DECUP_EIN = 9u << CHAR_BIT, ///< ULF_DECUP_EIN USB mode
+  ULF_MDU_EIN = 10u << CHAR_BIT,  ///< ULF_MDU_EIN USB mode
+  ULF_SUSIV2 = 11u << CHAR_BIT,   ///< ULF_SUSIV2 USB mode
 
   // System
-  OTA = 12u << CHAR_BIT, ///<
+  OTA = 12u << CHAR_BIT, ///< OTA update
 };
 static_assert(std::to_underlying(State::OTA) < MAGIC_ENUM_RANGE_MAX);
 

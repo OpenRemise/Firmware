@@ -21,11 +21,32 @@
 
 #pragma once
 
-namespace udp {
+namespace led {
 
 /// \page page_led LED
 /// \tableofcontents
-/// \todo document LED page
+/// This module handles dimming the LEDs. The brightness (duty cycle) can be
+/// configured for each LED.
+///
+/// \section section_led_init Initialization
+/// \copydetails init
+///
+/// \section section_led_bug Bug LED
+/// The blue "bug LED" serves as an indicator for any kind of programming mode
+/// (e.g. firmware update, DCC service mode, ...) as well as an error indicator.
+/// The function \ref bug() can be used to switch the LED on or off with its set
+/// duty cycle. The duty cycle can be read via
+/// mem::nvs::Settings::getLedDutyCycleBug(). Since this LED is often used as an
+/// update indicator, in addition to the free function there is also the RAII
+/// wrapper Bug that can switch the LED on in its constructor and off in its
+/// destructor.
+///
+/// \section section_led_wifi WiFi LED
+/// The green "WiFi LED" indicates the network connection status. It lights up
+/// when a connection is established and turns off when the connection is lost.
+/// The function \ref wifi(bool) "wifi()" can be used to switch the LED on or
+/// off with its set duty cycle. The duty cycle can be read via
+/// mem::nvs::Settings::getLedDutyCycleWiFi().
 ///
 /// <div class="section_buttons">
 /// | Previous       | Next          |
@@ -33,4 +54,4 @@ namespace udp {
 /// | \ref page_http | \ref page_mdns |
 /// </div>
 
-} // namespace udp
+} // namespace led

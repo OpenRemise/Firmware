@@ -25,8 +25,9 @@ namespace led {
 
 void bug(bool on);
 
+/// RAII wrapper for bug LED
 struct Bug {
-  Bug(bool);
+  Bug(bool on = true);
   ~Bug();
 
   void on();

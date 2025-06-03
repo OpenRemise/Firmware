@@ -439,7 +439,7 @@ void Service::operationsBiDi() {
 
 /// \todo document
 void Service::serviceLoop() {
-  led::Bug const led_bug{true};
+  led::Bug const led_bug{};
 
   if (empty(_cv_request_deque)) return;
 

@@ -17,7 +17,7 @@ dependencies:
   zimo-elektronik/dcc:
     version: "0.41.1"
   zimo-elektronik/decup:
-    version: "0.1.1"
+    version: "0.1.3"
   zimo-elektronik/mdu:
     version: "0.18.1"
   zimo-elektronik/z21:

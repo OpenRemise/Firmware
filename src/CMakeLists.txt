@@ -116,7 +116,7 @@ idf_build_set_property(
 
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.0")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.0")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.2.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.2")
