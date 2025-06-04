@@ -233,8 +233,8 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
   for (;;) {
     // Receive BiDi on last transmitted packet
     if (encoder_config.bidibit_duration)
-      transmit_bidi(
-        {.packet = *(cbegin(packets) - 1), .datagram = receive_bidi()});
+      ESP_ERROR_CHECK(transmit_bidi(
+        {.packet = *(cbegin(packets) - 1), .datagram = receive_bidi()}));
     packets.pop_front();
 
     // Return on empty packet, suspend or short circuit

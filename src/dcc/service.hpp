@@ -50,7 +50,7 @@ private:
   std::optional<uint8_t> serviceRead(uint16_t cv_addr);
   std::optional<uint8_t> serviceWrite(uint16_t cv_addr, uint8_t byte);
   std::optional<bool> serviceReceiveBit();
-  std::optional<uint8_t> serviceReceiveByte(bool bit_verify_to_1);
+  std::optional<uint8_t> serviceReceiveByte();
 
   void sendToFront(Packet const& packet, size_t n = 1uz);
   void sendToBack(Packet const& packet, size_t n = 1uz);
@@ -94,7 +94,6 @@ private:
   void resume();
   void suspend();
 
-  uint8_t programPacketCount() const;
   Address basicOrExtendedLocoAddress(Address::value_type addr) const;
 
   Locos _locos;
@@ -103,7 +102,11 @@ private:
   std::shared_ptr<z21::server::intf::Dcc> _z21_dcc_service;
   uint8_t _priority_count{Loco::min_priority};
 
+  // Settings
   uint8_t _dcc_loco_flags{};
+  uint8_t _programming_type{};
+  uint8_t _program_packet_count{};
+  bool _bit_verify_to_1{};
 
   /// \todo document
   struct CvRequest {
