@@ -481,42 +481,36 @@ void Service::serviceLoop() {
 std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
   std::optional<uint8_t> byte{};
 
-  mem::nvs::Settings nvs;
-  auto const programming_type{nvs.getDccProgrammingType()};
-  auto const program_packet_count{nvs.getDccProgramPacketCount()};
-  auto const bit_verify_to_1{nvs.getDccBitVerifyTo1()};
-  nvs.~Settings();
-
   // Nothing
-  if (programming_type == z21::CommonSettings::ProgrammingType::Nothing)
+  if (_programming_type == z21::CommonSettings::ProgrammingType::Nothing)
     return std::nullopt;
 
   // Byte verify only
-  if (programming_type == z21::CommonSettings::ProgrammingType::ByteOnly) {
+  if (_programming_type == z21::CommonSettings::ProgrammingType::ByteOnly) {
     for (auto i{0u}; i < std::numeric_limits<uint8_t>::max(); ++i) {
       sendToFront(make_cv_access_long_verify_service_packet(cv_addr, i),
-                  program_packet_count);
+                  _program_packet_count);
       if (serviceReceiveBit() == true) return i;
     }
   }
 
   // Bit verify
-  if (programming_type & z21::CommonSettings::ProgrammingType::BitOnly) {
+  if (_programming_type & z21::CommonSettings::ProgrammingType::BitOnly) {
     for (uint8_t i{0u}; i < CHAR_BIT; ++i)
       sendToFront(
-        make_cv_access_long_verify_service_packet(cv_addr, bit_verify_to_1, i),
-        program_packet_count);
-    byte = serviceReceiveByte(bit_verify_to_1);
+        make_cv_access_long_verify_service_packet(cv_addr, _bit_verify_to_1, i),
+        _program_packet_count);
+    byte = serviceReceiveByte();
 
     // Only
-    if (programming_type == z21::CommonSettings::ProgrammingType::BitOnly)
+    if (_programming_type == z21::CommonSettings::ProgrammingType::BitOnly)
       return byte;
   }
 
   // Bit and byte verify
-  if (programming_type == z21::CommonSettings::ProgrammingType::Both && byte) {
+  if (_programming_type == z21::CommonSettings::ProgrammingType::Both && byte) {
     sendToFront(make_cv_access_long_verify_service_packet(cv_addr, *byte),
-                program_packet_count);
+                _program_packet_count);
     if (serviceReceiveBit() == true) return byte;
   }
 
@@ -526,7 +520,7 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
 /// \todo document
 std::optional<uint8_t> Service::serviceWrite(uint16_t cv_addr, uint8_t byte) {
   sendToFront(make_cv_access_long_write_service_packet(cv_addr, byte),
-              programPacketCount());
+              _program_packet_count);
 
   if (serviceReceiveBit() == true) return byte;
 
@@ -547,11 +541,11 @@ std::optional<bool> Service::serviceReceiveBit() {
 }
 
 /// \todo document
-std::optional<uint8_t> Service::serviceReceiveByte(bool bit_verify_to_1) {
+std::optional<uint8_t> Service::serviceReceiveByte() {
   uint8_t byte{};
   for (auto i{0uz}; i < CHAR_BIT; ++i)
     if (auto const bit{serviceReceiveBit()})
-      byte |= static_cast<uint8_t>((*bit == bit_verify_to_1) << i);
+      byte |= static_cast<uint8_t>((*bit == _bit_verify_to_1) << i);
     else return std::nullopt;
   return byte;
 }
@@ -577,6 +571,8 @@ void Service::sendToBack(Packet const& packet, size_t n) {
 
 /// \todo document
 z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
+  assert(loco_addr);
+
   std::lock_guard lock{_internal_mutex};
   auto& loco{_locos[loco_addr]};
 
@@ -592,7 +588,30 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
 void Service::locoDrive(uint16_t loco_addr,
                         z21::LocoInfo::SpeedSteps speed_steps,
                         uint8_t rvvvvvvv) {
-  {
+  //
+  if (!loco_addr) switch (speed_steps) {
+      case z21::LocoInfo::DCC14:
+        sendToFront(
+          make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
+                                          (rvvvvvvv & 0x80u) >> 2u | // R
+                                            (rvvvvvvv & 0x0Fu)),     // GGGG
+          _program_packet_count);
+        break;
+      case z21::LocoInfo::DCC28:
+        sendToFront(
+          make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
+                                          (rvvvvvvv & 0x80u) >> 2u // R
+                                            | (rvvvvvvv & 0x1Fu)), // G-GGGG
+          _program_packet_count);
+        break;
+      case z21::LocoInfo::DCC128:
+        sendToFront(make_advanced_operations_speed_packet(
+                      basicOrExtendedLocoAddress(loco_addr), rvvvvvvv),
+                    _program_packet_count);
+        break;
+    }
+  //
+  else {
     std::lock_guard lock{_internal_mutex};
     auto& loco{_locos[loco_addr]};
 
@@ -605,15 +624,20 @@ void Service::locoDrive(uint16_t loco_addr,
     if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
-  }
 
-  //
-  broadcastLocoInfo(loco_addr);
+    //
+    broadcastLocoInfo(loco_addr);
+  }
 }
 
 /// \todo document
 void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
-  {
+  //
+  if (!loco_addr) {
+    /// \todo are broadcast functions a thing?
+  }
+  //
+  else {
     std::lock_guard lock{_internal_mutex};
     auto& loco{_locos[loco_addr]};
 
@@ -637,14 +661,16 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
-  }
 
-  //
-  broadcastLocoInfo(loco_addr);
+    //
+    broadcastLocoInfo(loco_addr);
+  }
 }
 
 /// \todo document
 z21::LocoInfo::Mode Service::locoMode(uint16_t loco_addr) {
+  assert(loco_addr);
+
   std::lock_guard lock{_internal_mutex};
   auto& loco{_locos[loco_addr]};
 
@@ -727,10 +753,9 @@ bool Service::cvWrite(uint16_t cv_addr, uint8_t byte) {
 void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
   if (full(_cv_pom_request_deque)) return cvNack();
 
-  auto const program_packet_count{programPacketCount()};
   sendToFront(make_cv_access_long_verify_packet(
                 basicOrExtendedLocoAddress(loco_addr), cv_addr),
-              program_packet_count);
+              _program_packet_count);
 
   _cv_pom_request_deque.push_back(
     {.then = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
@@ -741,19 +766,18 @@ void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
 
   // Mandatory delay
   vTaskDelay(
-    pdMS_TO_TICKS((program_packet_count + 1u) * 10u)); // ~10ms per packet
+    pdMS_TO_TICKS((_program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
 void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
-  auto const program_packet_count{programPacketCount()};
   sendToFront(make_cv_access_long_write_packet(
                 basicOrExtendedLocoAddress(loco_addr), cv_addr, byte),
-              program_packet_count);
+              _program_packet_count);
 
   // Mandatory delay
   vTaskDelay(
-    pdMS_TO_TICKS((program_packet_count + 1u) * 10u)); // ~10ms per packet
+    pdMS_TO_TICKS((_program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
@@ -793,9 +817,12 @@ void Service::broadcastRailComData(uint16_t loco_addr) {
 
 /// \todo document
 void Service::resume() {
-  // Update DCC flags
+  // Update settings
   mem::nvs::Settings nvs;
   _dcc_loco_flags = nvs.getDccLocoFlags();
+  _programming_type = nvs.getDccProgrammingType();
+  _program_packet_count = nvs.getDccProgramPacketCount();
+  _bit_verify_to_1 = nvs.getDccBitVerifyTo1();
 
   // Preload
   auto const packet{state.load() == State::DCCOperations ? make_idle_packet()
@@ -814,12 +841,6 @@ void Service::suspend() {
   _cv_request_deque.clear();
   _cv_pom_request_deque.clear();
   _z21_system_service->broadcastTrackPowerOff();
-}
-
-/// \todo document
-uint8_t Service::programPacketCount() const {
-  mem::nvs::Settings nvs;
-  return nvs.getDccProgramPacketCount();
 }
 
 /// \todo document
