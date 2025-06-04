@@ -591,24 +591,22 @@ void Service::locoDrive(uint16_t loco_addr,
   //
   if (!loco_addr) switch (speed_steps) {
       case z21::LocoInfo::DCC14:
-        sendToFront(
+        return sendToFront(
           make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
                                           (rvvvvvvv & 0x80u) >> 2u | // R
                                             (rvvvvvvv & 0x0Fu)),     // GGGG
           _program_packet_count);
-        break;
       case z21::LocoInfo::DCC28:
-        sendToFront(
+        return sendToFront(
           make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
                                           (rvvvvvvv & 0x80u) >> 2u // R
                                             | (rvvvvvvv & 0x1Fu)), // G-GGGG
           _program_packet_count);
-        break;
       case z21::LocoInfo::DCC128:
-        sendToFront(make_advanced_operations_speed_packet(
-                      basicOrExtendedLocoAddress(loco_addr), rvvvvvvv),
-                    _program_packet_count);
-        break;
+        return sendToFront(make_advanced_operations_speed_packet(
+                             basicOrExtendedLocoAddress(loco_addr), rvvvvvvv),
+                           _program_packet_count);
+      default: return;
     }
   //
   else {
@@ -624,10 +622,10 @@ void Service::locoDrive(uint16_t loco_addr,
     if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
-
-    //
-    broadcastLocoInfo(loco_addr);
   }
+
+  //
+  broadcastLocoInfo(loco_addr);
 }
 
 /// \todo document
@@ -635,6 +633,7 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
   //
   if (!loco_addr) {
     /// \todo are broadcast functions a thing?
+    return;
   }
   //
   else {
@@ -661,10 +660,10 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
-
-    //
-    broadcastLocoInfo(loco_addr);
   }
+
+  //
+  broadcastLocoInfo(loco_addr);
 }
 
 /// \todo document

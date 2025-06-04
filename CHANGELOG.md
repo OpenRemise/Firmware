@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+- Bugfix POM ([#67](https://github.com/OpenRemise/Firmware/issues/67))
+- Bugfix don't add DCC address 0 to locos ([#71](https://github.com/OpenRemise/Firmware/issues/71))
+
 ## 0.3.0
 - Bugfix short circuit detection does not trigger ([#63](https://github.com/OpenRemise/Firmware/issues/63))
 
