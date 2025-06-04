@@ -13,18 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize WiFi
+/// ULF_SUSIV2 task function
 ///
-/// \file   wifi/init.hpp
+/// \file   ulf/susiv2/task_function.hpp
 /// \author Vincent Hamp
-/// \date   02/07/2023
+/// \date   04/05/2025
 
 #pragma once
 
-#include <esp_err.h>
+namespace ulf::susiv2 {
 
-namespace wifi {
+void task_function(void*);
 
-esp_err_t init(BaseType_t xCoreID);
-
-} // namespace wifi
+} // namespace ulf::susiv2

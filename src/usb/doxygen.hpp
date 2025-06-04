@@ -27,10 +27,19 @@ namespace usb {
 /// \tableofcontents
 /// \todo document USB page
 ///
+/// \section section_usb_init Initialization
+/// \copydetails init
+///
+/// \section section_usb_receive Receive
+/// Bla
+///
+/// \section section_usb_transmit Transmit
+/// Bla
+///
 /// <div class="section_buttons">
 /// | Previous      | Next           |
 /// | :------------ | -------------: |
-/// | \ref page_udp | \ref page_wifi |
+/// | \ref page_ulf | \ref page_wifi |
 /// </div>
 
 } // namespace usb

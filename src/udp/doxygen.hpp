@@ -33,7 +33,7 @@ namespace udp {
 /// <div class="section_buttons">
 /// | Previous        | Next          |
 /// | :-------------- | ------------: |
-/// | \ref page_trace | \ref page_usb |
+/// | \ref page_trace | \ref page_ulf |
 /// </div>
 
 } // namespace udp

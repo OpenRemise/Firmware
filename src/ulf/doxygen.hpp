@@ -13,20 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF_DCC_EIN protocol task function
+/// ULF documentation
 ///
-/// \file   usb/ulf_dcc_ein/task_function.hpp
+/// \file   ulf/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   10/02/2023
+/// \date   04/05/2025
 
 #pragma once
 
-#include <optional>
-#include <span>
+namespace ulf {
 
-namespace usb::ulf_dcc_ein {
+/// \page page_ulf ULF
+/// \tableofcontents
+/// \todo document ULF page
+///
+/// <div class="section_buttons">
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_udp | \ref page_usb |
+/// </div>
 
-std::optional<dcc::Packet> receive_dcc_packet();
-void task_function(void*);
-
-} // namespace usb::ulf_dcc_ein
+} // namespace ulf

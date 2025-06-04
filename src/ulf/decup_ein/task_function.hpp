@@ -13,18 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize WiFi
+/// ULF_DECUP_EIN task function
 ///
-/// \file   wifi/init.hpp
+/// \file   usb/decup_ein/task_function.hpp
 /// \author Vincent Hamp
-/// \date   02/07/2023
+/// \date   04/05/2025
 
 #pragma once
 
-#include <esp_err.h>
+namespace ulf::decup_ein {
 
-namespace wifi {
+void task_function(void*);
 
-esp_err_t init(BaseType_t xCoreID);
-
-} // namespace wifi
+} // namespace ulf::decup_ein

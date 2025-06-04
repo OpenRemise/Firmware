@@ -46,19 +46,19 @@ void transmit_ping() {
 #endif
 }
 
-/// Check if any protocol task is active
+/// Check if any USB service task is active
 ///
-/// \return true if any protocol task is active
-/// \return false if no protocol task is active
-bool any_protocol_task_active() {
-  return eTaskGetState(ulf_dcc_ein::task.handle) < eSuspended ||
-         eTaskGetState(ulf_decup_ein::task.handle) < eSuspended ||
-         eTaskGetState(ulf_susiv2::task.handle) < eSuspended;
+/// \retval true if any service task is active
+/// \retval false if no service task is active
+bool any_service_task_active() {
+  return eTaskGetState(ulf::dcc_ein::task.handle) < eSuspended ||
+         eTaskGetState(ulf::decup_ein::task.handle) < eSuspended ||
+         eTaskGetState(ulf::susiv2::task.handle) < eSuspended;
 }
 
 namespace {
 
-/// Actual usb::rx_task loop
+/// Actual \ref rx_task loop
 void loop() {
   std::array<char, buffer_size> stack;
   size_t count{};
@@ -79,22 +79,22 @@ void loop() {
       if (cmd == std::nullopt) continue;
       // Ping
       else if (cmd == "PING\r"sv) transmit_ping();
-      // Resume ULF_DCC_EIN protocol tasks
+      // Resume ULF_DCC_EIN task
       else if (cmd == "DCC_EIN\r"sv) {
-        LOGI_TASK_RESUME(ulf_dcc_ein::task.handle);
+        LOGI_TASK_RESUME(ulf::dcc_ein::task.handle);
         break;
       }
-      // Resume ULF_DECUP_EIN protocol tasks
+      // Resume ULF_DECUP_EIN task
       else if (cmd == "DECUP_EIN\r"sv) {
-        LOGI_TASK_RESUME(ulf_decup_ein::task.handle);
+        LOGI_TASK_RESUME(ulf::decup_ein::task.handle);
         break;
       }
-      // Resume ULF_MDU_EIN protocol tasks
+      // Resume ULF_MDU_EIN task
       else if (cmd == "MDU_EIN\r"sv)
-        LOGW("MDU_EIN protocol not implemented");
-      // Resume ULF_SUSIV2 protocol tasks
+        LOGW("MDU_EIN not implemented");
+      // Resume ULF_SUSIV2 task
       else if (cmd == "SUSIV2\r"sv) {
-        LOGI_TASK_RESUME(ulf_susiv2::task.handle);
+        LOGI_TASK_RESUME(ulf::susiv2::task.handle);
         break;
       }
     }
@@ -103,9 +103,9 @@ void loop() {
   }
 }
 
-/// Wait until all \ref protocol_tasks are suspended
-void wait_for_all_protocol_tasks_to_suspend() {
-  while (any_protocol_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
+/// Wait until all service tasks are suspended
+void wait_for_all_service_tasks_to_suspend() {
+  while (any_service_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
 }
 
 } // namespace
@@ -113,13 +113,13 @@ void wait_for_all_protocol_tasks_to_suspend() {
 /// USB receive task function
 ///
 /// Scan the CDC character stream for protocol entry strings. Once a supported
-/// string is detected the protocol tasks are resumed and the task suspends
-/// itself.
+/// string is detected the corrsponding tasks are resumed and the receive task
+/// suspends itself.
 void rx_task_function(void*) {
   for (;;) {
     loop();
     LOGI_TASK_SUSPEND(rx_task.handle);
-    wait_for_all_protocol_tasks_to_suspend();
+    wait_for_all_service_tasks_to_suspend();
   }
 }
 

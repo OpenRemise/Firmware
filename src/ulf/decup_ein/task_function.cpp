@@ -13,19 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF_DECUP_EIN protocol task function
+/// ULF_DECUP_EIN task function
 ///
-/// \file   usb/ulf_decup_ein/task_function.cpp
+/// \file   ulf/decup_ein/task_function.cpp
 /// \author Vincent Hamp
-/// \date   10/08/2024
+/// \date   04/05/2025
 
 #include "task_function.hpp"
 #include <ulf/decup_ein.hpp>
-#include "../tx_task_function.hpp"
 #include "log.h"
+#include "usb/tx_task_function.hpp"
 #include "utility.hpp"
 
-namespace usb::ulf_decup_ein {
+namespace ulf::decup_ein {
 
 using namespace ulf::decup_ein;
 
@@ -39,18 +39,23 @@ class Decup : public ::ulf::decup_ein::rx::Base {
     if (!xMessageBufferSend(out::tx_message_buffer.front_handle,
                             data(bytes),
                             size(bytes),
-                            task.timeout))
+                            pdMS_TO_TICKS(task.timeout)))
       return acks;
     else
-      xMessageBufferReceive(
-        out::rx_message_buffer.handle, &acks, sizeof(acks), task.timeout);
+      xMessageBufferReceive(out::rx_message_buffer.handle,
+                            &acks,
+                            sizeof(acks),
+                            pdMS_TO_TICKS(task.timeout));
     return acks;
   }
 };
 
 /// \todo document
 void transmit_response(uint8_t byte) {
-  xStreamBufferSend(tx_stream_buffer.handle, &byte, sizeof(byte), task.timeout);
+  xStreamBufferSend(usb::tx_stream_buffer.handle,
+                    &byte,
+                    sizeof(byte),
+                    pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
 /// Actual usb::decup_ein::task loop
@@ -59,18 +64,21 @@ void loop() {
 
   // Wait for RTS on
   auto then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
-  while (!rts && xTaskGetTickCount() < then) vTaskDelay(pdMS_TO_TICKS(100u));
-  while (!xStreamBufferReset(rx_stream_buffer.handle)) {
+  while (!usb::rts && xTaskGetTickCount() < then)
+    vTaskDelay(pdMS_TO_TICKS(100u));
+  while (!xStreamBufferReset(usb::rx_stream_buffer.handle)) {
     LOGW("Can't reset usb::rx_stream_buffer");
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
 
   // While RTS
-  while (rts && xTaskGetTickCount() < then) {
+  while (usb::rts && xTaskGetTickCount() < then) {
     // Receive single character
     uint8_t byte;
-    if (!xStreamBufferReceive(
-          rx_stream_buffer.handle, &byte, sizeof(byte), pdMS_TO_TICKS(100u)))
+    if (!xStreamBufferReceive(usb::rx_stream_buffer.handle,
+                              &byte,
+                              sizeof(byte),
+                              pdMS_TO_TICKS(100u)))
       continue;
 
     // Reset timeout
@@ -96,16 +104,16 @@ void task_function(void*) {
     //
     if (auto expected{State::Suspended};
         state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
-      transmit_ok();
+      usb::transmit_ok();
       LOGI_TASK_RESUME(out::track::decup::task.handle);
       loop();
     }
     //
     else
-      transmit_not_ok();
+      usb::transmit_not_ok();
 
     LOGI_TASK_RESUME(usb::rx_task.handle);
   }
 }
 
-} // namespace usb::ulf_decup_ein
+} // namespace ulf::decup_ein

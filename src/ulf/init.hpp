@@ -13,16 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF_DECUP_EIN protocol task function
+/// Initialize ULF
 ///
-/// \file   usb/ulf_decup_ein/task_function.hpp
+/// \file   ulf/init.hpp
 /// \author Vincent Hamp
-/// \date   10/08/2024
+/// \date   04/05/2025
 
 #pragma once
 
-namespace usb::ulf_decup_ein {
+#include <esp_err.h>
 
-void task_function(void*);
+namespace ulf {
 
-} // namespace usb::ulf_decup_ein
+esp_err_t init(BaseType_t xCoreID);
+
+} // namespace ulf

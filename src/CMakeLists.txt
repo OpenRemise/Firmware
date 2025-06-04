@@ -8,7 +8,7 @@ set(COMMON_SRC
     mem/nvs/settings.cpp
     mem/init.cpp
     out/track/current_limit.cpp
-    usb/ulf_dcc_ein/task_function.cpp
+    ulf/dcc_ein/task_function.cpp
     usb/rx_task_function.cpp
     utility.cpp)
 
@@ -69,8 +69,9 @@ else()
     out/suspend.cpp
     trace/init.cpp
     udp/init.cpp
-    usb/ulf_decup_ein/task_function.cpp
-    usb/ulf_susiv2/task_function.cpp
+    ulf/decup_ein/task_function.cpp
+    ulf/susiv2/task_function.cpp
+    ulf/init.cpp
     usb/init.cpp
     usb/rx_task_function.cpp
     usb/tx_task_function.cpp

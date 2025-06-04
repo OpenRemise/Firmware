@@ -43,7 +43,7 @@ void transmit_not_ok() {
 
 namespace {
 
-/// Receive data from usb::tx_stream_buffer and copy it to the stack
+/// Receive data from \ref tx_stream_buffer and copy it to the stack
 ///
 /// \param  stack Stack
 /// \return Number of bytes received

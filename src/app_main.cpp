@@ -32,6 +32,7 @@
 #include "out/init.hpp"
 #include "trace/init.hpp"
 #include "udp/init.hpp"
+#include "ulf/init.hpp"
 #include "usb/init.hpp"
 #include "utility.hpp"
 #include "wifi/init.hpp"
@@ -63,6 +64,7 @@ extern "C" void app_main() {
 
   // Don't disable serial JTAG
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
+  ESP_ERROR_CHECK(invoke_on_core(1, ulf::init, 1));
   ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
 #endif
 }
