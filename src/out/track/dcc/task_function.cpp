@@ -232,9 +232,11 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
 
   for (;;) {
     // Receive BiDi on last transmitted packet
+    /// \bug Can't error check here? For some reason transmit_bidi immediately
+    /// fails in ULF_DCC_EIN mode.
     if (encoder_config.bidibit_duration)
-      ESP_ERROR_CHECK(transmit_bidi(
-        {.packet = *(cbegin(packets) - 1), .datagram = receive_bidi()}));
+      transmit_bidi(
+        {.packet = *(cbegin(packets) - 1), .datagram = receive_bidi()});
     packets.pop_front();
 
     // Return on empty packet, suspend or short circuit

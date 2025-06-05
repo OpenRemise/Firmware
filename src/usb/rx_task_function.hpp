@@ -25,7 +25,7 @@
 
 namespace usb {
 
-bool any_protocol_task_active();
+bool any_service_task_active();
 void rx_task_function(void*);
 
 } // namespace usb

@@ -542,50 +542,54 @@ inline struct TxStreamBuffer {
   StreamBufferHandle_t handle{};
 } tx_stream_buffer;
 
-namespace ulf_dcc_ein {
+} // namespace usb
+
+namespace ulf {
+
+namespace dcc_ein {
 
 ///
 inline struct Task {
-  static constexpr auto name{"usb::ulf_dcc_ein"};
+  static constexpr auto name{"ulf::dcc_ein"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority - 1u};
   static constexpr auto timeout{100u};
   TaskHandle_t handle{};
 } task;
 
-} // namespace ulf_dcc_ein
+} // namespace dcc_ein
 
-namespace ulf_decup_ein {
+namespace decup_ein {
 
 ///
 inline struct Task {
-  static constexpr auto name{"usb::ulf_decup_ein"};
+  static constexpr auto name{"ulf::decup_ein"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority - 1u};
   static constexpr auto timeout{::decup::Task::timeout};
   TaskHandle_t handle{};
 } task;
 
-} // namespace ulf_decup_ein
+} // namespace decup_ein
 
-namespace ulf_susiv2 {
+namespace susiv2 {
 
 ///
 inline struct Task {
-  static constexpr auto name{"usb::ulf_susiv2"};
+  static constexpr auto name{"ulf::susiv2"};
   static constexpr auto stack_size{3072uz};
   static constexpr UBaseType_t priority{::usb::rx_task.priority - 1u};
   TaskHandle_t handle{};
 } task;
 
-} // namespace ulf_susiv2
+} // namespace susiv2
 
 // https://github.com/OpenRemise/Firmware/issues/36
-static_assert(ulf_dcc_ein::task.priority < rx_task.priority);
-static_assert(ulf_decup_ein::task.priority < rx_task.priority);
-static_assert(ulf_susiv2::task.priority < rx_task.priority);
+static_assert(dcc_ein::task.priority < ::usb::rx_task.priority);
+static_assert(decup_ein::task.priority < ::usb::rx_task.priority);
+static_assert(susiv2::task.priority < ::usb::rx_task.priority);
 
-} // namespace usb
+} // namespace ulf
 
 namespace wifi {
 

@@ -13,16 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// SUSIV2 protocol task function
+/// ULF_DCC_EIN task function
 ///
-/// \file   usb/ulf_susiv2/task_function.hpp
+/// \file   ulf/dcc_ein/task_function.hpp
 /// \author Vincent Hamp
-/// \date   10/02/2023
+/// \date   04/05/2025
 
 #pragma once
 
-namespace usb::ulf_susiv2 {
+#include <optional>
+#include <span>
 
+namespace ulf::dcc_ein {
+
+std::optional<dcc::Packet> receive_dcc_packet();
 void task_function(void*);
 
-} // namespace usb::ulf_susiv2
+} // namespace ulf::dcc_ein

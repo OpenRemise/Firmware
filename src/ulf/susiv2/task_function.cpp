@@ -13,19 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// SUSIV2 protocol task function
+/// ULF_SUSIV2 task function
 ///
-/// \file   usb/ulf_susiv2/task_function.cpp
+/// \file   ulf/susiv2/task_function.cpp
 /// \author Vincent Hamp
-/// \date   10/02/2023
+/// \date   04/05/2025
 
 #include "task_function.hpp"
 #include <ulf/susiv2.hpp>
-#include "../tx_task_function.hpp"
 #include "log.h"
+#include "usb/tx_task_function.hpp"
 #include "utility.hpp"
 
-namespace usb::ulf_susiv2 {
+namespace ulf::susiv2 {
 
 namespace {
 
@@ -35,8 +35,10 @@ receive_susiv2_frame(std::span<uint8_t> stack, uint32_t timeout) {
 
   for (;;) {
     // Receive single character
-    auto const bytes_received{xStreamBufferReceive(
-      rx_stream_buffer.handle, &stack[count], 1uz, pdMS_TO_TICKS(timeout))};
+    auto const bytes_received{xStreamBufferReceive(usb::rx_stream_buffer.handle,
+                                                   &stack[count],
+                                                   1uz,
+                                                   pdMS_TO_TICKS(timeout))};
     count += bytes_received;
     if (!bytes_received || count > size(stack)) return std::nullopt;
 
@@ -70,7 +72,7 @@ void transmit_response(std::span<uint8_t> stack) {
                               size(stack),
                               portMAX_DELAY)})
     xStreamBufferSend(
-      tx_stream_buffer.handle, data(stack), bytes_received, portMAX_DELAY);
+      usb::tx_stream_buffer.handle, data(stack), bytes_received, portMAX_DELAY);
 }
 
 /// \todo document
@@ -94,16 +96,16 @@ void task_function(void*) {
     //
     if (auto expected{State::Suspended};
         state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
-      transmit_ok();
+      usb::transmit_ok();
       LOGI_TASK_RESUME(out::zusi::task.handle);
       loop();
     }
     //
     else
-      transmit_not_ok();
+      usb::transmit_not_ok();
 
     LOGI_TASK_RESUME(usb::rx_task.handle);
   }
 }
 
-} // namespace usb::ulf_susiv2
+} // namespace ulf::susiv2

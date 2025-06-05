@@ -26,9 +26,6 @@
 #include "log.h"
 #include "rx_task_function.hpp"
 #include "tx_task_function.hpp"
-#include "ulf_dcc_ein/task_function.hpp"
-#include "ulf_decup_ein/task_function.hpp"
-#include "ulf_susiv2/task_function.hpp"
 
 namespace usb {
 
@@ -36,8 +33,8 @@ namespace {
 
 /// CDC receive callback
 ///
-/// The callback reads data from the CDC device and copies it to \ref
-/// rx_stream_buffer_handle.
+/// The callback reads data from the CDC device and copies it to
+/// \ref rx_stream_buffer.
 void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
   std::array<uint8_t, buffer_size> buf;
   size_t bytes_received;
@@ -49,6 +46,8 @@ void tinyusb_cdc_rx_callback(int, cdcacm_event_t*) {
 }
 
 /// CDC line state changed callback
+///
+/// The callback stores changes to the RTS line in the global \ref rts.
 void tinyusb_cdc_line_state_changed_callback(int, cdcacm_event_t* event) {
   rts = event->line_state_changed_data.rts;
 }
@@ -57,13 +56,10 @@ void tinyusb_cdc_line_state_changed_callback(int, cdcacm_event_t* event) {
 
 /// Initialize USB
 ///
-/// Create a CDC device on the TinyUSB stack and start various USB and USB
-/// protocol tasks. The following protocols are supported:
-/// - ULF_DCC_EIN
-/// - ULF_DECUP_EIN
-/// - ULF_SUSIV2
-///
-/// \retval ESP_OK  Success
+/// Initialization takes place in init(). This function creates a CDC device on
+/// the [TinyUSB](https://docs.tinyusb.org/en/latest) stack, a \ref
+/// rx_stream_buffer "receive-" and \ref tx_stream_buffer "transmit" buffer as
+/// well as the tasks \ref rx_task and \ref tx_task.
 esp_err_t init(BaseType_t xCoreID) {
   rx_stream_buffer.handle =
     xStreamBufferCreate(rx_stream_buffer.size, sizeof(uint8_t));
@@ -84,31 +80,6 @@ esp_err_t init(BaseType_t xCoreID) {
                                NULL,
                                tx_task.priority,
                                &tx_task.handle,
-                               xCoreID))
-    assert(false);
-
-  if (!xTaskCreatePinnedToCore(ulf_dcc_ein::task_function,
-                               ulf_dcc_ein::task.name,
-                               ulf_dcc_ein::task.stack_size,
-                               NULL,
-                               ulf_dcc_ein::task.priority,
-                               &ulf_dcc_ein::task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(ulf_decup_ein::task_function,
-                               ulf_decup_ein::task.name,
-                               ulf_decup_ein::task.stack_size,
-                               NULL,
-                               ulf_decup_ein::task.priority,
-                               &ulf_decup_ein::task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(ulf_susiv2::task_function,
-                               ulf_susiv2::task.name,
-                               ulf_susiv2::task.stack_size,
-                               NULL,
-                               ulf_susiv2::task.priority,
-                               &ulf_susiv2::task.handle,
                                xCoreID))
     assert(false);
 

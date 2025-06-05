@@ -13,35 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF_DCC_EIN protocol task function
+/// ULF_DCC_EIN task function
 ///
-/// \file   usb/ulf_dcc_ein/task_function.cpp
+/// \file   ulf/dcc_ein/task_function.cpp
 /// \author Vincent Hamp
-/// \date   10/02/2023
+/// \date   04/05/2025
 
 #include "task_function.hpp"
 #include <array>
 #include <charconv>
 #include <cstring>
 #include <ulf/dcc_ein.hpp>
-#include "../tx_task_function.hpp"
 #include "log.h"
+#include "usb/tx_task_function.hpp"
 #include "utility.hpp"
 
-namespace usb::ulf_dcc_ein {
+namespace ulf::dcc_ein {
 
 /// Receive DCC packet from senddcc string
 ///
 /// \retval dcc::Packet created from senddcc string
 /// \retval std::nullopt on timeout
 std::optional<dcc::Packet> receive_dcc_packet() {
-  std::array<char, rx_stream_buffer.size> stack;
+  std::array<char, usb::rx_stream_buffer.size> stack;
   size_t count{};
 
   for (;;) {
     // Receive single character
     auto const bytes_received{
-      xStreamBufferReceive(rx_stream_buffer.handle,
+      xStreamBufferReceive(usb::rx_stream_buffer.handle,
                            &stack[count],
                            1uz,
                            pdMS_TO_TICKS(task.timeout))};
@@ -94,10 +94,10 @@ void ack_senddcc_str() {
     out::tx_message_buffer.size -
     xMessageBufferSpacesAvailable(out::tx_message_buffer.front_handle)};
   auto const str{::ulf::dcc_ein::ack2senddcc_str('b', space_used)};
-  xStreamBufferSend(tx_stream_buffer.handle,
+  xStreamBufferSend(usb::tx_stream_buffer.handle,
                     data(str),
                     size(str),
-                    pdMS_TO_TICKS(tx_task.timeout));
+                    pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
 /// Receive addressed datagram
@@ -123,8 +123,10 @@ std::optional<ulf::dcc_ein::AddressedDatagram> receive_addressed_datagram() {
 void transmit_addressed_datagram(
   ulf::dcc_ein::AddressedDatagram const& addr_datagram) {
   auto const str{ulf::dcc_ein::addressed_datagram2sendbidi_str(addr_datagram)};
-  xStreamBufferSend(
-    tx_stream_buffer.handle, data(str), size(str), pdMS_TO_TICKS(task.timeout));
+  xStreamBufferSend(usb::tx_stream_buffer.handle,
+                    data(str),
+                    size(str),
+                    pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
 /// Actual usb::dcc_ein::rx_task loop
@@ -154,7 +156,7 @@ void loop() {
 
 } // namespace
 
-/// ULF_DCC_EIN receive task function
+/// ULF_DCC_EIN task function
 ///
 /// Immediately suspends itself after creation. It's only resumed after
 /// usb::rx_task_function receives a "DCC_EIN\r" protocol entry string. Once
@@ -167,17 +169,17 @@ void task_function(void*) {
     //
     if (auto expected{State::Suspended};
         state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
-      transmit_ok();
+      usb::transmit_ok();
       send_idle_packets_to_back();
       LOGI_TASK_RESUME(out::track::dcc::task.handle);
       loop();
     }
     //
     else
-      transmit_not_ok();
+      usb::transmit_not_ok();
 
     LOGI_TASK_RESUME(usb::rx_task.handle);
   }
 }
 
-} // namespace usb::ulf_dcc_ein
+} // namespace ulf::dcc_ein
