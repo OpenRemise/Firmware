@@ -59,7 +59,8 @@ void tinyusb_cdc_line_state_changed_callback(int, cdcacm_event_t* event) {
 /// Initialization takes place in init(). This function creates a CDC device on
 /// the [TinyUSB](https://docs.tinyusb.org/en/latest) stack, a \ref
 /// rx_stream_buffer "receive-" and \ref tx_stream_buffer "transmit" buffer as
-/// well as the tasks \ref rx_task and \ref tx_task.
+/// well as \ref rx_task_function "receive-" and  \ref tx_task_function
+/// "transmit" tasks.
 esp_err_t init() {
   rx_stream_buffer.handle =
     xStreamBufferCreate(rx_stream_buffer.size, sizeof(uint8_t));

@@ -758,7 +758,7 @@
 ///   package "ota" as mw_ota {
 ///     [Service] as mw_ota_service
 ///   }
-///   package "usb" as mw_usb {
+///   package "ulf" as mw_ulf {
 ///     [ULF_DCC_EIN]
 ///     [ULF_DECUP_EIN]
 ///     [ULF_SUSIV2]
@@ -793,6 +793,9 @@
 ///     package "zusi" as drv_out_zusi {
 ///       [Task] as drv_out_zusi_task
 ///     }
+///   }
+///   package "trace" as drv_trace {
+///     ["  "]
 ///   }
 ///   package "wifi" as drv_wifi {
 ///     [Task] as drv_wifi_task
@@ -838,8 +841,8 @@
 /// url of mw_decup is [[page_decup.html]]
 /// url of mw_mdu is [[page_mdu.html]]
 /// url of mw_ota is [[page_ota.html]]
+/// url of mw_ulf is [[page_usb.html]]
 /// url of mw_zusi is [[page_zusi.html]]
-/// url of mw_usb is [[page_usb.html]]
 /// url of mw_z21 is [[page_z21.html]]
 ///
 /// url of drv_analog is [[page_analog.html]]
@@ -850,6 +853,7 @@
 /// url of drv_out_track_decup is [[page_out.html#subsection_out_track_decup]]
 /// url of drv_out_track_mdu is [[page_out.html#subsection_out_track_mdu]]
 /// url of drv_out_zusi is [[page_out.html#section_out_zusi]]
+/// url of drv_trace is [[page_trace.html]]
 /// url of drv_wifi is [[page_wifi.html]]
 /// \enduml
 // clang-format on

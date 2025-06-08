@@ -23,7 +23,6 @@
 #include <array>
 #include <charconv>
 #include <cstring>
-#include <ulf/dcc_ein.hpp>
 #include "log.h"
 #include "usb/tx_task_function.hpp"
 #include "utility.hpp"
@@ -60,6 +59,18 @@ std::optional<dcc::Packet> receive_dcc_packet() {
 
 namespace {
 
+/// Acknowledge senddcc string
+void ack_senddcc_str() {
+  auto const space_used{
+    out::tx_message_buffer.size -
+    xMessageBufferSpacesAvailable(out::tx_message_buffer.front_handle)};
+  auto const str{::ulf::dcc_ein::ack2senddcc_str('b', space_used)};
+  xStreamBufferSend(usb::tx_stream_buffer.handle,
+                    data(str),
+                    size(str),
+                    pdMS_TO_TICKS(usb::tx_task.timeout));
+}
+
 /// Send DCC packet to out::tx_message_buffer front
 ///
 /// \param  packet  DCC packet
@@ -86,18 +97,6 @@ void send_idle_packets_to_back() {
   while (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) >
          out::tx_message_buffer.size * 0.5)
     send_to_back(idle_packet);
-}
-
-/// \todo document
-void ack_senddcc_str() {
-  auto const space_used{
-    out::tx_message_buffer.size -
-    xMessageBufferSpacesAvailable(out::tx_message_buffer.front_handle)};
-  auto const str{::ulf::dcc_ein::ack2senddcc_str('b', space_used)};
-  xStreamBufferSend(usb::tx_stream_buffer.handle,
-                    data(str),
-                    size(str),
-                    pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
 /// Receive addressed datagram
@@ -129,7 +128,7 @@ void transmit_addressed_datagram(
                     pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
-/// Actual usb::dcc_ein::rx_task loop
+/// Actual ulf::dcc_ein::task loop
 void loop() {
   auto const timeout{http_receive_timeout2ms()};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
@@ -158,28 +157,31 @@ void loop() {
 
 /// ULF_DCC_EIN task function
 ///
-/// Immediately suspends itself after creation. It's only resumed after
-/// usb::rx_task_function receives a "DCC_EIN\r" protocol entry string. Once
-/// running scan the CDC character stream for strings with pattern `senddcc(
-/// [\d0-9a-fA-F]{2})+\r` and transmit the data to out::tx_message_buffer.
+/// This task is created by the \ref usb::rx_task_function "USB receive task"
+/// when a `DCC_EIN\r` protocol string is received. Once running the task scans
+/// the CDC character stream for strings with pattern
+/// `senddcc([\d0-9a-fA-F]{2})+\r`, converts them to DCC packets and then
+/// transmits them to out::tx_message_buffer.
+///
+/// If no further senddcc string is received before the \ref
+/// mem::nvs::Settings::getHttpReceiveTimeout "HTTP receive timeout", the \ref
+/// usb::rx_task_function "USB receive task" is resumed and this task destroys
+/// itself.
 void task_function(void*) {
-  for (;;) {
-    LOGI_TASK_SUSPEND();
-
-    //
-    if (auto expected{State::Suspended};
-        state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
-      usb::transmit_ok();
-      send_idle_packets_to_back();
-      LOGI_TASK_RESUME(out::track::dcc::task.handle);
-      loop();
-    }
-    //
-    else
-      usb::transmit_not_ok();
-
-    LOGI_TASK_RESUME(usb::rx_task.handle);
+  // Switch to ULF_DCC_EIN mode, preload packets
+  if (auto expected{State::Suspended};
+      state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
+    usb::transmit_ok();
+    send_idle_packets_to_back();
+    LOGI_TASK_RESUME(out::track::dcc::task);
+    loop();
   }
+  // ... or not
+  else
+    usb::transmit_not_ok();
+
+  LOGI_TASK_RESUME(usb::rx_task);
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace ulf::dcc_ein

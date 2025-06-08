@@ -47,7 +47,7 @@ esp_err_t Service::socket(http::Message& msg) {
       msg.type != HTTPD_WS_TYPE_CLOSE &&
       state.compare_exchange_strong(expected, State::OTA)) {
     _queue.push(std::move(msg));
-    LOGI_TASK_RESUME(task.handle);
+    LOGI_TASK_RESUME(task);
     return ESP_OK;
   }
   //

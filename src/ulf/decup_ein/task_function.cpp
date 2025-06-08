@@ -29,11 +29,8 @@ namespace ulf::decup_ein {
 
 using namespace ulf::decup_ein;
 
-namespace {
-
-/// \todo document
+/// Receiver
 class Decup : public ::ulf::decup_ein::rx::Base {
-  /// \todo document
   uint8_t transmit(std::span<uint8_t const> bytes) final {
     uint8_t acks{};
     if (!xMessageBufferSend(out::tx_message_buffer.front_handle,
@@ -50,7 +47,11 @@ class Decup : public ::ulf::decup_ein::rx::Base {
   }
 };
 
-/// \todo document
+namespace {
+
+/// Transmit response returned from receiver
+///
+/// \param byte Ack (`0x1C`) or nak (`0xFC`)
 void transmit_response(uint8_t byte) {
   xStreamBufferSend(usb::tx_stream_buffer.handle,
                     &byte,
@@ -58,7 +59,7 @@ void transmit_response(uint8_t byte) {
                     pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
-/// Actual usb::decup_ein::task loop
+/// Actual ulf::decup_ein::task loop
 void loop() {
   Decup decup{};
 
@@ -96,24 +97,35 @@ void loop() {
 
 } // namespace
 
-/// \todo document
+/// ULF_DECUP_EIN task function
+///
+/// This task is created by the \ref usb::rx_task_function "USB receive task"
+/// when a `DECUP_EIN\r` protocol string is received. Unfortunately, the
+/// protocol itself is stateful and requires its own \ref ulf::decup_ein::Decup
+/// "receiver class". An instance of this receiver on the stack takes care of
+/// decoding the raw USB data to DECUP packets. Those packets are then
+/// transmitted to out::tx_message_buffer.
+///
+/// A special feature of this protocol is that the RTS line is used to switch
+/// the track voltage on and off. For this reason, the RTS line is monitored and
+/// its state is stored in a global variable \ref usb::rts.
+///
+/// At the end of an upload, the \ref usb::rx_task_function "USB receive task"
+/// is resumed and this task destroys itself.
 void task_function(void*) {
-  for (;;) {
-    LOGI_TASK_SUSPEND();
-
-    //
-    if (auto expected{State::Suspended};
-        state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
-      usb::transmit_ok();
-      LOGI_TASK_RESUME(out::track::decup::task.handle);
-      loop();
-    }
-    //
-    else
-      usb::transmit_not_ok();
-
-    LOGI_TASK_RESUME(usb::rx_task.handle);
+  // Switch to ULF_DECUP_EIN mode
+  if (auto expected{State::Suspended};
+      state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
+    usb::transmit_ok();
+    LOGI_TASK_RESUME(out::track::decup::task);
+    loop();
   }
+  // ... or not
+  else
+    usb::transmit_not_ok();
+
+  LOGI_TASK_RESUME(usb::rx_task);
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace ulf::decup_ein

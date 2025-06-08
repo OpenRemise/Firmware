@@ -46,16 +46,6 @@ void transmit_ping() {
 #endif
 }
 
-/// Check if any USB service task is active
-///
-/// \retval true if any service task is active
-/// \retval false if no service task is active
-bool any_service_task_active() {
-  return eTaskGetState(ulf::dcc_ein::task.handle) < eSuspended ||
-         eTaskGetState(ulf::decup_ein::task.handle) < eSuspended ||
-         eTaskGetState(ulf::susiv2::task.handle) < eSuspended;
-}
-
 namespace {
 
 /// Actual \ref rx_task loop
@@ -81,12 +71,12 @@ void loop() {
       else if (cmd == "PING\r"sv) transmit_ping();
       // Resume ULF_DCC_EIN task
       else if (cmd == "DCC_EIN\r"sv) {
-        LOGI_TASK_RESUME(ulf::dcc_ein::task.handle);
+        LOGI_TASK_CREATE(ulf::dcc_ein::task);
         break;
       }
       // Resume ULF_DECUP_EIN task
       else if (cmd == "DECUP_EIN\r"sv) {
-        LOGI_TASK_RESUME(ulf::decup_ein::task.handle);
+        LOGI_TASK_CREATE(ulf::decup_ein::task);
         break;
       }
       // Resume ULF_MDU_EIN task
@@ -94,7 +84,7 @@ void loop() {
         LOGW("MDU_EIN not implemented");
       // Resume ULF_SUSIV2 task
       else if (cmd == "SUSIV2\r"sv) {
-        LOGI_TASK_RESUME(ulf::susiv2::task.handle);
+        LOGI_TASK_CREATE(ulf::susiv2::task);
         break;
       }
     }
@@ -103,23 +93,24 @@ void loop() {
   }
 }
 
-/// Wait until all service tasks are suspended
-void wait_for_all_service_tasks_to_suspend() {
-  while (any_service_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
-}
-
 } // namespace
 
 /// USB receive task function
 ///
-/// Scan the CDC character stream for protocol entry strings. Once a supported
-/// string is detected the corrsponding tasks are resumed and the receive task
-/// suspends itself.
+/// The receive task scans the CDC character stream for commands. Those commands
+/// could either be general ones (e.g. `PING\r`) or protocol entry strings. When
+/// a protocol entry string is detected the corrsponding task is created and the
+/// receive task suspends itself.
+///
+/// Currently supported protocols are:
+/// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
+/// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+/// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
 void rx_task_function(void*) {
   for (;;) {
     loop();
     LOGI_TASK_SUSPEND();
-    wait_for_all_service_tasks_to_suspend();
+    vTaskDelay(pdMS_TO_TICKS(rx_task.timeout)); // Mandatory
   }
 }
 

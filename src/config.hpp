@@ -539,39 +539,38 @@ inline struct TxStreamBuffer {
 
 namespace ulf {
 
+inline std::array<StackType_t, 3072uz> stack{};
+
 namespace dcc_ein {
 
 ///
-inline TASK(task,
-            "ulf::dcc_ein",               // Name
-            3072uz,                       // Stack size
-            ::usb::rx_task.priority - 1u, // Priority
-            APP_CPU_NUM,                  // Core
-            100u);                        // Timeout
+inline SHARED_TASK(task,
+                   "ulf::dcc_ein",               // Name
+                   ::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                  // Core
+                   100u);                        // Timeout
 
 } // namespace dcc_ein
 
 namespace decup_ein {
 
 ///
-inline TASK(task,
-            "ulf::decup_ein",             // Name
-            3072uz,                       // Stack size
-            ::usb::rx_task.priority - 1u, // Priority
-            APP_CPU_NUM,                  // Core
-            ::decup::task.timeout);       // Timeout
+inline SHARED_TASK(task,
+                   "ulf::decup_ein",             // Name
+                   ::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                  // Core
+                   ::decup::task.timeout);       // Timeout
 
 } // namespace decup_ein
 
 namespace susiv2 {
 
 ///
-inline TASK(task,
-            "ulf::susiv2",                // Name
-            3072uz,                       // Stack size
-            ::usb::rx_task.priority - 1u, // Priority
-            APP_CPU_NUM,                  // Core
-            0u);
+inline SHARED_TASK(task,
+                   "ulf::susiv2",                // Name
+                   ::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                  // Core
+                   0u);
 
 } // namespace susiv2
 

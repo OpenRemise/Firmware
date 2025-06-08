@@ -28,15 +28,17 @@
 
 namespace ulf {
 
-/// \todo document
+/// Initialize ULF
 ///
-/// - ULF_DCC_EIN
-/// - ULF_DECUP_EIN
-/// - ULF_SUSIV2
-esp_err_t init(BaseType_t xCoreID) {
-  dcc_ein::task.create(dcc_ein::task_function);
-  decup_ein::task.create(decup_ein::task_function);
-  susiv2::task.create(susiv2::task_function);
+/// This function basically does nothing except set the function pointer for the
+/// corresponding protocol tasks:
+/// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
+/// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+/// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
+esp_err_t init() {
+  dcc_ein::task.function = dcc_ein::task_function;
+  decup_ein::task.function = decup_ein::task_function;
+  susiv2::task.function = susiv2::task_function;
   return ESP_OK;
 }
 
