@@ -49,7 +49,7 @@ dcc::Address::value_type Locos::key2address(std::string_view key) {
 ///
 /// \param  addr  Address
 /// \return Loco
-dcc::NvLocoBase Locos::get(dcc::Address::value_type addr) const {
+mw::dcc::NvLocoBase Locos::get(dcc::Address::value_type addr) const {
   return get(address2key(addr));
 }
 
@@ -57,14 +57,14 @@ dcc::NvLocoBase Locos::get(dcc::Address::value_type addr) const {
 ///
 /// \param  addr  key
 /// \return Loco
-dcc::NvLocoBase Locos::get(std::string const& key) const {
+mw::dcc::NvLocoBase Locos::get(std::string const& key) const {
   auto const json{getBlob(key)};
   JsonDocument doc;
   if (auto const err{deserializeJson(doc, json)}) {
     LOGE("Deserialization failed %s", err.c_str());
     return {};
   }
-  dcc::NvLocoBase loco;
+  mw::dcc::NvLocoBase loco;
   loco.fromJsonDocument(doc);
   return loco;
 }
@@ -81,7 +81,7 @@ dcc::NvLocoBase Locos::get(std::string const& key) const {
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Locos::set(dcc::Address::value_type addr,
-                     dcc::NvLocoBase const& loco) {
+                     mw::dcc::NvLocoBase const& loco) {
   return set(address2key(addr), loco);
 }
 
@@ -96,7 +96,7 @@ esp_err_t Locos::set(dcc::Address::value_type addr,
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
-esp_err_t Locos::set(std::string const& key, dcc::NvLocoBase const& loco) {
+esp_err_t Locos::set(std::string const& key, mw::dcc::NvLocoBase const& loco) {
   auto const doc{loco.toJsonDocument()};
   std::string json;
   json.reserve(1024uz);

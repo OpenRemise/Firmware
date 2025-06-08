@@ -46,6 +46,9 @@
 #  include <esp_wifi.h>
 #  include <hal/adc_types.h>
 #elif CONFIG_IDF_TARGET_LINUX
+#  define APP_CPU_NUM 0
+#  define PRO_CPU_NUM APP_CPU_NUM
+#  define WIFI_TASK_CORE_ID APP_CPU_NUM
 #  define ADC_CHANNEL_1 1
 #  define ADC_CHANNEL_2 2
 #  define ADC_CHANNEL_3 3
@@ -172,6 +175,8 @@ ZTL_MAKE_ENUM_CLASS_FLAGS(State)
 /// Restricts access to low-level tasks
 inline std::atomic<State> state{State::Suspended};
 
+namespace drv {
+
 namespace analog {
 
 inline constexpr auto ol_on_gpio_num{GPIO_NUM_17};
@@ -218,7 +223,7 @@ static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
 
 ///
 inline TASK(adc_task,
-            "analog::adc",          // Name
+            "drv::analog::adc",     // Name
             4096uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 2u, // Priority
             APP_CPU_NUM,            // Core
@@ -226,10 +231,10 @@ inline TASK(adc_task,
 
 ///
 inline TASK(temp_task,
-            "analog::temp",   // Name
-            2048uz,           // Stack size
-            tskIDLE_PRIORITY, // Priority
-            APP_CPU_NUM,      // Core
+            "drv::analog::temp", // Name
+            2048uz,              // Stack size
+            tskIDLE_PRIORITY,    // Priority
+            APP_CPU_NUM,         // Core
             0u);
 
 using VoltageMeasurement =
@@ -271,52 +276,6 @@ inline struct TemperatureQueue {
 
 } // namespace analog
 
-namespace dcc {
-
-inline constexpr auto priority_bits{5u};
-
-class Service;
-inline std::shared_ptr<Service> service;
-
-///
-inline TASK(task,
-            "dcc",       // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
-            50u);        // Timeout
-
-} // namespace dcc
-
-namespace decup {
-
-///
-inline TASK(task,
-            "decup",     // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
-            60'000u);    // Timeout
-
-} // namespace decup
-
-namespace http {
-
-/// Handle to server instance
-inline httpd_handle_t handle{};
-
-///
-inline constexpr auto stack_size{6144uz};
-
-namespace sta {
-
-class Server;
-inline std::shared_ptr<Server> server;
-
-} // namespace sta
-
-} // namespace http
-
 namespace led {
 
 /// Bug LED pin used to indicate errors or updates
@@ -332,54 +291,6 @@ inline constexpr auto wifi_gpio_num{GPIO_NUM_47};
 inline constexpr auto wifi_channel{LEDC_CHANNEL_1};
 
 } // namespace led
-
-namespace mdns {
-
-inline std::string str;
-
-} // namespace mdns
-
-namespace mdu {
-
-///
-inline TASK(task,
-            "mdu",       // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
-            0u);
-
-} // namespace mdu
-
-namespace ota {
-
-///
-inline constexpr uint8_t ack{0x06u};
-
-///
-inline constexpr uint8_t nak{0x15u};
-
-///
-inline TASK(task,
-            "ota",                  // Name
-            4096uz,                 // Stack size
-            ESP_TASK_PRIO_MAX - 1u, // Priority
-            APP_CPU_NUM,            // Core
-            0u);
-
-} // namespace ota
-
-namespace zusi {
-
-/// \todo ESP_TASK_PRIO_MAX
-inline TASK(task,
-            "zusi",      // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
-            0u);
-
-} // namespace zusi
 
 namespace out {
 
@@ -442,7 +353,7 @@ inline constexpr auto bidi_en_gpio_num{GPIO_NUM_13};
 
 ///
 inline TASK(task,
-            "out::track::dcc",      // Name
+            "drv::out::track::dcc", // Name
             4096uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 1u, // Priority
             APP_CPU_NUM,            // Core
@@ -454,11 +365,11 @@ namespace decup {
 
 ///
 inline TASK(task,
-            "out::track::decup",    // Name
-            4096uz,                 // Stack size
-            ESP_TASK_PRIO_MAX - 1u, // Priority
-            APP_CPU_NUM,            // Core
-            ::decup::task.timeout); // Timeout
+            "drv::out::track::decup", // Name
+            4096uz,                   // Stack size
+            ESP_TASK_PRIO_MAX - 1u,   // Priority
+            APP_CPU_NUM,              // Core
+            60'000u);                 // Timeout
 
 } // namespace decup
 
@@ -466,7 +377,7 @@ namespace mdu {
 
 ///
 inline TASK(task,
-            "out::track::mdu",      // Name
+            "drv::out::track::mdu", // Name
             4096uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 1u, // Priority
             APP_CPU_NUM,            // Core
@@ -484,7 +395,7 @@ inline constexpr auto data_gpio_num{GPIO_NUM_5};
 
 ///
 inline TASK(task,
-            "out::zusi",            // Name
+            "drv::out::zusi",       // Name
             4096uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 1u, // Priority
             APP_CPU_NUM,            // Core
@@ -493,6 +404,52 @@ inline TASK(task,
 } // namespace zusi
 
 } // namespace out
+
+namespace wifi {
+
+#if CONFIG_IDF_TARGET_ESP32S3
+inline std::vector<wifi_ap_record_t> ap_records;
+#endif
+inline std::string ip_str;
+inline std::array<uint8_t, 6uz> mac;
+inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
+
+///
+inline TASK(task,
+            "drv::wifi",       // Name
+            3072uz,            // Stack size
+            tskIDLE_PRIORITY,  // Priority
+            WIFI_TASK_CORE_ID, // Core
+            0u);
+
+} // namespace wifi
+
+} // namespace drv
+
+namespace intf {
+
+namespace http {
+
+/// Handle to server instance
+inline httpd_handle_t handle{};
+
+///
+inline constexpr auto stack_size{6144uz};
+
+namespace sta {
+
+class Server;
+inline std::shared_ptr<Server> server;
+
+} // namespace sta
+
+} // namespace http
+
+namespace mdns {
+
+inline std::string str;
+
+} // namespace mdns
 
 namespace udp {
 
@@ -509,19 +466,19 @@ inline constexpr auto buffer_size{512uz};
 
 ///
 inline TASK(rx_task,
-            "usb::rx",   // Name
-            3072uz,      // Stack size
-            5u,          // Priority
-            APP_CPU_NUM, // Core
-            100u);       // Timeout
+            "intf::usb::rx", // Name
+            3072uz,          // Stack size
+            5u,              // Priority
+            APP_CPU_NUM,     // Core
+            100u);           // Timeout
 
 ///
 inline TASK(tx_task,
-            "usb::tx",   // Name
-            3072uz,      // Stack size
-            1u,          // Priority
-            APP_CPU_NUM, // Core
-            20u);        // Timeout
+            "intf::usb::tx", // Name
+            3072uz,          // Stack size
+            1u,              // Priority
+            APP_CPU_NUM,     // Core
+            20u);            // Timeout
 
 ///
 inline struct RxStreamBuffer {
@@ -537,6 +494,69 @@ inline struct TxStreamBuffer {
 
 } // namespace usb
 
+} // namespace intf
+
+namespace mw {
+
+namespace dcc {
+
+inline constexpr auto priority_bits{5u};
+
+class Service;
+inline std::shared_ptr<Service> service;
+
+///
+inline TASK(task,
+            "mw::dcc",   // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            50u);        // Timeout
+
+} // namespace dcc
+
+namespace decup {
+
+///
+inline TASK(task,
+            "mw::decup",                           // Name
+            4096uz,                                // Stack size
+            2u,                                    // Priority
+            APP_CPU_NUM,                           // Core
+            drv::out::track::decup::task.timeout); // Timeout
+
+} // namespace decup
+
+namespace mdu {
+
+///
+inline TASK(task,
+            "mw::mdu",   // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            0u);
+
+} // namespace mdu
+
+namespace ota {
+
+///
+inline constexpr uint8_t ack{0x06u};
+
+///
+inline constexpr uint8_t nak{0x15u};
+
+///
+inline TASK(task,
+            "mw::ota",              // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 1u, // Priority
+            APP_CPU_NUM,            // Core
+            0u);
+
+} // namespace ota
+
 namespace ulf {
 
 inline std::array<StackType_t, 3072uz> stack{};
@@ -545,10 +565,10 @@ namespace dcc_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "ulf::dcc_ein",               // Name
-                   ::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                  // Core
-                   100u);                        // Timeout
+                   "mw::ulf::dcc_ein",               // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
+                   100u);                            // Timeout
 
 } // namespace dcc_ein
 
@@ -556,10 +576,10 @@ namespace decup_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "ulf::decup_ein",             // Name
-                   ::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                  // Core
-                   ::decup::task.timeout);       // Timeout
+                   "mw::ulf::decup_ein",                  // Name
+                   intf::usb::rx_task.priority - 1u,      // Priority
+                   APP_CPU_NUM,                           // Core
+                   drv::out::track::decup::task.timeout); // Timeout
 
 } // namespace decup_ein
 
@@ -567,44 +587,25 @@ namespace susiv2 {
 
 ///
 inline SHARED_TASK(task,
-                   "ulf::susiv2",                // Name
-                   ::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                  // Core
+                   "mw::ulf::susiv2",                // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
                    0u);
 
 } // namespace susiv2
 
 // https://github.com/OpenRemise/Firmware/issues/36
-static_assert(dcc_ein::task.priority < ::usb::rx_task.priority);
-static_assert(decup_ein::task.priority < ::usb::rx_task.priority);
-static_assert(susiv2::task.priority < ::usb::rx_task.priority);
+static_assert(dcc_ein::task.priority < intf::usb::rx_task.priority);
+static_assert(decup_ein::task.priority < intf::usb::rx_task.priority);
+static_assert(susiv2::task.priority < intf::usb::rx_task.priority);
 
 } // namespace ulf
-
-namespace wifi {
-
-#if CONFIG_IDF_TARGET_ESP32S3
-inline std::vector<wifi_ap_record_t> ap_records;
-#endif
-inline std::string ip_str;
-inline std::array<uint8_t, 6uz> mac;
-inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
-
-///
-inline TASK(task,
-            "wifi",            // Name
-            3072uz,            // Stack size
-            tskIDLE_PRIORITY,  // Priority
-            WIFI_TASK_CORE_ID, // Core
-            0u);
-
-} // namespace wifi
 
 namespace z21 {
 
 ///
 inline TASK(task,
-            "z21",       // Name
+            "mw::z21",   // Name
             6144uz,      // Stack size
             5u,          // Priority
             APP_CPU_NUM, // Core
@@ -614,3 +615,17 @@ class Service;
 inline std::shared_ptr<Service> service;
 
 } // namespace z21
+
+namespace zusi {
+
+/// \todo ESP_TASK_PRIO_MAX
+inline TASK(task,
+            "mw::zusi",  // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            0u);
+
+} // namespace zusi
+
+} // namespace mw

@@ -66,9 +66,9 @@ esp_err_t init() {
     if (nvs.find("http_tx_timeout") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setHttpTransmitTimeout(5u);
     if (nvs.find("cur_lim") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setCurrentLimit(out::track::CurrentLimit::_4100mA);
+      nvs.setCurrentLimit(drv::out::track::CurrentLimit::_4100mA);
     if (nvs.find("cur_lim_serv") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setCurrentLimitService(out::track::CurrentLimit::_1300mA);
+      nvs.setCurrentLimitService(drv::out::track::CurrentLimit::_1300mA);
     if (nvs.find("cur_sc_time") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setCurrentShortCircuitTime(100u);
     if (nvs.find("led_dc_bug") == ESP_ERR_NVS_NOT_FOUND)

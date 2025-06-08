@@ -248,8 +248,8 @@ esp_err_t Settings::setHttpTransmitTimeout(uint8_t value) {
 /// Get current limit
 ///
 /// \return Current limit
-out::track::CurrentLimit Settings::getCurrentLimit() const {
-  return static_cast<out::track::CurrentLimit>(getU8("cur_lim"));
+drv::out::track::CurrentLimit Settings::getCurrentLimit() const {
+  return static_cast<drv::out::track::CurrentLimit>(getU8("cur_lim"));
 }
 
 /// Set current limit
@@ -262,9 +262,9 @@ out::track::CurrentLimit Settings::getCurrentLimit() const {
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_INVALID_ARG           Current limit out of range
-esp_err_t Settings::setCurrentLimit(out::track::CurrentLimit value) {
+esp_err_t Settings::setCurrentLimit(drv::out::track::CurrentLimit value) {
   return std::to_underlying(value) <=
-             std::to_underlying(out::track::CurrentLimit::_4100mA)
+             std::to_underlying(drv::out::track::CurrentLimit::_4100mA)
            ? setU8("cur_lim", std::to_underlying(value))
            : ESP_ERR_INVALID_ARG;
 }
@@ -272,8 +272,8 @@ esp_err_t Settings::setCurrentLimit(out::track::CurrentLimit value) {
 /// Get current limit in service mode
 ///
 /// \return Current limit in service mode
-out::track::CurrentLimit Settings::getCurrentLimitService() const {
-  return static_cast<out::track::CurrentLimit>(getU8("cur_lim_serv"));
+drv::out::track::CurrentLimit Settings::getCurrentLimitService() const {
+  return static_cast<drv::out::track::CurrentLimit>(getU8("cur_lim_serv"));
 }
 
 /// Set current limit in service mode
@@ -287,9 +287,10 @@ out::track::CurrentLimit Settings::getCurrentLimitService() const {
 ///                                       write operation has failed
 /// \retval ESP_ERR_INVALID_ARG           Current limit in service mode out of
 ///                                       range
-esp_err_t Settings::setCurrentLimitService(out::track::CurrentLimit value) {
+esp_err_t
+Settings::setCurrentLimitService(drv::out::track::CurrentLimit value) {
   return std::to_underlying(value) <=
-             std::to_underlying(out::track::CurrentLimit::_4100mA)
+             std::to_underlying(drv::out::track::CurrentLimit::_4100mA)
            ? setU8("cur_lim_serv", std::to_underlying(value))
            : ESP_ERR_INVALID_ARG;
 }
@@ -351,9 +352,10 @@ uint8_t Settings::getCurrentShortCircuitTime() const {
 /// \retval ESP_ERR_INVALID_ARG           Current short circuit time out of
 ///                                       range
 esp_err_t Settings::setCurrentShortCircuitTime(uint8_t value) {
-  return value >= 20u ? setU8("cur_sc_time",
-                              round_to(value, analog::conversion_frame_time))
-                      : ESP_ERR_INVALID_ARG;
+  return value >= 20u
+           ? setU8("cur_sc_time",
+                   round_to(value, drv::analog::conversion_frame_time))
+           : ESP_ERR_INVALID_ARG;
 }
 
 /// Get DCC preamble count
