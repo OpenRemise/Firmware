@@ -29,6 +29,6 @@ namespace out::zusi {
 
 inline std::array<spi_device_handle_t, 4uz> spis{};
 
-esp_err_t init(BaseType_t xCoreID);
+esp_err_t init();
 
 } // namespace out::zusi

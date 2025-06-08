@@ -23,8 +23,8 @@
 
 #include <esp_log.h>
 
-#define STRINGIZE_DETAIL(x) #x
-#define STRINGIZE(x) STRINGIZE_DETAIL(x)
+#define STRINGIZE_DETAIL(X) #X
+#define STRINGIZE(X) STRINGIZE_DETAIL(X)
 
 #define PREFIX_LOG(LOG_MACRO, ...)                                             \
   do {                                                                         \
@@ -53,16 +53,14 @@
 #define DRAM_LOGD(...) PREFIX_LOG(DRAM_LOGD, __VA_ARGS__)
 #define DRAM_LOGV(...) PREFIX_LOG(DRAM_LOGV, __VA_ARGS__)
 
-#define LOGI_TASK_RESUME(task_handle)                                          \
+#define LOGI_TASK_RESUME(TASK_HANDLE)                                          \
   do {                                                                         \
-    if (eTaskGetState(task_handle) == eSuspended)                              \
-      LOGI("Resume %s task", pcTaskGetName(task_handle));                      \
-    vTaskResume(task_handle);                                                  \
+    LOGI("Resume %s task", pcTaskGetName(TASK_HANDLE));                        \
+    vTaskResume(TASK_HANDLE);                                                  \
   } while (0)
 
-#define LOGI_TASK_SUSPEND(task_handle)                                         \
+#define LOGI_TASK_SUSPEND()                                                    \
   do {                                                                         \
-    if (eTaskGetState(task_handle) != eSuspended)                              \
-      LOGI("Suspend %s task", pcTaskGetName(task_handle));                     \
-    vTaskSuspend(task_handle);                                                 \
+    LOGI("Suspend %s task", pcTaskGetName(NULL));                              \
+    vTaskSuspend(NULL);                                                        \
   } while (0)

@@ -91,7 +91,7 @@ void loop() {
 /// \todo document
 void task_function(void*) {
   for (;;) {
-    LOGI_TASK_SUSPEND(task.handle);
+    LOGI_TASK_SUSPEND();
 
     //
     if (auto expected{State::Suspended};

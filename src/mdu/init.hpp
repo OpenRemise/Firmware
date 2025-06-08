@@ -19,6 +19,6 @@
 
 namespace mdu {
 
-esp_err_t init(BaseType_t xCoreID);
+esp_err_t init();
 
 } // namespace mdu

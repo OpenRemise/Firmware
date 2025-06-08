@@ -60,28 +60,14 @@ void tinyusb_cdc_line_state_changed_callback(int, cdcacm_event_t* event) {
 /// the [TinyUSB](https://docs.tinyusb.org/en/latest) stack, a \ref
 /// rx_stream_buffer "receive-" and \ref tx_stream_buffer "transmit" buffer as
 /// well as the tasks \ref rx_task and \ref tx_task.
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   rx_stream_buffer.handle =
     xStreamBufferCreate(rx_stream_buffer.size, sizeof(uint8_t));
   tx_stream_buffer.handle =
     xStreamBufferCreate(tx_stream_buffer.size, sizeof(uint8_t));
 
-  if (!xTaskCreatePinnedToCore(rx_task_function,
-                               rx_task.name,
-                               rx_task.stack_size,
-                               NULL,
-                               rx_task.priority,
-                               &rx_task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(tx_task_function,
-                               tx_task.name,
-                               tx_task.stack_size,
-                               NULL,
-                               tx_task.priority,
-                               &tx_task.handle,
-                               xCoreID))
-    assert(false);
+  rx_task.create(rx_task_function);
+  tx_task.create(tx_task_function);
 
   static constexpr tinyusb_config_t tusb_cfg{.device_descriptor = NULL,
                                              .string_descriptor = NULL,

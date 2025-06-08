@@ -27,7 +27,7 @@
 namespace out::zusi {
 
 /// \todo document
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull
                                                          << enable_gpio_num,
                                          .mode = GPIO_MODE_OUTPUT,
@@ -73,14 +73,7 @@ esp_err_t init(BaseType_t xCoreID) {
   devcfg.clock_speed_hz = static_cast<int>(1.0 / 0.5533e-6);
   spi_bus_add_device(SPI2_HOST, &devcfg, &spis[3uz]);
 
-  if (!xTaskCreatePinnedToCore(task_function,
-                               task.name,
-                               task.stack_size,
-                               NULL,
-                               task.priority,
-                               &task.handle,
-                               xCoreID))
-    assert(false);
+  task.create(task_function);
 
   return ESP_OK;
 }

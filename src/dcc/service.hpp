@@ -26,7 +26,7 @@ namespace dcc {
 /// \todo document
 class Service : public z21::server::intf::Dcc {
 public:
-  explicit Service(BaseType_t xCoreID);
+  Service();
   ~Service();
 
   //

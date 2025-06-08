@@ -30,27 +30,16 @@ namespace dcc {
 using namespace std::literals;
 
 /// \todo document
-Service::Service(BaseType_t xCoreID) {
+Service::Service() {
   for (mem::nvs::Locos nvs; auto const& entry_info : nvs) {
     auto const addr{nvs.key2address(entry_info.key)};
     dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
   }
-
-  if (!xTaskCreatePinnedToCore(
-        ztl::make_trampoline(this, &Service::taskFunction),
-        task.name,
-        task.stack_size,
-        NULL,
-        task.priority,
-        &task.handle,
-        xCoreID))
-    assert(false);
+  task.create(ztl::make_trampoline(this, &Service::taskFunction));
 }
 
 /// \todo document
-Service::~Service() {
-  if (task.handle) vTaskDelete(task.handle);
-}
+Service::~Service() { task.destroy(); }
 
 /// \todo document
 void Service::z21(std::shared_ptr<z21::server::intf::System> z21_system_service,
@@ -182,7 +171,7 @@ void Service::taskFunction(void*) {
         serviceLoop();
         suspend();
         break;
-      default: LOGI_TASK_SUSPEND(task.handle); break;
+      default: LOGI_TASK_SUSPEND(); break;
     }
 }
 

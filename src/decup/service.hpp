@@ -24,7 +24,7 @@ namespace decup {
 
 class Service : public ulf::decup_ein::rx::Base {
 public:
-  explicit Service(BaseType_t xCoreID);
+  Service();
   ~Service();
 
   esp_err_t zppSocket(http::Message& msg);

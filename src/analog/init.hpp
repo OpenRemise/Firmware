@@ -31,6 +31,6 @@ namespace analog {
 inline adc_continuous_handle_t adc1_handle{};
 inline temperature_sensor_handle_t temp_sensor{};
 
-esp_err_t init(BaseType_t xCoreID);
+esp_err_t init();
 
 } // namespace analog

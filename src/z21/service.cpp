@@ -25,22 +25,12 @@ namespace z21 {
 using namespace std::literals;
 
 /// \todo document
-Service::Service(BaseType_t xCoreID) {
-  if (!xTaskCreatePinnedToCore(
-        ztl::make_trampoline(this, &Service::taskFunction),
-        task.name,
-        task.stack_size,
-        NULL,
-        task.priority,
-        &task.handle,
-        xCoreID))
-    assert(false);
+Service::Service() {
+  task.create(ztl::make_trampoline(this, &Service::taskFunction));
 }
 
 /// \todo document
-Service::~Service() {
-  if (task.handle) vTaskDelete(task.handle);
-}
+Service::~Service() { task.destroy(); }
 
 /// \todo document
 void Service::dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service) {

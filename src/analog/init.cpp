@@ -62,7 +62,7 @@ esp_err_t init_gpio() {
 ///   and applies a curve fitting calibration
 /// - Initializes the internal temperature sensor
 /// - Creates an ADC and temperature task
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   voltages_queue.handle =
     xQueueCreate(voltages_queue.size, sizeof(VoltagesQueue::value_type));
   currents_queue.handle =
@@ -118,22 +118,8 @@ esp_err_t init(BaseType_t xCoreID) {
   ESP_ERROR_CHECK(temperature_sensor_enable(temp_sensor));
 
   // Create ADC and temp tasks
-  if (!xTaskCreatePinnedToCore(adc_task_function,
-                               adc_task.name,
-                               adc_task.stack_size,
-                               NULL,
-                               adc_task.priority,
-                               &adc_task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(temp_task_function,
-                               temp_task.name,
-                               temp_task.stack_size,
-                               NULL,
-                               temp_task.priority,
-                               &temp_task.handle,
-                               xCoreID))
-    assert(false);
+  adc_task.create(adc_task_function);
+  temp_task.create(temp_task_function);
 
   return ESP_OK;
 }

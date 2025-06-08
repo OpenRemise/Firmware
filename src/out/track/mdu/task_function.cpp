@@ -303,7 +303,7 @@ void task_function(void*) {
         ESP_ERROR_CHECK(loop(encoder_config));
         ESP_ERROR_CHECK(suspend());
         break;
-      default: LOGI_TASK_SUSPEND(task.handle); break;
+      default: LOGI_TASK_SUSPEND(); break;
     }
 }
 

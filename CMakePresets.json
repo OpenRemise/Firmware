@@ -59,6 +59,10 @@
                 "ESP_PLATFORM": "ON",
                 "IDF_TARGET": "linux",
                 "PYTHON_DEPS_CHECKED": "ON"
+            },
+            "environment": {
+                "CC": "gcc-14",
+                "CXX": "g++-14"
             }
         }
     ]

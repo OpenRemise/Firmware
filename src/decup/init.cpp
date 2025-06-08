@@ -27,9 +27,9 @@ std::shared_ptr<Service> service;
 } // namespace
 
 /// \todo document
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   if (http::sta::server) {
-    service = std::make_shared<Service>(xCoreID);
+    service = std::make_shared<Service>();
     http::sta::server->subscribe(
       {.uri = "/decup/zpp/"}, service, &Service::zppSocket);
     http::sta::server->subscribe(

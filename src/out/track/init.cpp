@@ -136,36 +136,15 @@ esp_err_t init_gpio() {
 } // namespace
 
 /// \todo document
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   rx_queue.handle = xQueueCreate(rx_queue.size, sizeof(RxQueue::value_type));
 
   ESP_ERROR_CHECK(init_channel());
   ESP_ERROR_CHECK(init_gpio());
 
-  if (!xTaskCreatePinnedToCore(dcc::task_function,
-                               dcc::task.name,
-                               dcc::task.stack_size,
-                               NULL,
-                               dcc::task.priority,
-                               &dcc::task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(decup::task_function,
-                               decup::task.name,
-                               decup::task.stack_size,
-                               NULL,
-                               decup::task.priority,
-                               &decup::task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(mdu::task_function,
-                               mdu::task.name,
-                               mdu::task.stack_size,
-                               NULL,
-                               mdu::task.priority,
-                               &mdu::task.handle,
-                               xCoreID))
-    assert(false);
+  dcc::task.create(dcc::task_function);
+  decup::task.create(decup::task_function);
+  mdu::task.create(mdu::task_function);
 
   return ESP_OK;
 }

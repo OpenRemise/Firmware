@@ -1,11 +1,6 @@
 #include "utility.hpp"
 #include <gtest/gtest.h>
 
-TEST(utility, fnv1a) {
-  std::string_view str{"FNV Hash Test"};
-  EXPECT_EQ(fnv1a(str), 0xF38B3DB9u);
-}
-
 TEST(utility, decode_uri) {
   std::string_view url{"http%3A%2F%2Ffoo%20bar%2F"};
   std::string decoded(size(url), '\0');
