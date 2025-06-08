@@ -15,7 +15,7 @@
 
 /// Initialize HTTP server for station
 ///
-/// \file   sta/init.hpp
+/// \file   intf/sta/init.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace http::sta {
+namespace intf::http::sta {
 
 esp_err_t init();
 
-} // namespace http::sta
+} // namespace intf::http::sta

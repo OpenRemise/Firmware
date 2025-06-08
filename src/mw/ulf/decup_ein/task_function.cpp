@@ -53,10 +53,10 @@ namespace {
 ///
 /// \param byte Ack (`0x1C`) or nak (`0xFC`)
 void transmit_response(uint8_t byte) {
-  xStreamBufferSend(usb::tx_stream_buffer.handle,
+  xStreamBufferSend(intf::usb::tx_stream_buffer.handle,
                     &byte,
                     sizeof(byte),
-                    pdMS_TO_TICKS(usb::tx_task.timeout));
+                    pdMS_TO_TICKS(intf::usb::tx_task.timeout));
 }
 
 /// Actual ulf::decup_ein::task loop
@@ -65,18 +65,18 @@ void loop() {
 
   // Wait for RTS on
   auto then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
-  while (!usb::rts && xTaskGetTickCount() < then)
+  while (!intf::usb::rts && xTaskGetTickCount() < then)
     vTaskDelay(pdMS_TO_TICKS(100u));
-  while (!xStreamBufferReset(usb::rx_stream_buffer.handle)) {
+  while (!xStreamBufferReset(intf::usb::rx_stream_buffer.handle)) {
     LOGW("Can't reset usb::rx_stream_buffer");
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
 
   // While RTS
-  while (usb::rts && xTaskGetTickCount() < then) {
+  while (intf::usb::rts && xTaskGetTickCount() < then) {
     // Receive single character
     uint8_t byte;
-    if (!xStreamBufferReceive(usb::rx_stream_buffer.handle,
+    if (!xStreamBufferReceive(intf::usb::rx_stream_buffer.handle,
                               &byte,
                               sizeof(byte),
                               pdMS_TO_TICKS(100u)))
@@ -116,15 +116,15 @@ void task_function(void*) {
   // Switch to ULF_DECUP_EIN mode
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
-    usb::transmit_ok();
+    intf::usb::transmit_ok();
     LOGI_TASK_RESUME(drv::out::track::decup::task);
     loop();
   }
   // ... or not
   else
-    usb::transmit_not_ok();
+    intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(usb::rx_task);
+  LOGI_TASK_RESUME(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 

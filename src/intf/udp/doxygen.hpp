@@ -15,13 +15,13 @@
 
 /// UDP documentation
 ///
-/// \file   udp/doxygen.hpp
+/// \file   intf/udp/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   23/08/2024
 
 #pragma once
 
-namespace udp {
+namespace intf::udp {
 
 /// \page page_udp UDP
 /// \tableofcontents
@@ -36,4 +36,4 @@ namespace udp {
 /// | \ref page_trace | \ref page_ulf |
 /// </div>
 
-} // namespace udp
+} // namespace intf::udp

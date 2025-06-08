@@ -15,7 +15,7 @@
 
 /// USB transmit task function
 ///
-/// \file   usb/tx_task_function.cpp
+/// \file   intf/usb/tx_task_function.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -27,7 +27,7 @@
 #include <string_view>
 #include "log.h"
 
-namespace usb {
+namespace intf::usb {
 
 /// Transmit "OK\r" to the CDC device queue
 void transmit_ok() {
@@ -85,4 +85,4 @@ void tx_task_function(void*) {
   }
 }
 
-} // namespace usb
+} // namespace intf::usb

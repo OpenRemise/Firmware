@@ -15,7 +15,7 @@
 
 /// Initialize USB
 ///
-/// \file   usb/init.cpp
+/// \file   intf/usb/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -27,7 +27,7 @@
 #include "rx_task_function.hpp"
 #include "tx_task_function.hpp"
 
-namespace usb {
+namespace intf::usb {
 
 namespace {
 
@@ -89,4 +89,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace usb
+} // namespace intf::usb

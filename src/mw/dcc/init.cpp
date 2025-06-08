@@ -23,17 +23,20 @@ namespace dcc {
 
 /// \todo document
 esp_err_t init() {
-  if (http::sta::server) {
+  if (intf::http::sta::server) {
     service = std::make_shared<Service>();
-    http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_DELETE},
-                                 service,
-                                 &Service::locosDeleteRequest);
-    http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_GET},
-                                 service,
-                                 &Service::locosGetRequest);
-    http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_PUT},
-                                 service,
-                                 &Service::locosPutRequest);
+    intf::http::sta::server->subscribe(
+      {.uri = "/dcc/locos/", .method = HTTP_DELETE},
+      service,
+      &Service::locosDeleteRequest);
+    intf::http::sta::server->subscribe(
+      {.uri = "/dcc/locos/", .method = HTTP_GET},
+      service,
+      &Service::locosGetRequest);
+    intf::http::sta::server->subscribe(
+      {.uri = "/dcc/locos/", .method = HTTP_PUT},
+      service,
+      &Service::locosPutRequest);
   }
   return ESP_OK;
 }

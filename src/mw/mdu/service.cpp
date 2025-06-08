@@ -33,17 +33,17 @@ Service::Service() {
 Service::~Service() { task.destroy(); }
 
 /// \bug should this broadcast Z21 programming mode?
-esp_err_t Service::zppSocket(http::Message& msg) {
+esp_err_t Service::zppSocket(intf::http::Message& msg) {
   return socket(msg, State::MDUZpp);
 }
 
 /// \bug should this broadcast Z21 programming mode?
-esp_err_t Service::zsuSocket(http::Message& msg) {
+esp_err_t Service::zsuSocket(intf::http::Message& msg) {
   return socket(msg, State::MDUZsu);
 }
 
 /// \bug should this broadcast Z21 programming mode?
-esp_err_t Service::socket(http::Message& msg, State mdu_state) {
+esp_err_t Service::socket(intf::http::Message& msg, State mdu_state) {
   //
   if (auto expected{State::Suspended};
       msg.type != HTTPD_WS_TYPE_CLOSE &&
@@ -94,7 +94,7 @@ void Service::loop() {
         break;
     }
 
-    if (auto const err{httpd_queue_work(new http::Message{
+    if (auto const err{httpd_queue_work(new intf::http::Message{
           .sock_fd = msg.sock_fd,
           .type = HTTPD_WS_TYPE_BINARY,
           .payload = {cbegin(_acks), cend(_acks)},

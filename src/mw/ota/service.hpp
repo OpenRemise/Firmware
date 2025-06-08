@@ -34,7 +34,7 @@ public:
   Service();
   ~Service();
 
-  esp_err_t socket(http::Message& msg);
+  esp_err_t socket(intf::http::Message& msg);
 
 private:
   // This gets called by FreeRTOS
@@ -45,7 +45,7 @@ private:
   void end();
   void close();
 
-  std::queue<http::Message> _queue{};
+  std::queue<intf::http::Message> _queue{};
   esp_partition_t const* _partition{};
   esp_ota_handle_t _handle{};
   uint8_t _ack{};

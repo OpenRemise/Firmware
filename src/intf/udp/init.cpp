@@ -15,7 +15,7 @@
 
 /// Initialize UDP
 ///
-/// \file   udp/init.cpp
+/// \file   intf/udp/init.cpp
 /// \author Vincent Hamp
 /// \date   04/04/2024
 
@@ -23,7 +23,7 @@
 #include <lwip/sockets.h>
 #include "log.h"
 
-namespace udp {
+namespace intf::udp {
 
 /// \todo document
 esp_err_t init() {
@@ -44,4 +44,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace udp
+} // namespace intf::udp

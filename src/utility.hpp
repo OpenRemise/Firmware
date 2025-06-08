@@ -156,15 +156,15 @@ auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
 /// \todo document
 template<typename... Ts>
 auto httpd_sess_trigger_close(Ts&&... ts) {
-  return httpd_sess_trigger_close(http::handle, std::forward<Ts>(ts)...);
+  return httpd_sess_trigger_close(intf::http::handle, std::forward<Ts>(ts)...);
 }
 
 /// \todo document
-inline auto httpd_queue_work(http::Message* msg) {
+inline auto httpd_queue_work(intf::http::Message* msg) {
   return httpd_queue_work(
-    http::handle,
+    intf::http::handle,
     [](void* arg) {
-      auto msg{std::bit_cast<http::Message*>(arg)};
+      auto msg{std::bit_cast<intf::http::Message*>(arg)};
 
       // Wrap message in httpd_ws_frame_t
       httpd_ws_frame_t frame{
@@ -172,8 +172,8 @@ inline auto httpd_queue_work(http::Message* msg) {
         .payload = data(msg->payload),
         .len = size(msg->payload),
       };
-      if (auto const err{
-            httpd_ws_send_frame_async(http::handle, msg->sock_fd, &frame)})
+      if (auto const err{httpd_ws_send_frame_async(
+            intf::http::handle, msg->sock_fd, &frame)})
         LOGD("httpd_ws_send_frame_async failed %s", esp_err_to_name(err));
 
       // Delete

@@ -50,7 +50,7 @@ void Service::z21(std::shared_ptr<z21::server::intf::System> z21_system_service,
 
 /// \todo document
 /// \todo filters?
-http::Response Service::locosGetRequest(http::Request const& req) {
+intf::http::Response Service::locosGetRequest(intf::http::Request const& req) {
   // Singleton
   if (auto const addr{uri2address(req.uri).value_or(0u)}) {
     auto const it{_locos.find(addr)};
@@ -81,7 +81,8 @@ http::Response Service::locosGetRequest(http::Request const& req) {
 
 /// \todo document
 /// \todo filters?
-http::Response Service::locosDeleteRequest(http::Request const& req) {
+intf::http::Response
+Service::locosDeleteRequest(intf::http::Request const& req) {
   auto const addr{uri2address(req.uri).value_or(0u)};
 
   // Singleton
@@ -103,7 +104,7 @@ http::Response Service::locosDeleteRequest(http::Request const& req) {
 }
 
 /// \todo document
-http::Response Service::locosPutRequest(http::Request const& req) {
+intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
   // Validate body
   if (!validate_json(req.body))
     return std::unexpected<std::string>{"415 Unsupported Media Type"};

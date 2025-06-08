@@ -34,13 +34,13 @@ namespace ulf::dcc_ein {
 /// \retval dcc::Packet created from senddcc string
 /// \retval std::nullopt on timeout
 std::optional<dcc::Packet> receive_dcc_packet() {
-  std::array<char, usb::rx_stream_buffer.size> stack;
+  std::array<char, intf::usb::rx_stream_buffer.size> stack;
   size_t count{};
 
   for (;;) {
     // Receive single character
     auto const bytes_received{
-      xStreamBufferReceive(usb::rx_stream_buffer.handle,
+      xStreamBufferReceive(intf::usb::rx_stream_buffer.handle,
                            &stack[count],
                            1uz,
                            pdMS_TO_TICKS(task.timeout))};
@@ -65,10 +65,10 @@ void ack_senddcc_str() {
     drv::out::tx_message_buffer.size -
     xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.front_handle)};
   auto const str{::ulf::dcc_ein::ack2senddcc_str('b', space_used)};
-  xStreamBufferSend(usb::tx_stream_buffer.handle,
+  xStreamBufferSend(intf::usb::tx_stream_buffer.handle,
                     data(str),
                     size(str),
-                    pdMS_TO_TICKS(usb::tx_task.timeout));
+                    pdMS_TO_TICKS(intf::usb::tx_task.timeout));
 }
 
 /// Send DCC packet to drv::out::tx_message_buffer front
@@ -123,10 +123,10 @@ std::optional<ulf::dcc_ein::AddressedDatagram> receive_addressed_datagram() {
 void transmit_addressed_datagram(
   ulf::dcc_ein::AddressedDatagram const& addr_datagram) {
   auto const str{ulf::dcc_ein::addressed_datagram2sendbidi_str(addr_datagram)};
-  xStreamBufferSend(usb::tx_stream_buffer.handle,
+  xStreamBufferSend(intf::usb::tx_stream_buffer.handle,
                     data(str),
                     size(str),
-                    pdMS_TO_TICKS(usb::tx_task.timeout));
+                    pdMS_TO_TICKS(intf::usb::tx_task.timeout));
 }
 
 /// Actual ulf::dcc_ein::task loop
@@ -172,16 +172,16 @@ void task_function(void*) {
   // Switch to ULF_DCC_EIN mode, preload packets
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
-    usb::transmit_ok();
+    intf::usb::transmit_ok();
     send_idle_packets_to_back();
     LOGI_TASK_RESUME(drv::out::track::dcc::task);
     loop();
   }
   // ... or not
   else
-    usb::transmit_not_ok();
+    intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(usb::rx_task);
+  LOGI_TASK_RESUME(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 

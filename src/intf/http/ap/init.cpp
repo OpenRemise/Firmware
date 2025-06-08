@@ -15,7 +15,7 @@
 
 /// Initialize HTTP server for access point
 ///
-/// \file   http/ap/init.cpp
+/// \file   intf/http/ap/init.cpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -23,7 +23,7 @@
 #include <memory>
 #include "server.hpp"
 
-namespace http::ap {
+namespace intf::http::ap {
 
 namespace {
 
@@ -37,4 +37,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace http::ap
+} // namespace intf::http::ap

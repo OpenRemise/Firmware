@@ -28,11 +28,11 @@ std::shared_ptr<Service> service;
 
 /// \todo document
 esp_err_t init() {
-  if (http::sta::server) {
+  if (intf::http::sta::server) {
     service = std::make_shared<Service>();
-    http::sta::server->subscribe(
+    intf::http::sta::server->subscribe(
       {.uri = "/decup/zpp/"}, service, &Service::zppSocket);
-    http::sta::server->subscribe(
+    intf::http::sta::server->subscribe(
       {.uri = "/decup/zsu/"}, service, &Service::zsuSocket);
   }
   return ESP_OK;

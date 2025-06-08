@@ -15,13 +15,13 @@
 
 /// USB documentation
 ///
-/// \file   usb/doxygen.hpp
+/// \file   intf/usb/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   19/02/2023
 
 #pragma once
 
-namespace usb {
+namespace intf::usb {
 
 /// \page page_usb USB
 /// \tableofcontents
@@ -44,4 +44,4 @@ namespace usb {
 /// | \ref page_ulf | \ref page_wifi |
 /// </div>
 
-} // namespace usb
+} // namespace intf::usb

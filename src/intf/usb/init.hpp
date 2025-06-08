@@ -15,7 +15,7 @@
 
 /// Initialize USB
 ///
-/// \file   usb/init.hpp
+/// \file   intf/usb/init.hpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace usb {
+namespace intf::usb {
 
 esp_err_t init();
 
-} // namespace usb
+} // namespace intf::usb

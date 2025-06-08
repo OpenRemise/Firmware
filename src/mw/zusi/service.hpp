@@ -30,7 +30,7 @@ public:
   Service();
   ~Service();
 
-  esp_err_t socket(http::Message& msg);
+  esp_err_t socket(intf::http::Message& msg);
 
 private:
   void taskFunction(void*);
@@ -39,7 +39,7 @@ private:
   void close();
 
   ulf::susiv2::Response _resp{};
-  std::queue<http::Message> _queue{};
+  std::queue<intf::http::Message> _queue{};
 };
 
 } // namespace zusi

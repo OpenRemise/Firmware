@@ -15,7 +15,7 @@
 
 /// HTTP server for station
 ///
-/// \file   http/sta/server.hpp
+/// \file   intf/http/sta/server.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -25,7 +25,7 @@
 #include "../endpoints.hpp"
 #include "utility.hpp"
 
-namespace http::sta {
+namespace intf::http::sta {
 
 ///
 class Server : public Endpoints {
@@ -51,4 +51,4 @@ private:
   esp_err_t wildcardGetHandler(httpd_req_t* req);
 };
 
-} // namespace http::sta
+} // namespace intf::http::sta

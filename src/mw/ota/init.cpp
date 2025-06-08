@@ -44,9 +44,10 @@ esp_err_t init() {
          "if either the OTA boot data or preferred boot image become corrupted "
          "somehow.");
 
-  if (http::sta::server) {
+  if (intf::http::sta::server) {
     service = std::make_shared<Service>();
-    http::sta::server->subscribe({.uri = "/ota/"}, service, &Service::socket);
+    intf::http::sta::server->subscribe(
+      {.uri = "/ota/"}, service, &Service::socket);
   }
 
   return ESP_OK;

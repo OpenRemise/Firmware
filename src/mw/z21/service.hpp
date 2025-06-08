@@ -33,7 +33,7 @@ public:
 
   void dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service);
 
-  esp_err_t socket(http::Message& msg);
+  esp_err_t socket(intf::http::Message& msg);
 
 private:
   // This gets called by FreeRTOS

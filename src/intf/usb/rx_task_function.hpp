@@ -15,14 +15,14 @@
 
 /// USB receive task function
 ///
-/// \file   usb/rx_task_function.hpp
+/// \file   intf/usb/rx_task_function.hpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
 #pragma once
 
-namespace usb {
+namespace intf::usb {
 
 void rx_task_function(void*);
 
-} // namespace usb
+} // namespace intf::usb

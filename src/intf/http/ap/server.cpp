@@ -15,7 +15,7 @@
 
 /// HTTP server for access point
 ///
-/// \file   http/ap/server.cpp
+/// \file   intf/http/ap/server.cpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -33,7 +33,7 @@ extern char const _binary_captive_portal_html_start;
 extern char const _binary_captive_portal_html_end;
 }
 
-namespace http::ap {
+namespace intf::http::ap {
 
 /// Ctor
 Server::Server() {
@@ -259,4 +259,4 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
   return ESP_OK;
 }
 
-} // namespace http::ap
+} // namespace intf::http::ap

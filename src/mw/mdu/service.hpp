@@ -26,17 +26,17 @@ public:
   Service();
   ~Service();
 
-  esp_err_t zppSocket(http::Message& msg);
-  esp_err_t zsuSocket(http::Message& msg);
+  esp_err_t zppSocket(intf::http::Message& msg);
+  esp_err_t zsuSocket(intf::http::Message& msg);
 
 private:
-  esp_err_t socket(http::Message& msg, State mdu_state);
+  esp_err_t socket(intf::http::Message& msg, State mdu_state);
   void taskFunction(void*);
   void loop();
   std::array<uint8_t, 2uz> transmit(std::vector<uint8_t> const& payload) const;
   void close();
 
-  std::queue<http::Message> _queue{};
+  std::queue<intf::http::Message> _queue{};
   std::array<uint8_t, 2uz> _acks{};
 };
 

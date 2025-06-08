@@ -34,9 +34,9 @@ public:
            std::shared_ptr<z21::server::intf::Dcc> z21_dcc_service);
 
   //
-  http::Response locosGetRequest(http::Request const& req);
-  http::Response locosDeleteRequest(http::Request const& req);
-  http::Response locosPutRequest(http::Request const& req);
+  intf::http::Response locosGetRequest(intf::http::Request const& req);
+  intf::http::Response locosDeleteRequest(intf::http::Request const& req);
+  intf::http::Response locosPutRequest(intf::http::Request const& req);
 
 private:
   // This gets called by FreeRTOS

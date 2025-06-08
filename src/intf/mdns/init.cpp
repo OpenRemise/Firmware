@@ -15,7 +15,7 @@
 
 /// Initialize mDNS
 ///
-/// \file   mdns/init.cpp
+/// \file   intf/mdns/init.cpp
 /// \author Vincent Hamp
 /// \date   21/03/2025
 
@@ -24,7 +24,7 @@
 #include <mdns.h>
 #include "mem/nvs/settings.hpp"
 
-namespace mdns {
+namespace intf::mdns {
 
 /// \todo document
 esp_err_t init() {
@@ -47,4 +47,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace mdns
+} // namespace intf::mdns

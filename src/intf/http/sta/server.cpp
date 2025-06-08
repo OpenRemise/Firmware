@@ -15,7 +15,7 @@
 
 /// HTTP server for station
 ///
-/// \file   http/sta/server.cpp
+/// \file   intf/http/sta/server.cpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -33,7 +33,7 @@
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
 
-namespace http::sta {
+namespace intf::http::sta {
 
 using namespace std::literals;
 
@@ -530,4 +530,4 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   }
 }
 
-} // namespace http::sta
+} // namespace intf::http::sta

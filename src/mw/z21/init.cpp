@@ -28,11 +28,12 @@ namespace z21 {
 
 /// \todo document
 esp_err_t init() {
-  if (http::sta::server) {
+  if (intf::http::sta::server) {
     service = std::make_shared<Service>();
     service->dcc(dcc::service);
     dcc::service->z21(service, service);
-    http::sta::server->subscribe({.uri = "/z21/"}, service, &Service::socket);
+    intf::http::sta::server->subscribe(
+      {.uri = "/z21/"}, service, &Service::socket);
   }
   return ESP_OK;
 }

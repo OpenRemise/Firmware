@@ -15,7 +15,7 @@
 
 /// Initialize UDP
 ///
-/// \file   udp/init.hpp
+/// \file   intf/udp/init.hpp
 /// \author Vincent Hamp
 /// \date   04/04/2024
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace udp {
+namespace intf::udp {
 
 esp_err_t init();
 
-} // namespace udp
+} // namespace intf::udp

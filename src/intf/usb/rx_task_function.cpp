@@ -15,7 +15,7 @@
 
 /// USB receive task function
 ///
-/// \file   usb/rx_task_function.cpp
+/// \file   intf/usb/rx_task_function.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -31,7 +31,7 @@
 #  include <esp_app_desc.h>
 #endif
 
-namespace usb {
+namespace intf::usb {
 
 using namespace std::literals;
 
@@ -114,4 +114,4 @@ void rx_task_function(void*) {
   }
 }
 
-} // namespace usb
+} // namespace intf::usb

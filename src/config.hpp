@@ -303,7 +303,7 @@ inline TASK(task,
 
 } // namespace decup
 
-namespace http {
+namespace intf::http {
 
 /// Handle to server instance
 inline httpd_handle_t handle{};
@@ -318,7 +318,7 @@ inline std::shared_ptr<Server> server;
 
 } // namespace sta
 
-} // namespace http
+} // namespace intf::http
 
 namespace drv::led {
 
@@ -336,11 +336,11 @@ inline constexpr auto wifi_channel{LEDC_CHANNEL_1};
 
 } // namespace drv::led
 
-namespace mdns {
+namespace intf::mdns {
 
 inline std::string str;
 
-} // namespace mdns
+} // namespace intf::mdns
 
 namespace mdu {
 
@@ -497,14 +497,14 @@ inline TASK(task,
 
 } // namespace drv::out
 
-namespace udp {
+namespace intf::udp {
 
 inline constexpr uint16_t port{21105u};
 inline int sock_fd;
 
-} // namespace udp
+} // namespace intf::udp
 
-namespace usb {
+namespace intf::usb {
 
 inline bool volatile rts{};
 inline constexpr auto vbus_gpio_num{GPIO_NUM_7};
@@ -538,7 +538,7 @@ inline struct TxStreamBuffer {
   StreamBufferHandle_t handle{};
 } tx_stream_buffer;
 
-} // namespace usb
+} // namespace intf::usb
 
 namespace ulf {
 
@@ -548,10 +548,10 @@ namespace dcc_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "ulf::dcc_ein",               // Name
-                   ::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                  // Core
-                   100u);                        // Timeout
+                   "ulf::dcc_ein",                   // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
+                   100u);                            // Timeout
 
 } // namespace dcc_ein
 
@@ -559,10 +559,10 @@ namespace decup_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "ulf::decup_ein",             // Name
-                   ::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                  // Core
-                   ::decup::task.timeout);       // Timeout
+                   "ulf::decup_ein",                 // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
+                   ::decup::task.timeout);           // Timeout
 
 } // namespace decup_ein
 
@@ -570,17 +570,17 @@ namespace susiv2 {
 
 ///
 inline SHARED_TASK(task,
-                   "ulf::susiv2",                // Name
-                   ::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                  // Core
+                   "ulf::susiv2",                    // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
                    0u);
 
 } // namespace susiv2
 
 // https://github.com/OpenRemise/Firmware/issues/36
-static_assert(dcc_ein::task.priority < ::usb::rx_task.priority);
-static_assert(decup_ein::task.priority < ::usb::rx_task.priority);
-static_assert(susiv2::task.priority < ::usb::rx_task.priority);
+static_assert(dcc_ein::task.priority < intf::usb::rx_task.priority);
+static_assert(decup_ein::task.priority < intf::usb::rx_task.priority);
+static_assert(susiv2::task.priority < intf::usb::rx_task.priority);
 
 } // namespace ulf
 

@@ -15,13 +15,13 @@
 
 /// HTTP documentation
 ///
-/// \file   http/doxygen.hpp
+/// \file   intf/http/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   19/02/2023
 
 #pragma once
 
-namespace http {
+namespace intf::http {
 
 /// \page page_http HTTP
 /// \tableofcontents
@@ -40,4 +40,4 @@ namespace http {
 /// | \ref page_decup | \ref page_led |
 /// </div>
 
-} // namespace http
+} // namespace intf::http

@@ -15,7 +15,7 @@
 
 /// HTTP and WebSocket endpoints
 ///
-/// \file   http/endpoints.hpp
+/// \file   intf/http/endpoints.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -36,7 +36,7 @@
 #include "response.hpp"
 #include "utility.hpp"
 
-namespace http {
+namespace intf::http {
 
 ///
 class Endpoints {
@@ -136,4 +136,4 @@ private:
   std::map<key_type, async_mapped_type, key_compare> _async_map;
 };
 
-} // namespace http
+} // namespace intf::http

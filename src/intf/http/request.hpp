@@ -15,7 +15,7 @@
 
 /// HTTP request
 ///
-/// \file   http/request.hpp
+/// \file   intf/http/request.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -23,11 +23,11 @@
 
 #include <string>
 
-namespace http {
+namespace intf::http {
 
 struct Request {
   std::string uri; // endpoint + query
   std::string body;
 };
 
-} // namespace http
+} // namespace intf::http

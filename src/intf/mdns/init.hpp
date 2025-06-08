@@ -15,7 +15,7 @@
 
 /// Initialize mDNS
 ///
-/// \file   mdns/init.hpp
+/// \file   intf/mdns/init.hpp
 /// \author Vincent Hamp
 /// \date   21/03/2025
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace mdns {
+namespace intf::mdns {
 
 esp_err_t init();
 
-} // namespace mdns
+} // namespace intf::mdns

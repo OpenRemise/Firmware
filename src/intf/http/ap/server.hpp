@@ -15,7 +15,7 @@
 
 /// HTTP server for access point
 ///
-/// \file   http/ap/server.hpp
+/// \file   intf/http/ap/server.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -24,7 +24,7 @@
 #include <string>
 #include "utility.hpp"
 
-namespace http::ap {
+namespace intf::http::ap {
 
 class Server {
 public:
@@ -54,4 +54,4 @@ private:
   std::string _sta_gateway_str;
 };
 
-} // namespace http::ap
+} // namespace intf::http::ap

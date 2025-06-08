@@ -41,10 +41,11 @@ receive_zusi_packet(std::span<uint8_t> stack, uint32_t timeout) {
 
   for (;;) {
     // Receive single character
-    auto const bytes_received{xStreamBufferReceive(usb::rx_stream_buffer.handle,
-                                                   &stack[count],
-                                                   1uz,
-                                                   pdMS_TO_TICKS(timeout))};
+    auto const bytes_received{
+      xStreamBufferReceive(intf::usb::rx_stream_buffer.handle,
+                           &stack[count],
+                           1uz,
+                           pdMS_TO_TICKS(timeout))};
     count += bytes_received;
     if (!bytes_received || count > size(stack)) return std::nullopt;
 
@@ -85,8 +86,10 @@ void transmit_response(std::span<uint8_t> stack) {
                               data(stack),
                               size(stack),
                               portMAX_DELAY)})
-    xStreamBufferSend(
-      usb::tx_stream_buffer.handle, data(stack), bytes_received, portMAX_DELAY);
+    xStreamBufferSend(intf::usb::tx_stream_buffer.handle,
+                      data(stack),
+                      bytes_received,
+                      portMAX_DELAY);
 }
 
 /// Actual ulf::susiv2::task loop
@@ -115,15 +118,15 @@ void task_function(void*) {
   // Switch to ULF_SUSIV2 mode
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
-    usb::transmit_ok();
+    intf::usb::transmit_ok();
     LOGI_TASK_RESUME(drv::out::zusi::task);
     loop();
   }
   // ... or not
   else
-    usb::transmit_not_ok();
+    intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(usb::rx_task);
+  LOGI_TASK_RESUME(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 

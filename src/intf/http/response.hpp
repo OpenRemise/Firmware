@@ -15,7 +15,7 @@
 
 /// HTTP response
 ///
-/// \file   http/response.hpp
+/// \file   intf/http/response.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -24,8 +24,8 @@
 #include <expected>
 #include <string>
 
-namespace http {
+namespace intf::http {
 
 using Response = std::expected<std::string, std::string>;
 
-} // namespace http
+} // namespace intf::http

@@ -15,7 +15,7 @@
 
 /// Initialize HTTP
 ///
-/// \file   http/init.cpp
+/// \file   intf/http/init.cpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -25,7 +25,7 @@
 #include "log.h"
 #include "sta/init.hpp"
 
-namespace http {
+namespace intf::http {
 
 /// \todo document
 esp_err_t init() {
@@ -36,4 +36,4 @@ esp_err_t init() {
   else return ESP_FAIL;
 }
 
-} // namespace http
+} // namespace intf::http

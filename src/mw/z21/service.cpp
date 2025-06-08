@@ -40,7 +40,7 @@ void Service::dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service) {
 /// \todo document
 /// \bug if the socket closes for any reason we're fucked, there must be some
 /// way to detect such cases and restart the socket in the Frontend?
-esp_err_t Service::socket(http::Message& msg) {
+esp_err_t Service::socket(intf::http::Message& msg) {
   switch (msg.type) {
     case HTTPD_WS_TYPE_BINARY: {
       _ws_sock_fds.insert(msg.sock_fd);
@@ -92,7 +92,7 @@ void Service::taskFunction(void*) {
   */
 
   for (;;) {
-    if (auto const len{recvfrom(udp::sock_fd,
+    if (auto const len{recvfrom(intf::udp::sock_fd,
                                 data(stack),
                                 size(stack) - 1,
                                 0,
@@ -103,8 +103,9 @@ void Service::taskFunction(void*) {
       vTaskDelay(pdMS_TO_TICKS(task.timeout));
     } else if (len > 0) {
       std::lock_guard lock{_internal_mutex};
-      receive({udp::sock_fd, std::bit_cast<sockaddr*>(&dest_addr_ip4), socklen},
-              {data(stack), static_cast<size_t>(len)});
+      receive(
+        {intf::udp::sock_fd, std::bit_cast<sockaddr*>(&dest_addr_ip4), socklen},
+        {data(stack), static_cast<size_t>(len)});
       execute();
     }
   }
@@ -115,7 +116,7 @@ void Service::transmit(z21::Socket const& sock,
                        std::span<uint8_t const> datasets) {
   //
   if (_ws_sock_fds.contains(sock.fd)) {
-    if (auto const err{httpd_queue_work(new http::Message{
+    if (auto const err{httpd_queue_work(new intf::http::Message{
           .sock_fd = sock.fd,
           .type = HTTPD_WS_TYPE_BINARY,
           .payload = {cbegin(datasets), cend(datasets)},

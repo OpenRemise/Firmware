@@ -15,13 +15,13 @@
 
 /// mDNS documentation
 ///
-/// \file   mdns/doxygen.hpp
+/// \file   intf/mdns/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   21/03/2025
 
 #pragma once
 
-namespace mdns {
+namespace intf::mdns {
 
 /// \page page_mdns mDNS
 /// \tableofcontents
@@ -35,4 +35,4 @@ namespace mdns {
 /// | \ref page_led | \ref page_mdu |
 /// </div>
 
-} // namespace mdns
+} // namespace intf::mdns

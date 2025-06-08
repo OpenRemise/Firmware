@@ -30,9 +30,10 @@ std::shared_ptr<Service> service;
 ///
 /// Those are the init details
 esp_err_t init() {
-  if (http::sta::server) {
+  if (intf::http::sta::server) {
     service = std::make_shared<Service>();
-    http::sta::server->subscribe({.uri = "/zusi/"}, service, &Service::socket);
+    intf::http::sta::server->subscribe(
+      {.uri = "/zusi/"}, service, &Service::socket);
   }
   return ESP_OK;
 }
