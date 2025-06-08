@@ -15,13 +15,13 @@
 
 /// ULF documentation
 ///
-/// \file   ulf/doxygen.hpp
+/// \file   mw/ulf/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
 #pragma once
 
-namespace ulf {
+namespace mw::ulf {
 
 /// \page page_ulf ULF
 /// \tableofcontents
@@ -67,4 +67,4 @@ namespace ulf {
 /// | \ref page_udp | \ref page_usb |
 /// </div>
 
-} // namespace ulf
+} // namespace mw::ulf

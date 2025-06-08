@@ -20,7 +20,7 @@
 #include <ulf/susiv2.hpp>
 #include "intf/http/message.hpp"
 
-namespace zusi {
+namespace mw::zusi {
 
 /// ZUSI service
 ///
@@ -35,11 +35,11 @@ public:
 private:
   void taskFunction(void*);
   void loop();
-  ulf::susiv2::Response transmit(std::vector<uint8_t> const& payload) const;
+  ::ulf::susiv2::Response transmit(std::vector<uint8_t> const& payload) const;
   void close();
 
-  ulf::susiv2::Response _resp{};
+  ::ulf::susiv2::Response _resp{};
   std::queue<intf::http::Message> _queue{};
 };
 
-} // namespace zusi
+} // namespace mw::zusi

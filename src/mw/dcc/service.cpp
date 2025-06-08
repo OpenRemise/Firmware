@@ -25,7 +25,7 @@
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
 
-namespace dcc {
+namespace mw::dcc {
 
 using namespace std::literals;
 
@@ -848,4 +848,4 @@ Address Service::basicOrExtendedLocoAddress(Address::value_type addr) const {
               : Address::ExtendedLoco};
 }
 
-} // namespace dcc
+} // namespace mw::dcc

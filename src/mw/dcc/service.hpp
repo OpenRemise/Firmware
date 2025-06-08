@@ -21,7 +21,7 @@
 #include "intf/http/endpoints.hpp"
 #include "locos.hpp"
 
-namespace dcc {
+namespace mw::dcc {
 
 /// \todo document
 class Service : public z21::server::intf::Dcc {
@@ -121,4 +121,4 @@ private:
     _cv_pom_request_deque{};
 };
 
-} // namespace dcc
+} // namespace mw::dcc

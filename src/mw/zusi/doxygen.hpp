@@ -15,13 +15,13 @@
 
 /// ZUSI documentation
 ///
-/// \file   zusi/doxygen.hpp
+/// \file   mw/zusi/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   14/04/2023
 
 #pragma once
 
-namespace zusi {
+namespace mw::zusi {
 
 /// \page page_zusi ZUSI
 /// \tableofcontents
@@ -39,4 +39,4 @@ namespace zusi {
 /// | \ref page_z21 | \ref page_hw_reference |
 /// </div>
 
-} // namespace zusi
+} // namespace mw::zusi

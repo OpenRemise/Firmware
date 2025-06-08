@@ -15,7 +15,7 @@
 
 /// Cover /ota/ endpoint
 ///
-/// \file   ota/service.cpp
+/// \file   mw/ota/service.cpp
 /// \author Vincent Hamp
 /// \date   13/06/2023
 
@@ -29,7 +29,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace ota {
+namespace mw::ota {
 
 /// \todo document
 /// \bug should this broadcast Z21 programming mode?
@@ -161,4 +161,4 @@ void Service::close() {
     assert(false);
 }
 
-} // namespace ota
+} // namespace mw::ota

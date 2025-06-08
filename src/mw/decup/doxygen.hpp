@@ -15,13 +15,13 @@
 
 /// DECUP documentation
 ///
-/// \file   decup/doxygen.hpp
+/// \file   mw/decup/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   02/11/2024
 
 #pragma once
 
-namespace decup {
+namespace mw::decup {
 
 /// \page page_decup DECUP
 /// \tableofcontents
@@ -33,4 +33,4 @@ namespace decup {
 /// | \ref page_dcc | \ref page_http |
 /// </div>
 
-} // namespace decup
+} // namespace mw::decup

@@ -19,7 +19,7 @@
 #include <queue>
 #include "intf/http/message.hpp"
 
-namespace mdu {
+namespace mw::mdu {
 
 class Service {
 public:
@@ -40,4 +40,4 @@ private:
   std::array<uint8_t, 2uz> _acks{};
 };
 
-} // namespace mdu
+} // namespace mw::mdu

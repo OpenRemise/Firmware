@@ -15,7 +15,7 @@
 
 /// ULF_SUSIV2 task function
 ///
-/// \file   ulf/susiv2/task_function.cpp
+/// \file   mw/ulf/susiv2/task_function.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -25,7 +25,9 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace ulf::susiv2 {
+namespace mw::ulf::susiv2 {
+
+using namespace ::ulf::susiv2;
 
 namespace {
 
@@ -74,7 +76,7 @@ void send_to_front(std::span<uint8_t const> stack) {
 /// \retval false Stack does not contain an exit command
 bool return_on_exit(std::span<uint8_t const> stack) {
   return size(stack) &&
-         static_cast<zusi::Command>(stack.front()) == zusi::Command::Exit;
+         static_cast<::zusi::Command>(stack.front()) == ::zusi::Command::Exit;
 }
 
 /// Transmit response
@@ -130,4 +132,4 @@ void task_function(void*) {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace ulf::susiv2
+} // namespace mw::ulf::susiv2

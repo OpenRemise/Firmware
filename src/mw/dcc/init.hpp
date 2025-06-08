@@ -17,8 +17,8 @@
 
 #include <esp_err.h>
 
-namespace dcc {
+namespace mw::dcc {
 
 esp_err_t init();
 
-} // namespace dcc
+} // namespace mw::dcc

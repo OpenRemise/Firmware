@@ -15,7 +15,7 @@
 
 ///
 ///
-/// \file   z21/init.hpp
+/// \file   mw/z21/init.hpp
 /// \author Vincent Hamp
 /// \date   15/04/2024
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace z21 {
+namespace mw::z21 {
 
 esp_err_t init();
 
-} // namespace z21
+} // namespace mw::z21

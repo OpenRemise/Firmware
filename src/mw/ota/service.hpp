@@ -15,7 +15,7 @@
 
 /// Cover /ota/ endpoint
 ///
-/// \file   ota/service.hpp
+/// \file   mw/ota/service.hpp
 /// \author Vincent Hamp
 /// \date   13/06/2023
 
@@ -27,7 +27,7 @@
 #include <queue>
 #include "intf/http/message.hpp"
 
-namespace ota {
+namespace mw::ota {
 
 class Service {
 public:
@@ -51,4 +51,4 @@ private:
   uint8_t _ack{};
 };
 
-} // namespace ota
+} // namespace mw::ota

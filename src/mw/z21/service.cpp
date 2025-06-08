@@ -20,7 +20,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace z21 {
+namespace mw::z21 {
 
 using namespace std::literals;
 
@@ -317,4 +317,4 @@ bool Service::trackPower(bool on, State dcc_state) {
 /// \todo document
 // void Service::log(char const* str) { printf("%s\n", str); }
 
-} // namespace z21
+} // namespace mw::z21

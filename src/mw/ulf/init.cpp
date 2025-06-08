@@ -15,7 +15,7 @@
 
 /// Initialize ULF
 ///
-/// \file   ulf/init.cpp
+/// \file   mw/ulf/init.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -26,7 +26,7 @@
 #include "log.h"
 #include "susiv2/task_function.hpp"
 
-namespace ulf {
+namespace mw::ulf {
 
 /// Initialize ULF
 ///
@@ -42,4 +42,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace ulf
+} // namespace mw::ulf

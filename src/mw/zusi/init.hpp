@@ -17,8 +17,8 @@
 
 #include <esp_err.h>
 
-namespace zusi {
+namespace mw::zusi {
 
 esp_err_t init();
 
-} // namespace zusi
+} // namespace mw::zusi

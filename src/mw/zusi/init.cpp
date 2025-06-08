@@ -18,7 +18,7 @@
 #include "intf/http/sta/server.hpp"
 #include "service.hpp"
 
-namespace zusi {
+namespace mw::zusi {
 
 namespace {
 
@@ -38,4 +38,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace zusi
+} // namespace mw::zusi

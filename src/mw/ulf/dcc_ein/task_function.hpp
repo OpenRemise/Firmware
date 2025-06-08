@@ -15,7 +15,7 @@
 
 /// ULF_DCC_EIN task function
 ///
-/// \file   ulf/dcc_ein/task_function.hpp
+/// \file   mw/ulf/dcc_ein/task_function.hpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -24,9 +24,9 @@
 #include <optional>
 #include <ulf/dcc_ein.hpp>
 
-namespace ulf::dcc_ein {
+namespace mw::ulf::dcc_ein {
 
-std::optional<dcc::Packet> receive_dcc_packet();
+std::optional<::dcc::Packet> receive_dcc_packet();
 void task_function(void*);
 
-} // namespace ulf::dcc_ein
+} // namespace mw::ulf::dcc_ein

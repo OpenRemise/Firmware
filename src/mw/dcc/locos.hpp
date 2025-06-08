@@ -18,8 +18,8 @@
 #include <map>
 #include "loco.hpp"
 
-namespace dcc {
+namespace mw::dcc {
 
 using Locos = std::map<Address::value_type, Loco>;
 
-} // namespace dcc
+} // namespace mw::dcc

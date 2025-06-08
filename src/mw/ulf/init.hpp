@@ -15,7 +15,7 @@
 
 /// Initialize ULF
 ///
-/// \file   ulf/init.hpp
+/// \file   mw/ulf/init.hpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace ulf {
+namespace mw::ulf {
 
 esp_err_t init();
 
-} // namespace ulf
+} // namespace mw::ulf

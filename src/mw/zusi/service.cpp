@@ -20,7 +20,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace zusi {
+namespace mw::zusi {
 
 using ::ulf::susiv2::ack, ::ulf::susiv2::nak;
 
@@ -106,7 +106,7 @@ void Service::loop() {
 }
 
 /// \todo document
-ulf::susiv2::Response
+::ulf::susiv2::Response
 Service::transmit(std::vector<uint8_t> const& payload) const {
   //
   xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
@@ -148,4 +148,4 @@ void Service::close() {
   // state.compare_exchange_strong(expected, State::Suspend);
 }
 
-} // namespace zusi
+} // namespace mw::zusi

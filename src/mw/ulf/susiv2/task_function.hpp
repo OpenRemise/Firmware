@@ -15,14 +15,14 @@
 
 /// ULF_SUSIV2 task function
 ///
-/// \file   ulf/susiv2/task_function.hpp
+/// \file   mw/ulf/susiv2/task_function.hpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
 #pragma once
 
-namespace ulf::susiv2 {
+namespace mw::ulf::susiv2 {
 
 void task_function(void*);
 
-} // namespace ulf::susiv2
+} // namespace mw::ulf::susiv2

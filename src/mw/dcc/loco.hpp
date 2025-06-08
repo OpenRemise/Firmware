@@ -22,7 +22,10 @@
 #include <z21/z21.hpp>
 #include <ztl/string.hpp>
 
-namespace dcc {
+namespace mw::dcc {
+
+using namespace ::dcc;
+namespace z21 = ::z21;
 
 /// Non-volatile base
 struct NvLocoBase : z21::LocoInfo {
@@ -46,4 +49,4 @@ struct Loco : NvLocoBase {
   uint8_t priority{min_priority};
 };
 
-} // namespace dcc
+} // namespace mw::dcc

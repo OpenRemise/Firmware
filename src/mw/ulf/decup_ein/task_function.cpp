@@ -15,7 +15,7 @@
 
 /// ULF_DECUP_EIN task function
 ///
-/// \file   ulf/decup_ein/task_function.cpp
+/// \file   mw/ulf/decup_ein/task_function.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -25,7 +25,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace ulf::decup_ein {
+namespace mw::ulf::decup_ein {
 
 using namespace ulf::decup_ein;
 
@@ -128,4 +128,4 @@ void task_function(void*) {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace ulf::decup_ein
+} // namespace mw::ulf::decup_ein

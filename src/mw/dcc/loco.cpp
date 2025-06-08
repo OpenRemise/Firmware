@@ -16,7 +16,7 @@
 #include "loco.hpp"
 #include "log.h"
 
-namespace dcc {
+namespace mw::dcc {
 
 /// \todo document
 void NvLocoBase::fromJsonDocument(JsonDocument const& doc) {
@@ -87,4 +87,4 @@ JsonDocument Loco::toJsonDocument() const {
   return doc;
 }
 
-} // namespace dcc
+} // namespace mw::dcc

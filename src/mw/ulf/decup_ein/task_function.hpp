@@ -15,14 +15,14 @@
 
 /// ULF_DECUP_EIN task function
 ///
-/// \file   usb/decup_ein/task_function.hpp
+/// \file   mw/usb/decup_ein/task_function.hpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
 #pragma once
 
-namespace ulf::decup_ein {
+namespace mw::ulf::decup_ein {
 
 void task_function(void*);
 
-} // namespace ulf::decup_ein
+} // namespace mw::ulf::decup_ein

@@ -17,8 +17,8 @@
 
 #include <esp_err.h>
 
-namespace mdu {
+namespace mw::mdu {
 
 esp_err_t init();
 
-} // namespace mdu
+} // namespace mw::mdu

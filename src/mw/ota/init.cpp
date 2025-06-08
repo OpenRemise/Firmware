@@ -15,7 +15,7 @@
 
 ///
 ///
-/// \file   ota/init.cpp
+/// \file   mw/ota/init.cpp
 /// \author Vincent Hamp
 /// \date   13/06/2023
 
@@ -27,7 +27,7 @@
 #include "log.h"
 #include "service.hpp"
 
-namespace ota {
+namespace mw::ota {
 
 namespace {
 
@@ -53,4 +53,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace ota
+} // namespace mw::ota

@@ -15,13 +15,13 @@
 
 /// Z21 documentation
 ///
-/// \file   z21/doxygen.hpp
+/// \file   mw/z21/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   19/02/2023
 
 #pragma once
 
-namespace z21 {
+namespace mw::z21 {
 
 /// \page page_z21 Z21
 /// \tableofcontents
@@ -33,4 +33,4 @@ namespace z21 {
 /// | \ref page_wifi | \ref page_zusi |
 /// </div>
 
-} // namespace z21
+} // namespace mw::z21

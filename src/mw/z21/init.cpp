@@ -15,7 +15,7 @@
 
 ///
 ///
-/// \file   z21/init.cpp
+/// \file   mw/z21/init.cpp
 /// \author Vincent Hamp
 /// \date   15/04/2024
 
@@ -24,7 +24,7 @@
 #include "mw/dcc/service.hpp"
 #include "service.hpp"
 
-namespace z21 {
+namespace mw::z21 {
 
 /// \todo document
 esp_err_t init() {
@@ -38,4 +38,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace z21
+} // namespace mw::z21

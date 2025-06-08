@@ -15,7 +15,7 @@
 
 /// ULF_DCC_EIN task function
 ///
-/// \file   ulf/dcc_ein/task_function.cpp
+/// \file   mw/ulf/dcc_ein/task_function.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -27,13 +27,15 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace ulf::dcc_ein {
+namespace mw::ulf::dcc_ein {
+
+using namespace ::ulf::dcc_ein;
 
 /// Receive DCC packet from senddcc string
 ///
 /// \retval dcc::Packet created from senddcc string
 /// \retval std::nullopt on timeout
-std::optional<dcc::Packet> receive_dcc_packet() {
+std::optional<::dcc::Packet> receive_dcc_packet() {
   std::array<char, intf::usb::rx_stream_buffer.size> stack;
   size_t count{};
 
@@ -74,7 +76,7 @@ void ack_senddcc_str() {
 /// Send DCC packet to drv::out::tx_message_buffer front
 ///
 /// \param  packet  DCC packet
-void send_to_front(dcc::Packet const& packet) {
+void send_to_front(::dcc::Packet const& packet) {
   xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                      data(packet),
                      size(packet),
@@ -84,7 +86,7 @@ void send_to_front(dcc::Packet const& packet) {
 /// Send DCC packet to drv::out::tx_message_buffer back
 ///
 /// \param  packet  DCC packet
-void send_to_back(dcc::Packet const& packet) {
+void send_to_back(::dcc::Packet const& packet) {
   xMessageBufferSend(drv::out::tx_message_buffer.back_handle,
                      data(packet),
                      size(packet),
@@ -93,7 +95,7 @@ void send_to_back(dcc::Packet const& packet) {
 
 /// Send DCC idle packets to drv::out::tx_message_buffer back
 void send_idle_packets_to_back() {
-  static constexpr auto idle_packet{dcc::make_idle_packet()};
+  static constexpr auto idle_packet{::dcc::make_idle_packet()};
   while (
     xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
     drv::out::tx_message_buffer.size * 0.5)
@@ -109,7 +111,7 @@ std::optional<ulf::dcc_ein::AddressedDatagram> receive_addressed_datagram() {
   if (xQueueReceive(
         drv::out::track::rx_queue.handle, &item, pdMS_TO_TICKS(task.timeout)))
     return ulf::dcc_ein::AddressedDatagram{
-      .addr = dcc::decode_address(item.packet), .datagram = item.datagram};
+      .addr = ::dcc::decode_address(item.packet), .datagram = item.datagram};
   else return std::nullopt;
 }
 
@@ -185,4 +187,4 @@ void task_function(void*) {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace ulf::dcc_ein
+} // namespace mw::ulf::dcc_ein

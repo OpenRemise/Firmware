@@ -17,8 +17,8 @@
 
 #include <esp_err.h>
 
-namespace decup {
+namespace mw::decup {
 
 esp_err_t init();
 
-} // namespace decup
+} // namespace mw::decup

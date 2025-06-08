@@ -15,13 +15,13 @@
 
 /// OTA documentation
 ///
-/// \file   ota/doxygen.hpp
+/// \file   mw/ota/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   23/08/2024
 
 #pragma once
 
-namespace ota {
+namespace mw::ota {
 
 /// \page page_ota OTA
 /// \tableofcontents
@@ -33,4 +33,4 @@ namespace ota {
 /// | \ref page_mem | \ref page_out |
 /// </div>
 
-} // namespace ota
+} // namespace mw::ota

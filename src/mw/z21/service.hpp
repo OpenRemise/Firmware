@@ -20,7 +20,9 @@
 #include <z21/z21.hpp>
 #include "intf/http/message.hpp"
 
-namespace z21 {
+namespace mw::z21 {
+
+using namespace ::z21;
 
 using ServerBase = z21::server::Base<z21::server::intf::System,
                                      z21::server::intf::Dcc,
@@ -99,4 +101,4 @@ private:
   std::mutex _internal_mutex;
 };
 
-} // namespace z21
+} // namespace mw::z21

@@ -107,7 +107,7 @@ void adc_task_function(void*) {
         gpio_get_level(out::track::enable_gpio_num)) {               //
       state.store(State::ShortCircuit);
       led::bug(true);
-      z21::service->broadcastTrackShortCircuit();
+      mw::z21::service->broadcastTrackShortCircuit();
     }
     // Clear count if no short circuit
     else

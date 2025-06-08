@@ -46,10 +46,10 @@ public:
 
   explicit Locos() : Base{"locos", NVS_READWRITE} {}
 
-  dcc::NvLocoBase get(dcc::Address::value_type addr) const;
-  dcc::NvLocoBase get(std::string const& key) const;
-  esp_err_t set(dcc::Address::value_type addr, dcc::NvLocoBase const& loco);
-  esp_err_t set(std::string const& key, dcc::NvLocoBase const& loco);
+  mw::dcc::NvLocoBase get(dcc::Address::value_type addr) const;
+  mw::dcc::NvLocoBase get(std::string const& key) const;
+  esp_err_t set(dcc::Address::value_type addr, mw::dcc::NvLocoBase const& loco);
+  esp_err_t set(std::string const& key, mw::dcc::NvLocoBase const& loco);
   esp_err_t erase(dcc::Address::value_type addr);
 };
 

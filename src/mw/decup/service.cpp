@@ -20,7 +20,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace decup {
+namespace mw::decup {
 
 using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
 
@@ -137,4 +137,4 @@ void Service::close() {
   state.store(State::Suspend);
 }
 
-} // namespace decup
+} // namespace mw::decup

@@ -19,7 +19,7 @@
 #include "mw/z21/service.hpp"
 #include "service.hpp"
 
-namespace dcc {
+namespace mw::dcc {
 
 /// \todo document
 esp_err_t init() {
@@ -41,4 +41,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace dcc
+} // namespace mw::dcc

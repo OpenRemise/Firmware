@@ -20,7 +20,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace mdu {
+namespace mw::mdu {
 
 using ::ulf::mdu_ein::ack, ::ulf::mdu_ein::nak;
 
@@ -137,4 +137,4 @@ Service::transmit(std::vector<uint8_t> const& payload) const {
 /// \todo document
 void Service::close() { _queue = {}; }
 
-} // namespace mdu
+} // namespace mw::mdu

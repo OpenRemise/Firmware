@@ -15,13 +15,13 @@
 
 /// MDU documentation
 ///
-/// \file   mdu/doxygen.hpp
+/// \file   mw/mdu/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   28/07/2023
 
 #pragma once
 
-namespace mdu {
+namespace mw::mdu {
 
 /// \page page_mdu MDU
 /// \tableofcontents
@@ -33,4 +33,4 @@ namespace mdu {
 /// | \ref page_mdns | \ref page_mem |
 /// </div>
 
-} // namespace mdu
+} // namespace mw::mdu

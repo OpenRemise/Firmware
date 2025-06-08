@@ -20,9 +20,9 @@
 #include <ulf/decup_ein.hpp>
 #include "intf/http/message.hpp"
 
-namespace decup {
+namespace mw::decup {
 
-class Service : public ulf::decup_ein::rx::Base {
+class Service : public ::ulf::decup_ein::rx::Base {
 public:
   Service();
   ~Service();
@@ -43,4 +43,4 @@ private:
   std::optional<uint8_t> _ack{};
 };
 
-} // namespace decup
+} // namespace mw::decup
