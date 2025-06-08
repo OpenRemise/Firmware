@@ -118,7 +118,7 @@ void wait_for_all_service_tasks_to_suspend() {
 void rx_task_function(void*) {
   for (;;) {
     loop();
-    LOGI_TASK_SUSPEND(rx_task.handle);
+    LOGI_TASK_SUSPEND();
     wait_for_all_service_tasks_to_suspend();
   }
 }

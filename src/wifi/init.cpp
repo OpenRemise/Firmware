@@ -247,7 +247,7 @@ sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
 /// Initialize either
 /// - STA (station) if NVS contains SSID/pass or
 /// - AP (access point) if NVS doesn't contain SSID/pass or network not found
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   ESP_ERROR_CHECK(gpio_init());
   ESP_ERROR_CHECK(wifi_init());
   ESP_ERROR_CHECK(scan_ap_records());
@@ -255,14 +255,7 @@ esp_err_t init(BaseType_t xCoreID) {
   // Try to connect to network
   if (auto const sta_configs{optional_sta_configs()};
       sta_configs && sta_init(*sta_configs) == ESP_OK) {
-    if (!xTaskCreatePinnedToCore(task_function,
-                                 task.name,
-                                 task.stack_size,
-                                 NULL,
-                                 task.priority,
-                                 &task.handle,
-                                 xCoreID))
-      assert(false);
+    task.create(task_function);
     return ESP_OK;
   }
   // ... or fallback to AP

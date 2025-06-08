@@ -31,7 +31,7 @@ namespace ota {
 
 class Service {
 public:
-  explicit Service(BaseType_t xCoreID);
+  Service();
   ~Service();
 
   esp_err_t socket(http::Message& msg);

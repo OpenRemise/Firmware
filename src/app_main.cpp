@@ -41,30 +41,49 @@
 
 /// ESP-IDF application entry point
 extern "C" void app_main() {
-  static_assert(WIFI_TASK_CORE_ID == 0);
+  static_assert(PRO_CPU_NUM == 0 && WIFI_TASK_CORE_ID == 0);
+  static_assert(APP_CPU_NUM == 1);
 
   // Most important ones
-  ESP_ERROR_CHECK(invoke_on_core(0, trace::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, mem::init));
-  ESP_ERROR_CHECK(invoke_on_core(1, analog::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, out::init, 1));
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, trace::init));
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::init));
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, analog::init));
+  static_assert(APP_CPU_NUM == analog::adc_task.core_id &&
+                APP_CPU_NUM == analog::temp_task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, out::init));
+  static_assert(APP_CPU_NUM == out::track::dcc::task.core_id &&
+                APP_CPU_NUM == out::track::decup::task.core_id &&
+                APP_CPU_NUM == out::track::mdu::task.core_id &&
+                APP_CPU_NUM == out::zusi::task.core_id);
 
   // Don't change initialization order
-  ESP_ERROR_CHECK(invoke_on_core(1, led::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, wifi::init, WIFI_TASK_CORE_ID));
-  ESP_ERROR_CHECK(invoke_on_core(0, http::init));
-  ESP_ERROR_CHECK(invoke_on_core(0, udp::init));
-  ESP_ERROR_CHECK(invoke_on_core(1, dcc::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, decup::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, mdu::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, ota::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(0, z21::init, 0));
-  ESP_ERROR_CHECK(invoke_on_core(1, zusi::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(0, mdns::init));
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, led::init));
+  ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, wifi::init));
+  static_assert(WIFI_TASK_CORE_ID == wifi::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, http::init));
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, udp::init));
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, dcc::init));
+  static_assert(APP_CPU_NUM == dcc::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, decup::init));
+  static_assert(APP_CPU_NUM == decup::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mdu::init));
+  static_assert(APP_CPU_NUM == mdu::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, ota::init));
+  static_assert(APP_CPU_NUM == ota::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, z21::init));
+  static_assert(APP_CPU_NUM == z21::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, zusi::init));
+  static_assert(APP_CPU_NUM == zusi::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mdns::init));
 
   // Don't disable serial JTAG
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
-  ESP_ERROR_CHECK(invoke_on_core(1, ulf::init, 1));
-  ESP_ERROR_CHECK(invoke_on_core(1, usb::init, 1));
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, ulf::init, 1));
+  static_assert(APP_CPU_NUM == ulf::dcc_ein::task.core_id &&
+                APP_CPU_NUM == ulf::decup_ein::task.core_id &&
+                APP_CPU_NUM == ulf::susiv2::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, usb::init));
+  static_assert(APP_CPU_NUM == usb::rx_task.core_id &&
+                APP_CPU_NUM == usb::tx_task.core_id);
 #endif
 }

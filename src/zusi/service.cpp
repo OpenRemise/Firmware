@@ -25,22 +25,12 @@ namespace zusi {
 using ::ulf::susiv2::ack, ::ulf::susiv2::nak;
 
 /// \todo document
-Service::Service(BaseType_t xCoreID) {
-  if (!xTaskCreatePinnedToCore(
-        ztl::make_trampoline(this, &Service::taskFunction),
-        task.name,
-        task.stack_size,
-        NULL,
-        task.priority,
-        &task.handle,
-        xCoreID))
-    assert(false);
+Service::Service() {
+  task.create(ztl::make_trampoline(this, &Service::taskFunction));
 }
 
 /// \todo document
-Service::~Service() {
-  if (task.handle) vTaskDelete(task.handle);
-}
+Service::~Service() { task.destroy(); }
 
 /// \todo document
 /// \bug should this broadcast Z21 programming mode?
@@ -67,7 +57,7 @@ esp_err_t Service::socket(http::Message& msg) {
 /// \todo document
 void Service::taskFunction(void*) {
   for (;;) {
-    LOGI_TASK_SUSPEND(task.handle);
+    LOGI_TASK_SUSPEND();
     switch (state.load()) {
       case State::ZUSI: loop(); break;
       default: assert(false); break;

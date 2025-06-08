@@ -58,30 +58,6 @@ consteval std::string_view type_name() {
 #endif
 }
 
-namespace detail {
-
-template<std::unsigned_integral T>
-constexpr T prime{sizeof(T) <= 4uz ? 16777619ull : 1099511628211ull};
-
-template<std::unsigned_integral T>
-constexpr T offset{sizeof(T) <= 4uz ? 2166136261ull : 14695981039346656037ull};
-
-} // namespace detail
-
-// http://www.isthe.com/chongo/tech/comp/fnv/index.html
-template<std::unsigned_integral T = uint32_t>
-constexpr T fnv1a(uint8_t byte, T hash = ::detail::offset<T>) {
-  return (hash ^ byte) * ::detail::prime<T>;
-}
-
-template<std::unsigned_integral T = uint32_t>
-constexpr T fnv1a(std::span<char const> str) {
-  return std::accumulate(cbegin(str),
-                         cend(str),
-                         ::detail::offset<T>,
-                         [](T a, char b) { return fnv1a(b, a); });
-}
-
 std::optional<dcc::Address::value_type> uri2address(std::string_view uri);
 
 std::optional<dcc::Address> uri2loco_address(std::string_view uri);

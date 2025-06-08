@@ -36,7 +36,7 @@ std::shared_ptr<Service> service;
 } // namespace
 
 /// \todo document
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   esp_partition_t const* boot_partition{esp_ota_get_boot_partition()};
   esp_partition_t const* running_partition{esp_ota_get_running_partition()};
   if (boot_partition != running_partition)
@@ -45,7 +45,7 @@ esp_err_t init(BaseType_t xCoreID) {
          "somehow.");
 
   if (http::sta::server) {
-    service = std::make_shared<Service>(xCoreID);
+    service = std::make_shared<Service>();
     http::sta::server->subscribe({.uri = "/ota/"}, service, &Service::socket);
   }
 

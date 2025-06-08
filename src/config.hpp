@@ -23,13 +23,11 @@
 
 #include <driver/rmt_tx.h>
 #include <esp_http_server.h>
-#include <esp_task.h>
 #include <freertos/message_buffer.h>
 #include <freertos/queue.h>
 #include <freertos/stream_buffer.h>
 #include <hal/gpio_types.h>
 #include <static_math/static_math.h>
-#include <array>
 #include <atomic>
 #include <climits>
 #include <dcc/dcc.hpp>
@@ -40,6 +38,7 @@
 #include <ztl/enum.hpp>
 #include <ztl/implicit_wrapper.hpp>
 #include <ztl/limits.hpp>
+#include "task.hpp"
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #  include <driver/gptimer.h>
@@ -218,21 +217,20 @@ inline constexpr auto conversion_frame_samples_per_channel{
 static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
 
 ///
-inline struct AdcTask {
-  static constexpr auto name{"analog::adc"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 2u};
-  static constexpr auto timeout{200u};
-  TaskHandle_t handle{};
-} adc_task;
+inline TASK(adc_task,
+            "analog::adc",          // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 2u, // Priority
+            APP_CPU_NUM,            // Core
+            200u);                  // Timeout
 
 ///
-inline struct TempTask {
-  static constexpr auto name{"analog::temp"};
-  static constexpr auto stack_size{2048uz};
-  static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
-  TaskHandle_t handle{};
-} temp_task;
+inline TASK(temp_task,
+            "analog::temp",   // Name
+            2048uz,           // Stack size
+            tskIDLE_PRIORITY, // Priority
+            APP_CPU_NUM,      // Core
+            0u);
 
 using VoltageMeasurement =
   ztl::implicit_wrapper<ztl::smallest_signed_t<0, max_measurement>,
@@ -253,7 +251,7 @@ inline struct VoltagesQueue {
   using value_type =
     std::array<VoltageMeasurement, conversion_frame_samples_per_channel>;
   static constexpr auto size{1uz};
-  QueueHandle_t handle{};
+  static inline QueueHandle_t handle{};
 } voltages_queue;
 
 ///
@@ -261,14 +259,14 @@ inline struct CurrentsQueue {
   using value_type =
     std::array<CurrentMeasurement, conversion_frame_samples_per_channel>;
   static constexpr auto size{1uz};
-  QueueHandle_t handle{};
+  static inline QueueHandle_t handle{};
 } currents_queue;
 
 ///
 inline struct TemperatureQueue {
   using value_type = float;
   static constexpr auto size{1uz};
-  QueueHandle_t handle{};
+  static inline QueueHandle_t handle{};
 } temperature_queue;
 
 } // namespace analog
@@ -281,26 +279,24 @@ class Service;
 inline std::shared_ptr<Service> service;
 
 ///
-inline struct Task {
-  static constexpr auto name{"dcc"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{2u};
-  static constexpr auto timeout{50u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "dcc",       // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            50u);        // Timeout
 
 } // namespace dcc
 
 namespace decup {
 
 ///
-inline struct Task {
-  static constexpr auto name{"decup"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{2u};
-  static constexpr auto timeout{60'000u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "decup",     // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            60'000u);    // Timeout
 
 } // namespace decup
 
@@ -346,12 +342,12 @@ inline std::string str;
 namespace mdu {
 
 ///
-inline struct Task {
-  static constexpr auto name{"mdu"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{2u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "mdu",       // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            0u);
 
 } // namespace mdu
 
@@ -364,24 +360,24 @@ inline constexpr uint8_t ack{0x06u};
 inline constexpr uint8_t nak{0x15u};
 
 ///
-inline struct Task {
-  static constexpr auto name{"ota"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "ota",                  // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 1u, // Priority
+            APP_CPU_NUM,            // Core
+            0u);
 
 } // namespace ota
 
 namespace zusi {
 
 /// \todo ESP_TASK_PRIO_MAX
-inline struct Task {
-  static constexpr auto name{"zusi"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{2u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "zusi",      // Name
+            4096uz,      // Stack size
+            2u,          // Priority
+            APP_CPU_NUM, // Core
+            0u);
 
 } // namespace zusi
 
@@ -394,14 +390,14 @@ inline gptimer_handle_t gptimer{};
 ///
 inline struct RxMessageBuffer {
   static constexpr auto size{320uz};
-  MessageBufferHandle_t handle{};
+  static inline MessageBufferHandle_t handle{};
 } rx_message_buffer;
 
 ///
 inline struct TxMessageBuffer {
   static constexpr auto size{320uz};
-  MessageBufferHandle_t front_handle{};
-  MessageBufferHandle_t back_handle{};
+  static inline MessageBufferHandle_t front_handle{};
+  static inline MessageBufferHandle_t back_handle{};
 } tx_message_buffer;
 
 namespace track {
@@ -433,7 +429,7 @@ inline struct RxQueue {
     dcc::bidi::Datagram<> datagram{};
   };
   static constexpr auto size{32uz};
-  QueueHandle_t handle{};
+  static inline QueueHandle_t handle{};
 } rx_queue;
 
 inline rmt_channel_handle_t channel{};
@@ -445,37 +441,36 @@ inline constexpr auto bidi_rx_gpio_num{GPIO_NUM_14};
 inline constexpr auto bidi_en_gpio_num{GPIO_NUM_13};
 
 ///
-inline struct Task {
-  static constexpr auto name{"out::track::dcc"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "out::track::dcc",      // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 1u, // Priority
+            APP_CPU_NUM,            // Core
+            0u);
 
 } // namespace dcc
 
 namespace decup {
 
 ///
-inline struct Task {
-  static constexpr auto name{"out::track::decup"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  static constexpr auto timeout{::decup::Task::timeout};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "out::track::decup",    // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 1u, // Priority
+            APP_CPU_NUM,            // Core
+            ::decup::task.timeout); // Timeout
 
 } // namespace decup
 
 namespace mdu {
 
 ///
-inline struct Task {
-  static constexpr auto name{"out::track::mdu"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "out::track::mdu",      // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 1u, // Priority
+            APP_CPU_NUM,            // Core
+            0u);
 
 } // namespace mdu
 
@@ -488,12 +483,12 @@ inline constexpr auto clock_gpio_num{GPIO_NUM_6};
 inline constexpr auto data_gpio_num{GPIO_NUM_5};
 
 ///
-inline struct Task {
-  static constexpr auto name{"out::zusi"};
-  static constexpr auto stack_size{4096uz};
-  static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 1u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "out::zusi",            // Name
+            4096uz,                 // Stack size
+            ESP_TASK_PRIO_MAX - 1u, // Priority
+            APP_CPU_NUM,            // Core
+            0u);
 
 } // namespace zusi
 
@@ -513,22 +508,20 @@ inline constexpr auto vbus_gpio_num{GPIO_NUM_7};
 inline constexpr auto buffer_size{512uz};
 
 ///
-inline struct RxTask {
-  static constexpr auto name{"usb::rx"};
-  static constexpr auto stack_size{3072uz};
-  static constexpr UBaseType_t priority{5u};
-  static constexpr auto timeout{100u};
-  TaskHandle_t handle{};
-} rx_task;
+inline TASK(rx_task,
+            "usb::rx",   // Name
+            3072uz,      // Stack size
+            5u,          // Priority
+            APP_CPU_NUM, // Core
+            100u);       // Timeout
 
 ///
-inline struct TxTask {
-  static constexpr auto name{"usb::tx"};
-  static constexpr auto stack_size{3072uz};
-  static constexpr UBaseType_t priority{1u};
-  static constexpr auto timeout{20u};
-  TaskHandle_t handle{};
-} tx_task;
+inline TASK(tx_task,
+            "usb::tx",   // Name
+            3072uz,      // Stack size
+            1u,          // Priority
+            APP_CPU_NUM, // Core
+            20u);        // Timeout
 
 ///
 inline struct RxStreamBuffer {
@@ -549,38 +542,36 @@ namespace ulf {
 namespace dcc_ein {
 
 ///
-inline struct Task {
-  static constexpr auto name{"ulf::dcc_ein"};
-  static constexpr auto stack_size{3072uz};
-  static constexpr UBaseType_t priority{::usb::rx_task.priority - 1u};
-  static constexpr auto timeout{100u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "ulf::dcc_ein",               // Name
+            3072uz,                       // Stack size
+            ::usb::rx_task.priority - 1u, // Priority
+            APP_CPU_NUM,                  // Core
+            100u);                        // Timeout
 
 } // namespace dcc_ein
 
 namespace decup_ein {
 
 ///
-inline struct Task {
-  static constexpr auto name{"ulf::decup_ein"};
-  static constexpr auto stack_size{3072uz};
-  static constexpr UBaseType_t priority{::usb::rx_task.priority - 1u};
-  static constexpr auto timeout{::decup::Task::timeout};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "ulf::decup_ein",             // Name
+            3072uz,                       // Stack size
+            ::usb::rx_task.priority - 1u, // Priority
+            APP_CPU_NUM,                  // Core
+            ::decup::task.timeout);       // Timeout
 
 } // namespace decup_ein
 
 namespace susiv2 {
 
 ///
-inline struct Task {
-  static constexpr auto name{"ulf::susiv2"};
-  static constexpr auto stack_size{3072uz};
-  static constexpr UBaseType_t priority{::usb::rx_task.priority - 1u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "ulf::susiv2",                // Name
+            3072uz,                       // Stack size
+            ::usb::rx_task.priority - 1u, // Priority
+            APP_CPU_NUM,                  // Core
+            0u);
 
 } // namespace susiv2
 
@@ -601,25 +592,24 @@ inline std::array<uint8_t, 6uz> mac;
 inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
 
 ///
-inline struct Task {
-  static constexpr auto name{"wifi"};
-  static constexpr auto stack_size{3072uz};
-  static constexpr UBaseType_t priority{tskIDLE_PRIORITY};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "wifi",            // Name
+            3072uz,            // Stack size
+            tskIDLE_PRIORITY,  // Priority
+            WIFI_TASK_CORE_ID, // Core
+            0u);
 
 } // namespace wifi
 
 namespace z21 {
 
 ///
-inline struct RxTask {
-  static constexpr auto name{"z21"};
-  static constexpr auto stack_size{6144uz};
-  static constexpr UBaseType_t priority{5u};
-  static constexpr auto timeout{500u};
-  TaskHandle_t handle{};
-} task;
+inline TASK(task,
+            "z21",       // Name
+            6144uz,      // Stack size
+            5u,          // Priority
+            APP_CPU_NUM, // Core
+            500u);       // Timeout
 
 class Service;
 inline std::shared_ptr<Service> service;

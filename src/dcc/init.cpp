@@ -22,9 +22,9 @@
 namespace dcc {
 
 /// \todo document
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   if (http::sta::server) {
-    service = std::make_shared<Service>(xCoreID);
+    service = std::make_shared<Service>();
     http::sta::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_DELETE},
                                  service,
                                  &Service::locosDeleteRequest);

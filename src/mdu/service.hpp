@@ -23,7 +23,7 @@ namespace mdu {
 
 class Service {
 public:
-  explicit Service(BaseType_t xCoreID);
+  Service();
   ~Service();
 
   esp_err_t zppSocket(http::Message& msg);

@@ -19,6 +19,6 @@
 
 namespace dcc {
 
-esp_err_t init(BaseType_t xCoreID);
+esp_err_t init();
 
 } // namespace dcc

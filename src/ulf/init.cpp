@@ -34,31 +34,9 @@ namespace ulf {
 /// - ULF_DECUP_EIN
 /// - ULF_SUSIV2
 esp_err_t init(BaseType_t xCoreID) {
-  if (!xTaskCreatePinnedToCore(dcc_ein::task_function,
-                               dcc_ein::task.name,
-                               dcc_ein::task.stack_size,
-                               NULL,
-                               dcc_ein::task.priority,
-                               &dcc_ein::task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(decup_ein::task_function,
-                               decup_ein::task.name,
-                               decup_ein::task.stack_size,
-                               NULL,
-                               decup_ein::task.priority,
-                               &decup_ein::task.handle,
-                               xCoreID))
-    assert(false);
-  if (!xTaskCreatePinnedToCore(susiv2::task_function,
-                               susiv2::task.name,
-                               susiv2::task.stack_size,
-                               NULL,
-                               susiv2::task.priority,
-                               &susiv2::task.handle,
-                               xCoreID))
-    assert(false);
-
+  dcc_ein::task.create(dcc_ein::task_function);
+  decup_ein::task.create(decup_ein::task_function);
+  susiv2::task.create(susiv2::task_function);
   return ESP_OK;
 }
 

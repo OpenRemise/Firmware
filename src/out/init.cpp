@@ -41,7 +41,7 @@ esp_err_t init_gptimer() {
 }
 
 /// \todo document
-esp_err_t init(BaseType_t xCoreID) {
+esp_err_t init() {
   rx_message_buffer.handle = xMessageBufferCreate(rx_message_buffer.size);
   tx_message_buffer.front_handle = xMessageBufferCreate(tx_message_buffer.size);
   tx_message_buffer.back_handle = xMessageBufferCreate(tx_message_buffer.size);
@@ -49,8 +49,8 @@ esp_err_t init(BaseType_t xCoreID) {
   ESP_ERROR_CHECK(init_gptimer());
 
   //
-  ESP_ERROR_CHECK(track::init(xCoreID));
-  ESP_ERROR_CHECK(zusi::init(xCoreID));
+  ESP_ERROR_CHECK(track::init());
+  ESP_ERROR_CHECK(zusi::init());
 
   return ESP_OK;
 }

@@ -27,7 +27,7 @@ namespace zusi {
 /// Those are the service details
 class Service {
 public:
-  explicit Service(BaseType_t xCoreID);
+  Service();
   ~Service();
 
   esp_err_t socket(http::Message& msg);
