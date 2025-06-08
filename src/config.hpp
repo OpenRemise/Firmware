@@ -46,6 +46,9 @@
 #  include <esp_wifi.h>
 #  include <hal/adc_types.h>
 #elif CONFIG_IDF_TARGET_LINUX
+#  define APP_CPU_NUM 0
+#  define PRO_CPU_NUM APP_CPU_NUM
+#  define WIFI_TASK_CORE_ID APP_CPU_NUM
 #  define ADC_CHANNEL_1 1
 #  define ADC_CHANNEL_2 2
 #  define ADC_CHANNEL_3 3

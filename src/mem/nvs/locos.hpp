@@ -23,7 +23,7 @@
 
 #include <dcc/dcc.hpp>
 #include "base.hpp"
-#include "dcc/loco.hpp"
+#include "mw/dcc/loco.hpp"
 
 namespace mem::nvs {
 

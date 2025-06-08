@@ -1,15 +1,15 @@
 set(COMMON_SRC
-    dcc/loco.cpp
-    dcc/service.cpp
+    drv/out/track/current_limit.cpp
+    intf/usb/rx_task_function.cpp
     mem/nvs/accessories.cpp
     mem/nvs/base.cpp
     mem/nvs/init.cpp
     mem/nvs/locos.cpp
     mem/nvs/settings.cpp
     mem/init.cpp
-    out/track/current_limit.cpp
-    ulf/dcc_ein/task_function.cpp
-    usb/rx_task_function.cpp
+    mw/dcc/loco.cpp
+    mw/dcc/service.cpp
+    mw/ulf/dcc_ein/task_function.cpp
     utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
@@ -26,61 +26,61 @@ if(IDF_TARGET STREQUAL linux)
     esp_http_server
     nvs_flash
     EMBED_FILES
-    ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
+    ${CMAKE_BINARY_DIR}/intf/http/ap/captive_portal.html)
 else()
   idf_component_register(
     SRCS
     ${COMMON_SRC}
-    analog/adc_task_function.cpp
-    analog/convert.cpp
-    analog/init.cpp
-    analog/temp_task_function.cpp
-    dcc/init.cpp
-    decup/init.cpp
-    decup/service.cpp
-    http/ap/init.cpp
-    http/ap/server.cpp
-    http/sta/init.cpp
-    http/sta/server.cpp
-    http/init.cpp
-    led/bug.cpp
-    led/init.cpp
-    led/wifi.cpp
-    mdns/init.cpp
-    mdu/init.cpp
-    mdu/service.cpp
-    ota/init.cpp
-    ota/service.cpp
-    out/track/dcc/resume.cpp
-    out/track/dcc/suspend.cpp
-    out/track/dcc/task_function.cpp
-    out/track/decup/resume.cpp
-    out/track/decup/suspend.cpp
-    out/track/decup/task_function.cpp
-    out/track/mdu/resume.cpp
-    out/track/mdu/suspend.cpp
-    out/track/mdu/task_function.cpp
-    out/track/init.cpp
-    out/zusi/init.cpp
-    out/zusi/resume.cpp
-    out/zusi/suspend.cpp
-    out/zusi/task_function.cpp
-    out/init.cpp
-    out/suspend.cpp
-    trace/init.cpp
-    udp/init.cpp
-    ulf/decup_ein/task_function.cpp
-    ulf/susiv2/task_function.cpp
-    ulf/init.cpp
-    usb/init.cpp
-    usb/rx_task_function.cpp
-    usb/tx_task_function.cpp
-    wifi/init.cpp
-    wifi/task_function.cpp
-    z21/init.cpp
-    z21/service.cpp
-    zusi/init.cpp
-    zusi/service.cpp
+    drv/analog/adc_task_function.cpp
+    drv/analog/convert.cpp
+    drv/analog/init.cpp
+    drv/analog/temp_task_function.cpp
+    drv/led/bug.cpp
+    drv/led/init.cpp
+    drv/led/wifi.cpp
+    drv/out/track/dcc/resume.cpp
+    drv/out/track/dcc/suspend.cpp
+    drv/out/track/dcc/task_function.cpp
+    drv/out/track/decup/resume.cpp
+    drv/out/track/decup/suspend.cpp
+    drv/out/track/decup/task_function.cpp
+    drv/out/track/mdu/resume.cpp
+    drv/out/track/mdu/suspend.cpp
+    drv/out/track/mdu/task_function.cpp
+    drv/out/track/init.cpp
+    drv/out/zusi/init.cpp
+    drv/out/zusi/resume.cpp
+    drv/out/zusi/suspend.cpp
+    drv/out/zusi/task_function.cpp
+    drv/out/init.cpp
+    drv/out/suspend.cpp
+    drv/trace/init.cpp
+    drv/wifi/init.cpp
+    drv/wifi/task_function.cpp
+    intf/http/ap/init.cpp
+    intf/http/ap/server.cpp
+    intf/http/sta/init.cpp
+    intf/http/sta/server.cpp
+    intf/http/init.cpp
+    intf/mdns/init.cpp
+    intf/udp/init.cpp
+    intf/usb/init.cpp
+    intf/usb/rx_task_function.cpp
+    intf/usb/tx_task_function.cpp
+    mw/dcc/init.cpp
+    mw/decup/init.cpp
+    mw/decup/service.cpp
+    mw/mdu/init.cpp
+    mw/mdu/service.cpp
+    mw/ota/init.cpp
+    mw/ota/service.cpp
+    mw/ulf/decup_ein/task_function.cpp
+    mw/ulf/susiv2/task_function.cpp
+    mw/ulf/init.cpp
+    mw/z21/init.cpp
+    mw/z21/service.cpp
+    mw/zusi/init.cpp
+    mw/zusi/service.cpp
     app_main.cpp
     INCLUDE_DIRS
     .
@@ -96,7 +96,7 @@ else()
     nvs_flash
     vfs
     EMBED_FILES
-    ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
+    ${CMAKE_BINARY_DIR}/intf/http/ap/captive_portal.html)
 endif()
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
@@ -158,8 +158,8 @@ target_link_libraries(
          ZUSI::ZUSI)
 
 # Minify HTML shown by http::ap::Server
-minify_html(http/ap/captive_portal.html
-            ${CMAKE_BINARY_DIR}/http/ap/captive_portal.html)
+minify_html(intf/http/ap/captive_portal.html
+            ${CMAKE_BINARY_DIR}/intf/http/ap/captive_portal.html)
 
 # Create NVS partition image
 if(NOT IDF_TARGET STREQUAL linux)

@@ -31,7 +31,7 @@
 #include <numeric>
 #include <span>
 #include <string_view>
-#include "http/message.hpp"
+#include "intf/http/message.hpp"
 #include "log.h"
 
 void esp_delayed_restart();
