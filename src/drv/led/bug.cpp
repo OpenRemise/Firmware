@@ -15,7 +15,7 @@
 
 /// Bug LED
 ///
-/// \file   led/bug.cpp
+/// \file   drv/led/bug.cpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
@@ -23,7 +23,7 @@
 #include <driver/ledc.h>
 #include "mem/nvs/settings.hpp"
 
-namespace led {
+namespace drv::led {
 
 /// Turn bug LED on or off
 ///
@@ -56,4 +56,4 @@ void Bug::on() { bug(true); }
 /// Turn bug LED off
 void Bug::off() { bug(false); }
 
-} // namespace led
+} // namespace drv::led

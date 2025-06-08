@@ -15,7 +15,7 @@
 
 /// ZUSI task function
 ///
-/// \file   out/zusi/task_function.cpp
+/// \file   drv/out/zusi/task_function.cpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
@@ -32,7 +32,7 @@
 #include "suspend.hpp"
 #include "utility.hpp"
 
-namespace out::zusi {
+namespace drv::out::zusi {
 
 using namespace ::zusi;
 using ::ulf::susiv2::ack, ::ulf::susiv2::nak;
@@ -114,7 +114,7 @@ std::optional<Packet> receive_packet(uint32_t timeout) {
 
 /// \todo document
 void transmit_response(ulf::susiv2::Response resp) {
-  xMessageBufferSend(out::rx_message_buffer.handle, data(resp), size(resp), 0u);
+  xMessageBufferSend(rx_message_buffer.handle, data(resp), size(resp), 0u);
 }
 
 /// \todo document
@@ -152,4 +152,4 @@ void task_function(void*) {
     }
 }
 
-} // namespace out::zusi
+} // namespace drv::out::zusi

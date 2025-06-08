@@ -50,7 +50,7 @@ esp_err_t Service::socket(http::Message& msg, State decup_state) {
       state.compare_exchange_strong(expected, decup_state)) {
     _queue.push(std::move(msg));
     LOGI_TASK_RESUME(task);
-    LOGI_TASK_RESUME(out::track::decup::task);
+    LOGI_TASK_RESUME(drv::out::track::decup::task);
     return ESP_OK;
   }
   //
@@ -77,7 +77,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
-  led::Bug const led_bug{};
+  drv::led::Bug const led_bug{};
 
   for (;;) {
     assert(_queue.size());
@@ -120,14 +120,14 @@ void Service::loop() {
 /// \todo document
 uint8_t Service::transmit(std::span<uint8_t const> bytes) {
   uint8_t acks{};
-  if (!xMessageBufferSend(out::tx_message_buffer.front_handle,
+  if (!xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                           data(bytes),
                           std::min(size(bytes), DECUP_MAX_PACKET_SIZE),
                           portMAX_DELAY))
     return acks;
   else
     xMessageBufferReceive(
-      out::rx_message_buffer.handle, &acks, sizeof(acks), portMAX_DELAY);
+      drv::out::rx_message_buffer.handle, &acks, sizeof(acks), portMAX_DELAY);
   return acks;
 }
 

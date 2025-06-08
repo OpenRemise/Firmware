@@ -15,13 +15,13 @@
 
 /// Trace documentation
 ///
-/// \file   z21/doxygen.hpp
+/// \file   drv/trace/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   21/01/2025
 
 #pragma once
 
-namespace z21 {
+namespace drv::trace {
 
 /// \page page_trace Trace
 /// \tableofcontents
@@ -33,4 +33,4 @@ namespace z21 {
 /// | \ref page_out | \ref page_udp |
 /// </div>
 
-} // namespace z21
+} // namespace drv::trace

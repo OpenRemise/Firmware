@@ -15,7 +15,7 @@
 
 /// Initialize WiFi
 ///
-/// \file   wifi/init.cpp
+/// \file   drv/wifi/init.cpp
 /// \author Vincent Hamp
 /// \date   02/07/2023
 
@@ -35,7 +35,7 @@
 #include "mem/nvs/settings.hpp"
 #include "task_function.hpp"
 
-namespace wifi {
+namespace drv::wifi {
 
 namespace {
 
@@ -106,7 +106,7 @@ void event_handler(void*,
       // Set global MAC string
       ESP_ERROR_CHECK(esp_base_mac_addr_get(data(mac)));
       snprintf(data(mac_str), size(mac_str), MACSTR, MAC2STR(mac));
-      led::wifi(true);
+      drv::led::wifi(true);
     }
   }
   // WiFi events
@@ -118,7 +118,7 @@ void event_handler(void*,
       LOGI("AP: STA " MACSTR " connected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      led::wifi(true);
+      drv::led::wifi(true);
     }
     // STA disconnected from own AP
     else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
@@ -127,7 +127,7 @@ void event_handler(void*,
       LOGI("AP: STA " MACSTR " disconnected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      led::wifi(false);
+      drv::led::wifi(false);
     }
     // STA disconnected from external AP
     else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
@@ -136,7 +136,7 @@ void event_handler(void*,
       LOGI("STA: " MACSTR " disconnected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      led::wifi(false);
+      drv::led::wifi(false);
       ip_str.clear();
       esp_wifi_connect();
     }
@@ -263,4 +263,4 @@ esp_err_t init() {
     return ap_init(ap_config());
 }
 
-} // namespace wifi
+} // namespace drv::wifi

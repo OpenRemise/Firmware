@@ -45,21 +45,21 @@ extern "C" void app_main() {
   static_assert(APP_CPU_NUM == 1);
 
   // Most important ones
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, trace::init));
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::init));
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, analog::init));
-  static_assert(APP_CPU_NUM == analog::adc_task.core_id &&
-                APP_CPU_NUM == analog::temp_task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, out::init));
-  static_assert(APP_CPU_NUM == out::track::dcc::task.core_id &&
-                APP_CPU_NUM == out::track::decup::task.core_id &&
-                APP_CPU_NUM == out::track::mdu::task.core_id &&
-                APP_CPU_NUM == out::zusi::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::analog::init));
+  static_assert(APP_CPU_NUM == drv::analog::adc_task.core_id &&
+                APP_CPU_NUM == drv::analog::temp_task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::out::init));
+  static_assert(APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
+                APP_CPU_NUM == drv::out::track::decup::task.core_id &&
+                APP_CPU_NUM == drv::out::track::mdu::task.core_id &&
+                APP_CPU_NUM == drv::out::zusi::task.core_id);
 
   // Don't change initialization order
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, led::init));
-  ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, wifi::init));
-  static_assert(WIFI_TASK_CORE_ID == wifi::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
+  ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
+  static_assert(WIFI_TASK_CORE_ID == drv::wifi::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, http::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, dcc::init));

@@ -15,7 +15,7 @@
 
 /// MDU task function
 ///
-/// \file   out/track/mdu/task_function.cpp
+/// \file   drv/out/track/mdu/task_function.cpp
 /// \author Vincent Hamp
 /// \date   10/04/2024
 
@@ -33,7 +33,7 @@
 #include "suspend.hpp"
 #include "utility.hpp"
 
-namespace out::track::mdu {
+namespace drv::out::track::mdu {
 
 using namespace ::mdu;
 using ::ulf::mdu_ein::ack, ::ulf::mdu_ein::nak;
@@ -152,8 +152,7 @@ receive_acks(mdu_encoder_config_t const& encoder_config, Packet const& packet) {
 /// \todo document
 esp_err_t transmit_acks(std::array<uint8_t, 2uz> acks) {
   return xMessageBufferSend(
-           out::rx_message_buffer.handle, data(acks), size(acks), 0u) ==
-             size(acks)
+           rx_message_buffer.handle, data(acks), size(acks), 0u) == size(acks)
            ? ESP_OK
            : ESP_FAIL;
 }
@@ -307,4 +306,4 @@ void task_function(void*) {
     }
 }
 
-} // namespace out::track::mdu
+} // namespace drv::out::track::mdu

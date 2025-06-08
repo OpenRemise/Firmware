@@ -15,13 +15,13 @@
 
 /// WiFi documentation
 ///
-/// \file   wifi/doxygen.hpp
+/// \file   drv/wifi/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   23/08/2024
 
 #pragma once
 
-namespace wifi {
+namespace drv::wifi {
 
 /// \page page_wifi WiFi
 /// \tableofcontents
@@ -38,4 +38,4 @@ namespace wifi {
 /// | \ref page_usb | \ref page_z21 |
 /// </div>
 
-} // namespace wifi
+} // namespace drv::wifi

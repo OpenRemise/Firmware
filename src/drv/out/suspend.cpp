@@ -15,26 +15,26 @@
 
 /// \todo document
 ///
-/// \file   out/suspend.cpp
+/// \file   drv/out/suspend.cpp
 /// \author Vincent Hamp
 /// \date   23/04/2023
 
 #include "suspend.hpp"
 #include "log.h"
 
-namespace out {
+namespace drv::out {
 
 /// \todo document
 void reset_queue_and_message_buffers() {
   xQueueReset(track::rx_queue.handle);
   while (!xMessageBufferReset(rx_message_buffer.handle)) {
-    LOGW("Can't reset out::rx_message_buffer");
+    LOGW("Can't reset drv::out::rx_message_buffer");
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
   // Don't short circuit here!
   while (!xMessageBufferReset(tx_message_buffer.front_handle) |
          !xMessageBufferReset(tx_message_buffer.back_handle)) {
-    LOGW("Can't reset out::tx_message_buffer");
+    LOGW("Can't reset drv::out::tx_message_buffer");
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
 }
@@ -46,4 +46,4 @@ esp_err_t suspend() {
   return ESP_OK;
 }
 
-} // namespace out
+} // namespace drv::out

@@ -15,7 +15,7 @@
 
 /// Initialize low level layer (ADC, track and ZUSI)
 ///
-/// \file   out/init.cpp
+/// \file   drv/out/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -23,7 +23,7 @@
 #include "track/init.hpp"
 #include "zusi/init.hpp"
 
-namespace out {
+namespace drv::out {
 
 /// \todo document
 esp_err_t init_gptimer() {
@@ -55,4 +55,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace out
+} // namespace drv::out

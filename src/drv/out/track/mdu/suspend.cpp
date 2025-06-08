@@ -15,7 +15,7 @@
 
 /// Deinitialize peripherals when suspending MDU task
 ///
-/// \file   out/track/mdu/suspend.cpp
+/// \file   drv/out/track/mdu/suspend.cpp
 /// \author Vincent Hamp
 /// \date   10/04/2024
 
@@ -23,7 +23,7 @@
 #include <driver/gpio.h>
 #include "../../suspend.hpp"
 
-namespace out::track::mdu {
+namespace drv::out::track::mdu {
 
 namespace {
 
@@ -62,4 +62,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-} // namespace out::track::mdu
+} // namespace drv::out::track::mdu

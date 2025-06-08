@@ -50,7 +50,7 @@ esp_err_t Service::socket(http::Message& msg, State mdu_state) {
       state.compare_exchange_strong(expected, mdu_state)) {
     _queue.push(std::move(msg));
     LOGI_TASK_RESUME(task);
-    LOGI_TASK_RESUME(out::track::mdu::task);
+    LOGI_TASK_RESUME(drv::out::track::mdu::task);
     return ESP_OK;
   }
   //
@@ -77,7 +77,7 @@ void Service::taskFunction(void*) {
 
 /// \todo document
 void Service::loop() {
-  led::Bug const led_bug{};
+  drv::led::Bug const led_bug{};
   auto const timeout{http_receive_timeout2ms()};
 
   for (;;) {
@@ -118,17 +118,18 @@ void Service::loop() {
 std::array<uint8_t, 2uz>
 Service::transmit(std::vector<uint8_t> const& payload) const {
   //
-  xMessageBufferSend(out::tx_message_buffer.front_handle,
+  xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                      data(payload),
                      std::min(size(payload), MDU_MAX_PACKET_SIZE),
                      portMAX_DELAY);
 
   //
   decltype(_acks) retval;
-  auto const bytes_received{xMessageBufferReceive(out::rx_message_buffer.handle,
-                                                  data(retval),
-                                                  retval.max_size(),
-                                                  portMAX_DELAY)};
+  auto const bytes_received{
+    xMessageBufferReceive(drv::out::rx_message_buffer.handle,
+                          data(retval),
+                          retval.max_size(),
+                          portMAX_DELAY)};
   assert(bytes_received == retval.max_size());
   return retval;
 }

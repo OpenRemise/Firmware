@@ -15,7 +15,7 @@
 
 /// Initialize low level layer (ADC, track and ZUSI)
 ///
-/// \file   out/init.hpp
+/// \file   drv/out/init.hpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace out {
+namespace drv::out {
 
 esp_err_t init();
 
-} // namespace out
+} // namespace drv::out

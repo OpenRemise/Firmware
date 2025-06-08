@@ -74,7 +74,7 @@ Server::~Server() {
 
 /// \todo document
 void Server::buildApRecordsStrings() {
-  for (auto const& ap_record : wifi::ap_records) {
+  for (auto const& ap_record : drv::wifi::ap_records) {
     //
     _ap_records_str.append("<li>");
     _ap_records_str.append(std::bit_cast<char const*>(&ap_record.ssid));

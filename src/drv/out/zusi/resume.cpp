@@ -15,7 +15,7 @@
 
 /// Initialize peripherals when resuming ZUSI task
 ///
-/// \file   out/zusi/resume.cpp
+/// \file   drv/out/zusi/resume.cpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
@@ -25,7 +25,7 @@
 #include <algorithm>
 #include "init.hpp"
 
-namespace out::zusi {
+namespace drv::out::zusi {
 
 namespace {
 
@@ -46,4 +46,4 @@ esp_err_t resume() {
   return init_gpio();
 }
 
-} // namespace out::zusi
+} // namespace drv::out::zusi

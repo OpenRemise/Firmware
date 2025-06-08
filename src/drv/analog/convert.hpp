@@ -15,7 +15,7 @@
 
 /// Convert between ADC measurements and SI units
 ///
-/// \file   analog/convert.hpp
+/// \file   drv/analog/convert.hpp
 /// \author Vincent Hamp
 /// \date   03/05/2023
 
@@ -23,7 +23,7 @@
 
 #include <esp_adc/adc_cali.h>
 
-namespace analog {
+namespace drv::analog {
 
 Voltage measurement2mV(VoltageMeasurement meas);
 VoltageMeasurement mV2measurement(Voltage mV);
@@ -32,4 +32,4 @@ CurrentMeasurement mA2measurement(Current mA);
 
 inline adc_cali_handle_t cali_handle{};
 
-} // namespace analog
+} // namespace drv::analog

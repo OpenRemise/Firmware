@@ -15,7 +15,7 @@
 
 /// Initialize WiFi
 ///
-/// \file   wifi/init.hpp
+/// \file   drv/wifi/init.hpp
 /// \author Vincent Hamp
 /// \date   02/07/2023
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace wifi {
+namespace drv::wifi {
 
 esp_err_t init();
 
-} // namespace wifi
+} // namespace drv::wifi

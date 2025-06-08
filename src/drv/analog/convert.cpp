@@ -15,13 +15,13 @@
 
 /// Convert between ADC measurements and SI units
 ///
-/// \file   analog/convert.cpp
+/// \file   drv/analog/convert.cpp
 /// \author Vincent Hamp
 /// \date   03/05/2023
 
 #include "convert.hpp"
 
-namespace analog {
+namespace drv::analog {
 
 namespace {
 
@@ -75,4 +75,4 @@ CurrentMeasurement mA2measurement(Current mA) {
                                          (current_k * vref));
 }
 
-} // namespace analog
+} // namespace drv::analog

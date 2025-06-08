@@ -62,8 +62,8 @@ namespace {
 /// Acknowledge senddcc string
 void ack_senddcc_str() {
   auto const space_used{
-    out::tx_message_buffer.size -
-    xMessageBufferSpacesAvailable(out::tx_message_buffer.front_handle)};
+    drv::out::tx_message_buffer.size -
+    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.front_handle)};
   auto const str{::ulf::dcc_ein::ack2senddcc_str('b', space_used)};
   xStreamBufferSend(usb::tx_stream_buffer.handle,
                     data(str),
@@ -71,31 +71,32 @@ void ack_senddcc_str() {
                     pdMS_TO_TICKS(usb::tx_task.timeout));
 }
 
-/// Send DCC packet to out::tx_message_buffer front
+/// Send DCC packet to drv::out::tx_message_buffer front
 ///
 /// \param  packet  DCC packet
 void send_to_front(dcc::Packet const& packet) {
-  xMessageBufferSend(out::tx_message_buffer.front_handle,
+  xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                      data(packet),
                      size(packet),
                      portMAX_DELAY);
 }
 
-/// Send DCC packet to out::tx_message_buffer back
+/// Send DCC packet to drv::out::tx_message_buffer back
 ///
 /// \param  packet  DCC packet
 void send_to_back(dcc::Packet const& packet) {
-  xMessageBufferSend(out::tx_message_buffer.back_handle,
+  xMessageBufferSend(drv::out::tx_message_buffer.back_handle,
                      data(packet),
                      size(packet),
                      portMAX_DELAY);
 }
 
-/// Send DCC idle packets to out::tx_message_buffer back
+/// Send DCC idle packets to drv::out::tx_message_buffer back
 void send_idle_packets_to_back() {
   static constexpr auto idle_packet{dcc::make_idle_packet()};
-  while (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) >
-         out::tx_message_buffer.size * 0.5)
+  while (
+    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
+    drv::out::tx_message_buffer.size * 0.5)
     send_to_back(idle_packet);
 }
 
@@ -104,9 +105,9 @@ void send_idle_packets_to_back() {
 /// \retval AddressedDatagram received from out::track::rx_queue
 /// \retval std::nullopt on timeout
 std::optional<ulf::dcc_ein::AddressedDatagram> receive_addressed_datagram() {
-  out::track::RxQueue::value_type item;
+  drv::out::track::RxQueue::value_type item;
   if (xQueueReceive(
-        out::track::rx_queue.handle, &item, pdMS_TO_TICKS(task.timeout)))
+        drv::out::track::rx_queue.handle, &item, pdMS_TO_TICKS(task.timeout)))
     return ulf::dcc_ein::AddressedDatagram{
       .addr = dcc::decode_address(item.packet), .datagram = item.datagram};
   else return std::nullopt;
@@ -161,7 +162,7 @@ void loop() {
 /// when a `DCC_EIN\r` protocol string is received. Once running the task scans
 /// the CDC character stream for strings with pattern
 /// `senddcc([\d0-9a-fA-F]{2})+\r`, converts them to DCC packets and then
-/// transmits them to out::tx_message_buffer.
+/// transmits them to drv::out::tx_message_buffer.
 ///
 /// If no further senddcc string is received before the \ref
 /// mem::nvs::Settings::getHttpReceiveTimeout "HTTP receive timeout", the \ref
@@ -173,7 +174,7 @@ void task_function(void*) {
       state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
     usb::transmit_ok();
     send_idle_packets_to_back();
-    LOGI_TASK_RESUME(out::track::dcc::task);
+    LOGI_TASK_RESUME(drv::out::track::dcc::task);
     loop();
   }
   // ... or not

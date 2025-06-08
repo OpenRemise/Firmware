@@ -15,14 +15,14 @@
 
 ///
 ///
-/// \file   out/track/current_limit.cpp
+/// \file   drv/out/track/current_limit.cpp
 /// \author Vincent Hamp
 /// \date   15/02/2024
 
 #include "current_limit.hpp"
 #include <driver/gpio.h>
 
-namespace out::track {
+namespace drv::out::track {
 
 /// \todo document
 CurrentLimit get_current_limit() {
@@ -49,4 +49,4 @@ esp_err_t set_current_limit(CurrentLimit current_limit) {
   }
 }
 
-} // namespace out::track
+} // namespace drv::out::track

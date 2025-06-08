@@ -15,14 +15,14 @@
 
 /// WiFi LED
 ///
-/// \file   led/wifi.hpp
+/// \file   drv/led/wifi.hpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
 #pragma once
 
-namespace led {
+namespace drv::led {
 
 void wifi(bool on);
 
-} // namespace led
+} // namespace drv::led

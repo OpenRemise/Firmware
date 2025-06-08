@@ -56,11 +56,11 @@ receive_zusi_packet(std::span<uint8_t> stack, uint32_t timeout) {
   }
 }
 
-/// Send ZUSI packet to out::tx_message_buffer front
+/// Send ZUSI packet to drv::out::tx_message_buffer front
 ///
 /// \param  stack Stack
 void send_to_front(std::span<uint8_t const> stack) {
-  xMessageBufferSend(out::tx_message_buffer.front_handle,
+  xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                      data(stack),
                      size(stack),
                      portMAX_DELAY);
@@ -81,7 +81,7 @@ bool return_on_exit(std::span<uint8_t const> stack) {
 /// \param  stack Stack
 void transmit_response(std::span<uint8_t> stack) {
   if (auto const bytes_received{
-        xMessageBufferReceive(out::rx_message_buffer.handle,
+        xMessageBufferReceive(drv::out::rx_message_buffer.handle,
                               data(stack),
                               size(stack),
                               portMAX_DELAY)})
@@ -107,7 +107,7 @@ void loop() {
 /// This task is created by the \ref usb::rx_task_function "USB receive task"
 /// when a `SUSIV2\r` protocol string is received. Once running the task scans
 /// the CDC character stream for SUSIV2 frames, converts them to ZUSI packets
-/// and transmits them to out::tx_message_buffer.
+/// and transmits them to drv::out::tx_message_buffer.
 ///
 /// Upon receiving an exit command the \ref usb::rx_task_function
 /// "USB receive task" is resumed and this task destroys itself.
@@ -116,7 +116,7 @@ void task_function(void*) {
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
     usb::transmit_ok();
-    LOGI_TASK_RESUME(out::zusi::task);
+    LOGI_TASK_RESUME(drv::out::zusi::task);
     loop();
   }
   // ... or not

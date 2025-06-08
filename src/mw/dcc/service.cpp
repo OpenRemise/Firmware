@@ -187,15 +187,15 @@ void Service::operationsLoop() {
   }
 
   // wait for task to get suspended
-  while (eTaskGetState(out::track::dcc::task.handle) != eSuspended)
+  while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 }
 
 /// Currently fills message buffer between 25 and 50%
 void Service::operationsDcc() {
   // Less than 50% space available
-  if (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) <
-      out::tx_message_buffer.size * 0.5)
+  if (xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) <
+      drv::out::tx_message_buffer.size * 0.5)
     return;
 
   // So, we iterate over each loco and check it's priority
@@ -219,8 +219,9 @@ void Service::operationsDcc() {
     if (empty(_locos)) {
       sendToBack(make_idle_packet());
 
-      if (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) <
-          out::tx_message_buffer.size * 0.25)
+      if (xMessageBufferSpacesAvailable(
+            drv::out::tx_message_buffer.back_handle) <
+          drv::out::tx_message_buffer.size * 0.25)
         return;
     }
     //
@@ -269,8 +270,9 @@ void Service::operationsDcc() {
         loco.priority = std::clamp<decltype(loco.priority)>(
           loco.priority + 1u, Loco::min_priority, Loco::max_priority);
 
-        if (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) <
-            out::tx_message_buffer.size * 0.25)
+        if (xMessageBufferSpacesAvailable(
+              drv::out::tx_message_buffer.back_handle) <
+            drv::out::tx_message_buffer.size * 0.25)
           return;
       }
 
@@ -282,9 +284,9 @@ void Service::operationsDcc() {
 
 /// \todo document
 void Service::operationsBiDi() {
-  out::track::RxQueue::value_type item;
+  drv::out::track::RxQueue::value_type item;
 
-  while (xQueueReceive(out::track::rx_queue.handle, &item, 0u)) {
+  while (xQueueReceive(drv::out::track::rx_queue.handle, &item, 0u)) {
     // Currently only care for loco addresses
     /// \todo remove that once we care for other addresses
     auto const addr{decode_address(item.packet)};
@@ -429,7 +431,7 @@ void Service::operationsBiDi() {
 
 /// \todo document
 void Service::serviceLoop() {
-  led::Bug const led_bug{};
+  drv::led::Bug const led_bug{};
 
   if (empty(_cv_request_deque)) return;
 
@@ -439,7 +441,7 @@ void Service::serviceLoop() {
       state.compare_exchange_strong(expected, State::Suspend)) {
 
     // wait for task to get suspended
-    while (eTaskGetState(out::track::dcc::task.handle) != eSuspended)
+    while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
       vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
     // switch to serv mode
@@ -448,7 +450,7 @@ void Service::serviceLoop() {
       assert(false);
 
     // then resume
-    LOGI_TASK_RESUME(out::track::dcc::task);
+    LOGI_TASK_RESUME(drv::out::track::dcc::task);
   }
 
   auto const& req{_cv_request_deque.front()};
@@ -458,7 +460,7 @@ void Service::serviceLoop() {
   _cv_request_deque.pop_front();
 
   // wait for task to get suspended
-  while (eTaskGetState(out::track::dcc::task.handle) != eSuspended)
+  while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
   // send reply
@@ -520,7 +522,7 @@ std::optional<uint8_t> Service::serviceWrite(uint16_t cv_addr, uint8_t byte) {
 /// Depending on the DCC settings we might need to wait a long ass time...
 std::optional<bool> Service::serviceReceiveBit() {
   bool bit;
-  if (xMessageBufferReceive(out::rx_message_buffer.handle,
+  if (xMessageBufferReceive(drv::out::rx_message_buffer.handle,
                             &bit,
                             sizeof(bit),
                             pdMS_TO_TICKS(std::numeric_limits<uint8_t>::max() *
@@ -547,15 +549,17 @@ void Service::sendToFront(Packet const& packet, size_t n) {
   same instruction) and then copy all the filtered messages back...
   */
   for (auto i{0uz}; i < n; ++i)
-    while (!xMessageBufferSend(
-      out::tx_message_buffer.front_handle, data(packet), size(packet), 0u));
+    while (!xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
+                               data(packet),
+                               size(packet),
+                               0u));
 }
 
 /// \todo document
 void Service::sendToBack(Packet const& packet, size_t n) {
   for (auto i{0uz}; i < n; ++i)
     while (!xMessageBufferSend(
-      out::tx_message_buffer.back_handle, data(packet), size(packet), 0u));
+      drv::out::tx_message_buffer.back_handle, data(packet), size(packet), 0u));
 }
 
 /// \todo document
@@ -815,12 +819,13 @@ void Service::resume() {
   // Preload
   auto const packet{state.load() == State::DCCOperations ? make_idle_packet()
                                                          : make_reset_packet()};
-  while (xMessageBufferSpacesAvailable(out::tx_message_buffer.back_handle) >
-         out::tx_message_buffer.size * 0.5)
+  while (
+    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
+    drv::out::tx_message_buffer.size * 0.5)
     sendToBack(packet);
 
   // Resume out::track::dcc task
-  LOGI_TASK_RESUME(out::track::dcc::task);
+  LOGI_TASK_RESUME(drv::out::track::dcc::task);
 }
 
 /// \todo document

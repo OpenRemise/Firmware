@@ -15,7 +15,7 @@
 
 /// Deinitialize peripherals when suspending ZUSI task
 ///
-/// \file   out/zusi/suspend.cpp
+/// \file   drv/out/zusi/suspend.cpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
@@ -26,7 +26,7 @@
 #include "../suspend.hpp"
 #include "init.hpp"
 
-namespace out::zusi {
+namespace drv::out::zusi {
 
 namespace {
 
@@ -61,4 +61,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-} // namespace out::zusi
+} // namespace drv::out::zusi

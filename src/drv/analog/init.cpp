@@ -15,7 +15,7 @@
 
 /// Initialize ADC
 ///
-/// \file   analog/init.cpp
+/// \file   drv/analog/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -28,7 +28,7 @@
 #include "log.h"
 #include "temp_task_function.hpp"
 
-namespace analog {
+namespace drv::analog {
 
 namespace {
 
@@ -124,4 +124,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace analog
+} // namespace drv::analog

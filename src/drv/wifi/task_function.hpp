@@ -15,14 +15,14 @@
 
 /// WiFi task function
 ///
-/// \file   wifi/task_function.hpp
+/// \file   drv/wifi/task_function.hpp
 /// \author Vincent Hamp
 /// \date   06/12/2024
 
 #pragma once
 
-namespace wifi {
+namespace drv::wifi {
 
 void task_function(void*);
 
-} // namespace wifi
+} // namespace drv::wifi

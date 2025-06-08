@@ -15,7 +15,7 @@
 
 /// DECUP task function
 ///
-/// \file   out/track/decup/task_function.cpp
+/// \file   drv/out/track/decup/task_function.cpp
 /// \author Vincent Hamp
 /// \date   14/08/2024
 
@@ -30,7 +30,7 @@
 #include "suspend.hpp"
 #include "utility.hpp"
 
-namespace out::track::decup {
+namespace drv::out::track::decup {
 
 using namespace ::decup;
 using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
@@ -98,8 +98,7 @@ uint8_t receive_acks(uint32_t us) {
 /// \todo document
 esp_err_t transmit_acks(uint8_t acks) {
   return xMessageBufferSend(
-           out::rx_message_buffer.handle, &acks, sizeof(acks), 0u) ==
-             sizeof(acks)
+           rx_message_buffer.handle, &acks, sizeof(acks), 0u) == sizeof(acks)
            ? ESP_OK
            : ESP_FAIL;
 }
@@ -169,4 +168,4 @@ void task_function(void*) {
     }
 }
 
-} // namespace out::track::decup
+} // namespace drv::out::track::decup

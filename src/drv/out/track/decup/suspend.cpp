@@ -15,7 +15,7 @@
 
 /// Deinitialize peripherals when suspending DECUP task
 ///
-/// \file   out/track/decup/suspend.cpp
+/// \file   drv/out/track/decup/suspend.cpp
 /// \author Vincent Hamp
 /// \date   14/08/2024
 
@@ -23,7 +23,7 @@
 #include <driver/gpio.h>
 #include "../../suspend.hpp"
 
-namespace out::track::decup {
+namespace drv::out::track::decup {
 
 namespace {
 
@@ -49,4 +49,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-} // namespace out::track::decup
+} // namespace drv::out::track::decup

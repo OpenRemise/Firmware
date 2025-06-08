@@ -15,7 +15,7 @@
 
 /// Initialize ZUSI
 ///
-/// \file   out/zusi/init.cpp
+/// \file   drv/out/zusi/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -24,7 +24,7 @@
 #include "log.h"
 #include "task_function.hpp"
 
-namespace out::zusi {
+namespace drv::out::zusi {
 
 /// \todo document
 esp_err_t init() {
@@ -78,4 +78,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace out::zusi
+} // namespace drv::out::zusi

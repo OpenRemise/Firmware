@@ -15,7 +15,7 @@
 
 /// Trace (IO pins to toggle for debug purposes)
 ///
-/// \file   trace/init.hpp
+/// \file   drv/trace/init.hpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace trace {
+namespace drv::trace {
 
 esp_err_t init();
 
-} // namespace trace
+} // namespace drv::trace

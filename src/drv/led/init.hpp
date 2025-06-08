@@ -15,7 +15,7 @@
 
 /// Initialize LED
 ///
-/// \file   led/init.hpp
+/// \file   drv/led/init.hpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
@@ -23,8 +23,8 @@
 
 #include <esp_err.h>
 
-namespace led {
+namespace drv::led {
 
 esp_err_t init();
 
-} // namespace led
+} // namespace drv::led

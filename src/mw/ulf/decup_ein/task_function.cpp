@@ -33,13 +33,13 @@ using namespace ulf::decup_ein;
 class Decup : public ::ulf::decup_ein::rx::Base {
   uint8_t transmit(std::span<uint8_t const> bytes) final {
     uint8_t acks{};
-    if (!xMessageBufferSend(out::tx_message_buffer.front_handle,
+    if (!xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                             data(bytes),
                             size(bytes),
                             pdMS_TO_TICKS(task.timeout)))
       return acks;
     else
-      xMessageBufferReceive(out::rx_message_buffer.handle,
+      xMessageBufferReceive(drv::out::rx_message_buffer.handle,
                             &acks,
                             sizeof(acks),
                             pdMS_TO_TICKS(task.timeout));
@@ -104,7 +104,7 @@ void loop() {
 /// protocol itself is stateful and requires its own \ref ulf::decup_ein::Decup
 /// "receiver class". An instance of this receiver on the stack takes care of
 /// decoding the raw USB data to DECUP packets. Those packets are then
-/// transmitted to out::tx_message_buffer.
+/// transmitted to drv::out::tx_message_buffer.
 ///
 /// A special feature of this protocol is that the RTS line is used to switch
 /// the track voltage on and off. For this reason, the RTS line is monitored and
@@ -117,7 +117,7 @@ void task_function(void*) {
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
     usb::transmit_ok();
-    LOGI_TASK_RESUME(out::track::decup::task);
+    LOGI_TASK_RESUME(drv::out::track::decup::task);
     loop();
   }
   // ... or not

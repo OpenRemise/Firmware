@@ -15,7 +15,7 @@
 
 /// WiFi LED
 ///
-/// \file   led/wifi.cpp
+/// \file   drv/led/wifi.cpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
@@ -23,7 +23,7 @@
 #include <driver/ledc.h>
 #include "mem/nvs/settings.hpp"
 
-namespace led {
+namespace drv::led {
 
 /// Turn WiFi LED on or off
 ///
@@ -42,4 +42,4 @@ void wifi(bool on) {
   ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
 }
 
-} // namespace led
+} // namespace drv::led

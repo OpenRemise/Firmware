@@ -15,7 +15,7 @@
 
 /// DCC task function
 ///
-/// \file   out/track/dcc/task_function.cpp
+/// \file   drv/out/track/dcc/task_function.cpp
 /// \author Vincent Hamp
 /// \date   10/02/2023
 
@@ -34,7 +34,7 @@
 #include "resume.hpp"
 #include "suspend.hpp"
 
-namespace out::track::dcc {
+namespace drv::out::track::dcc {
 
 using namespace ::dcc;
 using namespace ::dcc::bidi;
@@ -252,9 +252,10 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
 }
 
 /// \todo document
-analog::CurrentsQueue::value_type peek_current_measurements() {
-  analog::CurrentsQueue::value_type currents;
-  if (!xQueuePeek(analog::currents_queue.handle, &currents, 0u)) assert(false);
+drv::analog::CurrentsQueue::value_type peek_current_measurements() {
+  drv::analog::CurrentsQueue::value_type currents;
+  if (!xQueuePeek(drv::analog::currents_queue.handle, &currents, 0u))
+    assert(false);
   return currents;
 }
 
@@ -270,17 +271,17 @@ void append_current_measurements(R&& r) {
 /// \todo document
 /// this is the mean version of ack detection
 template<std::ranges::contiguous_range R>
-bool detect_ack(R&& r, analog::Current ack_current) {
+bool detect_ack(R&& r, drv::analog::Current ack_current) {
   // ACKs must be at least 5ms long
-  static constexpr auto wlen{
-    static_cast<int>(5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
+  static constexpr auto wlen{static_cast<int>(
+    5e-3 * (drv::analog::sample_freq_hz / size(drv::analog::channels)))};
   static_assert(wlen == 20);
 
   //
   auto const delta_measurement{mA2measurement(ack_current)};
 
   // Reference value set to mean of first slide
-  std::optional<analog::CurrentMeasurement::value_type> ref_measurement;
+  std::optional<drv::analog::CurrentMeasurement::value_type> ref_measurement;
 
   //
   for (auto const windows{r | std::views::slide(wlen)};
@@ -311,13 +312,13 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   static constexpr auto read_timeout{50u};
   static constexpr auto write_timeout{100u};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
-  std::vector<analog::CurrentMeasurement::value_type> current_measurements;
+  std::vector<drv::analog::CurrentMeasurement::value_type> current_measurements;
   current_measurements.reserve(2048uz);
 
   mem::nvs::Settings nvs;
   auto const startup_reset_packet_count{nvs.getDccStartupResetPacketCount()};
   auto const continue_reset_packet_count{nvs.getDccContinueResetPacketCount()};
-  analog::Current const ack_current{nvs.getDccProgrammingAckCurrent()};
+  drv::analog::Current const ack_current{nvs.getDccProgrammingAckCurrent()};
   nvs.~Settings();
 
   // Transmit at least 25 reset packets to ensure entry
@@ -400,4 +401,4 @@ void task_function(void*) {
     }
 }
 
-} // namespace out::track::dcc
+} // namespace drv::out::track::dcc

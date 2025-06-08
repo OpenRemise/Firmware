@@ -15,7 +15,7 @@
 
 /// \todo document
 ///
-/// \file   out/suspend.hpp
+/// \file   drv/out/suspend.hpp
 /// \author Vincent Hamp
 /// \date   23/04/2023
 
@@ -23,9 +23,9 @@
 
 #include <esp_err.h>
 
-namespace out {
+namespace drv::out {
 
 void reset_queue_and_message_buffers();
 esp_err_t suspend();
 
-} // namespace out
+} // namespace drv::out

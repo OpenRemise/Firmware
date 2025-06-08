@@ -15,14 +15,14 @@
 
 /// ADC temperature task function
 ///
-/// \file   analog/temp_task_function.cpp
+/// \file   drv/analog/temp_task_function.cpp
 /// \author Vincent Hamp
 /// \date   05/07/2023
 
 #include "init.hpp"
 #include "log.h"
 
-namespace analog {
+namespace drv::analog {
 
 /// Temperature task function
 ///
@@ -38,4 +38,4 @@ void temp_task_function(void*) {
   }
 }
 
-} // namespace analog
+} // namespace drv::analog

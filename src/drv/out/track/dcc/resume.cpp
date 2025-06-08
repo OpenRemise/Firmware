@@ -15,7 +15,7 @@
 
 /// Initialize peripherals when resuming DCC task
 ///
-/// \file   out/track/dcc/resume.cpp
+/// \file   drv/out/track/dcc/resume.cpp
 /// \author Vincent Hamp
 /// \date   10/02/2023
 
@@ -24,7 +24,7 @@
 #include <driver/uart.h>
 #include <algorithm>
 
-namespace out::track::dcc {
+namespace drv::out::track::dcc {
 
 /// \todo document
 esp_err_t init_encoder(dcc_encoder_config_t const& encoder_config) {
@@ -85,4 +85,4 @@ esp_err_t resume(dcc_encoder_config_t const& encoder_config,
   return init_gpio();
 }
 
-} // namespace out::track::dcc
+} // namespace drv::out::track::dcc

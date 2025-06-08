@@ -175,7 +175,7 @@ ZTL_MAKE_ENUM_CLASS_FLAGS(State)
 /// Restricts access to low-level tasks
 inline std::atomic<State> state{State::Suspended};
 
-namespace analog {
+namespace drv::analog {
 
 inline constexpr auto ol_on_gpio_num{GPIO_NUM_17};
 
@@ -272,7 +272,7 @@ inline struct TemperatureQueue {
   static inline QueueHandle_t handle{};
 } temperature_queue;
 
-} // namespace analog
+} // namespace drv::analog
 
 namespace dcc {
 
@@ -320,7 +320,7 @@ inline std::shared_ptr<Server> server;
 
 } // namespace http
 
-namespace led {
+namespace drv::led {
 
 /// Bug LED pin used to indicate errors or updates
 inline constexpr auto bug_gpio_num{GPIO_NUM_48};
@@ -334,7 +334,7 @@ inline constexpr auto wifi_gpio_num{GPIO_NUM_47};
 /// WiFi LED channel
 inline constexpr auto wifi_channel{LEDC_CHANNEL_1};
 
-} // namespace led
+} // namespace drv::led
 
 namespace mdns {
 
@@ -384,7 +384,7 @@ inline TASK(task,
 
 } // namespace zusi
 
-namespace out {
+namespace drv::out {
 
 #if !CONFIG_IDF_TARGET_LINUX
 inline gptimer_handle_t gptimer{};
@@ -495,7 +495,7 @@ inline TASK(task,
 
 } // namespace zusi
 
-} // namespace out
+} // namespace drv::out
 
 namespace udp {
 
@@ -584,7 +584,7 @@ static_assert(susiv2::task.priority < ::usb::rx_task.priority);
 
 } // namespace ulf
 
-namespace wifi {
+namespace drv::wifi {
 
 #if CONFIG_IDF_TARGET_ESP32S3
 inline std::vector<wifi_ap_record_t> ap_records;
@@ -601,7 +601,7 @@ inline TASK(task,
             WIFI_TASK_CORE_ID, // Core
             0u);
 
-} // namespace wifi
+} // namespace drv::wifi
 
 namespace z21 {
 

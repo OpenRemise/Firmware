@@ -145,7 +145,7 @@ bool Service::stop() {
 
 /// \todo document
 int32_t Service::serialNumber() const {
-  return static_cast<int32_t>(little_endian_data2uint32(data(wifi::mac)));
+  return static_cast<int32_t>(little_endian_data2uint32(data(drv::wifi::mac)));
 }
 
 /// \todo document
@@ -278,12 +278,12 @@ bool Service::trackPower(bool on, State dcc_state) {
       // Clear errors
       case State::ShortCircuit:
         state.store(State::Suspended);
-        led::bug(false);
+        drv::led::bug(false);
         [[fallthrough]];
 
       //
       case State::Suspended:
-        while (eTaskGetState(out::track::dcc::task.handle) != eSuspended)
+        while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
         if (auto expected{State::Suspended};
             state.compare_exchange_strong(expected, dcc_state))

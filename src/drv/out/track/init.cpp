@@ -15,7 +15,7 @@
 
 /// Initialize MDU and DCC
 ///
-/// \file   out/track/init.cpp
+/// \file   drv/out/track/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
@@ -32,14 +32,14 @@
 #include "mdu/task_function.hpp"
 #include "utility.hpp"
 
-namespace out::track {
+namespace drv::out::track {
 
 namespace {
 
 /// \todo document this should never happen
 void IRAM_ATTR nfault_isr_handler(void*) {
   DRAM_LOGE("nFAULT");
-  led::bug(true);
+  drv::led::bug(true);
 }
 
 /// \todo document RMT pin no longer tristate after that
@@ -149,4 +149,4 @@ esp_err_t init() {
   return ESP_OK;
 }
 
-} // namespace out::track
+} // namespace drv::out::track

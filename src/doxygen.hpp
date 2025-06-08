@@ -641,7 +641,7 @@
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
-/// database "Storage" {
+/// database "Memory" {
 /// }
 ///
 /// frame "Interfaces" {
@@ -657,7 +657,7 @@
 /// Middlewares -d-> Drivers
 ///
 /// 'Links
-/// url of Storage is [[page_architecture.html#section_architecture_storage]]
+/// url of Memory is [[page_architecture.html#section_architecture_memory]]
 /// url of Interfaces is [[page_architecture.html#section_architecture_interfaces]]
 /// url of Middlewares is [[page_architecture.html#section_architecture_middlewares]]
 /// url of Drivers is [[page_architecture.html#section_architecture_drivers]]
@@ -692,7 +692,7 @@
 /// services. Other modules initialize various hardware peripherals such as the
 /// ADC or WiFi.
 ///
-/// \section section_architecture_storage Storage
+/// \section section_architecture_memory Memory
 /// Although these modules do not necessarily represent a layer, they are still
 /// a separate part of the architecture and manage the different flash memory
 /// partitions. Currently this only involves the
@@ -708,15 +708,13 @@
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
-/// database "Storage" {
-///   package "mem" as storage_mem {
-///     package "nvs" as storage_mem_nvs {
-///       [Accessories]
-///       [Locos]
-///       [Settings]
-///       Accessories -[hidden] Locos
-///       Locos -[hidden] Settings
-///     }
+/// database "Memory" {
+///   package "nvs" as mem_nvs {
+///     [Accessories]
+///     [Locos]
+///     [Settings]
+///     Accessories -[hidden] Locos
+///     Locos -[hidden] Settings
 ///   }
 /// }
 ///
@@ -827,8 +825,7 @@
 /// UDP <--> mw_z21_service
 ///
 /// 'Links
-/// url of storage_mem is [[page_mem.html]]
-/// url of storage_mem_nvs is [[page_mem.html#section_mem_nvs]]
+/// url of mem_nvs is [[page_mem.html#section_mem_nvs]]
 ///
 /// url of intf_http is [[page_http.html]]
 /// url of intf_http_ap is [[page_http.html#section_http_ap]]

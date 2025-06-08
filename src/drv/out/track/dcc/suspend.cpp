@@ -15,7 +15,7 @@
 
 /// Deinitialize peripherals when suspending DCC task
 ///
-/// \file   out/track/dcc/suspend.cpp
+/// \file   drv/out/track/dcc/suspend.cpp
 /// \author Vincent Hamp
 /// \date   10/02/2023
 
@@ -24,7 +24,7 @@
 #include <driver/uart.h>
 #include "../../suspend.hpp"
 
-namespace out::track::dcc {
+namespace drv::out::track::dcc {
 
 /// \todo document
 esp_err_t deinit_gpio() {
@@ -72,4 +72,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-} // namespace out::track::dcc
+} // namespace drv::out::track::dcc

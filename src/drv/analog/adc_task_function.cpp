@@ -15,7 +15,7 @@
 
 /// ADC voltage and current task function
 ///
-/// \file   analog/adc_task_function.cpp
+/// \file   drv/analog/adc_task_function.cpp
 /// \author Vincent Hamp
 /// \date   05/07/2023
 
@@ -27,7 +27,7 @@
 #include "mw/z21/service.hpp"
 #include "utility.hpp"
 
-namespace analog {
+namespace drv::analog {
 
 namespace {
 
@@ -119,4 +119,4 @@ void adc_task_function(void*) {
   ESP_ERROR_CHECK(adc_continuous_stop(adc1_handle));
 }
 
-} // namespace analog
+} // namespace drv::analog

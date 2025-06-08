@@ -15,13 +15,13 @@
 
 ///
 ///
-/// \file   out/doxygen.hpp
+/// \file   drv/out/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   19/02/2023
 
 #pragma once
 
-namespace out {
+namespace drv::out {
 
 /// \page page_out Out
 /// \tableofcontents
@@ -43,4 +43,4 @@ namespace out {
 /// | \ref page_ota | \ref page_trace |
 /// </div>
 
-} // namespace out
+} // namespace drv::out

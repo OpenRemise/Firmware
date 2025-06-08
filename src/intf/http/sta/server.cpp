@@ -269,13 +269,13 @@ Response Server::settingsPostRequest(Request const& req) {
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["cur_lim"]}; v.is<uint8_t>())
-    if (nvs.setCurrentLimit(
-          static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
+    if (nvs.setCurrentLimit(static_cast<drv::out::track::CurrentLimit>(
+          v.as<uint8_t>())) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["cur_lim_serv"]}; v.is<uint8_t>())
-    if (nvs.setCurrentLimitService(
-          static_cast<out::track::CurrentLimit>(v.as<uint8_t>())) != ESP_OK)
+    if (nvs.setCurrentLimitService(static_cast<drv::out::track::CurrentLimit>(
+          v.as<uint8_t>())) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["cur_sc_time"]}; v.is<uint8_t>())
@@ -343,7 +343,7 @@ Response Server::settingsPostRequest(Request const& req) {
 
 /// \todo document
 Response Server::sysGetRequest(Request const& req) {
-  using namespace analog;
+  using namespace drv::analog;
 
   //
   JsonDocument doc;
@@ -358,8 +358,8 @@ Response Server::sysGetRequest(Request const& req) {
   doc["idf_version"] = app_desc->idf_ver + 1; // Remove 'v' prefix
 
   doc["mdns"] = mdns::str;
-  doc["ip"] = wifi::ip_str;
-  doc["mac"] = wifi::mac_str;
+  doc["ip"] = drv::wifi::ip_str;
+  doc["mac"] = drv::wifi::mac_str;
   if (wifi_ap_record_t ap_record;
       esp_wifi_sta_get_ap_info(&ap_record) == ESP_OK)
     doc["rssi"] = ap_record.rssi;

@@ -15,14 +15,14 @@
 
 /// Initialize LED
 ///
-/// \file   led/init.cpp
+/// \file   drv/led/init.cpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
 #include "init.hpp"
 #include <driver/ledc.h>
 
-namespace led {
+namespace drv::led {
 
 /// Initialize LED
 ///
@@ -68,4 +68,4 @@ esp_err_t init() {
   }
 }
 
-} // namespace led
+} // namespace drv::led

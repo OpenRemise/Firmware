@@ -15,13 +15,13 @@
 
 /// Analog documentation
 ///
-/// \file   analog/doxygen.hpp
+/// \file   drv/analog/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   23/08/2024
 
 #pragma once
 
-namespace analog {
+namespace drv::analog {
 
 /// \page page_analog Analog
 /// \details \tableofcontents
@@ -52,4 +52,4 @@ namespace analog {
 /// | \ref page_api_reference | \ref page_dcc |
 /// </div>
 
-} // namespace analog
+} // namespace drv::analog

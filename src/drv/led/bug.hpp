@@ -15,13 +15,13 @@
 
 /// Bug LED
 ///
-/// \file   led/bug.hpp
+/// \file   drv/led/bug.hpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
 #pragma once
 
-namespace led {
+namespace drv::led {
 
 void bug(bool on);
 
@@ -34,4 +34,4 @@ struct Bug {
   void off();
 };
 
-} // namespace led
+} // namespace drv::led

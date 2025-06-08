@@ -15,14 +15,14 @@
 
 /// Trace (IO pins to toggle for debug purposes)
 ///
-/// \file   trace/init.cpp
+/// \file   drv/trace/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
 #include "init.hpp"
 #include <driver/gpio.h>
 
-namespace trace {
+namespace drv::trace {
 
 /// \todo document
 esp_err_t init() {
@@ -35,4 +35,4 @@ esp_err_t init() {
   return gpio_config(&io_conf);
 }
 
-} // namespace trace
+} // namespace drv::trace

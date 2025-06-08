@@ -15,13 +15,13 @@
 
 /// LED documentation
 ///
-/// \file   led/doxygen.hpp
+/// \file   drv/led/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
 #pragma once
 
-namespace led {
+namespace drv::led {
 
 /// \page page_led LED
 /// \tableofcontents
@@ -54,4 +54,4 @@ namespace led {
 /// | \ref page_http | \ref page_mdns |
 /// </div>
 
-} // namespace led
+} // namespace drv::led
