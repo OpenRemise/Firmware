@@ -40,8 +40,8 @@ esp_err_t Service::socket(http::Message& msg) {
       msg.type != HTTPD_WS_TYPE_CLOSE &&
       state.compare_exchange_strong(expected, State::ZUSI)) {
     _queue.push(std::move(msg));
-    LOGI_TASK_RESUME(task.handle);
-    LOGI_TASK_RESUME(out::zusi::task.handle);
+    LOGI_TASK_RESUME(task);
+    LOGI_TASK_RESUME(out::zusi::task);
     return ESP_OK;
   }
   //

@@ -25,16 +25,18 @@ namespace usb {
 
 /// \page page_usb USB
 /// \tableofcontents
-/// \todo document USB page
+/// This module initializes the receive and transmit routines of the USB
+/// interface. Currently only ZIMO protocols are supported via USB, but an
+/// extension is conceivable.
 ///
 /// \section section_usb_init Initialization
 /// \copydetails init
 ///
-/// \section section_usb_receive Receive
-/// Bla
+/// \section section_usb_receive Receive task
+/// \copydetails rx_task_function
 ///
-/// \section section_usb_transmit Transmit
-/// Bla
+/// \section section_usb_transmit Transmit task
+/// \copydetails tx_task_function
 ///
 /// <div class="section_buttons">
 /// | Previous      | Next           |

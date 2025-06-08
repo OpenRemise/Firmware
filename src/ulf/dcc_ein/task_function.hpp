@@ -22,7 +22,7 @@
 #pragma once
 
 #include <optional>
-#include <span>
+#include <ulf/dcc_ein.hpp>
 
 namespace ulf::dcc_ein {
 

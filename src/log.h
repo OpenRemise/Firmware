@@ -53,14 +53,58 @@
 #define DRAM_LOGD(...) PREFIX_LOG(DRAM_LOGD, __VA_ARGS__)
 #define DRAM_LOGV(...) PREFIX_LOG(DRAM_LOGV, __VA_ARGS__)
 
-#define LOGI_TASK_RESUME(TASK_HANDLE)                                          \
+/// Helper for picking macro with either 0 or 1 arguments
+#define GET_MACRO(_0, _1, NAME, ...) NAME
+
+/// Log task creation
+#define LOGI_TASK_CREATE(TASK)                                                 \
   do {                                                                         \
-    LOGI("Resume %s task", pcTaskGetName(TASK_HANDLE));                        \
-    vTaskResume(TASK_HANDLE);                                                  \
+    LOGI("Create %s task", TASK.name);                                         \
+    TASK.create();                                                             \
   } while (0)
 
-#define LOGI_TASK_SUSPEND()                                                    \
+/// Log task destruction implementation for NULL
+#define LOGI_TASK_DESTROY0()                                                   \
+  do {                                                                         \
+    LOGI("Destroy %s task", pcTaskGetName(NULL));                              \
+    vTaskDelete(NULL);                                                         \
+    std::unreachable();                                                        \
+  } while (0)
+
+/// Log task destruction implementation for task handle
+#define LOGI_TASK_DESTROY1(TASK)                                               \
+  do {                                                                         \
+    LOGI("Destroy %s task", TASK.name);                                        \
+    TASK.destroy();                                                            \
+  } while (0)
+
+/// Log task destruction
+#define LOGI_TASK_DESTROY(...)                                                 \
+  GET_MACRO(_0, ##__VA_ARGS__, LOGI_TASK_DESTROY1, LOGI_TASK_DESTROY0)(        \
+    __VA_ARGS__)
+
+/// Log task resumption
+#define LOGI_TASK_RESUME(TASK)                                                 \
+  do {                                                                         \
+    LOGI("Resume %s task", TASK.name);                                         \
+    TASK.resume();                                                             \
+  } while (0)
+
+/// Log task suspension implementation for NULL
+#define LOGI_TASK_SUSPEND0()                                                   \
   do {                                                                         \
     LOGI("Suspend %s task", pcTaskGetName(NULL));                              \
     vTaskSuspend(NULL);                                                        \
   } while (0)
+
+/// Log task suspension implementation for task handle
+#define LOGI_TASK_SUSPEND1(TASK)                                               \
+  do {                                                                         \
+    LOGI("Suspend %s task", TASK.name);                                        \
+    TASK.suspend();                                                            \
+  } while (0)
+
+/// Log task suspension
+#define LOGI_TASK_SUSPEND(...)                                                 \
+  GET_MACRO(_0, ##__VA_ARGS__, LOGI_TASK_SUSPEND1, LOGI_TASK_SUSPEND0)(        \
+    __VA_ARGS__)

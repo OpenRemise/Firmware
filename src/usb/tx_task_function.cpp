@@ -74,8 +74,8 @@ void flush() {
 
 /// USB transmit task function
 ///
-/// Receive data from \ref tx_stream_buffer and transmit it to the CDC device
-/// queue.
+/// The transmit task receives data from \ref tx_stream_buffer and transmit it
+/// to the CDC device queue.
 void tx_task_function(void*) {
   std::array<uint8_t, buffer_size> stack;
   for (;;) {

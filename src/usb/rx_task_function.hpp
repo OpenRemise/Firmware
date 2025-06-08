@@ -21,11 +21,8 @@
 
 #pragma once
 
-#include <string_view>
-
 namespace usb {
 
-bool any_service_task_active();
 void rx_task_function(void*);
 
 } // namespace usb

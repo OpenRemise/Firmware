@@ -448,7 +448,7 @@ void Service::serviceLoop() {
       assert(false);
 
     // then resume
-    LOGI_TASK_RESUME(out::track::dcc::task.handle);
+    LOGI_TASK_RESUME(out::track::dcc::task);
   }
 
   auto const& req{_cv_request_deque.front()};
@@ -820,7 +820,7 @@ void Service::resume() {
     sendToBack(packet);
 
   // Resume out::track::dcc task
-  LOGI_TASK_RESUME(out::track::dcc::task.handle);
+  LOGI_TASK_RESUME(out::track::dcc::task);
 }
 
 /// \todo document

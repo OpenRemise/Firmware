@@ -29,8 +29,14 @@ namespace ulf::susiv2 {
 
 namespace {
 
+/// Receive ZUSI packet from SUSIV2 frame
+///
+/// \param  stack   Stack
+/// \param  timeout Timeout
+/// \retval std::span<uint8_t const> ZUSI packet from SUSIV2 frame
+/// \retval std::nullopt on timeout
 std::optional<std::span<uint8_t const>>
-receive_susiv2_frame(std::span<uint8_t> stack, uint32_t timeout) {
+receive_zusi_packet(std::span<uint8_t> stack, uint32_t timeout) {
   size_t count{};
 
   for (;;) {
@@ -50,7 +56,9 @@ receive_susiv2_frame(std::span<uint8_t> stack, uint32_t timeout) {
   }
 }
 
-/// \todo document
+/// Send ZUSI packet to out::tx_message_buffer front
+///
+/// \param  stack Stack
 void send_to_front(std::span<uint8_t const> stack) {
   xMessageBufferSend(out::tx_message_buffer.front_handle,
                      data(stack),
@@ -58,13 +66,19 @@ void send_to_front(std::span<uint8_t const> stack) {
                      portMAX_DELAY);
 }
 
-/// \todo document
+/// Check if the stack contains an exit command
+///
+/// \param  stack Stack
+/// \retval true  Stack contains an exit command
+/// \retval false Stack does not contain an exit command
 bool return_on_exit(std::span<uint8_t const> stack) {
   return size(stack) &&
          static_cast<zusi::Command>(stack.front()) == zusi::Command::Exit;
 }
 
-/// \todo document
+/// Transmit response
+///
+/// \param  stack Stack
 void transmit_response(std::span<uint8_t> stack) {
   if (auto const bytes_received{
         xMessageBufferReceive(out::rx_message_buffer.handle,
@@ -75,37 +89,42 @@ void transmit_response(std::span<uint8_t> stack) {
       usb::tx_stream_buffer.handle, data(stack), bytes_received, portMAX_DELAY);
 }
 
-/// \todo document
+/// Actual ulf::susiv2::task loop
 void loop() {
   auto const timeout{http_receive_timeout2ms()};
   std::array<uint8_t, ULF_SUSIV2_MAX_FRAME_SIZE> stack;
-  while (auto const frame{receive_susiv2_frame(stack, timeout)}) {
-    send_to_front(*frame);
+  while (auto const packet{receive_zusi_packet(stack, timeout)}) {
+    send_to_front(*packet);
     transmit_response(stack);
-    if (return_on_exit(*frame)) return;
+    if (return_on_exit(*packet)) return;
   }
 }
 
 } // namespace
 
-/// \todo document
+/// ULF_SUSIV2 task function
+///
+/// This task is created by the \ref usb::rx_task_function "USB receive task"
+/// when a `SUSIV2\r` protocol string is received. Once running the task scans
+/// the CDC character stream for SUSIV2 frames, converts them to ZUSI packets
+/// and transmits them to out::tx_message_buffer.
+///
+/// Upon receiving an exit command the \ref usb::rx_task_function
+/// "USB receive task" is resumed and this task destroys itself.
 void task_function(void*) {
-  for (;;) {
-    LOGI_TASK_SUSPEND();
-
-    //
-    if (auto expected{State::Suspended};
-        state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
-      usb::transmit_ok();
-      LOGI_TASK_RESUME(out::zusi::task.handle);
-      loop();
-    }
-    //
-    else
-      usb::transmit_not_ok();
-
-    LOGI_TASK_RESUME(usb::rx_task.handle);
+  // Switch to ULF_SUSIV2 mode
+  if (auto expected{State::Suspended};
+      state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
+    usb::transmit_ok();
+    LOGI_TASK_RESUME(out::zusi::task);
+    loop();
   }
+  // ... or not
+  else
+    usb::transmit_not_ok();
+
+  LOGI_TASK_RESUME(usb::rx_task);
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace ulf::susiv2

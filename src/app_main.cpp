@@ -78,7 +78,7 @@ extern "C" void app_main() {
 
   // Don't disable serial JTAG
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, ulf::init, 1));
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, ulf::init));
   static_assert(APP_CPU_NUM == ulf::dcc_ein::task.core_id &&
                 APP_CPU_NUM == ulf::decup_ein::task.core_id &&
                 APP_CPU_NUM == ulf::susiv2::task.core_id);
