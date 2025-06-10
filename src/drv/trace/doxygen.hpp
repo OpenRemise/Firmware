@@ -28,9 +28,9 @@ namespace drv::trace {
 /// \todo document Z21 page
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_out | \ref page_udp |
+/// | Previous      | Next           |
+/// | :------------ | -------------: |
+/// | \ref page_out | \ref page_wifi |
 /// </div>
 
 } // namespace drv::trace

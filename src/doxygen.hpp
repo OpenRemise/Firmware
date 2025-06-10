@@ -675,16 +675,16 @@
 /// \section section_architecture_middlewares Middlewares
 /// The modules in the middleware layer contain services that connect the
 /// interfaces with the outputs in the driver layer. An example of this is the
-/// mdu::Service, which can accept a
+/// mw::mdu::Service, which can accept a
 /// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
-/// ::http::sta::Server and then processes commands for an update of the decoder
-/// software. The service then starts the corresponding \ref
-/// out::track::mdu::task_function "MDU task" in the driver layer, which then
-/// generates the necessary signals on the track. The communication is
+/// intf::http::sta::Server and then processes commands for an update of the
+/// decoder software. The service then starts the corresponding \ref
+/// drv::out::track::mdu::task_function "MDU task" in the driver layer, which
+/// then generates the necessary signals on the track. The communication is
 /// bidirectional, received feedback is sent back to the server via service. In
 /// more complex situations, middleware services may also communicate directly
 /// with each other. An example of this is the communication between the
-/// dcc::Service and the z21::Service.
+/// mw::dcc::Service and the mw::z21::Service.
 ///
 /// \section section_architecture_drivers Drivers
 /// In the driver layer there are modules that contain some form of IO. For the
@@ -897,33 +897,20 @@
 // clang-format off
 /// \page page_api_reference API Reference
 /// \details
-/// | Chapter                | Content                                                                                                                                                                                                                           |
-/// | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-/// | \subpage page_analog   | ADC measurements, overcurrent                                                                                                                                                                                                     |
-/// | \subpage page_dcc      | Operation and service mode, [DCC](https://github.com/ZIMO-Elektronik/DCC) command generation, BiDi decoding                                                                                                                       |
-/// | \subpage page_decup    | DECUP [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                 |
-/// | \subpage page_led      | Dimming LEDs                                                                                                                                                                                                                      |
-/// | \subpage page_http     | Access point (AP) and station (STA) HTTP servers                                                                                                                                                                                  |
-/// | \subpage page_mdns     | mDNS services                                                                                                                                                                                                                     |
-/// | \subpage page_mdu      | MDU [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)                                                                                                   |
-/// | \subpage page_mem      | NVS memory for settings, locos, accessories                                                                                                                                                                                       |
-/// | \subpage page_ota      | OTA update (WebSocket service)                                                                                                                                                                                                    |
-/// | \subpage page_out      | Drivers, signal generation of [DCC](https://github.com/ZIMO-Elektronik/DCC), [DECUP](https://github.com/ZIMO-Elektronik/DECUP), [MDU](https://github.com/ZIMO-Elektronik/MDU) and [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) |
-/// | \subpage page_trace    | Debug purposes                                                                                                                                                                                                                    |
-/// | \subpage page_udp      | Create and bind UDP socket                                                                                                                                                                                                        |
-/// | \subpage page_ulf      | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) services (ZIMO specific serial protocols)                                                                                                                                   |
-/// | \subpage page_usb      | Create [CDC](https://en.wikipedia.org/wiki/USB_communications_device_class) device                                                                                                                                                |
-/// | \subpage page_wifi     | Setup WiFi in AP or STA mode                                                                                                                                                                                                      |
-/// | \subpage page_z21      | [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket service)                                                                                                                                                  |
-/// | \subpage page_zusi     | ZUSI [ZPP](https://github.com/ZIMO-Elektronik/ZPP) updates (WebSocket service)                                                                                                                                                    |
+/// | Chapter            | Namespace | Content                                   |
+/// | ------------------ | --------- | ----------------------------------------- |
+/// | \subpage page_drv  | \ref drv  | Peripherals (Analog, RMT, SPI, WiFi, ...) |
+/// | \subpage page_intf | \ref intf | HTTP, mDNS, UDP, USB                      |
+/// | \subpage page_mem  | \ref mem  | NVS                                       |
+/// | \subpage page_mw   | \ref mw   | DCC, DECUP, MDU, OTA, ULF, Z21, ZUSI      |
 // clang-format on
 /// \page page_api_reference API Reference
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous               | Next             |
-/// | :--------------------- | ---------------: |
-/// | \ref page_control_flow | \ref page_analog |
+/// | Previous               | Next          |
+/// | :--------------------- | ------------: |
+/// | \ref page_control_flow | \ref page_drv |
 /// </div>
 
 /// \page page_hw_reference HW Reference

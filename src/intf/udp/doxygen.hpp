@@ -31,9 +31,9 @@ namespace intf::udp {
 /// endpoints for communications.
 ///
 /// <div class="section_buttons">
-/// | Previous        | Next          |
-/// | :-------------- | ------------: |
-/// | \ref page_trace | \ref page_ulf |
+/// | Previous       | Next          |
+/// | :------------- | ------------: |
+/// | \ref page_mdns | \ref page_usb |
 /// </div>
 
 } // namespace intf::udp

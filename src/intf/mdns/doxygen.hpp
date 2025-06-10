@@ -30,9 +30,9 @@ namespace intf::mdns {
 /// Listing mDNS services with linux `avahi-browse -a`
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_led | \ref page_mdu |
+/// | Previous       | Next          |
+/// | :------------- | ------------: |
+/// | \ref page_http | \ref page_udp |
 /// </div>
 
 } // namespace intf::mdns
