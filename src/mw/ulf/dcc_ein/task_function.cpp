@@ -176,7 +176,7 @@ void task_function(void*) {
       state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
     intf::usb::transmit_ok();
     send_idle_packets_to_back();
-    LOGI_TASK_RESUME(drv::out::track::dcc::task);
+    LOGI_TASK_CREATE(drv::out::track::dcc::task);
     loop();
   }
   // ... or not

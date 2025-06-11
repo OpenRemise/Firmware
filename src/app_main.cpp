@@ -87,3 +87,36 @@ extern "C" void app_main() {
                 APP_CPU_NUM == intf::usb::tx_task.core_id);
 #endif
 }
+
+// Assert that task names are unique and below max length
+static_assert(std::invoke([] {
+  std::array task_names{drv::analog::adc_task.name,
+                        drv::analog::temp_task.name,
+                        drv::out::track::dcc::task.name,
+                        drv::out::track::decup::task.name,
+                        drv::out::track::mdu::task.name,
+                        drv::out::zusi::task.name,
+                        drv::wifi::task.name,
+                        intf::usb::rx_task.name,
+                        intf::usb::tx_task.name,
+                        mw::dcc::task.name,
+                        mw::decup::task.name,
+                        mw::mdu::task.name,
+                        mw::ota::task.name,
+                        mw::ulf::dcc_ein::task.name,
+                        mw::ulf::decup_ein::task.name,
+                        mw::ulf::susiv2::task.name,
+                        mw::z21::task.name,
+                        mw::zusi::task.name};
+  std::ranges::sort(task_names, [](char const* a, char const* b) {
+    return ztl::strcmp(a, b) < 0;
+  });
+
+  return
+    // Names are unique
+    std::unique(begin(task_names), end(task_names)) == cend(task_names) &&
+    // ... and short enough
+    std::ranges::all_of(task_names, [](char const* a) {
+      return ztl::strlen(a) <= CONFIG_FREERTOS_MAX_TASK_NAME_LEN;
+    });
+}));

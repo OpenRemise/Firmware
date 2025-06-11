@@ -284,7 +284,7 @@ bool Service::trackPower(bool on, State dcc_state) {
 
       //
       case State::Suspended:
-        while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
+        while (xTaskGetHandle("drv::out::track::dcc"))
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
         if (auto expected{State::Suspended};
             state.compare_exchange_strong(expected, dcc_state))

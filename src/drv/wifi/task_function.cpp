@@ -51,7 +51,7 @@ void task_function(void*) {
     drv::led::bug(true);
     reset_sta_settings();
     esp_delayed_restart();
-    vTaskDelete(NULL);
+    LOGI_TASK_DESTROY();
   }
 }
 

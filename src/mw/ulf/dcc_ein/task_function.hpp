@@ -27,6 +27,6 @@
 namespace mw::ulf::dcc_ein {
 
 std::optional<::dcc::Packet> receive_dcc_packet();
-void task_function(void*);
+[[noreturn]] void task_function(void*);
 
 } // namespace mw::ulf::dcc_ein

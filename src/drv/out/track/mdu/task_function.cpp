@@ -293,17 +293,18 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
 
 /// \todo document
 void task_function(void*) {
-  for (;;) switch (auto encoder_config{mdu_encoder_config()}; state.load()) {
-      case State::MDUZpp: ESP_ERROR_CHECK(zpp_entry()); [[fallthrough]];
-      case State::MDUZsu: [[fallthrough]];
-      case State::ULF_MDU_EIN:
-        ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
-        ESP_ERROR_CHECK(zsu_entry());
-        ESP_ERROR_CHECK(loop(encoder_config));
-        ESP_ERROR_CHECK(suspend());
-        break;
-      default: LOGI_TASK_SUSPEND(); break;
-    }
+  switch (auto encoder_config{mdu_encoder_config()}; state.load()) {
+    case State::MDUZpp: ESP_ERROR_CHECK(zpp_entry()); [[fallthrough]];
+    case State::MDUZsu: [[fallthrough]];
+    case State::ULF_MDU_EIN:
+      ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
+      ESP_ERROR_CHECK(zsu_entry());
+      ESP_ERROR_CHECK(loop(encoder_config));
+      ESP_ERROR_CHECK(suspend());
+      break;
+    default: assert(false); break;
+  }
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace drv::out::track::mdu

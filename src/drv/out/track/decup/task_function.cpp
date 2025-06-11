@@ -156,16 +156,17 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 
 /// \todo document
 void task_function(void*) {
-  for (;;) switch (decup_encoder_config_t encoder_config{}; state.load()) {
-      case State::DECUPZpp: [[fallthrough]];
-      case State::DECUPZsu: [[fallthrough]];
-      case State::ULF_DECUP_EIN:
-        ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, ack_isr_handler));
-        ESP_ERROR_CHECK(loop());
-        ESP_ERROR_CHECK(suspend());
-        break;
-      default: LOGI_TASK_SUSPEND(); break;
-    }
+  switch (decup_encoder_config_t encoder_config{}; state.load()) {
+    case State::DECUPZpp: [[fallthrough]];
+    case State::DECUPZsu: [[fallthrough]];
+    case State::ULF_DECUP_EIN:
+      ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, ack_isr_handler));
+      ESP_ERROR_CHECK(loop());
+      ESP_ERROR_CHECK(suspend());
+      break;
+    default: assert(false); break;
+  }
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace drv::out::track::decup

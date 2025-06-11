@@ -35,6 +35,16 @@ namespace intf::usb {
 
 using namespace std::literals;
 
+/// Check if any USB service task is active
+///
+/// \retval true if any service task is active
+/// \retval false if no service task is active
+bool any_service_task_active() {
+  return xTaskGetHandle("mw::ulf::dcc_ein") ||
+         xTaskGetHandle("mw::ulf::decup_ein") ||
+         xTaskGetHandle("mw::ulf::susiv2");
+}
+
 /// Execute ping command
 ///
 /// Transmit device name and semantic version to the CDC device queue.
@@ -93,6 +103,11 @@ void loop() {
   }
 }
 
+/// Wait until all service tasks are suspended
+void wait_for_all_service_tasks_to_suspend() {
+  while (any_service_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
+}
+
 } // namespace
 
 /// USB receive task function
@@ -110,7 +125,7 @@ void rx_task_function(void*) {
   for (;;) {
     loop();
     LOGI_TASK_SUSPEND();
-    vTaskDelay(pdMS_TO_TICKS(rx_task.timeout)); // Mandatory
+    wait_for_all_service_tasks_to_suspend();
   }
 }
 

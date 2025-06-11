@@ -25,7 +25,6 @@
 
 namespace drv::out {
 
-void reset_queue_and_message_buffers();
 esp_err_t suspend();
 
 } // namespace drv::out

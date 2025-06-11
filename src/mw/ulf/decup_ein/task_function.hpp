@@ -23,6 +23,6 @@
 
 namespace mw::ulf::decup_ein {
 
-void task_function(void*);
+[[noreturn]] void task_function(void*);
 
 } // namespace mw::ulf::decup_ein

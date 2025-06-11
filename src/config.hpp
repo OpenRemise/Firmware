@@ -38,6 +38,7 @@
 #include <ztl/enum.hpp>
 #include <ztl/implicit_wrapper.hpp>
 #include <ztl/limits.hpp>
+#include <ztl/string.hpp>
 #include "task.hpp"
 
 #if CONFIG_IDF_TARGET_ESP32S3
@@ -294,6 +295,9 @@ inline constexpr auto wifi_channel{LEDC_CHANNEL_1};
 
 namespace out {
 
+///
+inline std::array<StackType_t, 4096uz> stack{};
+
 #if !CONFIG_IDF_TARGET_LINUX
 inline gptimer_handle_t gptimer{};
 #endif
@@ -352,36 +356,33 @@ inline constexpr auto bidi_rx_gpio_num{GPIO_NUM_14};
 inline constexpr auto bidi_en_gpio_num{GPIO_NUM_13};
 
 ///
-inline TASK(task,
-            "drv::out::track::dcc", // Name
-            4096uz,                 // Stack size
-            ESP_TASK_PRIO_MAX - 1u, // Priority
-            APP_CPU_NUM,            // Core
-            0u);
+inline SHARED_TASK(task,
+                   "drv::out::track::dcc", // Name
+                   ESP_TASK_PRIO_MAX - 1u, // Priority
+                   APP_CPU_NUM,            // Core
+                   0u);
 
 } // namespace dcc
 
 namespace decup {
 
 ///
-inline TASK(task,
-            "drv::out::track::decup", // Name
-            4096uz,                   // Stack size
-            ESP_TASK_PRIO_MAX - 1u,   // Priority
-            APP_CPU_NUM,              // Core
-            60'000u);                 // Timeout
+inline SHARED_TASK(task,
+                   "drv::out::track::decup", // Name
+                   ESP_TASK_PRIO_MAX - 1u,   // Priority
+                   APP_CPU_NUM,              // Core
+                   60'000u);                 // Timeout
 
 } // namespace decup
 
 namespace mdu {
 
 ///
-inline TASK(task,
-            "drv::out::track::mdu", // Name
-            4096uz,                 // Stack size
-            ESP_TASK_PRIO_MAX - 1u, // Priority
-            APP_CPU_NUM,            // Core
-            0u);
+inline SHARED_TASK(task,
+                   "drv::out::track::mdu", // Name
+                   ESP_TASK_PRIO_MAX - 1u, // Priority
+                   APP_CPU_NUM,            // Core
+                   0u);
 
 } // namespace mdu
 
@@ -394,12 +395,11 @@ inline constexpr auto clock_gpio_num{GPIO_NUM_6};
 inline constexpr auto data_gpio_num{GPIO_NUM_5};
 
 ///
-inline TASK(task,
-            "drv::out::zusi",       // Name
-            4096uz,                 // Stack size
-            ESP_TASK_PRIO_MAX - 1u, // Priority
-            APP_CPU_NUM,            // Core
-            0u);
+inline SHARED_TASK(task,
+                   "drv::out::zusi",       // Name
+                   ESP_TASK_PRIO_MAX - 1u, // Priority
+                   APP_CPU_NUM,            // Core
+                   0u);
 
 } // namespace zusi
 
@@ -618,7 +618,7 @@ inline std::shared_ptr<Service> service;
 
 namespace zusi {
 
-/// \todo ESP_TASK_PRIO_MAX
+///
 inline TASK(task,
             "mw::zusi",  // Name
             4096uz,      // Stack size

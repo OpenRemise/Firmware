@@ -23,6 +23,7 @@
 
 namespace intf::usb {
 
-void rx_task_function(void*);
+bool any_service_task_active();
+[[noreturn]] void rx_task_function(void*);
 
 } // namespace intf::usb

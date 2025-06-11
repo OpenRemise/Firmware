@@ -121,7 +121,7 @@ void task_function(void*) {
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
     intf::usb::transmit_ok();
-    LOGI_TASK_RESUME(drv::out::zusi::task);
+    LOGI_TASK_CREATE(drv::out::zusi::task);
     loop();
   }
   // ... or not

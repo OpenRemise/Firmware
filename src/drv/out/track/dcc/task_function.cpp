@@ -382,23 +382,24 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
 
 /// \todo document
 void task_function(void*) {
-  for (;;) switch (auto encoder_config{dcc_encoder_config()}; state.load()) {
-      case State::DCCOperations: [[fallthrough]];
-      case State::ULF_DCC_EIN:
-        ESP_ERROR_CHECK(
-          resume(encoder_config,
-                 encoder_config.bidibit_duration ? rmt_callback : NULL,
-                 encoder_config.bidibit_duration ? gptimer_callback : NULL));
-        ESP_ERROR_CHECK(operations_loop(encoder_config));
-        ESP_ERROR_CHECK(suspend());
-        break;
-      case State::DCCService:
-        ESP_ERROR_CHECK(resume(encoder_config, nullptr, nullptr));
-        ESP_ERROR_CHECK(service_loop(encoder_config));
-        ESP_ERROR_CHECK(suspend());
-        break;
-      default: LOGI_TASK_SUSPEND(); break;
-    }
+  switch (auto encoder_config{dcc_encoder_config()}; state.load()) {
+    case State::DCCOperations: [[fallthrough]];
+    case State::ULF_DCC_EIN:
+      ESP_ERROR_CHECK(
+        resume(encoder_config,
+               encoder_config.bidibit_duration ? rmt_callback : NULL,
+               encoder_config.bidibit_duration ? gptimer_callback : NULL));
+      ESP_ERROR_CHECK(operations_loop(encoder_config));
+      ESP_ERROR_CHECK(suspend());
+      break;
+    case State::DCCService:
+      ESP_ERROR_CHECK(resume(encoder_config, nullptr, nullptr));
+      ESP_ERROR_CHECK(service_loop(encoder_config));
+      ESP_ERROR_CHECK(suspend());
+      break;
+    default: assert(false); break;
+  }
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace drv::out::track::dcc

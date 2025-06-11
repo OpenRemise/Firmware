@@ -117,7 +117,7 @@ void task_function(void*) {
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
     intf::usb::transmit_ok();
-    LOGI_TASK_RESUME(drv::out::track::decup::task);
+    LOGI_TASK_CREATE(drv::out::track::decup::task);
     loop();
   }
   // ... or not

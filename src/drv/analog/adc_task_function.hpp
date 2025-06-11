@@ -23,6 +23,6 @@
 
 namespace drv::analog {
 
-void adc_task_function(void*);
+[[noreturn]] void adc_task_function(void*);
 
 } // namespace drv::analog

@@ -11,8 +11,6 @@ auto task_create_stub(TaskHandle_t& task_handle) {
     Unique, NULL, 4096uz, NULL, tskIDLE_PRIORITY, &task_handle);
 }
 
-void task_delete_clear_handle(TaskHandle_t& task_handle);
-
 void stream_buffer_delete_clear_handle(
   StreamBufferHandle_t& stream_buffer_handle);
 

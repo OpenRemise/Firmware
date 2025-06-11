@@ -41,7 +41,7 @@ esp_err_t Service::socket(intf::http::Message& msg) {
       state.compare_exchange_strong(expected, State::ZUSI)) {
     _queue.push(std::move(msg));
     LOGI_TASK_RESUME(task);
-    LOGI_TASK_RESUME(drv::out::zusi::task);
+    LOGI_TASK_CREATE(drv::out::zusi::task);
     return ESP_OK;
   }
   //

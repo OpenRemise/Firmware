@@ -50,7 +50,7 @@ esp_err_t Service::socket(intf::http::Message& msg, State mdu_state) {
       state.compare_exchange_strong(expected, mdu_state)) {
     _queue.push(std::move(msg));
     LOGI_TASK_RESUME(task);
-    LOGI_TASK_RESUME(drv::out::track::mdu::task);
+    LOGI_TASK_CREATE(drv::out::track::mdu::task);
     return ESP_OK;
   }
   //

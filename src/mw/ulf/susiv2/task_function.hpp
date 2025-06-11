@@ -23,6 +23,6 @@
 
 namespace mw::ulf::susiv2 {
 
-void task_function(void*);
+[[noreturn]] void task_function(void*);
 
 } // namespace mw::ulf::susiv2
