@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2
+- Bugfix some MX decoders require 2nd stop bit during DECUP update ([#68](https://github.com/OpenRemise/Firmware/issues/68))
+
 ## 0.3.1
 - Bugfix POM ([#67](https://github.com/OpenRemise/Firmware/issues/67))
 - Bugfix don't add DCC address 0 to locos ([#71](https://github.com/OpenRemise/Firmware/issues/71))
