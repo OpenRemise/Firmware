@@ -64,7 +64,7 @@ namespace mw::ulf {
 /// <div class="section_buttons">
 /// | Previous      | Next          |
 /// | :------------ | ------------: |
-/// | \ref page_udp | \ref page_usb |
+/// | \ref page_ota | \ref page_z21 |
 /// </div>
 
 } // namespace mw::ulf

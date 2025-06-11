@@ -47,9 +47,9 @@ namespace drv::analog {
 /// - mA2measurement(Current)
 ///
 /// <div class="section_buttons">
-/// | Previous                | Next          |
-/// | :---------------------- | ------------: |
-/// | \ref page_api_reference | \ref page_dcc |
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_drv | \ref page_led |
 /// </div>
 
 } // namespace drv::analog

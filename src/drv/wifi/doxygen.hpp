@@ -33,9 +33,9 @@ namespace drv::wifi {
 /// UDP?) are also started.
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_usb | \ref page_z21 |
+/// | Previous        | Next           |
+/// | :-------------- | -------------: |
+/// | \ref page_trace | \ref page_intf |
 /// </div>
 
 } // namespace drv::wifi

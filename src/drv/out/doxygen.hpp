@@ -40,7 +40,7 @@ namespace drv::out {
 /// <div class="section_buttons">
 /// | Previous      | Next            |
 /// | :------------ | --------------: |
-/// | \ref page_ota | \ref page_trace |
+/// | \ref page_led | \ref page_trace |
 /// </div>
 
 } // namespace drv::out

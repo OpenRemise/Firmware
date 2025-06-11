@@ -28,9 +28,9 @@ namespace mw::decup {
 /// \todo document DECUP page
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next           |
-/// | :------------ | -------------: |
-/// | \ref page_dcc | \ref page_http |
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_dcc | \ref page_mdu |
 /// </div>
 
 } // namespace mw::decup

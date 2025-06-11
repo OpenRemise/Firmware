@@ -35,9 +35,9 @@ namespace intf::http {
 /// \section section_http_sta Station
 ///
 /// <div class="section_buttons">
-/// | Previous        | Next          |
-/// | :-------------- | ------------: |
-/// | \ref page_decup | \ref page_led |
+/// | Previous       | Next           |
+/// | :------------- | -------------: |
+/// | \ref page_intf | \ref page_mdns |
 /// </div>
 
 } // namespace intf::http

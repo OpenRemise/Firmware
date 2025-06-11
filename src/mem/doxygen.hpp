@@ -93,9 +93,9 @@ namespace mem {
 /// \details \tableofcontents
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_mdu | \ref page_ota |
+/// | Previous      | Next         |
+/// | :------------ | -----------: |
+/// | \ref page_usb | \ref page_mw |
 /// </div>
 
 } // namespace mem

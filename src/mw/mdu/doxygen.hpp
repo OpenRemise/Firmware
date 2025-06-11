@@ -28,9 +28,9 @@ namespace mw::mdu {
 /// \todo document MDU page
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next          |
-/// | :------------- | ------------: |
-/// | \ref page_mdns | \ref page_mem |
+/// | Previous        | Next          |
+/// | :-------------- | ------------: |
+/// | \ref page_decup | \ref page_ota |
 /// </div>
 
 } // namespace mw::mdu

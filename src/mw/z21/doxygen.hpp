@@ -28,9 +28,9 @@ namespace mw::z21 {
 /// \todo document Z21 page
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next           |
-/// | :------------- | -------------: |
-/// | \ref page_wifi | \ref page_zusi |
+/// | Previous      | Next           |
+/// | :------------ | -------------: |
+/// | \ref page_ulf | \ref page_zusi |
 /// </div>
 
 } // namespace mw::z21

@@ -30,7 +30,7 @@ namespace mw::ota {
 /// <div class="section_buttons">
 /// | Previous      | Next          |
 /// | :------------ | ------------: |
-/// | \ref page_mem | \ref page_out |
+/// | \ref page_mdu | \ref page_ulf |
 /// </div>
 
 } // namespace mw::ota
