@@ -15,7 +15,7 @@
 
 /// MDU task function
 ///
-/// \file   drv/out/track/mdu/task_function.cpp
+/// \file   drv/out/track/zimo/mdu/task_function.cpp
 /// \author Vincent Hamp
 /// \date   10/04/2024
 
@@ -24,16 +24,16 @@
 #include <dcc/dcc.hpp>
 #include <mdu/mdu.hpp>
 #include <ulf/mdu_ein.hpp>
-#include "../current_limit.hpp"
-#include "../dcc/resume.hpp"
-#include "../dcc/suspend.hpp"
+#include "../../current_limit.hpp"
+#include "../../dcc/resume.hpp"
+#include "../../dcc/suspend.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
 #include "suspend.hpp"
 #include "utility.hpp"
 
-namespace drv::out::track::mdu {
+namespace drv::out::track::zimo::mdu {
 
 using namespace ::mdu;
 using ::ulf::mdu_ein::ack, ::ulf::mdu_ein::nak;
@@ -307,4 +307,4 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace drv::out::track::mdu
+} // namespace drv::out::track::zimo::mdu

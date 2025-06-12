@@ -15,7 +15,7 @@
 
 /// Initialize peripherals when resuming MDU task
 ///
-/// \file   drv/out/track/mdu/resume.hpp
+/// \file   drv/out/track/zimo/mdu/resume.hpp
 /// \author Vincent Hamp
 /// \date   10/04/2024
 
@@ -25,10 +25,10 @@
 #include <esp_err.h>
 #include <rmt_mdu_encoder.h>
 
-namespace drv::out::track::mdu {
+namespace drv::out::track::zimo::mdu {
 
 esp_err_t init_encoder(mdu_encoder_config_t const& encoder_config);
 esp_err_t resume(mdu_encoder_config_t const& encoder_config,
                  gpio_isr_t gpio_isr_handler);
 
-} // namespace drv::out::track::mdu
+} // namespace drv::out::track::zimo::mdu

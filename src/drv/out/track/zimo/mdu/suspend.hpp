@@ -13,19 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Deinitialize peripherals when suspending DECUP task
+/// Deinitialize peripherals when suspending MDU task
 ///
-/// \file   drv/out/track/decup/suspend.hpp
+/// \file   drv/out/track/zimo/mdu/suspend.hpp
 /// \author Vincent Hamp
-/// \date   14/08/2024
+/// \date   10/04/2024
 
 #pragma once
 
 #include <esp_err.h>
 
-namespace drv::out::track::decup {
+namespace drv::out::track::zimo::mdu {
 
 esp_err_t deinit_encoder();
 esp_err_t suspend();
 
-} // namespace drv::out::track::decup
+} // namespace drv::out::track::zimo::mdu

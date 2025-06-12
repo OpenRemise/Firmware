@@ -48,12 +48,12 @@ else()
     drv/out/track/dcc/resume.cpp
     drv/out/track/dcc/suspend.cpp
     drv/out/track/dcc/task_function.cpp
-    drv/out/track/decup/resume.cpp
-    drv/out/track/decup/suspend.cpp
-    drv/out/track/decup/task_function.cpp
-    drv/out/track/mdu/resume.cpp
-    drv/out/track/mdu/suspend.cpp
-    drv/out/track/mdu/task_function.cpp
+    drv/out/track/zimo/decup/resume.cpp
+    drv/out/track/zimo/decup/suspend.cpp
+    drv/out/track/zimo/decup/task_function.cpp
+    drv/out/track/zimo/mdu/resume.cpp
+    drv/out/track/zimo/mdu/suspend.cpp
+    drv/out/track/zimo/mdu/task_function.cpp
     drv/out/track/init.cpp
     drv/out/init.cpp
     drv/out/suspend.cpp

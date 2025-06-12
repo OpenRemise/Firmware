@@ -15,7 +15,7 @@
 
 /// DECUP task function
 ///
-/// \file   drv/out/track/decup/task_function.cpp
+/// \file   drv/out/track/zimo/decup/task_function.cpp
 /// \author Vincent Hamp
 /// \date   14/08/2024
 
@@ -23,14 +23,14 @@
 #include <driver/gpio.h>
 #include <decup/decup.hpp>
 #include <ulf/decup_ein.hpp>
-#include "../current_limit.hpp"
+#include "../../current_limit.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
 #include "suspend.hpp"
 #include "utility.hpp"
 
-namespace drv::out::track::decup {
+namespace drv::out::track::zimo::decup {
 
 using namespace ::decup;
 using ::ulf::decup_ein::ack, ::ulf::decup_ein::nak;
@@ -169,4 +169,4 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace drv::out::track::decup
+} // namespace drv::out::track::zimo::decup

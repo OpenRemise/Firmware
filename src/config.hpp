@@ -386,14 +386,16 @@ inline SHARED_TASK(task,
 
 } // namespace dcc
 
+namespace zimo {
+
 namespace decup {
 
 ///
 inline SHARED_TASK(task,
-                   "drv::out::track::decup", // Name
-                   ESP_TASK_PRIO_MAX - 1u,   // Priority
-                   APP_CPU_NUM,              // Core
-                   60'000u);                 // Timeout
+                   "drv::out::track::zimo::decup", // Name
+                   ESP_TASK_PRIO_MAX - 1u,         // Priority
+                   APP_CPU_NUM,                    // Core
+                   60'000u);                       // Timeout
 
 } // namespace decup
 
@@ -401,12 +403,14 @@ namespace mdu {
 
 ///
 inline SHARED_TASK(task,
-                   "drv::out::track::mdu", // Name
-                   ESP_TASK_PRIO_MAX - 1u, // Priority
-                   APP_CPU_NUM,            // Core
+                   "drv::out::track::zimo::mdu", // Name
+                   ESP_TASK_PRIO_MAX - 1u,       // Priority
+                   APP_CPU_NUM,                  // Core
                    0u);
 
 } // namespace mdu
+
+} // namespace zimo
 
 } // namespace track
 
@@ -526,11 +530,11 @@ namespace decup {
 
 ///
 inline TASK(task,
-            "mw::decup",                           // Name
-            4096uz,                                // Stack size
-            2u,                                    // Priority
-            APP_CPU_NUM,                           // Core
-            drv::out::track::decup::task.timeout); // Timeout
+            "mw::decup",                                 // Name
+            4096uz,                                      // Stack size
+            2u,                                          // Priority
+            APP_CPU_NUM,                                 // Core
+            drv::out::track::zimo::decup::task.timeout); // Timeout
 
 } // namespace decup
 
@@ -583,10 +587,10 @@ namespace decup_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "mw::ulf::decup_ein",                  // Name
-                   intf::usb::rx_task.priority - 1u,      // Priority
-                   APP_CPU_NUM,                           // Core
-                   drv::out::track::decup::task.timeout); // Timeout
+                   "mw::ulf::decup_ein",                        // Name
+                   intf::usb::rx_task.priority - 1u,            // Priority
+                   APP_CPU_NUM,                                 // Core
+                   drv::out::track::zimo::decup::task.timeout); // Timeout
 
 } // namespace decup_ein
 

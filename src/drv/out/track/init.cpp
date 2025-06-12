@@ -26,11 +26,11 @@
 #include <cstring>
 #include <limits>
 #include "dcc/task_function.hpp"
-#include "decup/task_function.hpp"
 #include "drv/led/bug.hpp"
 #include "log.h"
-#include "mdu/task_function.hpp"
 #include "utility.hpp"
+#include "zimo/decup/task_function.hpp"
+#include "zimo/mdu/task_function.hpp"
 
 namespace drv::out::track {
 
@@ -143,8 +143,8 @@ esp_err_t init() {
   ESP_ERROR_CHECK(init_gpio());
 
   dcc::task.function = dcc::task_function;
-  decup::task.function = decup::task_function;
-  mdu::task.function = mdu::task_function;
+  zimo::decup::task.function = zimo::decup::task_function;
+  zimo::mdu::task.function = zimo::mdu::task_function;
 
   return ESP_OK;
 }

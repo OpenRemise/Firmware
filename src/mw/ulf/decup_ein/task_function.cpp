@@ -108,7 +108,7 @@ void loop() {
 ///
 /// A special feature of this protocol is that the RTS line is used to switch
 /// the track voltage on and off. For this reason, the RTS line is monitored and
-/// its state is stored in a global variable \ref usb::rts.
+/// its state is stored in a global variable \ref intf::usb::rts.
 ///
 /// At the end of an upload, the \ref usb::rx_task_function "USB receive task"
 /// is created and this task destroys itself.
@@ -117,7 +117,7 @@ void loop() {
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
     intf::usb::transmit_ok();
-    LOGI_TASK_CREATE(drv::out::track::decup::task);
+    LOGI_TASK_CREATE(drv::out::track::zimo::decup::task);
     loop();
   }
   // ... or not

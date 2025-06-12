@@ -15,14 +15,14 @@
 
 /// DECUP task function
 ///
-/// \file   drv/out/track/decup/task_function.hpp
+/// \file   drv/out/track/zimo/decup/task_function.hpp
 /// \author Vincent Hamp
 /// \date   14/08/2024
 
 #pragma once
 
-namespace drv::out::track::decup {
+namespace drv::out::track::zimo::decup {
 
 [[noreturn]] void task_function(void*);
 
-} // namespace drv::out::track::decup
+} // namespace drv::out::track::zimo::decup

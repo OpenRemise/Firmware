@@ -13,46 +13,47 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize peripherals when resuming DECUP task
+/// Initialize peripherals when resuming MDU task
 ///
-/// \file   drv/out/track/decup/resume.cpp
+/// \file   drv/out/track/zimo/mdu/resume.cpp
 /// \author Vincent Hamp
-/// \date   14/08/2024
+/// \date   10/04/2024
 
 #include "resume.hpp"
 #include <driver/gptimer.h>
 
-namespace drv::out::track::decup {
+namespace drv::out::track::zimo::mdu {
 
 /// \todo document
-esp_err_t init_encoder(decup_encoder_config_t const& encoder_config) {
+esp_err_t init_encoder(mdu_encoder_config_t const& encoder_config) {
   assert(!encoder);
-  return rmt_new_decup_encoder(&encoder_config, &encoder);
+  return rmt_new_mdu_encoder(&encoder_config, &encoder);
 }
 
 namespace {
 
 /// \todo document
-esp_err_t init_rmt(rmt_tx_done_callback_t rmt_cb) {
-  rmt_tx_event_callbacks_t cbs{.on_trans_done = rmt_cb};
-  return rmt_tx_register_event_callbacks(channel, &cbs, NULL);
+esp_err_t init_alarm() {
+  ESP_ERROR_CHECK(gptimer_enable(gptimer));
+  return gptimer_start(gptimer);
 }
 
 /// \todo document
 esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(gpio_isr_handler_add(ack_gpio_num, gpio_isr_handler, NULL));
-  return gpio_set_level(enable_gpio_num, 1u);
+  ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 1u));
+  vTaskDelay(pdMS_TO_TICKS(20u));
+  return gpio_set_level(n_force_low_gpio_num, 0u);
 }
 
 } // namespace
 
 /// \todo document
-esp_err_t resume(decup_encoder_config_t const& encoder_config,
-                 rmt_tx_done_callback_t rmt_cb,
+esp_err_t resume(mdu_encoder_config_t const& encoder_config,
                  gpio_isr_t gpio_isr_handler) {
   ESP_ERROR_CHECK(init_encoder(encoder_config));
-  ESP_ERROR_CHECK(init_rmt(rmt_cb));
+  ESP_ERROR_CHECK(init_alarm());
   return init_gpio(gpio_isr_handler);
 }
 
-} // namespace drv::out::track::decup
+} // namespace drv::out::track::zimo::mdu

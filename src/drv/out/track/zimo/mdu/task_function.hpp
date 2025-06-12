@@ -13,23 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize peripherals when resuming DECUP task
+/// MDU task function
 ///
-/// \file   drv/out/track/decup/resume.hpp
+/// \file   drv/out/track/zimo/mdu/task_function.hpp
 /// \author Vincent Hamp
-/// \date   14/08/2024
+/// \date   10/04/2024
 
 #pragma once
 
-#include <driver/gpio.h>
-#include <esp_err.h>
-#include "rmt_decup_encoder.h"
+namespace drv::out::track::zimo::mdu {
 
-namespace drv::out::track::decup {
+[[noreturn]] void task_function(void*);
 
-esp_err_t init_encoder(decup_encoder_config_t const& encoder_config);
-esp_err_t resume(decup_encoder_config_t const& encoder_config,
-                 rmt_tx_done_callback_t rmt_cb,
-                 gpio_isr_t gpio_isr_handler);
-
-} // namespace drv::out::track::decup
+} // namespace drv::out::track::zimo::mdu

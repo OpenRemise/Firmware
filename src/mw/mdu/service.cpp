@@ -46,7 +46,7 @@ esp_err_t Service::socket(intf::http::Message& msg, State mdu_state) {
       msg.type != HTTPD_WS_TYPE_CLOSE &&
       state.compare_exchange_strong(expected, mdu_state)) {
     _queue.push(std::move(msg));
-    LOGI_TASKS_CREATE(task, drv::out::track::mdu::task);
+    LOGI_TASKS_CREATE(task, drv::out::track::zimo::mdu::task);
     return ESP_OK;
   }
   //
