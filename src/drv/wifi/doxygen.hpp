@@ -23,8 +23,8 @@
 
 namespace drv::wifi {
 
-/// \page page_wifi WiFi
-/// \tableofcontents
+/// \page page_drv_wifi WiFi
+/// \details \tableofcontents
 /// \todo document WiFi page
 ///
 /// This module handles the initialization of the WLAN peripherals and thus the
@@ -33,9 +33,9 @@ namespace drv::wifi {
 /// UDP?) are also started.
 ///
 /// <div class="section_buttons">
-/// | Previous        | Next          |
-/// | :-------------- | ------------: |
-/// | \ref page_trace | \ref page_mem |
+/// | Previous            | Next          |
+/// | :------------------ | ------------: |
+/// | \ref page_drv_trace | \ref page_mem |
 /// </div>
 
 } // namespace drv::wifi

@@ -13,33 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// ULF_DCC_EIN task function
+///
+/// \file   mw/zimo/ulf/dcc_ein/task_function.hpp
+/// \author Vincent Hamp
+/// \date   04/05/2025
+
 #pragma once
 
-#include <esp_task.h>
-#include <queue>
-#include <ulf/decup_ein.hpp>
-#include "intf/http/message.hpp"
+#include <optional>
+#include <ulf/dcc_ein.hpp>
 
-namespace mw::decup {
+namespace mw::zimo::ulf::dcc_ein {
 
-class Service : public ::ulf::decup_ein::rx::Base {
-public:
-  Service();
+std::optional<::dcc::Packet> receive_dcc_packet();
+[[noreturn]] void task_function(void*);
 
-  esp_err_t zppSocket(intf::http::Message& msg);
-  esp_err_t zsuSocket(intf::http::Message& msg);
-
-private:
-  esp_err_t socket(intf::http::Message& msg, State decup_state);
-  [[noreturn]] void taskFunction(void*);
-  void loop();
-
-  uint8_t transmit(std::span<uint8_t const> bytes) final;
-
-  void close();
-
-  std::queue<intf::http::Message> _queue{};
-  std::optional<uint8_t> _ack{};
-};
-
-} // namespace mw::decup
+} // namespace mw::zimo::ulf::dcc_ein

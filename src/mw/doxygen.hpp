@@ -25,26 +25,25 @@ namespace mw {
 
 /// \page page_mw Middlewares
 /// \details
+/// The middleware modules are the connections between interfaces and drivers.
+///
 // clang-format off
 /// \page page_mw Middleware
 /// \details
-/// | Chapter                | Namespace              | Content                                                                                                                           |
-/// | ---------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-/// | \subpage page_dcc      | \ref mw::dcc "dcc"     | Operation and service mode, [DCC](https://github.com/ZIMO-Elektronik/DCC) command generation, BiDi decoding                       |
-/// | \subpage page_decup    | \ref mw::decup "decup" | DECUP [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service) |
-/// | \subpage page_mdu      | \ref mw::mdu "mdu"     | MDU [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)   |
-/// | \subpage page_ota      | \ref mw::ota "ota"     | OTA update (WebSocket service)                                                                                                    |
-/// | \subpage page_ulf      | \ref mw::ulf "ulf"     | [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) services (ZIMO specific serial protocols)                                   |
-/// | \subpage page_z21      | \ref mw::z21 "z21"     | [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket service)                                                  |
-/// | \subpage page_zusi     | \ref mw::zusi "zusi"   | ZUSI [ZPP](https://github.com/ZIMO-Elektronik/ZPP) updates (WebSocket service)                                                    |
+/// | Chapter               | Namespace            | Content                                                                                                     |
+/// | --------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------- |
+/// | \subpage page_mw_dcc  | \ref mw::dcc "dcc"   | [DCC](https://github.com/ZIMO-Elektronik/DCC) operation and service mode, command generation, BiDi decoding |
+/// | \subpage page_mw_ota  | \ref mw::ota "ota"   | OTA firmware update (WebSocket service)                                                                     |
+/// | \subpage page_mw_z21  | \ref mw::z21 "z21"   | [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket service)                            |
+/// | \subpage page_mw_zimo | \ref mw::zimo "zimo" | ZIMO specific (USB and WebSocket services)                                                                  |
 // clang-format on
 /// \page page_mw Middleware
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_usb | \ref page_dcc |
+/// | Previous           | Next             |
+/// | :----------------- | ---------------: |
+/// | \ref page_intf_usb | \ref page_mw_dcc |
 /// </div>
 
 } // namespace mw

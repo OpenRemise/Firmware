@@ -13,29 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "init.hpp"
-#include <memory>
-#include "intf/http/sta/server.hpp"
-#include "service.hpp"
+#pragma once
 
-namespace mw::zusi {
+#include <esp_task.h>
+#include <queue>
+#include <ulf/susiv2.hpp>
+#include "intf/http/message.hpp"
 
-namespace {
+namespace mw::zimo::zusi {
 
-std::shared_ptr<Service> service;
-
-} // namespace
-
-/// Initialize ZUSI service
+/// ZUSI service
 ///
-/// Those are the init details
-esp_err_t init() {
-  if (intf::http::sta::server) {
-    service = std::make_shared<Service>();
-    intf::http::sta::server->subscribe(
-      {.uri = "/zusi/"}, service, &Service::socket);
-  }
-  return ESP_OK;
-}
+/// Those are the service details
+class Service {
+public:
+  Service();
 
-} // namespace mw::zusi
+  esp_err_t socket(intf::http::Message& msg);
+
+private:
+  [[noreturn]] void taskFunction(void*);
+  void loop();
+  ::ulf::susiv2::Response transmit(std::vector<uint8_t> const& payload) const;
+  void close();
+
+  ::ulf::susiv2::Response _resp{};
+  std::queue<intf::http::Message> _queue{};
+};
+
+} // namespace mw::zimo::zusi

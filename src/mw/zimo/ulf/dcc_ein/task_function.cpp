@@ -15,7 +15,7 @@
 
 /// ULF_DCC_EIN task function
 ///
-/// \file   mw/ulf/dcc_ein/task_function.cpp
+/// \file   mw/zimo/ulf/dcc_ein/task_function.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -27,7 +27,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace mw::ulf::dcc_ein {
+namespace mw::zimo::ulf::dcc_ein {
 
 using namespace ::ulf::dcc_ein;
 
@@ -131,7 +131,7 @@ void transmit_addressed_datagram(
                     pdMS_TO_TICKS(intf::usb::tx_task.timeout));
 }
 
-/// Actual ulf::dcc_ein::task loop
+/// task_function() loop
 void loop() {
   auto const timeout{http_receive_timeout2ms()};
   TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
@@ -187,4 +187,4 @@ void loop() {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace mw::ulf::dcc_ein
+} // namespace mw::zimo::ulf::dcc_ein

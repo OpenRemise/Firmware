@@ -23,15 +23,15 @@
 
 namespace drv::led {
 
-/// \page page_led LED
-/// \tableofcontents
+/// \page page_drv_led LED
+/// \details \tableofcontents
 /// This module handles dimming the LEDs. The brightness (duty cycle) can be
 /// configured for each LED.
 ///
-/// \section section_led_init Initialization
+/// \section section_drv_led_init Initialization
 /// \copydetails init
 ///
-/// \section section_led_bug Bug LED
+/// \section section_drv_led_bug Bug LED
 /// The blue "bug LED" serves as an indicator for any kind of programming mode
 /// (e.g. firmware update, DCC service mode, ...) as well as an error indicator.
 /// The function \ref bug() can be used to switch the LED on or off with its set
@@ -41,7 +41,7 @@ namespace drv::led {
 /// wrapper Bug that can switch the LED on in its constructor and off in its
 /// destructor.
 ///
-/// \section section_led_wifi WiFi LED
+/// \section section_drv_led_wifi WiFi LED
 /// The green "WiFi LED" indicates the network connection status. It lights up
 /// when a connection is established and turns off when the connection is lost.
 /// The function \ref wifi(bool) "wifi()" can be used to switch the LED on or
@@ -49,9 +49,9 @@ namespace drv::led {
 /// mem::nvs::Settings::getLedDutyCycleWiFi().
 ///
 /// <div class="section_buttons">
-/// | Previous         | Next          |
-/// | :--------------- | ------------: |
-/// | \ref page_analog | \ref page_out |
+/// | Previous             | Next              |
+/// | :------------------- | ----------------: |
+/// | \ref page_drv_analog | \ref page_drv_out |
 /// </div>
 
 } // namespace drv::led

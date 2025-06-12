@@ -23,14 +23,14 @@
 
 namespace mw::z21 {
 
-/// \page page_z21 Z21
-/// \tableofcontents
+/// \page page_mw_z21 Z21
+/// \details \tableofcontents
 /// \todo document Z21 page
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next           |
-/// | :------------ | -------------: |
-/// | \ref page_ulf | \ref page_zusi |
+/// | Previous         | Next              |
+/// | :--------------- | ----------------: |
+/// | \ref page_mw_ota | \ref page_mw_zimo |
 /// </div>
 
 } // namespace mw::z21

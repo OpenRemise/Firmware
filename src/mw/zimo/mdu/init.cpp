@@ -13,16 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF_SUSIV2 task function
-///
-/// \file   mw/ulf/susiv2/task_function.hpp
-/// \author Vincent Hamp
-/// \date   04/05/2025
+#include "init.hpp"
+#include <memory>
+#include "intf/http/sta/server.hpp"
+#include "service.hpp"
 
-#pragma once
+namespace mw::zimo::mdu {
 
-namespace mw::ulf::susiv2 {
+namespace {
 
-[[noreturn]] void task_function(void*);
+std::shared_ptr<Service> service;
 
-} // namespace mw::ulf::susiv2
+} // namespace
+
+/// \todo document
+esp_err_t init() {
+  if (intf::http::sta::server) {
+    service = std::make_shared<Service>();
+    intf::http::sta::server->subscribe(
+      {.uri = "/mdu/zpp/"}, service, &Service::zppSocket);
+    intf::http::sta::server->subscribe(
+      {.uri = "/mdu/zsu/"}, service, &Service::zsuSocket);
+  }
+  return ESP_OK;
+}
+
+} // namespace mw::zimo::mdu

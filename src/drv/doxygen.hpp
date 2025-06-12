@@ -25,24 +25,26 @@ namespace drv {
 
 /// \page page_drv Drivers
 /// \details
+/// The driver modules serve the different peripherals such as SPI, RMT or WiFi.
+///
 // clang-format off
 /// \page page_drv Driver
 /// \details
-/// | Chapter                | Namespace   | Content                                                                                                                                                                                                                           |
-/// | ---------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-/// | \subpage page_analog   | \ref analog | ADC measurements, overcurrent                                                                                                                                                                                                     |
-/// | \subpage page_led      | \ref led    | Dimming LEDs                                                                                                                                                                                                                      |
-/// | \subpage page_out      | \ref out    | Drivers, signal generation of [DCC](https://github.com/ZIMO-Elektronik/DCC), [DECUP](https://github.com/ZIMO-Elektronik/DECUP), [MDU](https://github.com/ZIMO-Elektronik/MDU) and [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) |
-/// | \subpage page_trace    | \ref trace  | Debug purposes                                                                                                                                                                                                                    |
-/// | \subpage page_wifi     | \ref wifi   | Setup WiFi in AP or STA mode                                                                                                                                                                                                      |
+/// | Chapter                  | Namespace   | Content                                      |
+/// | ------------------------ | ----------- | ---------------------------------------------|
+/// | \subpage page_drv_analog | \ref analog | ADC measurements, overcurrent                |
+/// | \subpage page_drv_led    | \ref led    | Dimming LEDs                                 |
+/// | \subpage page_drv_out    | \ref out    | Generation of various SUSI and track signals |
+/// | \subpage page_drv_trace  | \ref trace  | Debug purposes                               |
+/// | \subpage page_drv_wifi   | \ref wifi   | Setup WiFi in AP or STA mode                 |
 // clang-format on
 /// \page page_drv Driver
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next             |
-/// | :------------- | ---------------: |
-/// | \ref page_zusi | \ref page_analog |
+/// | Previous          | Next                 |
+/// | :---------------- | -------------------: |
+/// | \ref page_mw_zimo | \ref page_drv_analog |
 /// </div>
 
 } // namespace drv

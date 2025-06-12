@@ -23,14 +23,14 @@
 
 namespace drv::trace {
 
-/// \page page_trace Trace
-/// \tableofcontents
+/// \page page_drv_trace Trace
+/// \details \tableofcontents
 /// \todo document Z21 page
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next           |
-/// | :------------ | -------------: |
-/// | \ref page_out | \ref page_wifi |
+/// | Previous          | Next               |
+/// | :---------------- | -----------------: |
+/// | \ref page_drv_out | \ref page_drv_wifi |
 /// </div>
 
 } // namespace drv::trace

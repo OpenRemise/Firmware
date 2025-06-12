@@ -13,24 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// MDU documentation
-///
-/// \file   mw/mdu/doxygen.hpp
-/// \author Vincent Hamp
-/// \date   28/07/2023
-
 #pragma once
 
-namespace mw::mdu {
+#include <esp_err.h>
 
-/// \page page_mdu MDU
-/// \tableofcontents
-/// \todo document MDU page
-///
-/// <div class="section_buttons">
-/// | Previous        | Next          |
-/// | :-------------- | ------------: |
-/// | \ref page_decup | \ref page_ota |
-/// </div>
+namespace mw::zimo::zusi {
 
-} // namespace mw::mdu
+esp_err_t init();
+
+} // namespace mw::zimo::zusi

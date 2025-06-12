@@ -15,7 +15,7 @@
 
 /// ULF_DECUP_EIN task function
 ///
-/// \file   mw/ulf/decup_ein/task_function.cpp
+/// \file   mw/zimo/ulf/decup_ein/task_function.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -25,7 +25,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace mw::ulf::decup_ein {
+namespace mw::zimo::ulf::decup_ein {
 
 using namespace ulf::decup_ein;
 
@@ -59,7 +59,7 @@ void transmit_response(uint8_t byte) {
                     pdMS_TO_TICKS(intf::usb::tx_task.timeout));
 }
 
-/// Actual ulf::decup_ein::task loop
+/// task_function() loop
 void loop() {
   Decup decup{};
 
@@ -128,4 +128,4 @@ void loop() {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace mw::ulf::decup_ein
+} // namespace mw::zimo::ulf::decup_ein

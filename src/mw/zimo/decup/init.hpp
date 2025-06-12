@@ -13,18 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize ULF
-///
-/// \file   mw/ulf/init.hpp
-/// \author Vincent Hamp
-/// \date   04/05/2025
-
 #pragma once
 
 #include <esp_err.h>
 
-namespace mw::ulf {
+namespace mw::zimo::decup {
 
 esp_err_t init();
 
-} // namespace mw::ulf
+} // namespace mw::zimo::decup

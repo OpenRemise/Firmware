@@ -23,16 +23,16 @@
 
 namespace mw::dcc {
 
-/// \page page_dcc DCC
-/// \tableofcontents
+/// \page page_mw_dcc DCC
+/// \details \tableofcontents
 /// \todo document DCC page
 ///
 /// The DCC module runs a service that...
 ///
 /// <div class="section_buttons">
-/// | Previous     | Next            |
-/// | :----------- | --------------: |
-/// | \ref page_mw | \ref page_decup |
+/// | Previous     | Next             |
+/// | :----------- | ---------------: |
+/// | \ref page_mw | \ref page_mw_ota |
 /// </div>
 
 } // namespace mw::dcc

@@ -23,24 +23,18 @@
 
 namespace drv::out {
 
-/// \page page_out Out
-/// \tableofcontents
+/// \page page_drv_out Out
+/// \details \tableofcontents
 /// \todo document out page
 ///
-/// \section section_out_track Track
+/// \section section_drv_out_susi SUSI
 ///
-/// \subsection subsection_out_track_dcc DCC
-///
-/// \subsection subsection_out_track_decup DECUP
-///
-/// \subsection subsection_out_track_mdu MDU
-///
-/// \section section_out_zusi ZUSI
+/// \section section_drv_out_track Track
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next            |
-/// | :------------ | --------------: |
-/// | \ref page_led | \ref page_trace |
+/// | Previous          | Next                |
+/// | :---------------- | ------------------: |
+/// | \ref page_drv_led | \ref page_drv_trace |
 /// </div>
 
 } // namespace drv::out

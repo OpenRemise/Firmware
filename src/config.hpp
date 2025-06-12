@@ -526,30 +526,6 @@ inline TASK(task,
 
 } // namespace dcc
 
-namespace decup {
-
-///
-inline TASK(task,
-            "mw::decup",                                 // Name
-            4096uz,                                      // Stack size
-            2u,                                          // Priority
-            APP_CPU_NUM,                                 // Core
-            drv::out::track::zimo::decup::task.timeout); // Timeout
-
-} // namespace decup
-
-namespace mdu {
-
-///
-inline TASK(task,
-            "mw::mdu",   // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
-            0u);
-
-} // namespace mdu
-
 namespace ota {
 
 ///
@@ -568,50 +544,6 @@ inline TASK(task,
 
 } // namespace ota
 
-namespace ulf {
-
-inline std::array<StackType_t, 3072uz> stack{};
-
-namespace dcc_ein {
-
-///
-inline SHARED_TASK(task,
-                   "mw::ulf::dcc_ein",               // Name
-                   intf::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                      // Core
-                   100u);                            // Timeout
-
-} // namespace dcc_ein
-
-namespace decup_ein {
-
-///
-inline SHARED_TASK(task,
-                   "mw::ulf::decup_ein",                        // Name
-                   intf::usb::rx_task.priority - 1u,            // Priority
-                   APP_CPU_NUM,                                 // Core
-                   drv::out::track::zimo::decup::task.timeout); // Timeout
-
-} // namespace decup_ein
-
-namespace susiv2 {
-
-///
-inline SHARED_TASK(task,
-                   "mw::ulf::susiv2",                // Name
-                   intf::usb::rx_task.priority - 1u, // Priority
-                   APP_CPU_NUM,                      // Core
-                   0u);
-
-} // namespace susiv2
-
-// https://github.com/OpenRemise/Firmware/issues/36
-static_assert(dcc_ein::task.priority < intf::usb::rx_task.priority);
-static_assert(decup_ein::task.priority < intf::usb::rx_task.priority);
-static_assert(susiv2::task.priority < intf::usb::rx_task.priority);
-
-} // namespace ulf
-
 namespace z21 {
 
 ///
@@ -627,16 +559,88 @@ inline std::shared_ptr<Service> service;
 
 } // namespace z21
 
+namespace zimo {
+
+namespace decup {
+
+///
+inline TASK(task,
+            "mw::zimo::decup",                           // Name
+            4096uz,                                      // Stack size
+            2u,                                          // Priority
+            APP_CPU_NUM,                                 // Core
+            drv::out::track::zimo::decup::task.timeout); // Timeout
+
+} // namespace decup
+
+namespace mdu {
+
+///
+inline TASK(task,
+            "mw::zimo::mdu", // Name
+            4096uz,          // Stack size
+            2u,              // Priority
+            APP_CPU_NUM,     // Core
+            0u);
+
+} // namespace mdu
+
+namespace ulf {
+
+inline std::array<StackType_t, 3072uz> stack{};
+
+namespace dcc_ein {
+
+///
+inline SHARED_TASK(task,
+                   "mw::zimo::ulf::dcc_ein",         // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
+                   100u);                            // Timeout
+
+} // namespace dcc_ein
+
+namespace decup_ein {
+
+///
+inline SHARED_TASK(task,
+                   "mw::zimo::ulf::decup_ein",                  // Name
+                   intf::usb::rx_task.priority - 1u,            // Priority
+                   APP_CPU_NUM,                                 // Core
+                   drv::out::track::zimo::decup::task.timeout); // Timeout
+
+} // namespace decup_ein
+
+namespace susiv2 {
+
+///
+inline SHARED_TASK(task,
+                   "mw::zimo::ulf::susiv2",          // Name
+                   intf::usb::rx_task.priority - 1u, // Priority
+                   APP_CPU_NUM,                      // Core
+                   0u);
+
+} // namespace susiv2
+
+// https://github.com/OpenRemise/Firmware/issues/36
+static_assert(dcc_ein::task.priority < intf::usb::rx_task.priority);
+static_assert(decup_ein::task.priority < intf::usb::rx_task.priority);
+static_assert(susiv2::task.priority < intf::usb::rx_task.priority);
+
+} // namespace ulf
+
 namespace zusi {
 
 ///
 inline TASK(task,
-            "mw::zusi",  // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
+            "mw::zimo::zusi", // Name
+            4096uz,           // Stack size
+            2u,               // Priority
+            APP_CPU_NUM,      // Core
             0u);
 
 } // namespace zusi
+
+} // namespace zimo
 
 } // namespace mw

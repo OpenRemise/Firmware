@@ -12,7 +12,7 @@ set(COMMON_SRC
     mw/dcc/loco.cpp
     mw/dcc/service.cpp
     mw/dcc/turnout.cpp
-    mw/ulf/dcc_ein/task_function.cpp
+    mw/zimo/ulf/dcc_ein/task_function.cpp
     utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
@@ -71,19 +71,19 @@ else()
     intf/usb/rx_task_function.cpp
     intf/usb/tx_task_function.cpp
     mw/dcc/init.cpp
-    mw/decup/init.cpp
-    mw/decup/service.cpp
-    mw/mdu/init.cpp
-    mw/mdu/service.cpp
     mw/ota/init.cpp
     mw/ota/service.cpp
-    mw/ulf/decup_ein/task_function.cpp
-    mw/ulf/susiv2/task_function.cpp
-    mw/ulf/init.cpp
     mw/z21/init.cpp
     mw/z21/service.cpp
-    mw/zusi/init.cpp
-    mw/zusi/service.cpp
+    mw/zimo/decup/init.cpp
+    mw/zimo/decup/service.cpp
+    mw/zimo/mdu/init.cpp
+    mw/zimo/mdu/service.cpp
+    mw/zimo/ulf/decup_ein/task_function.cpp
+    mw/zimo/ulf/susiv2/task_function.cpp
+    mw/zimo/ulf/init.cpp
+    mw/zimo/zusi/init.cpp
+    mw/zimo/zusi/service.cpp
     app_main.cpp
     INCLUDE_DIRS
     .

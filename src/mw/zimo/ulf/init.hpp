@@ -13,29 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "init.hpp"
-#include <memory>
-#include "intf/http/sta/server.hpp"
-#include "service.hpp"
+/// Initialize ULF
+///
+/// \file   mw/zimo/ulf/init.hpp
+/// \author Vincent Hamp
+/// \date   04/05/2025
 
-namespace mw::mdu {
+#pragma once
 
-namespace {
+#include <esp_err.h>
 
-std::shared_ptr<Service> service;
+namespace mw::zimo::ulf {
 
-} // namespace
+esp_err_t init();
 
-/// \todo document
-esp_err_t init() {
-  if (intf::http::sta::server) {
-    service = std::make_shared<Service>();
-    intf::http::sta::server->subscribe(
-      {.uri = "/mdu/zpp/"}, service, &Service::zppSocket);
-    intf::http::sta::server->subscribe(
-      {.uri = "/mdu/zsu/"}, service, &Service::zsuSocket);
-  }
-  return ESP_OK;
-}
-
-} // namespace mw::mdu
+} // namespace mw::zimo::ulf

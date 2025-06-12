@@ -13,34 +13,44 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF documentation
+/// ZIMO documentation
 ///
-/// \file   mw/ulf/doxygen.hpp
+/// \file   mw/zimo/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   04/05/2025
+/// \date   12/06/2025
 
 #pragma once
 
-namespace mw::ulf {
+namespace mw::zimo {
 
-/// \page page_ulf ULF
-/// \tableofcontents
+/// \page page_mw_zimo ZIMO
+/// \details \tableofcontents
+///
+/// \section section_mw_zimo_decup DECUP
+/// [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and
+/// [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)
+///
+/// \section section_mw_zimo_mdu MDU
+/// [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and
+/// [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service)
+///
+/// \section section_mw_zimo_ulf ULF
 /// This module contains implementations of some of ZIMO's
 /// [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) protocols. These
 /// serial protocols are mainly used to update decoder firmware or sound.
 ///
-/// \section section_protocols Protocols
+/// \subsection subsection_mw_zimo_ulf_protocols Protocols
 /// Before we go deeper into the implementation, here is a graphical overview of
 /// the different operating modes and their transitions from the official
 /// documentation. The transitions themselves are handled by the \ref
 /// section_usb_receive "USB receive task".
 ///
 // clang-format off
-/// \page page_ulf ULF
+/// \page page_mw_zimo ZIMO
 /// \details \tableofcontents
 /// \image html https://raw.githubusercontent.com/ZIMO-Elektronik/ULF_COM/master/data/images/operating_modes.png "ULF_COM modes" width=480px
 // clang-format on
-/// \page page_ulf ULF
+/// \page page_mw_zimo ZIMO
 /// \details \tableofcontents
 ///
 /// Details on the individual protocols can be found in the corresponding GitHub
@@ -49,22 +59,25 @@ namespace mw::ulf {
 /// \note
 /// The tasks are **mutually exclusive** and share a \ref stack.
 ///
-/// \section section_ulf_init Initialization
-/// \copydetails init
+/// \subsection subsection_mw_ulf_init Initialization
+/// \copydetails ulf::init
 ///
-/// \subsection subsection_protocols_ulf_dcc_ein ULF_DCC_EIN
-/// \copydetails dcc_ein::task_function
+/// \subsection subsection_mw_ulf_dcc_ein DCC_EIN
+/// \copydetails ulf::dcc_ein::task_function
 ///
-/// \subsection subsection_protocols_ulf_decup_ein ULF_DECUP_EIN
-/// \copydetails decup_ein::task_function
+/// \subsection subsection_mw_ulf_decup_ein DECUP_EIN
+/// \copydetails ulf::decup_ein::task_function
 ///
-/// \subsection subsection_protocols_ulf_susiv2 ULF_SUSIV2
-/// \copydetails susiv2::task_function
+/// \subsection subsection_mw_ulf_susiv2 SUSIV2
+/// \copydetails ulf::susiv2::task_function
+///
+/// \section section_mw_zimo_zusi ZUSI
+/// [ZPP](https://github.com/ZIMO-Elektronik/ZPP) updates (WebSocket service)
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_ota | \ref page_z21 |
+/// | Previous         | Next          |
+/// | :--------------- | ------------: |
+/// | \ref page_mw_z21 | \ref page_drv |
 /// </div>
 
-} // namespace mw::ulf
+} // namespace mw::zimo

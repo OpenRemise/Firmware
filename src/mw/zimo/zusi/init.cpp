@@ -13,30 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ZUSI documentation
-///
-/// \file   mw/zusi/doxygen.hpp
-/// \author Vincent Hamp
-/// \date   14/04/2023
+#include "init.hpp"
+#include <memory>
+#include "intf/http/sta/server.hpp"
+#include "service.hpp"
 
-#pragma once
+namespace mw::zimo::zusi {
 
-namespace mw::zusi {
+namespace {
 
-/// \page page_zusi ZUSI
-/// \tableofcontents
-/// \todo document ZUSI page
-///
-/// \section section_zusi_init Initialization
-/// \copydetails init
-///
-/// \section section_zusi_service Service
-/// \copydetails Service
-///
-/// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_z21 | \ref page_drv |
-/// </div>
+std::shared_ptr<Service> service;
 
-} // namespace mw::zusi
+} // namespace
+
+/// Initialize ZUSI service
+///
+/// Those are the init details
+esp_err_t init() {
+  if (intf::http::sta::server) {
+    service = std::make_shared<Service>();
+    intf::http::sta::server->subscribe(
+      {.uri = "/zusi/"}, service, &Service::socket);
+  }
+  return ESP_OK;
+}
+
+} // namespace mw::zimo::zusi

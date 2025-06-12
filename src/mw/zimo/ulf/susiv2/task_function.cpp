@@ -15,7 +15,7 @@
 
 /// ULF_SUSIV2 task function
 ///
-/// \file   mw/ulf/susiv2/task_function.cpp
+/// \file   mw/zimo/ulf/susiv2/task_function.cpp
 /// \author Vincent Hamp
 /// \date   04/05/2025
 
@@ -25,7 +25,7 @@
 #include "log.h"
 #include "utility.hpp"
 
-namespace mw::ulf::susiv2 {
+namespace mw::zimo::ulf::susiv2 {
 
 using namespace ::ulf::susiv2;
 
@@ -94,7 +94,7 @@ void transmit_response(std::span<uint8_t> stack) {
                       portMAX_DELAY);
 }
 
-/// Actual ulf::susiv2::task loop
+/// task_function() loop
 void loop() {
   auto const timeout{http_receive_timeout2ms()};
   std::array<uint8_t, ULF_SUSIV2_MAX_FRAME_SIZE> stack;
@@ -132,4 +132,4 @@ void loop() {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace mw::ulf::susiv2
+} // namespace mw::zimo::ulf::susiv2

@@ -13,24 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// DECUP documentation
+/// ULF_DECUP_EIN task function
 ///
-/// \file   mw/decup/doxygen.hpp
+/// \file   mw/zimo/usb/decup_ein/task_function.hpp
 /// \author Vincent Hamp
-/// \date   02/11/2024
+/// \date   04/05/2025
 
 #pragma once
 
-namespace mw::decup {
+namespace mw::zimo::ulf::decup_ein {
 
-/// \page page_decup DECUP
-/// \tableofcontents
-/// \todo document DECUP page
-///
-/// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_dcc | \ref page_mdu |
-/// </div>
+[[noreturn]] void task_function(void*);
 
-} // namespace mw::decup
+} // namespace mw::zimo::ulf::decup_ein

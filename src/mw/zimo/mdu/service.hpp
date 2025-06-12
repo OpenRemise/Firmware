@@ -13,16 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ULF_DECUP_EIN task function
-///
-/// \file   mw/usb/decup_ein/task_function.hpp
-/// \author Vincent Hamp
-/// \date   04/05/2025
-
 #pragma once
 
-namespace mw::ulf::decup_ein {
+#include <esp_task.h>
+#include <queue>
+#include "intf/http/message.hpp"
 
-[[noreturn]] void task_function(void*);
+namespace mw::zimo::mdu {
 
-} // namespace mw::ulf::decup_ein
+class Service {
+public:
+  Service();
+
+  esp_err_t zppSocket(intf::http::Message& msg);
+  esp_err_t zsuSocket(intf::http::Message& msg);
+
+private:
+  esp_err_t socket(intf::http::Message& msg, State mdu_state);
+  [[noreturn]] void taskFunction(void*);
+  void loop();
+  std::array<uint8_t, 2uz> transmit(std::vector<uint8_t> const& payload) const;
+  void close();
+
+  std::queue<intf::http::Message> _queue{};
+  std::array<uint8_t, 2uz> _acks{};
+};
+
+} // namespace mw::zimo::mdu

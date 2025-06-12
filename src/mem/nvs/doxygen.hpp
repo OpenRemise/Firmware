@@ -23,13 +23,13 @@
 
 namespace mem::nvs {
 
-/// \page page_nvs NVS
+/// \page page_mem_nvs NVS
 /// \details \tableofcontents
 /// Non-volatile storage (NVS) is designed to store key-value pairs in flash.
 /// The firmware uses this memory type to store accessories, locomotives, and
 /// settings.
 ///
-/// \subsection subsection_nvs_init Initialization
+/// \subsection subsection_mem_nvs_init Initialization
 /// \copydetails nvs::init
 ///
 /// \subsection subsection_mem_nvs_base Base
@@ -51,7 +51,7 @@ namespace mem::nvs {
 /// settings, their NVS key, value range and default.
 ///
 // clang-format off
-/// \page page_nvs NVS
+/// \page page_mem_nvs NVS
 /// \details \tableofcontents
 /// | Setting                                                                                                                                          | NVS Key         | Type   | Min | Max | Default  |
 /// | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | ------ | --- | --- | -------- |
@@ -83,7 +83,7 @@ namespace mem::nvs {
 /// | DCC locos flags                                                                                                                                  | dcc_loco_flags  |        | -   | -   | 226      |
 /// | DCC accessory flags                                                                                                                              | dcc_accy_flags  |        | -   | -   | 4        |
 // clang-format on
-/// \page page_nvs NVS
+/// \page page_mem_nvs NVS
 /// \details \tableofcontents
 ///
 /// <div class="section_buttons">

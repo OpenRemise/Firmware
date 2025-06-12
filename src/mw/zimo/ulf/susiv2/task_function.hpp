@@ -13,30 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// ULF_SUSIV2 task function
+///
+/// \file   mw/zimo/ulf/susiv2/task_function.hpp
+/// \author Vincent Hamp
+/// \date   04/05/2025
+
 #pragma once
 
-#include <esp_task.h>
-#include <queue>
-#include "intf/http/message.hpp"
+namespace mw::zimo::ulf::susiv2 {
 
-namespace mw::mdu {
+[[noreturn]] void task_function(void*);
 
-class Service {
-public:
-  Service();
-
-  esp_err_t zppSocket(intf::http::Message& msg);
-  esp_err_t zsuSocket(intf::http::Message& msg);
-
-private:
-  esp_err_t socket(intf::http::Message& msg, State mdu_state);
-  [[noreturn]] void taskFunction(void*);
-  void loop();
-  std::array<uint8_t, 2uz> transmit(std::vector<uint8_t> const& payload) const;
-  void close();
-
-  std::queue<intf::http::Message> _queue{};
-  std::array<uint8_t, 2uz> _acks{};
-};
-
-} // namespace mw::mdu
+} // namespace mw::zimo::ulf::susiv2

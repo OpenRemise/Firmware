@@ -23,13 +23,13 @@
 
 namespace intf::mdns {
 
-/// \page page_mdns mDNS
-/// \tableofcontents
+/// \page page_intf_mdns mDNS
+/// \details \tableofcontents
 /// [mDNS](https://en.wikipedia.org/wiki/Multicast_DNS) is a multicast UDP
 /// service that is used to provide local network service and host discovery.
 /// This module registers those services.
 ///
-/// \section section_mdns_init Initialization
+/// \section section_intf_mdns_init Initialization
 /// \copydetails init
 ///
 /// \note
@@ -40,9 +40,9 @@ namespace intf::mdns {
 /// ```
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next          |
-/// | :------------- | ------------: |
-/// | \ref page_http | \ref page_udp |
+/// | Previous            | Next               |
+/// | :------------------ | -----------------: |
+/// | \ref page_intf_http | \ref page_intf_udp |
 /// </div>
 
 } // namespace intf::mdns

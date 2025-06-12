@@ -13,12 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "init.hpp"
+#include <memory>
+#include "intf/http/sta/server.hpp"
+#include "service.hpp"
 
-#include <esp_err.h>
+namespace mw::zimo::decup {
 
-namespace mw::zusi {
+namespace {
 
-esp_err_t init();
+std::shared_ptr<Service> service;
 
-} // namespace mw::zusi
+} // namespace
+
+/// \todo document
+esp_err_t init() {
+  if (intf::http::sta::server) {
+    service = std::make_shared<Service>();
+    intf::http::sta::server->subscribe(
+      {.uri = "/decup/zpp/"}, service, &Service::zppSocket);
+    intf::http::sta::server->subscribe(
+      {.uri = "/decup/zsu/"}, service, &Service::zsuSocket);
+  }
+  return ESP_OK;
+}
+
+} // namespace mw::zimo::decup

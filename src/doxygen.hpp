@@ -551,26 +551,27 @@
 /// The following table provides an overview of the distribution of tasks across
 /// cores.
 ///
-/// | Task                     | Core |
-/// | ------------------------ | ---- |
-/// | analog::adc_task         | 1    |
-/// | analog::temp_task        | 1    |
-/// | dcc::task                | 1    |
-/// | decup::task              | 1    |
-/// | mdu::task                | 1    |
-/// | ota::task                | 1    |
-/// | out::track::dcc::task    | 1    |
-/// | out::track::decup::task  | 1    |
-/// | out::track::mdu::task    | 1    |
-/// | out::zusi::task          | 1    |
-/// | usb::rx_task             | 1    |
-/// | usb::tx_task             | 1    |
-/// | usb::ulf_dcc_ein::task   | 1    |
-/// | usb::ulf_decup_ein::task | 1    |
-/// | usb::ulf_susiv2::task    | 1    |
-/// | wifi::task               | 0    |
-/// | z21::task                | 0    |
-/// | zusi::task               | 1    |
+/// | Task                               | Core |
+/// | ---------------------------------- | ---- |
+/// | lwIP                               | 0    |
+/// | intf::usb::rx_task                 | 1    |
+/// | intf::usb::tx_task                 | 1    |
+/// | mw::dcc::task                      | 1    |
+/// | mw::ota::task                      | 1    |
+/// | mw::z21::task                      | 0    |
+/// | mw::zimo::decup::task              | 1    |
+/// | mw::zimo::mdu::task                | 1    |
+/// | mw::zimo::ulf::dcc_ein::task       | 1    |
+/// | mw::zimo::ulf::decup_ein::task     | 1    |
+/// | mw::zimo::ulf::susiv2::task        | 1    |
+/// | mw::zimo::zusi::task               | 1    |
+/// | drv::analog::adc_task              | 1    |
+/// | drv::analog::temp_task             | 1    |
+/// | drv::out::susi::zimo::zusi::task   | 1    |
+/// | drv::out::track::dcc::task         | 1    |
+/// | drv::out::track::zimo::decup::task | 1    |
+/// | drv::out::track::zimo::mdu::task   | 1    |
+/// | drv::wifi::task                    | 0    |
 ///
 /// All other ESP-IDF internal tasks ([ESP
 /// Timer](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/esp_timer.html),
@@ -675,16 +676,16 @@
 /// \section section_architecture_middlewares Middlewares
 /// The modules in the middleware layer contain services that connect the
 /// interfaces with the outputs in the driver layer. An example of this is the
-/// mw::mdu::Service, which can accept a
+/// mw::zimo::mdu::Service, which can accept a
 /// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
 /// intf::http::sta::Server and then processes commands for an update of the
 /// decoder software. The service then starts the corresponding \ref
-/// drv::out::track::mdu::task_function "MDU task" in the driver layer, which
-/// then generates the necessary signals on the track. The communication is
-/// bidirectional, received feedback is sent back to the server via service. In
-/// more complex situations, middleware services may also communicate directly
-/// with each other. An example of this is the communication between the
-/// mw::dcc::Service and the mw::z21::Service.
+/// drv::out::track::zimo::mdu::task_function "MDU task" in the driver layer,
+/// which then generates the necessary signals on the track. The communication
+/// is bidirectional, received feedback is sent back to the server via service.
+/// In more complex situations, middleware services may also communicate
+/// directly with each other. An example of this is the communication between
+/// the mw::dcc::Service and the mw::z21::Service.
 ///
 /// \section section_architecture_drivers Drivers
 /// In the driver layer there are modules that contain some form of IO. For the
@@ -747,25 +748,27 @@
 ///   package "dcc" as mw_dcc {
 ///     [Service] as mw_dcc_service
 ///   }
-///   package "decup" as mw_decup {
-///     [Service] as mw_decup_service
-///   }
-///   package "mdu" as mw_mdu {
-///     [Service] as mw_mdu_service
-///   }
 ///   package "ota" as mw_ota {
 ///     [Service] as mw_ota_service
-///   }
-///   package "ulf" as mw_ulf {
-///     [ULF_DCC_EIN]
-///     [ULF_DECUP_EIN]
-///     [ULF_SUSIV2]
 ///   }
 ///   package "z21" as mw_z21 {
 ///     [Service] as mw_z21_service
 ///   }
-///   package "zusi" as mw_zusi {
-///     [Service] as mw_zusi_service
+///   frame "zimo" as mw_zimo {
+///     package "decup" as mw_zimo_decup {
+///       [Service] as mw_zimo_decup_service
+///     }
+///     package "mdu" as mw_zimo_mdu {
+///       [Service] as mw_zimo_mdu_service
+///     }
+///     package "ulf" as mw_zimo_ulf {
+///       [DCC_EIN]
+///       [DECUP_EIN]
+///       [SUSIV2]
+///     }
+///     package "zusi" as mw_zimo_zusi {
+///       [Service] as mw_zimo_zusi_service
+///     }
 ///   }
 /// }
 ///
@@ -777,19 +780,25 @@
 ///     [" "]
 ///   }
 ///   package "out" as drv_out {
+///     package "susi" as drv_out_susi {
+///       frame "zimo" as drv_out_susi_zimo {
+///         package "zusi" as drv_out_susi_zimo_zusi {
+///           [Task] as drv_out_susi_zimo_zusi_task
+///         }
+///       }
+///     }
 ///     package "track" as drv_out_track {
 ///       package "dcc" as drv_out_track_dcc {
 ///         [Task] as drv_out_track_dcc_task
 ///       }
-///       package "decup" as drv_out_track_decup {
-///         [Task] as drv_out_track_decup_task
+///       frame "zimo" as drv_out_track_zimo {
+///         package "decup" as drv_out_track_zimo_decup {
+///           [Task] as drv_out_track_zimo_decup_task
+///         }
+///         package "mdu" as drv_out_track_zimo_mdu {
+///           [Task] as drv_out_track_zimo_mdu_task
+///         }
 ///       }
-///       package "mdu" as drv_out_track_mdu {
-///         [Task] as drv_out_track_mdu_task
-///       }
-///     }
-///     package "zusi" as drv_out_zusi {
-///       [Task] as drv_out_zusi_task
 ///     }
 ///   }
 ///   package "trace" as drv_trace {
@@ -801,57 +810,51 @@
 /// }
 ///
 /// intf_http_sta_server <--> mw_dcc_service
-/// intf_http_sta_server <--> mw_decup_service
-/// intf_http_sta_server <--> mw_mdu_service
 /// intf_http_sta_server <--> mw_ota_service
 /// intf_http_sta_server <--> mw_z21_service
-/// intf_http_sta_server <--> mw_zusi_service
+/// intf_http_sta_server <--> mw_zimo_decup_service
+/// intf_http_sta_server <--> mw_zimo_mdu_service
+/// intf_http_sta_server <--> mw_zimo_zusi_service
 ///
-/// intf_usb_tasks <--> ULF_DCC_EIN
-/// intf_usb_tasks <--> ULF_DECUP_EIN
-/// intf_usb_tasks <--> ULF_SUSIV2
+/// intf_usb_tasks <--> DCC_EIN
+/// intf_usb_tasks <--> DECUP_EIN
+/// intf_usb_tasks <--> SUSIV2
 ///
 /// mw_z21_service <-l-> mw_dcc_service
 ///
+/// mw_zimo_zusi_service <--> drv_out_susi_zimo_zusi_task
 /// mw_dcc_service <--> drv_out_track_dcc_task
-/// mw_decup_service <--> drv_out_track_decup_task
-/// mw_mdu_service <--> drv_out_track_mdu_task
-/// mw_zusi_service <--> drv_out_zusi_task
+/// mw_zimo_decup_service <--> drv_out_track_zimo_decup_task
+/// mw_zimo_mdu_service <--> drv_out_track_zimo_mdu_task
 ///
-/// [ULF_DCC_EIN] <--> drv_out_track_dcc_task
-/// [ULF_DECUP_EIN] <--> drv_out_track_decup_task
-/// [ULF_SUSIV2] <--> drv_out_zusi_task
+/// [DCC_EIN] <--> drv_out_track_dcc_task
+/// [DECUP_EIN] <--> drv_out_track_zimo_decup_task
+/// [SUSIV2] <--> drv_out_susi_zimo_zusi_task
 ///
 /// UDP <--> mw_z21_service
 ///
 /// 'Links
 /// url of mem_nvs is [[page_mem.html#section_mem_nvs]]
 ///
-/// url of intf_http is [[page_http.html]]
-/// url of intf_http_ap is [[page_http.html#section_http_ap]]
-/// url of intf_http_sta is [[page_http.html#section_http_sta]]
-/// url of intf_mdns is [[page_mdns.html]]
-/// url of intf_udp is [[page_udp.html]]
-/// url of intf_usb is [[page_usb.html]]
+/// url of intf_http is [[page_intf_http.html]]
+/// url of intf_http_ap is [[page_intf_http.html#section_http_ap]]
+/// url of intf_http_sta is [[page_intf_http.html#section_http_sta]]
+/// url of intf_mdns is [[page_intf_mdns.html]]
+/// url of intf_udp is [[page_intf_udp.html]]
+/// url of intf_usb is [[page_intf_usb.html]]
 ///
-/// url of mw_dcc is [[page_dcc.html]]
-/// url of mw_decup is [[page_decup.html]]
-/// url of mw_mdu is [[page_mdu.html]]
-/// url of mw_ota is [[page_ota.html]]
-/// url of mw_ulf is [[page_usb.html]]
-/// url of mw_zusi is [[page_zusi.html]]
-/// url of mw_z21 is [[page_z21.html]]
+/// url of mw_dcc is [[page_mw_dcc.html]]
+/// url of mw_ota is [[page_mw_ota.html]]
+/// url of mw_z21 is [[page_mw_z21.html]]
+/// url of mw_zimo is [[page_mw_zimo.html]]
 ///
-/// url of drv_analog is [[page_analog.html]]
-/// url of drv_led is [[page_led.html]]
-/// url of drv_out is [[page_out.html]]
-/// url of drv_out_track is [[page_out.html#section_out_track]]
-/// url of drv_out_track_dcc is [[page_out.html#subsection_out_track_dcc]]
-/// url of drv_out_track_decup is [[page_out.html#subsection_out_track_decup]]
-/// url of drv_out_track_mdu is [[page_out.html#subsection_out_track_mdu]]
-/// url of drv_out_zusi is [[page_out.html#section_out_zusi]]
-/// url of drv_trace is [[page_trace.html]]
-/// url of drv_wifi is [[page_wifi.html]]
+/// url of drv_analog is [[page_drv_analog.html]]
+/// url of drv_led is [[page_drv_led.html]]
+/// url of drv_out is [[page_drv_out.html]]
+/// url of drv_out_susi is [[page_drv_out.html#section_out_susi]]
+/// url of drv_out_track is [[page_drv_out.html#section_out_track]]
+/// url of drv_trace is [[page_drv_trace.html]]
+/// url of drv_wifi is [[page_drv_wifi.html]]
 /// \enduml
 // clang-format on
 /// \page page_architecture Architecture
@@ -900,7 +903,7 @@
 /// | Chapter            | Namespace | Content                                   |
 /// | ------------------ | --------- | ----------------------------------------- |
 /// | \subpage page_intf | \ref intf | HTTP, mDNS, UDP, USB                      |
-/// | \subpage page_mw   | \ref mw   | DCC, DECUP, MDU, OTA, ULF, Z21, ZUSI      |
+/// | \subpage page_mw   | \ref mw   | DCC, OTA, Z21, ZIMO                       |
 /// | \subpage page_drv  | \ref drv  | Peripherals (Analog, RMT, SPI, WiFi, ...) |
 /// | \subpage page_mem  | \ref mem  | NVS                                       |
 // clang-format on

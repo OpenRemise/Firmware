@@ -58,7 +58,7 @@ void transmit_ping() {
 
 namespace {
 
-/// Actual \ref rx_task loop
+/// rx_task_function() loop
 void loop() {
   std::array<char, buffer_size> stack;
   size_t count{};
@@ -81,12 +81,12 @@ void loop() {
       else if (cmd == "PING\r"sv) transmit_ping();
       // Create ULF_DCC_EIN task
       else if (cmd == "DCC_EIN\r"sv) {
-        LOGI_TASK_CREATE(mw::ulf::dcc_ein::task);
+        LOGI_TASK_CREATE(mw::zimo::ulf::dcc_ein::task);
         break;
       }
       // Create ULF_DECUP_EIN task
       else if (cmd == "DECUP_EIN\r"sv) {
-        LOGI_TASK_CREATE(mw::ulf::decup_ein::task);
+        LOGI_TASK_CREATE(mw::zimo::ulf::decup_ein::task);
         break;
       }
       // Create ULF_MDU_EIN task
@@ -94,7 +94,7 @@ void loop() {
         LOGW("MDU_EIN not implemented");
       // Create ULF_SUSIV2 task
       else if (cmd == "SUSIV2\r"sv) {
-        LOGI_TASK_CREATE(mw::ulf::susiv2::task);
+        LOGI_TASK_CREATE(mw::zimo::ulf::susiv2::task);
         break;
       }
     }
