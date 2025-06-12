@@ -24,13 +24,11 @@
 namespace mw {
 
 /// \page page_mw Middlewares
-/// \details \tableofcontents
-/// \todo document
-///
+/// \details
 // clang-format off
 /// \page page_mw Middleware
 /// \details
-/// | Chapter                | Namespace              | Content                                                                                                                                                                                                                           |
+/// | Chapter                | Namespace              | Content                                                                                                                           |
 /// | ---------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 /// | \subpage page_dcc      | \ref mw::dcc "dcc"     | Operation and service mode, [DCC](https://github.com/ZIMO-Elektronik/DCC) command generation, BiDi decoding                       |
 /// | \subpage page_decup    | \ref mw::decup "decup" | DECUP [ZPP](https://github.com/ZIMO-Elektronik/ZPP) and [ZSU](https://github.com/ZIMO-Elektronik/ZSU) updates (WebSocket service) |
@@ -46,7 +44,7 @@ namespace mw {
 /// <div class="section_buttons">
 /// | Previous      | Next          |
 /// | :------------ | ------------: |
-/// | \ref page_mem | \ref page_dcc |
+/// | \ref page_usb | \ref page_dcc |
 /// </div>
 
 } // namespace mw

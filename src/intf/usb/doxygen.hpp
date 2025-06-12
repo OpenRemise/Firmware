@@ -39,9 +39,9 @@ namespace intf::usb {
 /// \copydetails tx_task_function
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_udp | \ref page_mem |
+/// | Previous      | Next         |
+/// | :------------ | -----------: |
+/// | \ref page_udp | \ref page_mw |
 /// </div>
 
 } // namespace intf::usb

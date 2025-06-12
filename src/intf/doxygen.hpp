@@ -24,9 +24,7 @@
 namespace intf {
 
 /// \page page_intf Interfaces
-/// \details \tableofcontents
-/// \todo document
-///
+/// \details
 // clang-format off
 /// \page page_intf Interface
 /// \details
@@ -41,9 +39,9 @@ namespace intf {
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next           |
-/// | :------------- | -------------: |
-/// | \ref page_wifi | \ref page_http |
+/// | Previous                | Next           |
+/// | :---------------------- | -------------: |
+/// | \ref page_api_reference | \ref page_http |
 /// </div>
 
 } // namespace intf

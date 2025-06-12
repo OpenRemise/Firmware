@@ -30,9 +30,6 @@ Service::Service() {
 }
 
 /// \todo document
-Service::~Service() { task.destroy(); }
-
-/// \todo document
 /// \bug should this broadcast Z21 programming mode?
 esp_err_t Service::socket(intf::http::Message& msg) {
   //

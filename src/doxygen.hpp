@@ -696,7 +696,7 @@
 /// Although these modules do not necessarily represent a layer, they are still
 /// a separate part of the architecture and manage the different flash memory
 /// partitions. Currently this only involves the
-/// [nvs](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/storage/nvs_flash.html)
+/// [NVS](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/storage/nvs_flash.html)
 /// module which stores settings or locomotives in a key-value pair system. All
 /// modules are considered global and can be accessed from all other layers.
 ///
@@ -899,18 +899,18 @@
 /// \details
 /// | Chapter            | Namespace | Content                                   |
 /// | ------------------ | --------- | ----------------------------------------- |
-/// | \subpage page_drv  | \ref drv  | Peripherals (Analog, RMT, SPI, WiFi, ...) |
 /// | \subpage page_intf | \ref intf | HTTP, mDNS, UDP, USB                      |
-/// | \subpage page_mem  | \ref mem  | NVS                                       |
 /// | \subpage page_mw   | \ref mw   | DCC, DECUP, MDU, OTA, ULF, Z21, ZUSI      |
+/// | \subpage page_drv  | \ref drv  | Peripherals (Analog, RMT, SPI, WiFi, ...) |
+/// | \subpage page_mem  | \ref mem  | NVS                                       |
 // clang-format on
 /// \page page_api_reference API Reference
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous               | Next          |
-/// | :--------------------- | ------------: |
-/// | \ref page_control_flow | \ref page_drv |
+/// | Previous               | Next           |
+/// | :--------------------- | -------------: |
+/// | \ref page_control_flow | \ref page_intf |
 /// </div>
 
 /// \page page_hw_reference HW Reference

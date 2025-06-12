@@ -29,7 +29,7 @@
 #include "intf/mdns/init.hpp"
 #include "intf/udp/init.hpp"
 #include "intf/usb/init.hpp"
-#include "mem/init.hpp"
+#include "mem/nvs/init.hpp"
 #include "mw/dcc/init.hpp"
 #include "mw/decup/init.hpp"
 #include "mw/mdu/init.hpp"
@@ -46,7 +46,7 @@ extern "C" void app_main() {
 
   // Most important ones
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::init));
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::analog::init));
   static_assert(APP_CPU_NUM == drv::analog::adc_task.core_id &&
                 APP_CPU_NUM == drv::analog::temp_task.core_id);

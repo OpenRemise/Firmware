@@ -26,7 +26,18 @@
 
 namespace intf::mdns {
 
-/// \todo document
+/// Initialize mDNS
+///
+/// Initialization takes place in init(). This function sets the hostname based
+/// on the currently active WiFi mode. In station mode, the hostname is set to
+/// the \ref mem::nvs::Settings::getStationmDNS "user's preference"; in access
+/// point mode, it is set to "remise."
+///
+/// The following services are registered.
+/// | Type  | Protocol | Port  |
+/// | ----- | -------- | ----- |
+/// | _http | _tcp     | 80    |
+/// | _z21  | _udp     | 21105 |
 esp_err_t init() {
   ESP_ERROR_CHECK(mdns_init());
 

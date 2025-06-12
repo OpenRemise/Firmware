@@ -6,7 +6,6 @@ set(COMMON_SRC
     mem/nvs/init.cpp
     mem/nvs/locos.cpp
     mem/nvs/settings.cpp
-    mem/init.cpp
     mw/dcc/loco.cpp
     mw/dcc/service.cpp
     mw/ulf/dcc_ein/task_function.cpp

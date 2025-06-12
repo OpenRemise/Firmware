@@ -29,9 +29,6 @@ Service::Service() {
   task.function = ztl::make_trampoline(this, &Service::taskFunction);
 }
 
-/// \todo document
-Service::~Service() { task.destroy(); }
-
 /// \bug should this broadcast Z21 programming mode?
 esp_err_t Service::zppSocket(intf::http::Message& msg) {
   return socket(msg, State::MDUZpp);
