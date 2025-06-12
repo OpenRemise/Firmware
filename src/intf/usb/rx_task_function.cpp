@@ -115,18 +115,16 @@ void wait_for_all_service_tasks_to_suspend() {
 /// The receive task scans the CDC character stream for commands. Those commands
 /// could either be general ones (e.g. `PING\r`) or protocol entry strings. When
 /// a protocol entry string is detected the corrsponding task is created and the
-/// receive task suspends itself.
+/// receive task destroys itself.
 ///
 /// Currently supported protocols are:
 /// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
 /// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
 /// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
 void rx_task_function(void*) {
-  for (;;) {
-    loop();
-    LOGI_TASK_SUSPEND();
-    wait_for_all_service_tasks_to_suspend();
-  }
+  wait_for_all_service_tasks_to_suspend();
+  loop();
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace intf::usb

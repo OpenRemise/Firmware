@@ -34,7 +34,7 @@ namespace mw::ota {
 /// \todo document
 /// \bug should this broadcast Z21 programming mode?
 Service::Service() {
-  task.create(ztl::make_trampoline(this, &Service::taskFunction));
+  task.function = ztl::make_trampoline(this, &Service::taskFunction);
 }
 
 /// \todo document
@@ -47,7 +47,7 @@ esp_err_t Service::socket(intf::http::Message& msg) {
       msg.type != HTTPD_WS_TYPE_CLOSE &&
       state.compare_exchange_strong(expected, State::OTA)) {
     _queue.push(std::move(msg));
-    LOGI_TASK_RESUME(task);
+    LOGI_TASK_CREATE(task);
     return ESP_OK;
   }
   //
@@ -62,13 +62,11 @@ esp_err_t Service::socket(intf::http::Message& msg) {
 
 /// \todo document
 void Service::taskFunction(void*) {
-  for (;;) {
-    LOGI_TASK_SUSPEND();
-    switch (state.load()) {
-      case State::OTA: loop(); break;
-      default: assert(false); break;
-    }
+  switch (state.load()) {
+    case State::OTA: loop(); break;
+    default: assert(false); break;
   }
+  LOGI_TASK_DESTROY();
 }
 
 /// \todo document

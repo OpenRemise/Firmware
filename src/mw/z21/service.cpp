@@ -288,7 +288,7 @@ bool Service::trackPower(bool on, State dcc_state) {
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
         if (auto expected{State::Suspended};
             state.compare_exchange_strong(expected, dcc_state))
-          LOGI_TASK_RESUME(dcc::task);
+          LOGI_TASK_CREATE(dcc::task);
         else assert(false);
         [[fallthrough]];
 

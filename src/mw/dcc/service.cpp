@@ -35,7 +35,8 @@ Service::Service() {
     auto const addr{nvs.key2address(entry_info.key)};
     dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
   }
-  task.create(ztl::make_trampoline(this, &Service::taskFunction));
+
+  task.function = ztl::make_trampoline(this, &Service::taskFunction);
 }
 
 /// \todo document
@@ -161,19 +162,20 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
 
 /// \todo document
 void Service::taskFunction(void*) {
-  for (;;) switch (state.load()) {
-      case State::DCCOperations:
-        resume();
-        operationsLoop();
-        suspend();
-        break;
-      case State::DCCService:
-        resume();
-        serviceLoop();
-        suspend();
-        break;
-      default: LOGI_TASK_SUSPEND(); break;
-    }
+  switch (state.load()) {
+    case State::DCCOperations:
+      resume();
+      operationsLoop();
+      suspend();
+      break;
+    case State::DCCService:
+      resume();
+      serviceLoop();
+      suspend();
+      break;
+    default: assert(false); break;
+  }
+  LOGI_TASK_DESTROY();
 }
 
 /// \todo document

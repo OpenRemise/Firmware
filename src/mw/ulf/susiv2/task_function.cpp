@@ -115,7 +115,7 @@ void loop() {
 /// and transmits them to drv::out::tx_message_buffer.
 ///
 /// Upon receiving an exit command the \ref usb::rx_task_function
-/// "USB receive task" is resumed and this task destroys itself.
+/// "USB receive task" is created and this task destroys itself.
 void task_function(void*) {
   // Switch to ULF_SUSIV2 mode
   if (auto expected{State::Suspended};
@@ -128,7 +128,7 @@ void task_function(void*) {
   else
     intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(intf::usb::rx_task);
+  LOGI_TASK_CREATE(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 
