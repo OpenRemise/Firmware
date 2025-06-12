@@ -33,7 +33,7 @@ namespace mem::nvs {
 /// \param  open_mode       Mode of opening the non-volatile storage
 Base::Base(char const* namespace_name, nvs_open_mode_t open_mode)
   : _namespace_name{namespace_name} {
-  assert(namespace_name);
+  assert(namespace_name && strlen(namespace_name) < NVS_KEY_NAME_MAX_SIZE);
   ESP_ERROR_CHECK(nvs_open(namespace_name, open_mode, &_handle));
 }
 

@@ -18,8 +18,10 @@
 #include <mutex>
 #include <optional>
 #include <z21/z21.hpp>
+#include "accessories.hpp"
 #include "intf/http/endpoints.hpp"
 #include "locos.hpp"
+#include "turnouts.hpp"
 
 namespace mw::dcc {
 
@@ -96,6 +98,8 @@ private:
   Address basicOrExtendedLocoAddress(Address::value_type addr) const;
 
   Locos _locos;
+  Turnouts _turnouts;
+
   std::mutex _internal_mutex;
   std::shared_ptr<z21::server::intf::System> _z21_system_service;
   std::shared_ptr<z21::server::intf::Dcc> _z21_dcc_service;

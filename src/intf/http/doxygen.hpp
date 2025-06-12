@@ -23,21 +23,21 @@
 
 namespace intf::http {
 
-/// \page page_http HTTP
-/// \tableofcontents
+/// \page page_intf_http HTTP
+/// \details \tableofcontents
 ///
 /// https://jsonviewer.stack.hu
 ///
 /// \todo document HTTP page
 ///
-/// \section section_http_ap Access Point
+/// \section section_intf_http_ap Access Point
 ///
-/// \section section_http_sta Station
+/// \section section_intf_http_sta Station
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next           |
-/// | :------------- | -------------: |
-/// | \ref page_intf | \ref page_mdns |
+/// | Previous       | Next                |
+/// | :------------- | ------------------: |
+/// | \ref page_intf | \ref page_intf_mdns |
 /// </div>
 
 } // namespace intf::http

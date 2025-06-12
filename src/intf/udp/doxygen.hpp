@@ -23,17 +23,17 @@
 
 namespace intf::udp {
 
-/// \page page_udp UDP
-/// \tableofcontents
+/// \page page_intf_udp UDP
+/// \details \tableofcontents
 /// \todo document UDP page
 ///
 /// The sole responsibility of this module is to initialize UDP and open
 /// endpoints for communications.
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next          |
-/// | :------------- | ------------: |
-/// | \ref page_mdns | \ref page_usb |
+/// | Previous            | Next               |
+/// | :------------------ | -----------------: |
+/// | \ref page_intf_mdns | \ref page_intf_usb |
 /// </div>
 
 } // namespace intf::udp

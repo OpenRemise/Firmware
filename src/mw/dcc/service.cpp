@@ -21,8 +21,10 @@
 #include <ranges>
 #include "drv/led/bug.hpp"
 #include "log.h"
+#include "mem/nvs/accessories.hpp"
 #include "mem/nvs/locos.hpp"
 #include "mem/nvs/settings.hpp"
+#include "mem/nvs/turnouts.hpp"
 #include "utility.hpp"
 
 namespace mw::dcc {
@@ -32,8 +34,13 @@ using namespace std::literals;
 /// \todo document
 Service::Service() {
   for (mem::nvs::Locos nvs; auto const& entry_info : nvs) {
-    auto const addr{nvs.key2address(entry_info.key)};
+    auto const addr{mem::nvs::key2address(entry_info.key)};
     dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
+  }
+
+  for (mem::nvs::Turnouts nvs; auto const& entry_info : nvs) {
+    auto const addr{mem::nvs::key2address(entry_info.key)};
+    dynamic_cast<NvTurnoutBase&>(_turnouts[addr]) = nvs.get(entry_info.key);
   }
 
   task.function = ztl::make_trampoline(this, &Service::taskFunction);

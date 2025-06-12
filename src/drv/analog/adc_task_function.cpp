@@ -24,7 +24,7 @@
 #include "init.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
-#include "mw/z21/service.hpp"
+#include "mw/roco/z21/service.hpp"
 #include "utility.hpp"
 
 namespace drv::analog {
@@ -56,7 +56,7 @@ auto get_short_circuit_count() {
 ///
 /// If the measured currents indicate a short circuit, the \ref led::bug
 /// "bug LED" is switched on, \ref state is set to \ref State::ShortCircuit
-/// "short circuit" and a \ref page_z21 track short circuit message is
+/// "short circuit" and a \ref page_mw_roco track short circuit message is
 /// broadcast.
 [[noreturn]] void adc_task_function(void*) {
   std::array<uint8_t, conversion_frame_size> conversion_frame{};
@@ -107,7 +107,7 @@ auto get_short_circuit_count() {
         gpio_get_level(out::track::enable_gpio_num)) {               //
       state.store(State::ShortCircuit);
       led::bug(true);
-      mw::z21::service->broadcastTrackShortCircuit();
+      mw::roco::z21::service->broadcastTrackShortCircuit();
     }
     // Clear count if no short circuit
     else

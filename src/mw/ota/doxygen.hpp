@@ -23,14 +23,14 @@
 
 namespace mw::ota {
 
-/// \page page_ota OTA
-/// \tableofcontents
+/// \page page_mw_ota OTA
+/// \details \tableofcontents
 /// \todo document OTA page
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_mdu | \ref page_ulf |
+/// | Previous         | Next              |
+/// | :--------------- | ----------------: |
+/// | \ref page_mw_dcc | \ref page_mw_roco |
 /// </div>
 
 } // namespace mw::ota

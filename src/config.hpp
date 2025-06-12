@@ -22,6 +22,7 @@
 #pragma once
 
 #include <driver/rmt_tx.h>
+#include <driver/spi_master.h>
 #include <esp_http_server.h>
 #include <freertos/message_buffer.h>
 #include <freertos/queue.h>
@@ -315,6 +316,27 @@ inline struct TxMessageBuffer {
   static inline MessageBufferHandle_t back_handle{};
 } tx_message_buffer;
 
+namespace susi {
+
+inline std::array<spi_device_handle_t, 4uz> spis{};
+
+inline constexpr auto enable_gpio_num{GPIO_NUM_4};
+inline constexpr auto clock_gpio_num{GPIO_NUM_6};
+inline constexpr auto data_gpio_num{GPIO_NUM_5};
+
+namespace zimo::zusi {
+
+///
+inline SHARED_TASK(task,
+                   "drv::out::susi::zimo::zusi", // Name
+                   ESP_TASK_PRIO_MAX - 1u,       // Priority
+                   APP_CPU_NUM,                  // Core
+                   0u);
+
+} // namespace zimo::zusi
+
+} // namespace susi
+
 namespace track {
 
 enum class CurrentLimit : uint8_t {
@@ -364,14 +386,16 @@ inline SHARED_TASK(task,
 
 } // namespace dcc
 
+namespace zimo {
+
 namespace decup {
 
 ///
 inline SHARED_TASK(task,
-                   "drv::out::track::decup", // Name
-                   ESP_TASK_PRIO_MAX - 1u,   // Priority
-                   APP_CPU_NUM,              // Core
-                   60'000u);                 // Timeout
+                   "drv::out::track::zimo::decup", // Name
+                   ESP_TASK_PRIO_MAX - 1u,         // Priority
+                   APP_CPU_NUM,                    // Core
+                   60'000u);                       // Timeout
 
 } // namespace decup
 
@@ -379,29 +403,16 @@ namespace mdu {
 
 ///
 inline SHARED_TASK(task,
-                   "drv::out::track::mdu", // Name
-                   ESP_TASK_PRIO_MAX - 1u, // Priority
-                   APP_CPU_NUM,            // Core
+                   "drv::out::track::zimo::mdu", // Name
+                   ESP_TASK_PRIO_MAX - 1u,       // Priority
+                   APP_CPU_NUM,                  // Core
                    0u);
 
 } // namespace mdu
 
+} // namespace zimo
+
 } // namespace track
-
-namespace zusi {
-
-inline constexpr auto enable_gpio_num{GPIO_NUM_4};
-inline constexpr auto clock_gpio_num{GPIO_NUM_6};
-inline constexpr auto data_gpio_num{GPIO_NUM_5};
-
-///
-inline SHARED_TASK(task,
-                   "drv::out::zusi",       // Name
-                   ESP_TASK_PRIO_MAX - 1u, // Priority
-                   APP_CPU_NUM,            // Core
-                   0u);
-
-} // namespace zusi
 
 } // namespace out
 
@@ -515,30 +526,6 @@ inline TASK(task,
 
 } // namespace dcc
 
-namespace decup {
-
-///
-inline TASK(task,
-            "mw::decup",                           // Name
-            4096uz,                                // Stack size
-            2u,                                    // Priority
-            APP_CPU_NUM,                           // Core
-            drv::out::track::decup::task.timeout); // Timeout
-
-} // namespace decup
-
-namespace mdu {
-
-///
-inline TASK(task,
-            "mw::mdu",   // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
-            0u);
-
-} // namespace mdu
-
 namespace ota {
 
 ///
@@ -557,6 +544,47 @@ inline TASK(task,
 
 } // namespace ota
 
+namespace roco::z21 {
+
+///
+inline TASK(task,
+            "mw::roco::z21", // Name
+            6144uz,          // Stack size
+            5u,              // Priority
+            APP_CPU_NUM,     // Core
+            500u);           // Timeout
+
+class Service;
+inline std::shared_ptr<Service> service;
+
+} // namespace roco::z21
+
+namespace zimo {
+
+namespace decup {
+
+///
+inline TASK(task,
+            "mw::zimo::decup",                           // Name
+            4096uz,                                      // Stack size
+            2u,                                          // Priority
+            APP_CPU_NUM,                                 // Core
+            drv::out::track::zimo::decup::task.timeout); // Timeout
+
+} // namespace decup
+
+namespace mdu {
+
+///
+inline TASK(task,
+            "mw::zimo::mdu", // Name
+            4096uz,          // Stack size
+            2u,              // Priority
+            APP_CPU_NUM,     // Core
+            0u);
+
+} // namespace mdu
+
 namespace ulf {
 
 inline std::array<StackType_t, 3072uz> stack{};
@@ -565,7 +593,7 @@ namespace dcc_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "mw::ulf::dcc_ein",               // Name
+                   "mw::zimo::ulf::dcc_ein",         // Name
                    intf::usb::rx_task.priority - 1u, // Priority
                    APP_CPU_NUM,                      // Core
                    100u);                            // Timeout
@@ -576,10 +604,10 @@ namespace decup_ein {
 
 ///
 inline SHARED_TASK(task,
-                   "mw::ulf::decup_ein",                  // Name
-                   intf::usb::rx_task.priority - 1u,      // Priority
-                   APP_CPU_NUM,                           // Core
-                   drv::out::track::decup::task.timeout); // Timeout
+                   "mw::zimo::ulf::decup_ein",                  // Name
+                   intf::usb::rx_task.priority - 1u,            // Priority
+                   APP_CPU_NUM,                                 // Core
+                   drv::out::track::zimo::decup::task.timeout); // Timeout
 
 } // namespace decup_ein
 
@@ -587,7 +615,7 @@ namespace susiv2 {
 
 ///
 inline SHARED_TASK(task,
-                   "mw::ulf::susiv2",                // Name
+                   "mw::zimo::ulf::susiv2",          // Name
                    intf::usb::rx_task.priority - 1u, // Priority
                    APP_CPU_NUM,                      // Core
                    0u);
@@ -601,31 +629,18 @@ static_assert(susiv2::task.priority < intf::usb::rx_task.priority);
 
 } // namespace ulf
 
-namespace z21 {
-
-///
-inline TASK(task,
-            "mw::z21",   // Name
-            6144uz,      // Stack size
-            5u,          // Priority
-            APP_CPU_NUM, // Core
-            500u);       // Timeout
-
-class Service;
-inline std::shared_ptr<Service> service;
-
-} // namespace z21
-
 namespace zusi {
 
 ///
 inline TASK(task,
-            "mw::zusi",  // Name
-            4096uz,      // Stack size
-            2u,          // Priority
-            APP_CPU_NUM, // Core
+            "mw::zimo::zusi", // Name
+            4096uz,           // Stack size
+            2u,               // Priority
+            APP_CPU_NUM,      // Core
             0u);
 
 } // namespace zusi
+
+} // namespace zimo
 
 } // namespace mw

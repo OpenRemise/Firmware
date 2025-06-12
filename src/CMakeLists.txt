@@ -6,9 +6,13 @@ set(COMMON_SRC
     mem/nvs/init.cpp
     mem/nvs/locos.cpp
     mem/nvs/settings.cpp
+    mem/nvs/turnouts.cpp
+    mem/nvs/utility.cpp
+    mw/dcc/accessory.cpp
     mw/dcc/loco.cpp
     mw/dcc/service.cpp
-    mw/ulf/dcc_ein/task_function.cpp
+    mw/dcc/turnout.cpp
+    mw/zimo/ulf/dcc_ein/task_function.cpp
     utility.cpp)
 
 if(IDF_TARGET STREQUAL linux)
@@ -37,20 +41,20 @@ else()
     drv/led/bug.cpp
     drv/led/init.cpp
     drv/led/wifi.cpp
+    drv/out/susi/init.cpp
+    drv/out/susi/zimo/zusi/resume.cpp
+    drv/out/susi/zimo/zusi/suspend.cpp
+    drv/out/susi/zimo/zusi/task_function.cpp
     drv/out/track/dcc/resume.cpp
     drv/out/track/dcc/suspend.cpp
     drv/out/track/dcc/task_function.cpp
-    drv/out/track/decup/resume.cpp
-    drv/out/track/decup/suspend.cpp
-    drv/out/track/decup/task_function.cpp
-    drv/out/track/mdu/resume.cpp
-    drv/out/track/mdu/suspend.cpp
-    drv/out/track/mdu/task_function.cpp
+    drv/out/track/zimo/decup/resume.cpp
+    drv/out/track/zimo/decup/suspend.cpp
+    drv/out/track/zimo/decup/task_function.cpp
+    drv/out/track/zimo/mdu/resume.cpp
+    drv/out/track/zimo/mdu/suspend.cpp
+    drv/out/track/zimo/mdu/task_function.cpp
     drv/out/track/init.cpp
-    drv/out/zusi/init.cpp
-    drv/out/zusi/resume.cpp
-    drv/out/zusi/suspend.cpp
-    drv/out/zusi/task_function.cpp
     drv/out/init.cpp
     drv/out/suspend.cpp
     drv/trace/init.cpp
@@ -67,19 +71,19 @@ else()
     intf/usb/rx_task_function.cpp
     intf/usb/tx_task_function.cpp
     mw/dcc/init.cpp
-    mw/decup/init.cpp
-    mw/decup/service.cpp
-    mw/mdu/init.cpp
-    mw/mdu/service.cpp
     mw/ota/init.cpp
     mw/ota/service.cpp
-    mw/ulf/decup_ein/task_function.cpp
-    mw/ulf/susiv2/task_function.cpp
-    mw/ulf/init.cpp
-    mw/z21/init.cpp
-    mw/z21/service.cpp
-    mw/zusi/init.cpp
-    mw/zusi/service.cpp
+    mw/roco/z21/init.cpp
+    mw/roco/z21/service.cpp
+    mw/zimo/decup/init.cpp
+    mw/zimo/decup/service.cpp
+    mw/zimo/mdu/init.cpp
+    mw/zimo/mdu/service.cpp
+    mw/zimo/ulf/decup_ein/task_function.cpp
+    mw/zimo/ulf/susiv2/task_function.cpp
+    mw/zimo/ulf/init.cpp
+    mw/zimo/zusi/init.cpp
+    mw/zimo/zusi/service.cpp
     app_main.cpp
     INCLUDE_DIRS
     .

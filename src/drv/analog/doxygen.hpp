@@ -23,22 +23,22 @@
 
 namespace drv::analog {
 
-/// \page page_analog Analog
+/// \page page_drv_analog Analog
 /// \details \tableofcontents
 /// This module takes over all analog functions of the firmware. This includes
 /// measuring track voltage and current, measuring temperature, and monitoring
 /// all of those measurements.
 ///
-/// \section section_analog_init Initialization
+/// \section section_drv_analog_init Initialization
 /// \copydetails init
 ///
-/// \section section_analog_adc_task ADC task
+/// \section section_drv_analog_adc_task ADC task
 /// \copydetails adc_task_function
 ///
-/// \section section_analog_temp_task Temperature task
+/// \section section_drv_analog_temp_task Temperature task
 /// \copydetails temp_task_function
 ///
-/// \section section_analog_conversions Conversions
+/// \section section_drv_analog_conversions Conversions
 /// The convert.hpp header provides some conversion functions to convert between
 /// raw ADC values ​​and Si units. The following functions are defined:
 /// - measurement2mV(VoltageMeasurement)
@@ -47,9 +47,9 @@ namespace drv::analog {
 /// - mA2measurement(Current)
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next          |
-/// | :------------ | ------------: |
-/// | \ref page_drv | \ref page_led |
+/// | Previous      | Next              |
+/// | :------------ | ----------------: |
+/// | \ref page_drv | \ref page_drv_led |
 /// </div>
 
 } // namespace drv::analog

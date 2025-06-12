@@ -26,25 +26,6 @@
 
 namespace mem::nvs {
 
-/// Convert address to key
-///
-/// \param  addr  Address
-/// \return Key
-std::string Locos::address2key(dcc::Address::value_type addr) {
-  return std::to_string(addr);
-}
-
-/// Convert key to address
-///
-/// \param  key Key
-/// \return Address
-dcc::Address::value_type Locos::key2address(std::string_view key) {
-  dcc::Address::value_type addr;
-  auto const [ptr, ec]{std::from_chars(std::cbegin(key), std::cend(key), addr)};
-  if (ec != std::errc{}) return {};
-  return addr;
-}
-
 /// Get loco by address
 ///
 /// \param  addr  Address

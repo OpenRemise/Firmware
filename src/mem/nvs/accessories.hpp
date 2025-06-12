@@ -23,6 +23,8 @@
 
 #include <dcc/dcc.hpp>
 #include "base.hpp"
+#include "mw/dcc/accessory.hpp"
+#include "utility.hpp"
 
 namespace mem::nvs {
 
@@ -31,7 +33,7 @@ namespace mem::nvs {
 /// \todo not yet implemented
 class Accessories : public Base {
 public:
-  explicit Accessories() : Base{"accessories", NVS_READWRITE} {}
+  Accessories() : Base{"accessories", NVS_READWRITE} {}
 };
 
 } // namespace mem::nvs

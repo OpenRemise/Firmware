@@ -25,14 +25,23 @@ namespace mem {
 
 /// \page page_mem Memory
 /// \details
-/// | Chapter           | Namespace | Content |
-/// | ----------------- | --------- | ------- |
-/// | \subpage page_nvs | \ref nvs  | NVS     |
+/// The memory modules store non-volatile data in different formats for
+/// different purposes.
+///
+// clang-format off
+/// \page page_mem Memory
+/// \details
+/// | Chapter               | Namespace | Content                                   |
+/// | --------------------- | --------- | ----------------------------------------- |
+/// | \subpage page_mem_nvs | \ref nvs  | Settings, locos, turnouts and accessories |
+// clang-format on
+/// \page page_mem Memory
+/// \details
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next          |
-/// | :------------- | ------------: |
-/// | \ref page_wifi | \ref page_nvs |
+/// | Previous           | Next              |
+/// | :----------------- | ----------------: |
+/// | \ref page_drv_wifi | \ref page_mem_nvs |
 /// </div>
 
 } // namespace mem
