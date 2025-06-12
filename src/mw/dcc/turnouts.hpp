@@ -13,27 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// NVS "accessories" namespace
-///
-/// \file   mem/nvs/accessories.hpp
-/// \author Vincent Hamp
-/// \date   17/02/2023
-
 #pragma once
 
-#include <dcc/dcc.hpp>
-#include "base.hpp"
-#include "mw/dcc/accessory.hpp"
-#include "utility.hpp"
+#include <map>
+#include "turnout.hpp"
 
-namespace mem::nvs {
+namespace mw::dcc {
 
-/// Accessories stored in NVS
-///
-/// \todo not yet implemented
-class Accessories : public Base {
-public:
-  Accessories() : Base{"accessories", NVS_READWRITE} {}
-};
+using Turnouts = std::map<Address::value_type, Turnout>;
 
-} // namespace mem::nvs
+} // namespace mw::dcc

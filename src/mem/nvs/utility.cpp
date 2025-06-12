@@ -13,27 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// NVS "accessories" namespace
+/// NVS utilities
 ///
-/// \file   mem/nvs/accessories.hpp
+/// \file   mem/nvs/utility.cpp
 /// \author Vincent Hamp
-/// \date   17/02/2023
+/// \date   12/06/2025
 
 #pragma once
 
-#include <dcc/dcc.hpp>
-#include "base.hpp"
-#include "mw/dcc/accessory.hpp"
-#include "utility.hpp"
-
 namespace mem::nvs {
 
-/// Accessories stored in NVS
+/// Convert address to key
 ///
-/// \todo not yet implemented
-class Accessories : public Base {
-public:
-  Accessories() : Base{"accessories", NVS_READWRITE} {}
-};
+/// \param  addr  Address
+/// \return Key
+std::string address2key(dcc::Address::value_type addr) {
+  return std::to_string(addr);
+}
+
+/// Convert key to address
+///
+/// \param  key Key
+/// \return Address
+dcc::Address::value_type key2address(std::string_view key) {
+  dcc::Address::value_type addr;
+  auto const [ptr, ec]{std::from_chars(std::cbegin(key), std::cend(key), addr)};
+  if (ec != std::errc{}) return {};
+  return addr;
+}
 
 } // namespace mem::nvs

@@ -30,13 +30,13 @@ namespace mem::nvs {
 
 /// NVS base
 ///
-/// nvs::Base is a convenience wrapper over the NVS C-API and forms the basis of
-/// all NVS classes. The [RAII](https://en.cppreference.com/w/cpp/language/raii)
+/// Base is a convenience wrapper over the NVS C-API and forms the basis of all
+/// NVS classes. The [RAII](https://en.cppreference.com/w/cpp/language/raii)
 /// idiom ensures that the desired namespace is opened in the constructor and
 /// that any write operations are committed in the destructor and the namespace
 /// is closed again.
 ///
-/// A nested iterator type (nvs::Base::Iterator) ensures that the keys of the
+/// A nested iterator type (Base::Iterator) ensures that the keys of the
 /// namespace can be iterated over.
 class Base {
 public:

@@ -28,10 +28,10 @@ namespace mem::nvs {
 
 /// Initialize NVS
 ///
-/// nvs::init() is responsible for initializing the NVS memory during the boot
-/// phase. If the NVS partition is truncated for any reason, the entire memory
-/// is erased and then reinitialized. The default settings will be restored in
-/// this case.
+/// init() is responsible for initializing the NVS memory during the boot phase.
+/// If the NVS partition is truncated for any reason, the entire memory is
+/// erased and then reinitialized. The default settings will be restored in this
+/// case.
 esp_err_t init() {
   auto err{nvs_flash_init()};
 

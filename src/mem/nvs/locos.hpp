@@ -24,27 +24,24 @@
 #include <dcc/dcc.hpp>
 #include "base.hpp"
 #include "mw/dcc/loco.hpp"
+#include "utility.hpp"
 
 namespace mem::nvs {
 
 /// Locos stored in NVS
 ///
-/// nvs::Locos allows to store locomotives (i.e. mobile decoders) in a JSON
-/// format in the NVS namespace "locos". The decoder address is used as key, the
-/// JSON string represents the value. The conversion to and from JSON is handled
+/// Locos allows to store locomotives (i.e. mobile decoders) in a JSON format in
+/// the NVS namespace "locos". The decoder address is used as key, the JSON
+/// string represents the value. The conversion to and from JSON is handled
 /// internally by the [ArduinoJson](https://arduinojson.org/) library. Getters
 /// and setters are overloaded and available in `dcc::Address::value_type` or
 /// `std::string` variants.
 ///
-/// The two utility functions nvs::Locos::address2key() and
-/// nvs::Locos::key2address() are also part of this class. They can be used to
+/// The two utility functions address2key() and key2address() can be used to
 /// convert a `dcc::Address::value_type` into a `std::string` (or vice versa).
 class Locos : public Base {
 public:
-  static std::string address2key(dcc::Address::value_type addr);
-  static dcc::Address::value_type key2address(std::string_view key);
-
-  explicit Locos() : Base{"locos", NVS_READWRITE} {}
+  Locos() : Base{"locos", NVS_READWRITE} {}
 
   mw::dcc::NvLocoBase get(dcc::Address::value_type addr) const;
   mw::dcc::NvLocoBase get(std::string const& key) const;

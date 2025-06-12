@@ -13,27 +13,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// NVS "accessories" namespace
+/// NVS "turnouts" namespace
 ///
-/// \file   mem/nvs/accessories.hpp
+/// \file   mem/nvs/turnouts.hpp
 /// \author Vincent Hamp
-/// \date   17/02/2023
+/// \date   12/06/2025
 
 #pragma once
 
 #include <dcc/dcc.hpp>
 #include "base.hpp"
-#include "mw/dcc/accessory.hpp"
+#include "mw/dcc/turnout.hpp"
 #include "utility.hpp"
 
 namespace mem::nvs {
 
-/// Accessories stored in NVS
+/// Turnouts stored in NVS
 ///
 /// \todo not yet implemented
-class Accessories : public Base {
+class Turnouts : public Base {
 public:
-  Accessories() : Base{"accessories", NVS_READWRITE} {}
+  Turnouts() : Base{"turnouts", NVS_READWRITE} {}
+
+  mw::dcc::NvTurnoutBase get(dcc::Address::value_type addr) const;
+  mw::dcc::NvTurnoutBase get(std::string const& key) const;
+  esp_err_t set(dcc::Address::value_type addr,
+                mw::dcc::NvTurnoutBase const& loco);
+  esp_err_t set(std::string const& key, mw::dcc::NvTurnoutBase const& loco);
+  esp_err_t erase(dcc::Address::value_type addr);
 };
 
 } // namespace mem::nvs

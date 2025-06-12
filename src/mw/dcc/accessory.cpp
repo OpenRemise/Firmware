@@ -13,27 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// NVS "accessories" namespace
-///
-/// \file   mem/nvs/accessories.hpp
-/// \author Vincent Hamp
-/// \date   17/02/2023
+#include "accessory.hpp"
+#include "log.h"
 
-#pragma once
+namespace mw::dcc {
 
-#include <dcc/dcc.hpp>
-#include "base.hpp"
-#include "mw/dcc/accessory.hpp"
-#include "utility.hpp"
+/// \todo document
+void NvAccessoryBase::fromJsonDocument(JsonDocument const& doc) {}
 
-namespace mem::nvs {
+/// \todo document
+JsonDocument NvAccessoryBase::toJsonDocument() const {
+  JsonDocument doc;
+  return doc;
+}
 
-/// Accessories stored in NVS
-///
-/// \todo not yet implemented
-class Accessories : public Base {
-public:
-  Accessories() : Base{"accessories", NVS_READWRITE} {}
-};
+/// \todo document
+Accessory::Accessory(JsonDocument const& doc) { fromJsonDocument(doc); }
 
-} // namespace mem::nvs
+/// \todo document
+void Accessory::fromJsonDocument(JsonDocument const& doc) {
+  NvAccessoryBase::fromJsonDocument(doc);
+}
+
+/// \todo document
+JsonDocument Accessory::toJsonDocument() const {
+  auto doc{NvAccessoryBase::toJsonDocument()};
+  return doc;
+}
+
+} // namespace mw::dcc

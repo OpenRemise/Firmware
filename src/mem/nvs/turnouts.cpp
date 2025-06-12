@@ -13,47 +13,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// NVS "locos" namespace
+/// NVS "turnouts" namespace
 ///
-/// \file   mem/nvs/locos.cpp
+/// \file   mem/nvs/turnouts.cpp
 /// \author Vincent Hamp
-/// \date   17/02/2023
+/// \date   12/06/2025
 
-#include "locos.hpp"
+#include "turnouts.hpp"
 #include <ArduinoJson.h>
 #include <charconv>
 #include "log.h"
 
 namespace mem::nvs {
 
-/// Get loco by address
+/// Get turnout by address
 ///
 /// \param  addr  Address
-/// \return Loco
-mw::dcc::NvLocoBase Locos::get(dcc::Address::value_type addr) const {
+/// \return Turnout
+mw::dcc::NvTurnoutBase Turnouts::get(dcc::Address::value_type addr) const {
   return get(address2key(addr));
 }
 
-/// Get loco by key
+/// Get turnout by key
 ///
 /// \param  addr  key
-/// \return Loco
-mw::dcc::NvLocoBase Locos::get(std::string const& key) const {
-  auto const json{getBlob(key)};
-  JsonDocument doc;
-  if (auto const err{deserializeJson(doc, json)}) {
-    LOGE("Deserialization failed %s", err.c_str());
-    return {};
-  }
-  mw::dcc::NvLocoBase loco;
-  loco.fromJsonDocument(doc);
-  return loco;
+/// \return Turnout
+mw::dcc::NvTurnoutBase Turnouts::get(std::string const& key) const {
+  return {};
 }
 
-/// Set loco from address
+/// Set turnout from address
 ///
 /// \param  addr                          Address
-/// \param  loco                          Loco
+/// \param  turnout                       Turnout
 /// \retval ESP_OK                        Value was set successfully
 /// \retval ESP_FAIL                      Internal error
 /// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
@@ -61,15 +53,15 @@ mw::dcc::NvLocoBase Locos::get(std::string const& key) const {
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
-esp_err_t Locos::set(dcc::Address::value_type addr,
-                     mw::dcc::NvLocoBase const& loco) {
-  return set(address2key(addr), loco);
+esp_err_t Turnouts::set(dcc::Address::value_type addr,
+                        mw::dcc::NvTurnoutBase const& turnout) {
+  return set(address2key(addr), turnout);
 }
 
-/// Set loco from key
+/// Set turnout from key
 ///
 /// \param  key                           Key
-/// \param  loco                          Loco
+/// \param  turnout                       Turnout
 /// \retval ESP_OK                        Value was set successfully
 /// \retval ESP_FAIL                      Internal error
 /// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
@@ -77,21 +69,18 @@ esp_err_t Locos::set(dcc::Address::value_type addr,
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
-esp_err_t Locos::set(std::string const& key, mw::dcc::NvLocoBase const& loco) {
-  auto const doc{loco.toJsonDocument()};
-  std::string json;
-  json.reserve(1024uz);
-  if (!serializeJson(doc, json)) assert(false);
-  return setBlob(key, json);
+esp_err_t Turnouts::set(std::string const& key,
+                        mw::dcc::NvTurnoutBase const& turnout) {
+  return {};
 }
 
-/// Erase loco from address
+/// Erase turnout from address
 ///
 /// \param  addr                  Address
 /// \retval ESP_OK                Erase operation was successful
 /// \retval ESP_FAIL              Internal error
 /// \retval ESP_ERR_NVS_NOT_FOUND Requested key doesn't exist
-esp_err_t Locos::erase(dcc::Address::value_type addr) {
+esp_err_t Turnouts::erase(dcc::Address::value_type addr) {
   return Base::erase(address2key(addr));
 }
 

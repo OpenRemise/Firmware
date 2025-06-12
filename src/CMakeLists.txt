@@ -6,8 +6,12 @@ set(COMMON_SRC
     mem/nvs/init.cpp
     mem/nvs/locos.cpp
     mem/nvs/settings.cpp
+    mem/nvs/turnouts.cpp
+    mem/nvs/utility.cpp
+    mw/dcc/accessory.cpp
     mw/dcc/loco.cpp
     mw/dcc/service.cpp
+    mw/dcc/turnout.cpp
     mw/ulf/dcc_ein/task_function.cpp
     utility.cpp)
 

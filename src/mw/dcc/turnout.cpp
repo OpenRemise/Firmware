@@ -13,27 +13,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// NVS "accessories" namespace
-///
-/// \file   mem/nvs/accessories.hpp
-/// \author Vincent Hamp
-/// \date   17/02/2023
+#include "turnout.hpp"
+#include "log.h"
 
-#pragma once
+namespace mw::dcc {
 
-#include <dcc/dcc.hpp>
-#include "base.hpp"
-#include "mw/dcc/accessory.hpp"
-#include "utility.hpp"
+/// \todo document
+void NvTurnoutBase::fromJsonDocument(JsonDocument const& doc) {}
 
-namespace mem::nvs {
+/// \todo document
+JsonDocument NvTurnoutBase::toJsonDocument() const {
+  JsonDocument doc;
+  return doc;
+}
 
-/// Accessories stored in NVS
-///
-/// \todo not yet implemented
-class Accessories : public Base {
-public:
-  Accessories() : Base{"accessories", NVS_READWRITE} {}
-};
+/// \todo document
+Turnout::Turnout(JsonDocument const& doc) { fromJsonDocument(doc); }
 
-} // namespace mem::nvs
+/// \todo document
+void Turnout::fromJsonDocument(JsonDocument const& doc) {
+  NvTurnoutBase::fromJsonDocument(doc);
+}
+
+/// \todo document
+JsonDocument Turnout::toJsonDocument() const {
+  auto doc{NvTurnoutBase::toJsonDocument()};
+  return doc;
+}
+
+} // namespace mw::dcc

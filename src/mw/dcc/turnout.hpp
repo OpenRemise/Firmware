@@ -29,25 +29,19 @@ using namespace ::dcc;
 namespace z21 = ::z21;
 
 /// Non-volatile base
-struct NvLocoBase : z21::LocoInfo {
+struct NvTurnoutBase : z21::TurnoutInfo {
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
   std::string name{};
 };
 
 /// Actual object with volatile and non-volatile stuff
-struct Loco : NvLocoBase {
-  constexpr Loco() = default;
-  explicit Loco(JsonDocument const& doc);
+struct Turnout : NvTurnoutBase {
+  constexpr Turnout() = default;
+  explicit Turnout(JsonDocument const& doc);
 
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
-
-  z21::RailComData bidi{};
-
-  static constexpr uint8_t min_priority{1u};
-  static constexpr uint8_t max_priority{smath::pow(2, priority_bits) - 1};
-  uint8_t priority{min_priority};
 };
 
 } // namespace mw::dcc

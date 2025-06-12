@@ -13,15 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Memory documentation
+/// NVS documentation
 ///
-/// \file   mem/doxygen.hpp
+/// \file   mem/nvs/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   19/02/2023
 
 #pragma once
 
-namespace mem {
+namespace mem::nvs {
 
 /// \page page_nvs NVS
 /// \details \tableofcontents
@@ -35,11 +35,14 @@ namespace mem {
 /// \subsection subsection_mem_nvs_base Base
 /// \copydetails nvs::Base
 ///
-/// \subsection subsection_mem_nvs_accessories Accessories
-/// \copydetails nvs::Accessories
-///
 /// \subsection subsection_mem_nvs_locos Locos
 /// \copydetails nvs::Locos
+///
+/// \subsection subsection_mem_nvs_turnouts Turnouts
+/// \copydetails nvs::Turnouts
+///
+/// \subsection subsection_mem_nvs_accessories Accessories
+/// \copydetails nvs::Accessories
 ///
 /// \subsection subsection_mem_nvs_settings Settings
 /// \copydetails nvs::Settings
@@ -89,4 +92,4 @@ namespace mem {
 /// | \ref page_mem | \ref page_hw_reference |
 /// </div>
 
-} // namespace mem
+} // namespace mem::nvs
