@@ -73,8 +73,8 @@ else()
     mw/dcc/init.cpp
     mw/ota/init.cpp
     mw/ota/service.cpp
-    mw/z21/init.cpp
-    mw/z21/service.cpp
+    mw/roco/z21/init.cpp
+    mw/roco/z21/service.cpp
     mw/zimo/decup/init.cpp
     mw/zimo/decup/service.cpp
     mw/zimo/mdu/init.cpp

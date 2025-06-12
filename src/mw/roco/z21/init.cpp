@@ -13,24 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Z21 documentation
 ///
-/// \file   mw/z21/doxygen.hpp
+///
+/// \file   mw/roco/z21/init.cpp
 /// \author Vincent Hamp
-/// \date   19/02/2023
+/// \date   15/04/2024
 
-#pragma once
+#include "init.hpp"
+#include "intf/http/sta/server.hpp"
+#include "mw/dcc/service.hpp"
+#include "service.hpp"
 
-namespace mw::z21 {
+namespace mw::roco::z21 {
 
-/// \page page_mw_z21 Z21
-/// \details \tableofcontents
-/// \todo document Z21 page
-///
-/// <div class="section_buttons">
-/// | Previous         | Next              |
-/// | :--------------- | ----------------: |
-/// | \ref page_mw_ota | \ref page_mw_zimo |
-/// </div>
+/// \todo document
+esp_err_t init() {
+  if (intf::http::sta::server) {
+    service = std::make_shared<Service>();
+    service->dcc(dcc::service);
+    dcc::service->z21(service, service);
+    intf::http::sta::server->subscribe(
+      {.uri = "/z21/"}, service, &Service::socket);
+  }
+  return ESP_OK;
+}
 
-} // namespace mw::z21
+} // namespace mw::roco::z21

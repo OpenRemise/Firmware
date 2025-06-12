@@ -20,7 +20,7 @@
 #include <z21/z21.hpp>
 #include "intf/http/message.hpp"
 
-namespace mw::z21 {
+namespace mw::roco::z21 {
 
 using namespace ::z21;
 
@@ -100,4 +100,4 @@ private:
   std::mutex _internal_mutex;
 };
 
-} // namespace mw::z21
+} // namespace mw::roco::z21

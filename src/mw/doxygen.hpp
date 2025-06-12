@@ -34,7 +34,7 @@ namespace mw {
 /// | --------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------- |
 /// | \subpage page_mw_dcc  | \ref mw::dcc "dcc"   | [DCC](https://github.com/ZIMO-Elektronik/DCC) operation and service mode, command generation, BiDi decoding |
 /// | \subpage page_mw_ota  | \ref mw::ota "ota"   | OTA firmware update (WebSocket service)                                                                     |
-/// | \subpage page_mw_z21  | \ref mw::z21 "z21"   | [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket service)                            |
+/// | \subpage page_mw_roco | \ref mw::roco "roco" | ROCO [Z21](https://github.com/ZIMO-Elektronik/Z21) server (UDP and WebSocket services)                      |
 /// | \subpage page_mw_zimo | \ref mw::zimo "zimo" | ZIMO specific (USB and WebSocket services)                                                                  |
 // clang-format on
 /// \page page_mw Middleware

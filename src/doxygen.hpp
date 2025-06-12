@@ -751,8 +751,10 @@
 ///   package "ota" as mw_ota {
 ///     [Service] as mw_ota_service
 ///   }
-///   package "z21" as mw_z21 {
-///     [Service] as mw_z21_service
+///   frame "roco" as mw_roco {
+///     package "z21" as mw_roco_z21 {
+///       [Service] as mw_roco_z21_service
+///     }
 ///   }
 ///   frame "zimo" as mw_zimo {
 ///     package "decup" as mw_zimo_decup {
@@ -811,7 +813,7 @@
 ///
 /// intf_http_sta_server <--> mw_dcc_service
 /// intf_http_sta_server <--> mw_ota_service
-/// intf_http_sta_server <--> mw_z21_service
+/// intf_http_sta_server <--> mw_roco_z21_service
 /// intf_http_sta_server <--> mw_zimo_decup_service
 /// intf_http_sta_server <--> mw_zimo_mdu_service
 /// intf_http_sta_server <--> mw_zimo_zusi_service
@@ -820,7 +822,7 @@
 /// intf_usb_tasks <--> DECUP_EIN
 /// intf_usb_tasks <--> SUSIV2
 ///
-/// mw_z21_service <-l-> mw_dcc_service
+/// mw_roco_z21_service <-l-> mw_dcc_service
 ///
 /// mw_zimo_zusi_service <--> drv_out_susi_zimo_zusi_task
 /// mw_dcc_service <--> drv_out_track_dcc_task
@@ -831,7 +833,7 @@
 /// [DECUP_EIN] <--> drv_out_track_zimo_decup_task
 /// [SUSIV2] <--> drv_out_susi_zimo_zusi_task
 ///
-/// UDP <--> mw_z21_service
+/// UDP <--> mw_roco_z21_service
 ///
 /// 'Links
 /// url of mem_nvs is [[page_mem.html#section_mem_nvs]]
@@ -845,7 +847,7 @@
 ///
 /// url of mw_dcc is [[page_mw_dcc.html]]
 /// url of mw_ota is [[page_mw_ota.html]]
-/// url of mw_z21 is [[page_mw_z21.html]]
+/// url of mw_roco is [[page_mw_roco.html]]
 /// url of mw_zimo is [[page_mw_zimo.html]]
 ///
 /// url of drv_analog is [[page_drv_analog.html]]

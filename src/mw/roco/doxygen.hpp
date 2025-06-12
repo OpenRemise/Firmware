@@ -13,18 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// ROCO documentation
 ///
-///
-/// \file   mw/z21/init.hpp
+/// \file   mw/roco/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   15/04/2024
+/// \date   19/02/2023
 
 #pragma once
 
-#include <esp_err.h>
+namespace mw::roco {
 
-namespace mw::z21 {
+/// \page page_mw_roco ROCO
+/// \details \tableofcontents
+/// \todo document ROCO page
+///
+/// \section section_mw_roco_z21 Z21
+///
+/// <div class="section_buttons">
+/// | Previous         | Next              |
+/// | :--------------- | ----------------: |
+/// | \ref page_mw_ota | \ref page_mw_zimo |
+/// </div>
 
-esp_err_t init();
-
-} // namespace mw::z21
+} // namespace mw::roco

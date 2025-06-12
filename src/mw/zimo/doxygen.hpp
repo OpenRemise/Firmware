@@ -75,9 +75,9 @@ namespace mw::zimo {
 /// [ZPP](https://github.com/ZIMO-Elektronik/ZPP) updates (WebSocket service)
 ///
 /// <div class="section_buttons">
-/// | Previous         | Next          |
-/// | :--------------- | ------------: |
-/// | \ref page_mw_z21 | \ref page_drv |
+/// | Previous          | Next          |
+/// | :---------------- | ------------: |
+/// | \ref page_mw_roco | \ref page_drv |
 /// </div>
 
 } // namespace mw::zimo

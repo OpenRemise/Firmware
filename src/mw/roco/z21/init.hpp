@@ -15,27 +15,16 @@
 
 ///
 ///
-/// \file   mw/z21/init.cpp
+/// \file   mw/roco/z21/init.hpp
 /// \author Vincent Hamp
 /// \date   15/04/2024
 
-#include "init.hpp"
-#include "intf/http/sta/server.hpp"
-#include "mw/dcc/service.hpp"
-#include "service.hpp"
+#pragma once
 
-namespace mw::z21 {
+#include <esp_err.h>
 
-/// \todo document
-esp_err_t init() {
-  if (intf::http::sta::server) {
-    service = std::make_shared<Service>();
-    service->dcc(dcc::service);
-    dcc::service->z21(service, service);
-    intf::http::sta::server->subscribe(
-      {.uri = "/z21/"}, service, &Service::socket);
-  }
-  return ESP_OK;
-}
+namespace mw::roco::z21 {
 
-} // namespace mw::z21
+esp_err_t init();
+
+} // namespace mw::roco::z21

@@ -32,7 +32,7 @@
 #include "mem/nvs/init.hpp"
 #include "mw/dcc/init.hpp"
 #include "mw/ota/init.hpp"
-#include "mw/z21/init.hpp"
+#include "mw/roco/z21/init.hpp"
 #include "mw/zimo/decup/init.hpp"
 #include "mw/zimo/mdu/init.hpp"
 #include "mw/zimo/ulf/init.hpp"
@@ -66,8 +66,8 @@ extern "C" void app_main() {
   static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
   static_assert(APP_CPU_NUM == mw::ota::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::z21::init));
-  static_assert(APP_CPU_NUM == mw::z21::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));
+  static_assert(APP_CPU_NUM == mw::roco::z21::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::zusi::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::decup::init));
   static_assert(APP_CPU_NUM == mw::zimo::decup::task.core_id);
@@ -101,7 +101,7 @@ static_assert(std::invoke([] {
                         intf::usb::tx_task.name,
                         mw::dcc::task.name,
                         mw::ota::task.name,
-                        mw::z21::task.name,
+                        mw::roco::z21::task.name,
                         mw::zimo::decup::task.name,
                         mw::zimo::mdu::task.name,
                         mw::zimo::ulf::dcc_ein::task.name,

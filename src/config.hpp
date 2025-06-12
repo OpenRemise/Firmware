@@ -544,20 +544,20 @@ inline TASK(task,
 
 } // namespace ota
 
-namespace z21 {
+namespace roco::z21 {
 
 ///
 inline TASK(task,
-            "mw::z21",   // Name
-            6144uz,      // Stack size
-            5u,          // Priority
-            APP_CPU_NUM, // Core
-            500u);       // Timeout
+            "mw::roco::z21", // Name
+            6144uz,          // Stack size
+            5u,              // Priority
+            APP_CPU_NUM,     // Core
+            500u);           // Timeout
 
 class Service;
 inline std::shared_ptr<Service> service;
 
-} // namespace z21
+} // namespace roco::z21
 
 namespace zimo {
 
