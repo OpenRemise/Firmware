@@ -31,9 +31,9 @@ esp_err_t init() {
   if (intf::http::sta::server) {
     service = std::make_shared<Service>();
     intf::http::sta::server->subscribe(
-      {.uri = "/decup/zpp/"}, service, &Service::zppSocket);
+      {.uri = "/zimo/decup/zpp/"}, service, &Service::zppSocket);
     intf::http::sta::server->subscribe(
-      {.uri = "/decup/zsu/"}, service, &Service::zsuSocket);
+      {.uri = "/zimo/decup/zsu/"}, service, &Service::zsuSocket);
   }
   return ESP_OK;
 }

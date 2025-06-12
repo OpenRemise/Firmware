@@ -41,13 +41,17 @@ private:
   esp_err_t deleteHandler(httpd_req_t* req);
   esp_err_t getHandler(httpd_req_t* req);
   esp_err_t putPostHandler(httpd_req_t* req);
-  esp_err_t decupZppWsHandler(httpd_req_t* req);
-  esp_err_t decupZsuWsHandler(httpd_req_t* req);
-  esp_err_t mduZppWsHandler(httpd_req_t* req);
-  esp_err_t mduZsuWsHandler(httpd_req_t* req);
+
   esp_err_t otaWsHandler(httpd_req_t* req);
-  esp_err_t z21WsHandler(httpd_req_t* req);
-  esp_err_t zusiWsHandler(httpd_req_t* req);
+
+  esp_err_t rocoZ21WsHandler(httpd_req_t* req);
+
+  esp_err_t zimoDecupZppWsHandler(httpd_req_t* req);
+  esp_err_t zimoDecupZsuWsHandler(httpd_req_t* req);
+  esp_err_t zimoMduZppWsHandler(httpd_req_t* req);
+  esp_err_t zimoMduZsuWsHandler(httpd_req_t* req);
+  esp_err_t zimoZusiWsHandler(httpd_req_t* req);
+
   esp_err_t wildcardGetHandler(httpd_req_t* req);
 };
 

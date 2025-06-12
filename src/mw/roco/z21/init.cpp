@@ -33,7 +33,7 @@ esp_err_t init() {
     service->dcc(dcc::service);
     dcc::service->z21(service, service);
     intf::http::sta::server->subscribe(
-      {.uri = "/z21/"}, service, &Service::socket);
+      {.uri = "/roco/z21/"}, service, &Service::socket);
   }
   return ESP_OK;
 }

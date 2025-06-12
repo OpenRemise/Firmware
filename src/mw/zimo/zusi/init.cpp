@@ -33,7 +33,7 @@ esp_err_t init() {
   if (intf::http::sta::server) {
     service = std::make_shared<Service>();
     intf::http::sta::server->subscribe(
-      {.uri = "/zusi/"}, service, &Service::socket);
+      {.uri = "/zimo/zusi/"}, service, &Service::socket);
   }
   return ESP_OK;
 }

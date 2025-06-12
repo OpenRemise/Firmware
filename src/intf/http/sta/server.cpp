@@ -89,38 +89,6 @@ Server::Server() {
   httpd_register_uri_handler(handle, &uri);
 
   //
-  uri = {.uri = "/decup/zpp/*",
-         .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::decupZppWsHandler),
-         .is_websocket = true,
-         .handle_ws_control_frames = true};
-  httpd_register_uri_handler(handle, &uri);
-
-  //
-  uri = {.uri = "/decup/zsu/*",
-         .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::decupZsuWsHandler),
-         .is_websocket = true,
-         .handle_ws_control_frames = true};
-  httpd_register_uri_handler(handle, &uri);
-
-  //
-  uri = {.uri = "/mdu/zpp/*",
-         .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::mduZppWsHandler),
-         .is_websocket = true,
-         .handle_ws_control_frames = true};
-  httpd_register_uri_handler(handle, &uri);
-
-  //
-  uri = {.uri = "/mdu/zsu/*",
-         .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::mduZsuWsHandler),
-         .is_websocket = true,
-         .handle_ws_control_frames = true};
-  httpd_register_uri_handler(handle, &uri);
-
-  //
   uri = {.uri = "/ota/*",
          .method = HTTP_GET,
          .handler = ztl::make_trampoline(this, &Server::otaWsHandler),
@@ -129,17 +97,49 @@ Server::Server() {
   httpd_register_uri_handler(handle, &uri);
 
   //
-  uri = {.uri = "/z21/*",
+  uri = {.uri = "/roco/z21/*",
          .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::z21WsHandler),
+         .handler = ztl::make_trampoline(this, &Server::rocoZ21WsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
 
   //
-  uri = {.uri = "/zusi/*",
+  uri = {.uri = "/zimo/decup/zpp/*",
          .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::zusiWsHandler),
+         .handler = ztl::make_trampoline(this, &Server::zimoDecupZppWsHandler),
+         .is_websocket = true,
+         .handle_ws_control_frames = true};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/zimo/decup/zsu/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::zimoDecupZsuWsHandler),
+         .is_websocket = true,
+         .handle_ws_control_frames = true};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/zimo/mdu/zpp/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::zimoMduZppWsHandler),
+         .is_websocket = true,
+         .handle_ws_control_frames = true};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/zimo/mdu/zsu/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::zimoMduZsuWsHandler),
+         .is_websocket = true,
+         .handle_ws_control_frames = true};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/zimo/zusi/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::zimoZusiWsHandler),
          .is_websocket = true,
          .handle_ws_control_frames = true};
   httpd_register_uri_handler(handle, &uri);
@@ -477,13 +477,13 @@ esp_err_t Server::putPostHandler(httpd_req_t* req) {
     }                                                                          \
   }
 
-GENERIC_WS_HANDLER(decupZppWsHandler, "/decup/zpp/")
-GENERIC_WS_HANDLER(decupZsuWsHandler, "/decup/zsu/")
-GENERIC_WS_HANDLER(mduZppWsHandler, "/mdu/zpp/")
-GENERIC_WS_HANDLER(mduZsuWsHandler, "/mdu/zsu/")
 GENERIC_WS_HANDLER(otaWsHandler, "/ota/")
-GENERIC_WS_HANDLER(z21WsHandler, "/z21/")
-GENERIC_WS_HANDLER(zusiWsHandler, "/zusi/")
+GENERIC_WS_HANDLER(rocoZ21WsHandler, "/roco/z21/")
+GENERIC_WS_HANDLER(zimoDecupZppWsHandler, "/zimo/decup/zpp/")
+GENERIC_WS_HANDLER(zimoDecupZsuWsHandler, "/zimo/decup/zsu/")
+GENERIC_WS_HANDLER(zimoMduZppWsHandler, "/zimo/mdu/zpp/")
+GENERIC_WS_HANDLER(zimoMduZsuWsHandler, "/zimo/mdu/zsu/")
+GENERIC_WS_HANDLER(zimoZusiWsHandler, "/zimo/zusi/")
 
 /// \todo document
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
