@@ -116,7 +116,7 @@ void loop() {
 ///
 /// Upon receiving an exit command the \ref usb::rx_task_function
 /// "USB receive task" is created and this task destroys itself.
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   // Switch to ULF_SUSIV2 mode
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {

@@ -32,7 +32,7 @@ public:
 
 private:
   esp_err_t socket(intf::http::Message& msg, State decup_state);
-  void taskFunction(void*);
+  [[noreturn]] void taskFunction(void*);
   void loop();
 
   uint8_t transmit(std::span<uint8_t const> bytes) final;

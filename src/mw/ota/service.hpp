@@ -38,7 +38,7 @@ public:
 
 private:
   // This gets called by FreeRTOS
-  void taskFunction(void*);
+  [[noreturn]] void taskFunction(void*);
 
   void loop();
   uint8_t write(std::vector<uint8_t> const& payload);

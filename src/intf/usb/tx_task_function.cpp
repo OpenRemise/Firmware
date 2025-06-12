@@ -76,7 +76,7 @@ void flush() {
 ///
 /// The transmit task receives data from \ref tx_stream_buffer and transmit it
 /// to the CDC device queue.
-void tx_task_function(void*) {
+[[noreturn]] void tx_task_function(void*) {
   std::array<uint8_t, buffer_size> stack;
   for (;;) {
     auto const bytes_received{receive(stack)};

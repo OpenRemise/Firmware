@@ -381,7 +381,7 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
 } // namespace
 
 /// \todo document
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   switch (auto encoder_config{dcc_encoder_config()}; state.load()) {
     case State::DCCOperations: [[fallthrough]];
     case State::ULF_DCC_EIN:

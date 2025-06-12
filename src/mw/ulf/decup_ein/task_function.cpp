@@ -112,7 +112,7 @@ void loop() {
 ///
 /// At the end of an upload, the \ref usb::rx_task_function "USB receive task"
 /// is created and this task destroys itself.
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   // Switch to ULF_DECUP_EIN mode
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {

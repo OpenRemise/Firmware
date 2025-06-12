@@ -140,7 +140,7 @@ void loop() {
 }
 
 /// \todo document
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   switch (state.load()) {
     case State::ZUSI: [[fallthrough]];
     case State::ULF_SUSIV2:

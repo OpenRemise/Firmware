@@ -54,7 +54,7 @@ esp_err_t Service::socket(intf::http::Message& msg) {
 }
 
 /// \todo document
-void Service::taskFunction(void*) {
+[[noreturn]] void Service::taskFunction(void*) {
   switch (state.load()) {
     case State::ZUSI: loop(); break;
     default: assert(false); break;

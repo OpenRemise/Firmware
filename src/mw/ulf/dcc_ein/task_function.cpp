@@ -170,7 +170,7 @@ void loop() {
 /// mem::nvs::Settings::getHttpReceiveTimeout "HTTP receive timeout", the \ref
 /// usb::rx_task_function "USB receive task" is created and this task destroys
 /// itself.
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   // Switch to ULF_DCC_EIN mode, preload packets
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {

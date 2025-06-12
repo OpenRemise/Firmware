@@ -73,7 +73,7 @@ esp_err_t Service::socket(intf::http::Message& msg) {
 }
 
 /// \todo document
-void Service::taskFunction(void*) {
+[[noreturn]] void Service::taskFunction(void*) {
   std::array<uint8_t, Z21_MAX_PAYLOAD_SIZE> stack;
   sockaddr_in dest_addr_ip4;
   socklen_t socklen{sizeof(dest_addr_ip4)};

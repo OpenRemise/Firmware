@@ -40,7 +40,7 @@ public:
 
 private:
   // This gets called by FreeRTOS
-  void taskFunction(void*);
+  [[noreturn]] void taskFunction(void*);
 
   void operationsLoop();
   void operationsDcc();

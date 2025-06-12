@@ -292,7 +292,7 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
 } // namespace
 
 /// \todo document
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   switch (auto encoder_config{mdu_encoder_config()}; state.load()) {
     case State::MDUZpp: ESP_ERROR_CHECK(zpp_entry()); [[fallthrough]];
     case State::MDUZsu: [[fallthrough]];

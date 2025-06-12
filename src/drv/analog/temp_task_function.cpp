@@ -29,7 +29,7 @@ namespace drv::analog {
 /// Once started, the temperature task runs continuously. The internal
 /// temperature sensor is read once per second and the result is converted into
 /// degrees Celsius. The result is written to the corresponding queue.
-void temp_task_function(void*) {
+[[noreturn]] void temp_task_function(void*) {
   for (;;) {
     TemperatureQueue::value_type temp;
     ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_sensor, &temp));

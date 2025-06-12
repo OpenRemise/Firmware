@@ -63,7 +63,7 @@ esp_err_t Service::socket(intf::http::Message& msg, State decup_state) {
 }
 
 /// \todo document
-void Service::taskFunction(void*) {
+[[noreturn]] void Service::taskFunction(void*) {
   switch (state.load()) {
     case State::DECUPZpp: [[fallthrough]];
     case State::DECUPZsu: loop(); break;

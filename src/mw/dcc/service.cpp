@@ -161,7 +161,7 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
 }
 
 /// \todo document
-void Service::taskFunction(void*) {
+[[noreturn]] void Service::taskFunction(void*) {
   switch (state.load()) {
     case State::DCCOperations:
       resume();
@@ -827,7 +827,7 @@ void Service::resume() {
     drv::out::tx_message_buffer.size * 0.5)
     sendToBack(packet);
 
-  // Resume out::track::dcc task
+  // Create out::track::dcc task
   LOGI_TASK_CREATE(drv::out::track::dcc::task);
 }
 

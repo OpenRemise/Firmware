@@ -155,7 +155,7 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 } // namespace
 
 /// \todo document
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   switch (decup_encoder_config_t encoder_config{}; state.load()) {
     case State::DECUPZpp: [[fallthrough]];
     case State::DECUPZsu: [[fallthrough]];

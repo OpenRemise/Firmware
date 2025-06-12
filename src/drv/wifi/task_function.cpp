@@ -41,7 +41,7 @@ void reset_sta_settings() {
 } // namespace
 
 /// \todo document
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   size_t seconds{};
 
   for (;;) {

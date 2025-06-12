@@ -79,20 +79,20 @@ void loop() {
       if (cmd == std::nullopt) continue;
       // Ping
       else if (cmd == "PING\r"sv) transmit_ping();
-      // Resume ULF_DCC_EIN task
+      // Create ULF_DCC_EIN task
       else if (cmd == "DCC_EIN\r"sv) {
         LOGI_TASK_CREATE(mw::ulf::dcc_ein::task);
         break;
       }
-      // Resume ULF_DECUP_EIN task
+      // Create ULF_DECUP_EIN task
       else if (cmd == "DECUP_EIN\r"sv) {
         LOGI_TASK_CREATE(mw::ulf::decup_ein::task);
         break;
       }
-      // Resume ULF_MDU_EIN task
+      // Create ULF_MDU_EIN task
       else if (cmd == "MDU_EIN\r"sv)
         LOGW("MDU_EIN not implemented");
-      // Resume ULF_SUSIV2 task
+      // Create ULF_SUSIV2 task
       else if (cmd == "SUSIV2\r"sv) {
         LOGI_TASK_CREATE(mw::ulf::susiv2::task);
         break;
@@ -121,7 +121,7 @@ void wait_for_all_service_tasks_to_suspend() {
 /// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
 /// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
 /// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
-void rx_task_function(void*) {
+[[noreturn]] void rx_task_function(void*) {
   wait_for_all_service_tasks_to_suspend();
   loop();
   LOGI_TASK_DESTROY();
