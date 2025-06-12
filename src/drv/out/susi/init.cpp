@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize ZUSI
+/// Initialize SUSI
 ///
-/// \file   drv/out/zusi/init.cpp
+/// \file   drv/out/susi/init.cpp
 /// \author Vincent Hamp
 /// \date   09/02/2023
 
 #include "init.hpp"
 #include <driver/gpio.h>
 #include "log.h"
-#include "task_function.hpp"
+#include "zimo/zusi/task_function.hpp"
 
-namespace drv::out::zusi {
+namespace drv::out::susi {
 
 /// \todo document
 esp_err_t init() {
@@ -73,9 +73,9 @@ esp_err_t init() {
   devcfg.clock_speed_hz = static_cast<int>(1.0 / 0.5533e-6);
   spi_bus_add_device(SPI2_HOST, &devcfg, &spis[3uz]);
 
-  task.function = task_function;
+  zimo::zusi::task.function = zimo::zusi::task_function;
 
   return ESP_OK;
 }
 
-} // namespace drv::out::zusi
+} // namespace drv::out::susi

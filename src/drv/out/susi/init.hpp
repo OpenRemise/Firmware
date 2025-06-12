@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Deinitialize peripherals when suspending ZUSI task
+/// Initialize SUSI
 ///
-/// \file   drv/out/zusi/suspend.hpp
+/// \file   drv/out/susi/init.hpp
 /// \author Vincent Hamp
-/// \date   27/03/2023
+/// \date   09/02/2023
 
 #pragma once
 
 #include <esp_err.h>
 
-namespace drv::out::zusi {
+namespace drv::out::susi {
 
-esp_err_t suspend();
+esp_err_t init();
 
-} // namespace drv::out::zusi
+} // namespace drv::out::susi

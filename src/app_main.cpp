@@ -51,10 +51,10 @@ extern "C" void app_main() {
   static_assert(APP_CPU_NUM == drv::analog::adc_task.core_id &&
                 APP_CPU_NUM == drv::analog::temp_task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::out::init));
-  static_assert(APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
+  static_assert(APP_CPU_NUM == drv::out::susi::zimo::zusi::task.core_id &&
+                APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
                 APP_CPU_NUM == drv::out::track::decup::task.core_id &&
-                APP_CPU_NUM == drv::out::track::mdu::task.core_id &&
-                APP_CPU_NUM == drv::out::zusi::task.core_id);
+                APP_CPU_NUM == drv::out::track::mdu::task.core_id);
 
   // Don't change initialization order
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
@@ -92,10 +92,10 @@ extern "C" void app_main() {
 static_assert(std::invoke([] {
   std::array task_names{drv::analog::adc_task.name,
                         drv::analog::temp_task.name,
+                        drv::out::susi::zimo::zusi::task.name,
                         drv::out::track::dcc::task.name,
                         drv::out::track::decup::task.name,
                         drv::out::track::mdu::task.name,
-                        drv::out::zusi::task.name,
                         drv::wifi::task.name,
                         intf::usb::rx_task.name,
                         intf::usb::tx_task.name,

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <driver/rmt_tx.h>
+#include <driver/spi_master.h>
 #include <esp_http_server.h>
 #include <freertos/message_buffer.h>
 #include <freertos/queue.h>
@@ -315,6 +316,27 @@ inline struct TxMessageBuffer {
   static inline MessageBufferHandle_t back_handle{};
 } tx_message_buffer;
 
+namespace susi {
+
+inline std::array<spi_device_handle_t, 4uz> spis{};
+
+inline constexpr auto enable_gpio_num{GPIO_NUM_4};
+inline constexpr auto clock_gpio_num{GPIO_NUM_6};
+inline constexpr auto data_gpio_num{GPIO_NUM_5};
+
+namespace zimo::zusi {
+
+///
+inline SHARED_TASK(task,
+                   "drv::out::susi::zimo::zusi", // Name
+                   ESP_TASK_PRIO_MAX - 1u,       // Priority
+                   APP_CPU_NUM,                  // Core
+                   0u);
+
+} // namespace zimo::zusi
+
+} // namespace susi
+
 namespace track {
 
 enum class CurrentLimit : uint8_t {
@@ -387,21 +409,6 @@ inline SHARED_TASK(task,
 } // namespace mdu
 
 } // namespace track
-
-namespace zusi {
-
-inline constexpr auto enable_gpio_num{GPIO_NUM_4};
-inline constexpr auto clock_gpio_num{GPIO_NUM_6};
-inline constexpr auto data_gpio_num{GPIO_NUM_5};
-
-///
-inline SHARED_TASK(task,
-                   "drv::out::zusi",       // Name
-                   ESP_TASK_PRIO_MAX - 1u, // Priority
-                   APP_CPU_NUM,            // Core
-                   0u);
-
-} // namespace zusi
 
 } // namespace out
 

@@ -41,6 +41,10 @@ else()
     drv/led/bug.cpp
     drv/led/init.cpp
     drv/led/wifi.cpp
+    drv/out/susi/init.cpp
+    drv/out/susi/zimo/zusi/resume.cpp
+    drv/out/susi/zimo/zusi/suspend.cpp
+    drv/out/susi/zimo/zusi/task_function.cpp
     drv/out/track/dcc/resume.cpp
     drv/out/track/dcc/suspend.cpp
     drv/out/track/dcc/task_function.cpp
@@ -51,10 +55,6 @@ else()
     drv/out/track/mdu/suspend.cpp
     drv/out/track/mdu/task_function.cpp
     drv/out/track/init.cpp
-    drv/out/zusi/init.cpp
-    drv/out/zusi/resume.cpp
-    drv/out/zusi/suspend.cpp
-    drv/out/zusi/task_function.cpp
     drv/out/init.cpp
     drv/out/suspend.cpp
     drv/trace/init.cpp

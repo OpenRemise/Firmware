@@ -15,7 +15,7 @@
 
 /// Deinitialize peripherals when suspending ZUSI task
 ///
-/// \file   drv/out/zusi/suspend.cpp
+/// \file   drv/out/susi/zimo/zusi/suspend.cpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
@@ -23,10 +23,9 @@
 #include <driver/gpio.h>
 #include <hal/gpio_ll.h>
 #include <algorithm>
-#include "../suspend.hpp"
-#include "init.hpp"
+#include "../../../suspend.hpp"
 
-namespace drv::out::zusi {
+namespace drv::out::susi::zimo::zusi {
 
 namespace {
 
@@ -61,4 +60,4 @@ esp_err_t suspend() {
   return out::suspend();
 }
 
-} // namespace drv::out::zusi
+} // namespace drv::out::susi::zimo::zusi

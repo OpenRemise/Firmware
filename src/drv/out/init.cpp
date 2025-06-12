@@ -20,8 +20,8 @@
 /// \date   09/02/2023
 
 #include "init.hpp"
+#include "susi/init.hpp"
 #include "track/init.hpp"
-#include "zusi/init.hpp"
 
 namespace drv::out {
 
@@ -49,8 +49,8 @@ esp_err_t init() {
   ESP_ERROR_CHECK(init_gptimer());
 
   //
+  ESP_ERROR_CHECK(susi::init());
   ESP_ERROR_CHECK(track::init());
-  ESP_ERROR_CHECK(zusi::init());
 
   return ESP_OK;
 }

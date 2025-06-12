@@ -13,18 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize peripherals when resuming ZUSI task
+/// ZUSI task function
 ///
-/// \file   drv/out/zusi/resume.hpp
+/// \file   drv/out/susi/zimo/zusi/task_function.hpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
 #pragma once
 
-#include <esp_err.h>
+namespace drv::out::susi::zimo::zusi {
 
-namespace drv::out::zusi {
+[[noreturn]] void task_function(void*);
 
-esp_err_t resume();
-
-} // namespace drv::out::zusi
+} // namespace drv::out::susi::zimo::zusi

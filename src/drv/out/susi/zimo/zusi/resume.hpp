@@ -15,35 +15,16 @@
 
 /// Initialize peripherals when resuming ZUSI task
 ///
-/// \file   drv/out/zusi/resume.cpp
+/// \file   drv/out/susi/zimo/zusi/resume.hpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
-#include "resume.hpp"
-#include <driver/gpio.h>
-#include <driver/gptimer.h>
-#include <algorithm>
-#include "init.hpp"
+#pragma once
 
-namespace drv::out::zusi {
+#include <esp_err.h>
 
-namespace {
+namespace drv::out::susi::zimo::zusi {
 
-/// \todo document
-esp_err_t init_alarm() {
-  ESP_ERROR_CHECK(gptimer_enable(gptimer));
-  return gptimer_start(gptimer);
-}
+esp_err_t resume();
 
-/// \todo document
-esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
-
-} // namespace
-
-/// \todo document
-esp_err_t resume() {
-  ESP_ERROR_CHECK(init_alarm());
-  return init_gpio();
-}
-
-} // namespace drv::out::zusi
+} // namespace drv::out::susi::zimo::zusi

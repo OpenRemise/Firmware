@@ -15,7 +15,7 @@
 
 /// ZUSI task function
 ///
-/// \file   drv/out/zusi/task_function.cpp
+/// \file   drv/out/susi/zimo/zusi/task_function.cpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
@@ -26,13 +26,12 @@
 #include <soc/spi_periph.h>
 #include <ulf/susiv2.hpp>
 #include <zusi/zusi.hpp>
-#include "init.hpp"
 #include "log.h"
 #include "resume.hpp"
 #include "suspend.hpp"
 #include "utility.hpp"
 
-namespace drv::out::zusi {
+namespace drv::out::susi::zimo::zusi {
 
 using namespace ::zusi;
 using ::ulf::susiv2::ack, ::ulf::susiv2::nak;
@@ -153,4 +152,4 @@ void loop() {
   LOGI_TASK_DESTROY();
 }
 
-} // namespace drv::out::zusi
+} // namespace drv::out::susi::zimo::zusi

@@ -13,22 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize ZUSI
+/// Deinitialize peripherals when suspending ZUSI task
 ///
-/// \file   drv/out/zusi/init.hpp
+/// \file   drv/out/susi/zimo/zusi/suspend.hpp
 /// \author Vincent Hamp
-/// \date   09/02/2023
+/// \date   27/03/2023
 
 #pragma once
 
-#include <driver/spi_master.h>
 #include <esp_err.h>
-#include <array>
 
-namespace drv::out::zusi {
+namespace drv::out::susi::zimo::zusi {
 
-inline std::array<spi_device_handle_t, 4uz> spis{};
+esp_err_t suspend();
 
-esp_err_t init();
-
-} // namespace drv::out::zusi
+} // namespace drv::out::susi::zimo::zusi

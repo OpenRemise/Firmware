@@ -13,16 +13,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ZUSI task function
+/// Initialize peripherals when resuming ZUSI task
 ///
-/// \file   drv/out/zusi/task_function.hpp
+/// \file   drv/out/susi/zimo/zusi/resume.cpp
 /// \author Vincent Hamp
 /// \date   27/03/2023
 
-#pragma once
+#include "resume.hpp"
+#include <driver/gpio.h>
+#include <driver/gptimer.h>
+#include <algorithm>
 
-namespace drv::out::zusi {
+namespace drv::out::susi::zimo::zusi {
 
-[[noreturn]] void task_function(void*);
+namespace {
 
-} // namespace drv::out::zusi
+/// \todo document
+esp_err_t init_alarm() {
+  ESP_ERROR_CHECK(gptimer_enable(gptimer));
+  return gptimer_start(gptimer);
+}
+
+/// \todo document
+esp_err_t init_gpio() { return gpio_set_level(enable_gpio_num, 1u); }
+
+} // namespace
+
+/// \todo document
+esp_err_t resume() {
+  ESP_ERROR_CHECK(init_alarm());
+  return init_gpio();
+}
+
+} // namespace drv::out::susi::zimo::zusi
