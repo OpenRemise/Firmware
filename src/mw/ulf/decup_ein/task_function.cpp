@@ -111,20 +111,20 @@ void loop() {
 /// its state is stored in a global variable \ref usb::rts.
 ///
 /// At the end of an upload, the \ref usb::rx_task_function "USB receive task"
-/// is resumed and this task destroys itself.
-void task_function(void*) {
+/// is created and this task destroys itself.
+[[noreturn]] void task_function(void*) {
   // Switch to ULF_DECUP_EIN mode
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DECUP_EIN)) {
     intf::usb::transmit_ok();
-    LOGI_TASK_RESUME(drv::out::track::decup::task);
+    LOGI_TASK_CREATE(drv::out::track::decup::task);
     loop();
   }
   // ... or not
   else
     intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(intf::usb::rx_task);
+  LOGI_TASK_CREATE(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 

@@ -31,7 +31,7 @@ public:
 
 private:
   esp_err_t socket(intf::http::Message& msg, State mdu_state);
-  void taskFunction(void*);
+  [[noreturn]] void taskFunction(void*);
   void loop();
   std::array<uint8_t, 2uz> transmit(std::vector<uint8_t> const& payload) const;
   void close();

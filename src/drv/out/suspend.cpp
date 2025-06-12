@@ -24,6 +24,8 @@
 
 namespace drv::out {
 
+namespace {
+
 /// \todo document
 void reset_queue_and_message_buffers() {
   xQueueReset(track::rx_queue.handle);
@@ -38,6 +40,8 @@ void reset_queue_and_message_buffers() {
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
 }
+
+} // namespace
 
 /// \todo document
 esp_err_t suspend() {

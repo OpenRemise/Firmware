@@ -140,16 +140,17 @@ void loop() {
 }
 
 /// \todo document
-void task_function(void*) {
-  for (;;) switch (state.load()) {
-      case State::ZUSI: [[fallthrough]];
-      case State::ULF_SUSIV2:
-        ESP_ERROR_CHECK(resume());
-        loop();
-        ESP_ERROR_CHECK(suspend());
-        break;
-      default: LOGI_TASK_SUSPEND(); break;
-    }
+[[noreturn]] void task_function(void*) {
+  switch (state.load()) {
+    case State::ZUSI: [[fallthrough]];
+    case State::ULF_SUSIV2:
+      ESP_ERROR_CHECK(resume());
+      loop();
+      ESP_ERROR_CHECK(suspend());
+      break;
+    default: assert(false); break;
+  }
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace drv::out::zusi

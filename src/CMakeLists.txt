@@ -122,10 +122,24 @@ cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.2.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.2")
 cpmaddpackage("gh:microsoft/GSL@4.2.0")
-cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
+cpmaddpackage(
+  NAME
+  Boost
+  VERSION
+  1.88.0
+  URL
+  https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.gz
+  URL_HASH
+  SHA256=dcea50f40ba1ecfc448fdf886c0165cf3e525fef2c9e3e080b9804e8117b9694
+  OPTIONS
+  "BOOST_ENABLE_CMAKE ON"
+  "BOOST_SKIP_INSTALL_RULES ON"
+  "BUILD_SHARED_LIBS OFF"
+  "BOOST_INCLUDE_LIBRARIES preprocessor")
 
 # According to this answer here https://stackoverflow.com/a/55312360/5840652
 # magic enum works up to INT16_MAX
+cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
 math(EXPR INT16_MAX "(1 << 15) - 1" OUTPUT_FORMAT DECIMAL)
 target_compile_definitions(
   magic_enum INTERFACE MAGIC_ENUM_RANGE_MIN=0 MAGIC_ENUM_RANGE_MAX=${INT16_MAX})
@@ -146,7 +160,8 @@ cpmaddpackage(
 
 target_link_libraries(
   ${COMPONENT_LIB}
-  PUBLIC fmt::fmt
+  PUBLIC Boost::preprocessor
+         fmt::fmt
          magic_enum::magic_enum
          Microsoft.GSL::GSL
          ULF::COM

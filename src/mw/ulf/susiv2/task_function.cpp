@@ -115,20 +115,20 @@ void loop() {
 /// and transmits them to drv::out::tx_message_buffer.
 ///
 /// Upon receiving an exit command the \ref usb::rx_task_function
-/// "USB receive task" is resumed and this task destroys itself.
-void task_function(void*) {
+/// "USB receive task" is created and this task destroys itself.
+[[noreturn]] void task_function(void*) {
   // Switch to ULF_SUSIV2 mode
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_SUSIV2)) {
     intf::usb::transmit_ok();
-    LOGI_TASK_RESUME(drv::out::zusi::task);
+    LOGI_TASK_CREATE(drv::out::zusi::task);
     loop();
   }
   // ... or not
   else
     intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(intf::usb::rx_task);
+  LOGI_TASK_CREATE(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 

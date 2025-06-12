@@ -142,9 +142,9 @@ esp_err_t init() {
   ESP_ERROR_CHECK(init_channel());
   ESP_ERROR_CHECK(init_gpio());
 
-  dcc::task.create(dcc::task_function);
-  decup::task.create(decup::task_function);
-  mdu::task.create(mdu::task_function);
+  dcc::task.function = dcc::task_function;
+  decup::task.function = decup::task_function;
+  mdu::task.function = mdu::task_function;
 
   return ESP_OK;
 }

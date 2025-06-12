@@ -41,7 +41,7 @@ void reset_sta_settings() {
 } // namespace
 
 /// \todo document
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   size_t seconds{};
 
   for (;;) {
@@ -51,7 +51,7 @@ void task_function(void*) {
     drv::led::bug(true);
     reset_sta_settings();
     esp_delayed_restart();
-    vTaskDelete(NULL);
+    LOGI_TASK_DESTROY();
   }
 }
 

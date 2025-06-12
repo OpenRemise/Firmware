@@ -35,7 +35,8 @@ Service::Service() {
     auto const addr{nvs.key2address(entry_info.key)};
     dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
   }
-  task.create(ztl::make_trampoline(this, &Service::taskFunction));
+
+  task.function = ztl::make_trampoline(this, &Service::taskFunction);
 }
 
 /// \todo document
@@ -160,20 +161,21 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
 }
 
 /// \todo document
-void Service::taskFunction(void*) {
-  for (;;) switch (state.load()) {
-      case State::DCCOperations:
-        resume();
-        operationsLoop();
-        suspend();
-        break;
-      case State::DCCService:
-        resume();
-        serviceLoop();
-        suspend();
-        break;
-      default: LOGI_TASK_SUSPEND(); break;
-    }
+[[noreturn]] void Service::taskFunction(void*) {
+  switch (state.load()) {
+    case State::DCCOperations:
+      resume();
+      operationsLoop();
+      suspend();
+      break;
+    case State::DCCService:
+      resume();
+      serviceLoop();
+      suspend();
+      break;
+    default: assert(false); break;
+  }
+  LOGI_TASK_DESTROY();
 }
 
 /// \todo document
@@ -187,8 +189,8 @@ void Service::operationsLoop() {
     if (!empty(_cv_request_deque)) return serviceLoop();
   }
 
-  // wait for task to get suspended
-  while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
+  // wait for task to get deleted
+  while (xTaskGetHandle("drv::out::track::dcc"))
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 }
 
@@ -441,8 +443,8 @@ void Service::serviceLoop() {
   if (auto expected{State::DCCOperations};
       state.compare_exchange_strong(expected, State::Suspend)) {
 
-    // wait for task to get suspended
-    while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
+    // wait for task to get deleted
+    while (xTaskGetHandle("drv::out::track::dcc"))
       vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
     // switch to serv mode
@@ -450,8 +452,8 @@ void Service::serviceLoop() {
     if (!state.compare_exchange_strong(expected, State::DCCService))
       assert(false);
 
-    // then resume
-    LOGI_TASK_RESUME(drv::out::track::dcc::task);
+    // then create
+    LOGI_TASK_CREATE(drv::out::track::dcc::task);
   }
 
   auto const& req{_cv_request_deque.front()};
@@ -460,8 +462,8 @@ void Service::serviceLoop() {
                            : serviceRead(cv_addr)};
   _cv_request_deque.pop_front();
 
-  // wait for task to get suspended
-  while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
+  // wait for task to get deleted
+  while (xTaskGetHandle("drv::out::track::dcc"))
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
   // send reply
@@ -825,8 +827,8 @@ void Service::resume() {
     drv::out::tx_message_buffer.size * 0.5)
     sendToBack(packet);
 
-  // Resume out::track::dcc task
-  LOGI_TASK_RESUME(drv::out::track::dcc::task);
+  // Create out::track::dcc task
+  LOGI_TASK_CREATE(drv::out::track::dcc::task);
 }
 
 /// \todo document

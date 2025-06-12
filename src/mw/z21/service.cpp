@@ -73,7 +73,7 @@ esp_err_t Service::socket(intf::http::Message& msg) {
 }
 
 /// \todo document
-void Service::taskFunction(void*) {
+[[noreturn]] void Service::taskFunction(void*) {
   std::array<uint8_t, Z21_MAX_PAYLOAD_SIZE> stack;
   sockaddr_in dest_addr_ip4;
   socklen_t socklen{sizeof(dest_addr_ip4)};
@@ -284,11 +284,11 @@ bool Service::trackPower(bool on, State dcc_state) {
 
       //
       case State::Suspended:
-        while (eTaskGetState(drv::out::track::dcc::task.handle) != eSuspended)
+        while (xTaskGetHandle("drv::out::track::dcc"))
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
         if (auto expected{State::Suspended};
             state.compare_exchange_strong(expected, dcc_state))
-          LOGI_TASK_RESUME(dcc::task);
+          LOGI_TASK_CREATE(dcc::task);
         else assert(false);
         [[fallthrough]];
 

@@ -22,13 +22,11 @@
 #pragma once
 
 #include <esp_log.h>
-
-#define STRINGIZE_DETAIL(X) #X
-#define STRINGIZE(X) STRINGIZE_DETAIL(X)
+#include <boost/preprocessor.hpp>
 
 #define PREFIX_LOG(LOG_MACRO, ...)                                             \
   do {                                                                         \
-    ESP_##LOG_MACRO(__FILE__ ":" STRINGIZE(__LINE__), __VA_ARGS__);            \
+    ESP_##LOG_MACRO(__FILE__ ":" BOOST_PP_STRINGIZE(__LINE__), __VA_ARGS__);   \
   } while (0)
 
 #define LOG_BUFFER_HEX_LEVEL(...) PREFIX_LOG(LOG_BUFFER_HEX_LEVEL, __VA_ARGS__)
@@ -53,9 +51,6 @@
 #define DRAM_LOGD(...) PREFIX_LOG(DRAM_LOGD, __VA_ARGS__)
 #define DRAM_LOGV(...) PREFIX_LOG(DRAM_LOGV, __VA_ARGS__)
 
-/// Helper for picking macro with either 0 or 1 arguments
-#define GET_MACRO(_0, _1, NAME, ...) NAME
-
 /// Log task creation
 #define LOGI_TASK_CREATE(TASK)                                                 \
   do {                                                                         \
@@ -63,8 +58,17 @@
     TASK.create();                                                             \
   } while (0)
 
+/// Helper to fit
+/// https://live.boost.org/doc/libs/1_88_0/libs/preprocessor/doc/ref/seq_for_each.html
+#define BOOST_PP_LOGI_TASK_CREATE(R, DATA, ELEM) LOGI_TASK_CREATE(ELEM);
+
+/// Log tasks creation
+#define LOGI_TASKS_CREATE(...)                                                 \
+  BOOST_PP_SEQ_FOR_EACH(                                                       \
+    BOOST_PP_LOGI_TASK_CREATE, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
+
 /// Log task destruction implementation for NULL
-#define LOGI_TASK_DESTROY0()                                                   \
+#define LOGI_TASK_DESTROY_0()                                                  \
   do {                                                                         \
     LOGI("Destroy %s task", pcTaskGetName(NULL));                              \
     vTaskDelete(NULL);                                                         \
@@ -72,7 +76,7 @@
   } while (0)
 
 /// Log task destruction implementation for task handle
-#define LOGI_TASK_DESTROY1(TASK)                                               \
+#define LOGI_TASK_DESTROY_1(TASK)                                              \
   do {                                                                         \
     LOGI("Destroy %s task", TASK.name);                                        \
     TASK.destroy();                                                            \
@@ -80,8 +84,7 @@
 
 /// Log task destruction
 #define LOGI_TASK_DESTROY(...)                                                 \
-  GET_MACRO(_0, ##__VA_ARGS__, LOGI_TASK_DESTROY1, LOGI_TASK_DESTROY0)(        \
-    __VA_ARGS__)
+  BOOST_PP_OVERLOAD(LOGI_TASK_DESTROY_, __VA_ARGS__)(__VA_ARGS__)
 
 /// Log task resumption
 #define LOGI_TASK_RESUME(TASK)                                                 \
@@ -91,14 +94,14 @@
   } while (0)
 
 /// Log task suspension implementation for NULL
-#define LOGI_TASK_SUSPEND0()                                                   \
+#define LOGI_TASK_SUSPEND_0()                                                  \
   do {                                                                         \
     LOGI("Suspend %s task", pcTaskGetName(NULL));                              \
     vTaskSuspend(NULL);                                                        \
   } while (0)
 
 /// Log task suspension implementation for task handle
-#define LOGI_TASK_SUSPEND1(TASK)                                               \
+#define LOGI_TASK_SUSPEND_1(TASK)                                              \
   do {                                                                         \
     LOGI("Suspend %s task", TASK.name);                                        \
     TASK.suspend();                                                            \
@@ -106,5 +109,4 @@
 
 /// Log task suspension
 #define LOGI_TASK_SUSPEND(...)                                                 \
-  GET_MACRO(_0, ##__VA_ARGS__, LOGI_TASK_SUSPEND1, LOGI_TASK_SUSPEND0)(        \
-    __VA_ARGS__)
+  BOOST_PP_OVERLOAD(LOGI_TASK_SUSPEND_, __VA_ARGS__)(__VA_ARGS__)

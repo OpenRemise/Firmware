@@ -1,11 +1,5 @@
 #include "freertos_helpers.hpp"
 
-void task_delete_clear_handle(TaskHandle_t& task_handle) {
-  if (!task_handle) return;
-  vTaskDelete(task_handle);
-  task_handle = NULL;
-}
-
 void stream_buffer_delete_clear_handle(
   StreamBufferHandle_t& stream_buffer_handle) {
   if (!stream_buffer_handle) return;

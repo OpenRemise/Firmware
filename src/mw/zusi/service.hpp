@@ -33,7 +33,7 @@ public:
   esp_err_t socket(intf::http::Message& msg);
 
 private:
-  void taskFunction(void*);
+  [[noreturn]] void taskFunction(void*);
   void loop();
   ::ulf::susiv2::Response transmit(std::vector<uint8_t> const& payload) const;
   void close();

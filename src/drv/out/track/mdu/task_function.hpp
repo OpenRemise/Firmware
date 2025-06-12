@@ -23,6 +23,6 @@
 
 namespace drv::out::track::mdu {
 
-void task_function(void*);
+[[noreturn]] void task_function(void*);
 
 } // namespace drv::out::track::mdu

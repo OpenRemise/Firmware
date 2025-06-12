@@ -35,6 +35,16 @@ namespace intf::usb {
 
 using namespace std::literals;
 
+/// Check if any USB service task is active
+///
+/// \retval true if any service task is active
+/// \retval false if no service task is active
+bool any_service_task_active() {
+  return xTaskGetHandle("mw::ulf::dcc_ein") ||
+         xTaskGetHandle("mw::ulf::decup_ein") ||
+         xTaskGetHandle("mw::ulf::susiv2");
+}
+
 /// Execute ping command
 ///
 /// Transmit device name and semantic version to the CDC device queue.
@@ -69,20 +79,20 @@ void loop() {
       if (cmd == std::nullopt) continue;
       // Ping
       else if (cmd == "PING\r"sv) transmit_ping();
-      // Resume ULF_DCC_EIN task
+      // Create ULF_DCC_EIN task
       else if (cmd == "DCC_EIN\r"sv) {
         LOGI_TASK_CREATE(mw::ulf::dcc_ein::task);
         break;
       }
-      // Resume ULF_DECUP_EIN task
+      // Create ULF_DECUP_EIN task
       else if (cmd == "DECUP_EIN\r"sv) {
         LOGI_TASK_CREATE(mw::ulf::decup_ein::task);
         break;
       }
-      // Resume ULF_MDU_EIN task
+      // Create ULF_MDU_EIN task
       else if (cmd == "MDU_EIN\r"sv)
         LOGW("MDU_EIN not implemented");
-      // Resume ULF_SUSIV2 task
+      // Create ULF_SUSIV2 task
       else if (cmd == "SUSIV2\r"sv) {
         LOGI_TASK_CREATE(mw::ulf::susiv2::task);
         break;
@@ -93,6 +103,11 @@ void loop() {
   }
 }
 
+/// Wait until all service tasks are suspended
+void wait_for_all_service_tasks_to_suspend() {
+  while (any_service_task_active()) vTaskDelay(pdMS_TO_TICKS(rx_task.timeout));
+}
+
 } // namespace
 
 /// USB receive task function
@@ -100,18 +115,16 @@ void loop() {
 /// The receive task scans the CDC character stream for commands. Those commands
 /// could either be general ones (e.g. `PING\r`) or protocol entry strings. When
 /// a protocol entry string is detected the corrsponding task is created and the
-/// receive task suspends itself.
+/// receive task destroys itself.
 ///
 /// Currently supported protocols are:
 /// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
 /// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
 /// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
-void rx_task_function(void*) {
-  for (;;) {
-    loop();
-    LOGI_TASK_SUSPEND();
-    vTaskDelay(pdMS_TO_TICKS(rx_task.timeout)); // Mandatory
-  }
+[[noreturn]] void rx_task_function(void*) {
+  wait_for_all_service_tasks_to_suspend();
+  loop();
+  LOGI_TASK_DESTROY();
 }
 
 } // namespace intf::usb

@@ -168,22 +168,22 @@ void loop() {
 ///
 /// If no further senddcc string is received before the \ref
 /// mem::nvs::Settings::getHttpReceiveTimeout "HTTP receive timeout", the \ref
-/// usb::rx_task_function "USB receive task" is resumed and this task destroys
+/// usb::rx_task_function "USB receive task" is created and this task destroys
 /// itself.
-void task_function(void*) {
+[[noreturn]] void task_function(void*) {
   // Switch to ULF_DCC_EIN mode, preload packets
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
     intf::usb::transmit_ok();
     send_idle_packets_to_back();
-    LOGI_TASK_RESUME(drv::out::track::dcc::task);
+    LOGI_TASK_CREATE(drv::out::track::dcc::task);
     loop();
   }
   // ... or not
   else
     intf::usb::transmit_not_ok();
 
-  LOGI_TASK_RESUME(intf::usb::rx_task);
+  LOGI_TASK_CREATE(intf::usb::rx_task);
   LOGI_TASK_DESTROY();
 }
 
