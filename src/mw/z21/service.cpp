@@ -30,9 +30,6 @@ Service::Service() {
 }
 
 /// \todo document
-Service::~Service() { task.destroy(); }
-
-/// \todo document
 void Service::dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service) {
   _dcc_service = dcc_service;
 }

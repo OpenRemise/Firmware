@@ -25,9 +25,19 @@ namespace intf::mdns {
 
 /// \page page_mdns mDNS
 /// \tableofcontents
-/// \todo document mDNS page
+/// [mDNS](https://en.wikipedia.org/wiki/Multicast_DNS) is a multicast UDP
+/// service that is used to provide local network service and host discovery.
+/// This module registers those services.
 ///
-/// Listing mDNS services with linux `avahi-browse -a`
+/// \section section_mdns_init Initialization
+/// \copydetails init
+///
+/// \note
+/// To list mDNS services you can use [avahi](https://github.com/avahi/avahi),
+/// which is typically installed by default.
+/// ```sh
+/// avahi-browse -a
+/// ```
 ///
 /// <div class="section_buttons">
 /// | Previous       | Next          |

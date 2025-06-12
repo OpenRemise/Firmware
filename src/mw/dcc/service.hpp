@@ -27,7 +27,6 @@ namespace mw::dcc {
 class Service : public z21::server::intf::Dcc {
 public:
   Service();
-  ~Service();
 
   //
   void z21(std::shared_ptr<z21::server::intf::System> z21_system_service,

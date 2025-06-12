@@ -34,9 +34,9 @@ namespace mw::zusi {
 /// \copydetails Service
 ///
 /// <div class="section_buttons">
-/// | Previous      | Next                   |
-/// | :------------ | ---------------------: |
-/// | \ref page_z21 | \ref page_hw_reference |
+/// | Previous      | Next          |
+/// | :------------ | ------------: |
+/// | \ref page_z21 | \ref page_drv |
 /// </div>
 
 } // namespace mw::zusi

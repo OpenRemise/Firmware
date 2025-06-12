@@ -24,7 +24,6 @@ namespace mw::mdu {
 class Service {
 public:
   Service();
-  ~Service();
 
   esp_err_t zppSocket(intf::http::Message& msg);
   esp_err_t zsuSocket(intf::http::Message& msg);

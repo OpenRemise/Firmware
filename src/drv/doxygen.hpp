@@ -25,8 +25,6 @@ namespace drv {
 
 /// \page page_drv Drivers
 /// \details
-/// \todo document
-///
 // clang-format off
 /// \page page_drv Driver
 /// \details
@@ -42,9 +40,9 @@ namespace drv {
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous                | Next             |
-/// | :---------------------- | ---------------: |
-/// | \ref page_api_reference | \ref page_analog |
+/// | Previous       | Next             |
+/// | :------------- | ---------------: |
+/// | \ref page_zusi | \ref page_analog |
 /// </div>
 
 } // namespace drv

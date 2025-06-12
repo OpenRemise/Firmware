@@ -32,7 +32,6 @@ namespace mw::ota {
 class Service {
 public:
   Service();
-  ~Service();
 
   esp_err_t socket(intf::http::Message& msg);
 

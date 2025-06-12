@@ -25,7 +25,6 @@ namespace mw::decup {
 class Service : public ::ulf::decup_ein::rx::Base {
 public:
   Service();
-  ~Service();
 
   esp_err_t zppSocket(intf::http::Message& msg);
   esp_err_t zsuSocket(intf::http::Message& msg);

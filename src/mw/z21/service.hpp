@@ -31,7 +31,6 @@ using ServerBase = z21::server::Base<z21::server::intf::System,
 class Service : public ServerBase {
 public:
   Service();
-  ~Service();
 
   void dcc(std::shared_ptr<z21::server::intf::Dcc> dcc_service);
 

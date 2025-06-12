@@ -40,9 +40,6 @@ Service::Service() {
 }
 
 /// \todo document
-Service::~Service() { task.destroy(); }
-
-/// \todo document
 void Service::z21(std::shared_ptr<z21::server::intf::System> z21_system_service,
                   std::shared_ptr<z21::server::intf::Dcc> z21_dcc_service) {
   _z21_system_service = z21_system_service;

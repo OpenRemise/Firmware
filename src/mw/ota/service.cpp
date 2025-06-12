@@ -38,9 +38,6 @@ Service::Service() {
 }
 
 /// \todo document
-Service::~Service() { task.destroy(); }
-
-/// \todo document
 esp_err_t Service::socket(intf::http::Message& msg) {
   //
   if (auto expected{State::Suspended};

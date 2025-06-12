@@ -31,8 +31,8 @@ namespace mem::nvs {
 ///
 /// nvs::Settings stores various firmware preferences in the NVS namespace
 /// "settings". Most settings are either directly strings or integer types, all
-/// others (e.g. out::track::CurrentLimit) are converted accordingly within the
-/// class. Each setting has a getter and a setter, the latter of which may
+/// others (e.g. drv::out::track::CurrentLimit) are converted accordingly within
+/// the class. Each setting has a getter and a setter, the latter of which may
 /// perform various checks (e.g. value range).
 class Settings : public Base {
 public:
