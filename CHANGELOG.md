@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix POM read with CV value 0 ([#81](https://github.com/OpenRemise/Firmware/issues/81))
+
 ## 0.3.2
 - Bugfix some MX decoders require 2nd stop bit during DECUP update ([#68](https://github.com/OpenRemise/Firmware/issues/68))
 

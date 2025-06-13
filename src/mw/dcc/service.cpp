@@ -305,12 +305,10 @@ void Service::operationsBiDi() {
 
     // Channel 2
     std::span const ch2{cbegin(item.datagram) + 2, cend(item.datagram)};
-    // No data
-    if (std::ranges::all_of(ch2, [](uint8_t b) { return !b; })) continue;
+
     // Invalid data
-    else if (std::ranges::any_of(ch2, [](uint8_t b) {
-               return b && std::popcount(b) != CHAR_BIT / 2;
-             }))
+    if (std::ranges::any_of(
+          ch2, [](uint8_t b) { return b && std::popcount(b) != CHAR_BIT / 2; }))
       continue;
     // ACK
     else if (std::ranges::any_of(ch2, [](uint8_t b) {
@@ -318,21 +316,28 @@ void Service::operationsBiDi() {
              }))
       ; /// \todo do something with ACK information... (e.g. lower priority)
 
+    // Count channel 2 bytes until ACK
+    size_t ch2_bytes{};
+    for (auto b : ch2)
+      if (b && b != dcc::bidi::acks[0uz] && b != dcc::bidi::acks[1uz])
+        ++ch2_bytes;
+      else break;
+    if (!ch2_bytes) continue;
+
     // Make data
     auto data{bidi::make_data(bidi::decode_datagram(item.datagram))};
 
     // Remove channel 1 address part (bits 48-36)
     data &= 0xF'FFFF'FFFFull;
-    if (!data) continue;
 
-    for (auto i{static_cast<int32_t>(bidi::Bits::_36)}; i > 0;) {
-      assert(i > 4);
+    auto const to{static_cast<int32_t>(bidi::Bits::_36) - ch2_bytes * 6};
+    for (auto from{static_cast<int32_t>(bidi::Bits::_36)}; from > to;) {
+      assert(from > 4);
       switch (
-        auto const id{static_cast<uint8_t>((data >> (i - 4)) & 0b1111u)}) {
+        auto const id{static_cast<uint8_t>((data >> (from - 4)) & 0b1111u)}) {
         // app:pom
         case 0u:
-          if (i == static_cast<int32_t>(bidi::Bits::_36) &&
-              !empty(_cv_pom_request_deque)) {
+          if (!empty(_cv_pom_request_deque)) {
             if (decode_instruction(item.packet) == Instruction::CvLong) {
               auto const off{addr.type == Address::ExtendedLoco};
               auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
@@ -344,26 +349,27 @@ void Service::operationsBiDi() {
               }
             }
           }
-          i -= static_cast<int32_t>(bidi::Bits::_12);
+          from -= static_cast<int32_t>(bidi::Bits::_12);
           break;
 
         // app:adr_high
-        case 1u: i = 0; break;
+        case 1u: from = 0; break;
 
         // app:adr_low
-        case 2u: i = 0; break;
+        case 2u: from = 0; break;
 
         // app:ext
-        case 3u: i = 0; break;
+        case 3u: from = 0; break;
 
         // app:info
-        case 4u: i = 0; break;
+        case 4u: from = 0; break;
 
         // app:dyn
         case 7u: {
           if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
-            auto const x{static_cast<uint8_t>((data >> (i - 18)) & 0b11'1111u)};
-            auto const d{static_cast<uint8_t>(data >> (i - 12))};
+            auto const x{
+              static_cast<uint8_t>((data >> (from - 18)) & 0b11'1111u)};
+            auto const d{static_cast<uint8_t>(data >> (from - 12))};
             it->second.bidi.loco_address = addr;
             auto const bidi_before{it->second.bidi};
             switch (x) {
@@ -397,33 +403,33 @@ void Service::operationsBiDi() {
             }
             if (it->second.bidi != bidi_before) broadcastRailComData(addr);
           }
-          i -= static_cast<int32_t>(bidi::Bits::_18);
+          from -= static_cast<int32_t>(bidi::Bits::_18);
           break;
         }
 
         // app:xpom
-        case 8u: i = 0; break;
+        case 8u: from = 0; break;
 
         // app:xpom
-        case 9u: i = 0; break;
+        case 9u: from = 0; break;
 
         // app:xpom
-        case 10u: i = 0; break;
+        case 10u: from = 0; break;
 
         // app:xpom
-        case 11u: i = 0; break;
+        case 11u: from = 0; break;
 
         // app:CV-auto
-        case 12u: i = 0; break;
+        case 12u: from = 0; break;
 
         // app:block
-        case 13u: i = 0; break;
+        case 13u: from = 0; break;
 
         // app:zeit
-        case 14u: i = 0; break;
+        case 14u: from = 0; break;
 
         // Error
-        default: i = 0; break;
+        default: from = 0; break;
       }
     }
   }
