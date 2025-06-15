@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.3.3
 - Bugfix POM read with CV value 0 ([#81](https://github.com/OpenRemise/Firmware/issues/81))
 
 ## 0.3.2
