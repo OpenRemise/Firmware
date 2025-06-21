@@ -11,6 +11,7 @@ sta_netmask,data,binary,""
 sta_gateway,data,binary,""
 http_rx_timeout,data,u8,5
 http_tx_timeout,data,u8,5
+http_exit_msg,data,u8,1
 cur_lim,data,u8,3
 cur_lim_serv,data,u8,1
 cur_sc_time,data,u8,100

@@ -65,6 +65,7 @@ namespace mem::nvs {
 /// | Range of IP addresses in the network                                                                                                             | sta_gateway     | Binary | -   | -   | ""       |
 /// | Timeout for receiving [HTTP](https://en.wikipedia.org/wiki/HTTP) requests (also used for USB)                                                    | http_rx_timeout | u8     | 5   | 60  | 5        |
 /// | Timeout for transmitting HTTP response                                                                                                           | http_tx_timeout | u8     | 5   | 60  | 5        |
+/// | Display a query when leaving the page                                                                                                            | http_exit_msg   | u8     | 0   | 1   | 1        |
 /// | Current limit in [DCC](https://github.com/ZIMO-Elektronik/DCC) operation mode                                                                    | cur_lim         | u8     | 0   | 3   | 3        |
 /// | Current limit in DCC service mode                                                                                                                | cur_lim_serv    | u8     | 0   | 3   | 1        |
 /// | Time after which an overcurrent is considered a short circuit                                                                                    | cur_sc_time     | u8     | 20  | 240 | 100      |
