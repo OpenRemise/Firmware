@@ -245,6 +245,26 @@ esp_err_t Settings::setHttpTransmitTimeout(uint8_t value) {
                                      : ESP_ERR_INVALID_ARG;
 }
 
+/// Get HTTP exit message
+///
+/// \return HTTP exit message
+bool Settings::getHttpExitMessage() const {
+  return static_cast<bool>(getU8("http_exit_msg"));
+}
+
+/// Set HTTP exit message
+///
+/// \param  value                         HTTP exit message
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+esp_err_t Settings::setHttpExitMessage(bool value) {
+  return setU8("http_exit_msg", value);
+}
+
 /// Get current limit
 ///
 /// \return Current limit

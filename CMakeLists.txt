@@ -8,6 +8,10 @@ FetchContent_Declare(
   GIT_TAG v0.9.5)
 FetchContent_MakeAvailable(CMakeModules)
 
+set(OPENREMISE_FRONTEND_SOURCE_DIR
+    ""
+    CACHE STRING "Overrides the frontend source code directory")
+
 set(EXTRA_COMPONENT_DIRS src)
 if(IDF_TARGET STREQUAL linux)
   # Don't change COMPONENTS on ESP32* targets, it removes a shit ton of defaults
@@ -28,17 +32,24 @@ if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
    AND NOT EXISTS ${Frontend_BINARY_DIR})
 
-  # Build from devel branch at config time
-  if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    cpmaddpackage(
-      NAME
-      Frontend
-      GITHUB_REPOSITORY
-      "OpenRemise/Frontend"
-      GIT_TAG
-      devel
-      DOWNLOAD_ONLY
-      TRUE)
+  # Build from local repo or devel branch at config time
+  if(NOT ${OPENREMISE_FRONTEND_SOURCE_DIR} STREQUAL "" OR CMAKE_BUILD_TYPE
+                                                          STREQUAL Debug)
+    if(OPENREMISE_FRONTEND_SOURCE_DIR)
+      cpmaddpackage(NAME Frontend SOURCE_DIR ${OPENREMISE_FRONTEND_SOURCE_DIR}
+                    DOWNLOAD_ONLY TRUE)
+    else()
+      cpmaddpackage(
+        NAME
+        Frontend
+        GITHUB_REPOSITORY
+        "OpenRemise/Frontend"
+        GIT_TAG
+        devel
+        DOWNLOAD_ONLY
+        TRUE)
+    endif()
+
     execute_process(
       COMMAND ${CMAKE_COMMAND} -B${Frontend_BINARY_DIR}
       WORKING_DIRECTORY ${Frontend_SOURCE_DIR} COMMAND_ECHO STDOUT
@@ -48,7 +59,7 @@ if(ESP_PLATFORM
               COMMAND_ECHO STDOUT COMMAND_ERROR_IS_FATAL ANY)
     set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
 
-    # .. or use pre-built
+    # ... or use pre-built official release
   elseif(CMAKE_BUILD_TYPE STREQUAL Release)
     cpmaddpackage(
       NAME
