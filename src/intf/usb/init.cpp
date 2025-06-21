@@ -70,25 +70,16 @@ esp_err_t init() {
   rx_task.create(rx_task_function);
   tx_task.create(tx_task_function);
 
-/*
-  static constexpr tinyusb_config_t tusb_cfg{.device_descriptor = NULL,
-                                             .string_descriptor = NULL,
-                                             .external_phy = false,
-                                             .configuration_descriptor = NULL,
-                                             .self_powered = true,
-                                             .vbus_monitor_io = vbus_gpio_num};
-*/
-  static constexpr tinyusb_config_t tusb_cfg{ .device_descriptor = NULL,
-                                              .string_descriptor = NULL,
-                                              .external_phy = false,
-                                              #if (TUD_OPT_HIGH_SPEED)
-                                                  .fs_configuration_descriptor = NULL,
-                                                  .hs_configuration_descriptor = NULL,
-                                                  .qualifier_descriptor = NULL,
-                                              #else
-                                                  .configuration_descriptor = NULL,
-                                              #endif // TUD_OPT_HIGH_SPEED
-                                            };
+  static constexpr tinyusb_config_t tusb_cfg{
+    .device_descriptor = NULL,
+    .string_descriptor = NULL,
+    .external_phy = false,
+    .configuration_descriptor = NULL,
+    /// \bug Currently can cause issues on Windows 11
+    /// https://github.com/OpenRemise/Firmware/issues/47
+    //.self_powered = true,
+    //.vbus_monitor_io = vbus_gpio_num
+  };
   ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
 
   static constexpr tinyusb_config_cdcacm_t acm_cfg{
