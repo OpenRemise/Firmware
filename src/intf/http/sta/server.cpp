@@ -497,16 +497,12 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
   // 308 / to index.html
   if (std::string_view const uri{req->uri}; uri == "/"sv) {
     httpd_resp_set_status(req, "308 Permanent Redirect");
-    httpd_resp_set_hdr(req,
-                       "Location",
-                       mem::nvs::Settings{}.getHttpExitMessage()
-                         ? "/index_beforeunload.html"
-                         : "/index.html");
+    httpd_resp_set_hdr(req, "Location", "/index.html");
     httpd_resp_send(req, NULL, 0);
     return ESP_OK;
   }
   // Frontend (embedded in firmware)
-  else if (auto const it{std::ranges::find_if(
+  else if (auto it{std::ranges::find_if(
              frontend_embeds,
              [uri](auto&& embed) { return uri.contains(embed[0uz]); })};
            it != cend(frontend_embeds)) {
@@ -525,6 +521,14 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
     else if (uri.ends_with(".png")) httpd_resp_set_type(req, "image/png");
     else if (uri.ends_with(".svg")) httpd_resp_set_type(req, "image/svg+xml");
     else if (uri.ends_with(".ttf")) httpd_resp_set_type(req, "font/ttf");
+
+    // Pick either index.html without beforeunload exit script or version with.
+    // Conveniently, the version with script is simply the next element of the
+    // iterator.
+    if (it == std::ranges::find_if(frontend_embeds, [](auto&& embed) {
+          return !ztl::strcmp(embed[0uz], "index.html");
+        }))
+      it += mem::nvs::Settings{}.getHttpExitMessage();
 
     // Send file
     auto const [_, start, end]{*it};
