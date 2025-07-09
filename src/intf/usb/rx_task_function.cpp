@@ -40,9 +40,9 @@ using namespace std::literals;
 /// \retval true if any service task is active
 /// \retval false if no service task is active
 bool any_service_task_active() {
-  return xTaskGetHandle("mw::ulf::dcc_ein") ||
-         xTaskGetHandle("mw::ulf::decup_ein") ||
-         xTaskGetHandle("mw::ulf::susiv2");
+  return xTaskGetHandle(mw::zimo::ulf::dcc_ein::task.name) ||
+         xTaskGetHandle(mw::zimo::ulf::decup_ein::task.name) ||
+         xTaskGetHandle(mw::zimo::ulf::susiv2::task.name);
 }
 
 /// Execute ping command

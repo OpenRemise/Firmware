@@ -685,7 +685,7 @@
 /// is bidirectional, received feedback is sent back to the server via service.
 /// In more complex situations, middleware services may also communicate
 /// directly with each other. An example of this is the communication between
-/// the mw::dcc::Service and the mw::z21::Service.
+/// the mw::dcc::Service and the mw::roco::z21::Service.
 ///
 /// \section section_architecture_drivers Drivers
 /// In the driver layer there are modules that contain some form of IO. For the
@@ -951,7 +951,7 @@
 /// \endhtmlonly
 ///
 /// <div class="section_buttons">
-/// | Previous       |
-/// | :------------- |
-/// | \ref page_zusi |
+/// | Previous          |
+/// | :---------------- |
+/// | \ref page_mem_nvs |
 /// </div>

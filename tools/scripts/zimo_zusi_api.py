@@ -1,9 +1,10 @@
 import random, string
 from websocket import create_connection
 
-ws = create_connection("ws://remise.local/z21/")
-# message = bytearray([0x07, 0x00, 0x40, 0x00, 0xF1, 0x0A, 0xFB])
-message = bytearray([0x07, 0x00, 0x40, 0x00, 0x21, 0x81, 0xA0])
+
+ws = create_connection("ws://remise.local/zimo/zusi/")
+message = bytearray([i % 256 for i in range(0, 100)])
+# message = "".join(random.choices(string.ascii_uppercase + string.digits, k=1024))
 for i in range(0, 10):
     ws.send(message, opcode=2)  # Change opcode to 2 to send binary
     response = ws.recv()

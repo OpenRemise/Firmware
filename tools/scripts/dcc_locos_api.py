@@ -1,21 +1,14 @@
 import json, requests
 
-run_delete_requests = False
 run_get_requests = False
 run_put_requests = False
+run_delete_requests = False
 
 valid = '{"address":100,"name":"MoFo","functions":1234,"speed":42,"dir":1}'
 invalid = '{"address":: '
 
 # Open session
 s = requests.Session()
-
-""" 
-DELETE
-"""
-if run_delete_requests:
-    r = s.delete("http://remise.local/dcc/locos/3")
-    print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))
 
 """
 GET
@@ -44,4 +37,11 @@ if run_put_requests:
 
     # Expect 411 (no content)
     r = s.put("http://remise.local/dcc/locos/3")
+    print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))
+
+""" 
+DELETE
+"""
+if run_delete_requests:
+    r = s.delete("http://remise.local/dcc/locos/3")
     print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))

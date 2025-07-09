@@ -21,7 +21,6 @@ if run_get_requests:
     if len(r.content) and r.headers.get("content-type") == "application/json":
         print(r.json())
 
-
 """
 POST
 """

@@ -25,6 +25,7 @@
 #include "mem/nvs/locos.hpp"
 #include "mem/nvs/settings.hpp"
 #include "mem/nvs/turnouts.hpp"
+#include "system_state.hpp"
 #include "utility.hpp"
 
 namespace mw::dcc {
@@ -51,6 +52,49 @@ void Service::z21(std::shared_ptr<z21::server::intf::System> z21_system_service,
                   std::shared_ptr<z21::server::intf::Dcc> z21_dcc_service) {
   _z21_system_service = z21_system_service;
   _z21_dcc_service = z21_dcc_service;
+}
+
+/// \todo document
+intf::http::Response Service::getRequest(intf::http::Request const& req) {
+  SystemState const system_state{
+    static_cast<SystemState&>(_z21_system_service->systemState())};
+  auto doc{system_state.toJsonDocument()};
+  std::string json;
+  json.reserve(1024uz);
+  serializeJson(doc, json);
+  return json;
+}
+
+/// \todo document
+intf::http::Response Service::postRequest(intf::http::Request const& req) {
+  // Validate body
+  if (!validate_json(req.body))
+    return std::unexpected<std::string>{"415 Unsupported Media Type"};
+
+  // Deserialize
+  JsonDocument doc;
+  if (auto const err{deserializeJson(doc, req.body)}) {
+    LOGE("Deserialization failed %s", err.c_str());
+    return std::unexpected<std::string>{"500 Internal Server Error"};
+  }
+
+  // LAN_X_SET_TRACK_POWER_OFF / LAN_X_SET_TRACK_POWER_ON
+  if (JsonVariantConst v{doc["central_state"]}; v.is<uint8_t>()) {
+    if (auto const is_on{!std::to_underlying(
+          _z21_system_service->systemState().central_state &
+          z21::CentralState::TrackVoltageOff)},
+        should_be_on{!(v.as<uint8_t>() &
+                       std::to_underlying(z21::CentralState::TrackVoltageOff))};
+        !is_on && should_be_on) {
+      _z21_system_service->trackPower(true);
+      _z21_system_service->broadcastTrackPowerOn();
+    } else if (is_on && !should_be_on) {
+      _z21_system_service->trackPower(false);
+      _z21_system_service->broadcastTrackPowerOff();
+    }
+  }
+
+  return {};
 }
 
 /// \todo document

@@ -38,13 +38,15 @@ namespace intf::http::sta {
 using namespace std::literals;
 
 /// Ctor
+///
+/// \warning Endpoint order is important!
 Server::Server() {
   //
   mem::nvs::Settings nvs;
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.stack_size = stack_size;
   config.core_id = WIFI_TASK_CORE_ID;
-  config.max_uri_handlers = 16u;
+  config.max_uri_handlers = 32u;
   config.lru_purge_enable = true;
   config.recv_wait_timeout = nvs.getHttpReceiveTimeout();
   config.send_wait_timeout = nvs.getHttpTransmitTimeout();
@@ -53,20 +55,31 @@ Server::Server() {
 
   //
   httpd_uri_t uri{.uri = "/dcc/locos/*",
-                  .method = HTTP_DELETE,
-                  .handler =
-                    ztl::make_trampoline(this, &Server::deleteHandler)};
-  httpd_register_uri_handler(handle, &uri);
-
-  //
-  uri = {.uri = "/dcc/locos/*",
-         .method = HTTP_GET,
-         .handler = ztl::make_trampoline(this, &Server::getHandler)};
+                  .method = HTTP_GET,
+                  .handler = ztl::make_trampoline(this, &Server::getHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
   uri = {.uri = "/dcc/locos/*",
          .method = HTTP_PUT,
+         .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/dcc/locos/*",
+         .method = HTTP_DELETE,
+         .handler = ztl::make_trampoline(this, &Server::deleteHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/dcc/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::getHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/dcc/*",
+         .method = HTTP_POST,
          .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
   httpd_register_uri_handler(handle, &uri);
 
@@ -404,24 +417,6 @@ Response Server::sysGetRequest(Request const& req) {
 }
 
 /// \todo document
-esp_err_t Server::deleteHandler(httpd_req_t* req) {
-  LOGD("DELETE request %s", req->uri);
-
-  //
-  if (auto resp{syncResponse(req)}) {
-    httpd_resp_send(req, data(*resp), size(*resp));
-    return ESP_OK;
-  }
-  //
-  else {
-    auto const& status{resp.error()};
-    httpd_resp_set_status(req, status.c_str());
-    httpd_resp_send(req, NULL, 0);
-    return ESP_FAIL;
-  }
-}
-
-/// \todo document
 esp_err_t Server::getHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
 
@@ -451,6 +446,24 @@ esp_err_t Server::putPostHandler(httpd_req_t* req) {
   }
   //
   else if (auto resp{syncResponse(req)}) {
+    httpd_resp_send(req, data(*resp), size(*resp));
+    return ESP_OK;
+  }
+  //
+  else {
+    auto const& status{resp.error()};
+    httpd_resp_set_status(req, status.c_str());
+    httpd_resp_send(req, NULL, 0);
+    return ESP_FAIL;
+  }
+}
+
+/// \todo document
+esp_err_t Server::deleteHandler(httpd_req_t* req) {
+  LOGD("DELETE request %s", req->uri);
+
+  //
+  if (auto resp{syncResponse(req)}) {
     httpd_resp_send(req, data(*resp), size(*resp));
     return ESP_OK;
   }

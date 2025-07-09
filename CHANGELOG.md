@@ -1,8 +1,13 @@
 # Changelog
 
+##
+- Add `/dcc/` endpoint ([#84](https://github.com/OpenRemise/Firmware/pull/84))
+- Bugfix task names inside `intf::usb::any_service_task_active` ([#86](https://github.com/OpenRemise/Firmware/pull/86))
+- Bugfix `intf::http::Endpoints` key comparison uses prefix-based matching ([#87](https://github.com/OpenRemise/Firmware/pull/87))
+
 ## 0.4.0
-- Add `http_exit_msg` setting ([#91](https://github.com/OpenRemise/Frontend/pull/91))
-- Workaround for Windows 11 USB issues ([#91](https://github.com/OpenRemise/Frontend/pull/91))
+- Add `http_exit_msg` setting ([#83](https://github.com/OpenRemise/Firmware/pull/83))
+- Workaround for Windows 11 USB issues ([#83](https://github.com/OpenRemise/Firmware/pull/83))
 
 ## 0.3.3
 - Bugfix POM read with CV value 0 ([#81](https://github.com/OpenRemise/Firmware/issues/81))

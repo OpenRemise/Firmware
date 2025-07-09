@@ -11,6 +11,7 @@ set(COMMON_SRC
     mw/dcc/accessory.cpp
     mw/dcc/loco.cpp
     mw/dcc/service.cpp
+    mw/dcc/system_state.cpp
     mw/dcc/turnout.cpp
     mw/zimo/ulf/dcc_ein/task_function.cpp
     utility.cpp)

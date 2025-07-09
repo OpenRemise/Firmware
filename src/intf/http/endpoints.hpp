@@ -22,6 +22,7 @@
 #pragma once
 
 #include <esp_http_server.h>
+#include <cassert>
 #include <concepts>
 #include <functional>
 #include <map>
@@ -52,6 +53,7 @@ public:
   /// \todo document
   template<typename T, typename F>
   void subscribe(key_type const& key, std::shared_ptr<T> t, F&& f) {
+    assert(key.uri && strlen(key.uri) && key.uri[strlen(key.uri) - 1uz] == '/');
     if constexpr (std::invocable<typename ztl::signature<F>::type,
                                  T*,
                                  Request const&>)
@@ -124,11 +126,15 @@ private:
   /// \todo document
   struct key_compare {
     bool operator()(key_type const& lhs, key_type const& rhs) const {
-      return lhs.method != rhs.method
-               ? lhs.method < rhs.method
-               : strncmp(lhs.uri,
-                         rhs.uri,
-                         std::min(strlen(lhs.uri), strlen(rhs.uri))) < 0;
+      // Different method
+      if (lhs.method != rhs.method) return lhs.method < rhs.method;
+      // Compare URI up to prefix length
+      else if (auto const lhs_prefix_len{strrchr(lhs.uri, '/') - lhs.uri + 1},
+               rhs_prefix_len{strrchr(rhs.uri, '/') - rhs.uri + 1};
+               lhs_prefix_len == rhs_prefix_len)
+        return strncmp(lhs.uri, rhs.uri, lhs_prefix_len) < 0;
+      // Compare URI as is
+      else return strcmp(lhs.uri, rhs.uri) < 0;
     }
   };
 
