@@ -46,7 +46,7 @@ Server::Server() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.stack_size = stack_size;
   config.core_id = WIFI_TASK_CORE_ID;
-  config.max_uri_handlers = 16u;
+  config.max_uri_handlers = 32u;
   config.lru_purge_enable = true;
   config.recv_wait_timeout = nvs.getHttpReceiveTimeout();
   config.send_wait_timeout = nvs.getHttpTransmitTimeout();
@@ -75,6 +75,12 @@ Server::Server() {
   uri = {.uri = "/dcc/*",
          .method = HTTP_GET,
          .handler = ztl::make_trampoline(this, &Server::getHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/dcc/*",
+         .method = HTTP_POST,
+         .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //

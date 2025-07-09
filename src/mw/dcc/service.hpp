@@ -36,6 +36,7 @@ public:
 
   //
   intf::http::Response getRequest(intf::http::Request const& req);
+  intf::http::Response postRequest(intf::http::Request const& req);
 
   //
   intf::http::Response locosGetRequest(intf::http::Request const& req);
