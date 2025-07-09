@@ -1,7 +1,8 @@
 # Changelog
 
 ##
-- task names inside `intf::usb::any_service_task_active` ([#86](https://github.com/OpenRemise/Firmware/pull/86))
+- Bugfix task names inside `intf::usb::any_service_task_active` ([#86](https://github.com/OpenRemise/Firmware/pull/86))
+- Bugfix `intf::http::Endpoints` key comparison uses prefix-based matching ([#87](https://github.com/OpenRemise/Firmware/pull/87))
 
 ## 0.4.0
 - Add `http_exit_msg` setting ([#83](https://github.com/OpenRemise/Firmware/pull/83))

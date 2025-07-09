@@ -37,6 +37,8 @@ esp_err_t init() {
       {.uri = "/dcc/locos/", .method = HTTP_PUT},
       service,
       &Service::locosPutRequest);
+    intf::http::sta::server->subscribe(
+      {.uri = "/dcc/", .method = HTTP_GET}, service, &Service::getRequest);
   }
   return ESP_OK;
 }

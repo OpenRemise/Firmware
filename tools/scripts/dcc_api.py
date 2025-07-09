@@ -21,6 +21,11 @@ if run_delete_requests:
 GET
 """
 if run_get_requests:
+    r = s.get("http://remise.local/dcc/")
+    print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))
+    if len(r.content) and r.headers.get("content-type") == "application/json":
+        print(r.json())
+
     r = s.get("http://remise.local/dcc/locos/")
     print(str(r.request) + " " + str(r.url) + " " + str(r.status_code))
     if len(r.content) and r.headers.get("content-type") == "application/json":

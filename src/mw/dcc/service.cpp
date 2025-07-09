@@ -54,6 +54,12 @@ void Service::z21(std::shared_ptr<z21::server::intf::System> z21_system_service,
 }
 
 /// \todo document
+intf::http::Response Service::getRequest(intf::http::Request const& req) {
+  printf("hello? get?\n");
+  return {};
+}
+
+/// \todo document
 /// \todo filters?
 intf::http::Response Service::locosGetRequest(intf::http::Request const& req) {
   // Singleton

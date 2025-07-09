@@ -35,6 +35,9 @@ public:
            std::shared_ptr<z21::server::intf::Dcc> z21_dcc_service);
 
   //
+  intf::http::Response getRequest(intf::http::Request const& req);
+
+  //
   intf::http::Response locosGetRequest(intf::http::Request const& req);
   intf::http::Response locosDeleteRequest(intf::http::Request const& req);
   intf::http::Response locosPutRequest(intf::http::Request const& req);
