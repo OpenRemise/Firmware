@@ -16,6 +16,7 @@
 #include "service.hpp"
 #include <lwip/sockets.h>
 #include <ztl/string.hpp>
+#include "drv/analog/convert.hpp"
 #include "drv/led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
@@ -151,6 +152,39 @@ void Service::logoff(z21::Socket const& sock) {
   printf("%s\n", __PRETTY_FUNCTION__);
   /// \todo should this broadcast stop? if there are no more clients?
   if (empty(clients())) trackPower(false);
+}
+
+/// \todo document
+[[nodiscard]] z21::SystemState& Service::systemState() {
+  using namespace drv::analog;
+
+  auto& sys_state{ServerBase::systemState()};
+
+  // Currents
+  if (CurrentsQueue::value_type currents;
+      xQueuePeek(currents_queue.handle, &currents, 0u)) {
+    sys_state.main_current = sys_state.prog_current = measurement2mA(
+      static_cast<CurrentMeasurement>(std::ranges::max(currents)));
+    sys_state.filtered_main_current =
+      measurement2mA(static_cast<CurrentMeasurement>(
+        std::accumulate(cbegin(currents), cend(currents), 0) / size(currents)));
+  }
+
+  // Temperature
+  if (TemperatureQueue::value_type temp;
+      xQueuePeek(temperature_queue.handle, &temp, 0u))
+    sys_state.temperature = temp;
+
+  // Voltages
+  if (VoltagesQueue::value_type voltages;
+      xQueuePeek(voltages_queue.handle, &voltages, 0u))
+    sys_state.supply_voltage = sys_state.vcc_voltage =
+      measurement2mV(static_cast<VoltageMeasurement>(
+                       std::accumulate(cbegin(voltages), cend(voltages), 0) /
+                       size(voltages)))
+        .value();
+
+  return ServerBase::systemState();
 }
 
 /// \todo document

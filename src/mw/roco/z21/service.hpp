@@ -49,6 +49,7 @@ private:
   [[nodiscard]] bool stop() final;
   [[nodiscard]] int32_t serialNumber() const final;
   void logoff(z21::Socket const& sock) final;
+  [[nodiscard]] z21::SystemState& systemState() final;
 
   // Driving interface
   z21::LocoInfo locoInfo(uint16_t loco_addr) final;
