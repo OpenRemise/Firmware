@@ -18,14 +18,14 @@ if(Doxygen_FOUND)
     NAME
     PlantUML
     URL
-    "https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-1.2025.4.jar"
+    "https://github.com/plantuml/plantuml/releases/download/v1.2025.1/plantuml-1.2025.1.jar"
     VERSION
-    1.2025.4
+    1.2025.1
     DOWNLOAD_ONLY
     ON
     DOWNLOAD_NO_EXTRACT
     ON)
-  set(PLANTUML_JAR_PATH ${PlantUML_SOURCE_DIR}/plantuml-1.2025.4.jar)
+  set(PLANTUML_JAR_PATH ${PlantUML_SOURCE_DIR}/plantuml-1.2025.1.jar)
 
   # Get Doxygen Awesome
   cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.3.4")
