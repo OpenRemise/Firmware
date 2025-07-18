@@ -495,7 +495,7 @@ void Service::serviceLoop() {
   /// \todo oh god please make this safer...
   /// it changes from opmode to serv...
   if (auto expected{State::DCCOperations};
-      state.compare_exchange_strong(expected, State::Suspend)) {
+      state.compare_exchange_strong(expected, State::Suspending)) {
 
     // wait for task to get deleted
     while (xTaskGetHandle("drv::out::track::dcc"))

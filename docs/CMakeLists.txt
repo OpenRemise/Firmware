@@ -6,9 +6,9 @@ if(Doxygen_FOUND)
     NAME
     Doxygen
     URL
-    "https://github.com/doxygen/doxygen/releases/download/Release_1_12_0/doxygen-1.12.0.linux.bin.tar.gz"
+    "https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.linux.bin.tar.gz"
     VERSION
-    1.12.0
+    1.13.2
     DOWNLOAD_ONLY
     ON)
   set(DOXYGEN_EXECUTABLE ${Doxygen_SOURCE_DIR}/bin/doxygen)

@@ -139,7 +139,7 @@ void Service::close() {
   /// \todo wait for ZUSI task to suspend itself?
 
   // auto expected{State::ZUSI};
-  // state.compare_exchange_strong(expected, State::Suspend);
+  // state.compare_exchange_strong(expected, State::Suspending);
 }
 
 } // namespace mw::zimo::zusi

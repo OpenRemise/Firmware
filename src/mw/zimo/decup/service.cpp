@@ -128,7 +128,7 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes) {
 /// \todo document
 void Service::close() {
   _queue = {};
-  state.store(State::Suspend);
+  state.store(State::Suspending);
 }
 
 } // namespace mw::zimo::decup

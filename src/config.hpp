@@ -148,9 +148,9 @@ inline constexpr auto boot_gpio_num{GPIO_NUM_0};
 /// System state
 enum class State : uint16_t {
   // Flags (8 bits)
-  Suspended = 0u << 0u,         ///< Idle
-  Suspend = !Suspended << 0u,   ///< About to be idle
-  ShortCircuit = Suspend << 1u, ///< Short circuit
+  Suspended = 0u << 0u,            ///< Idle
+  Suspending = !Suspended << 0u,   ///< About to be idle
+  ShortCircuit = Suspending << 1u, ///< Short circuit
 
   // Outputs
   DCCOperations = 1u << CHAR_BIT, ///< DCC operation mode

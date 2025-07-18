@@ -60,7 +60,7 @@ Server::Server() {
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 
   //
-  uri = {.uri = "/save",
+  uri = {.uri = "/save/",
          .method = HTTP_POST,
          .handler = ztl::make_trampoline(this, &Server::savePostHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));

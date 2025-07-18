@@ -68,7 +68,7 @@ std::optional<Packet> receive_packet() {
     }
     //
     else if (std::to_underlying(state.load() &
-                                (State::Suspend | State::ShortCircuit)))
+                                (State::Suspending | State::ShortCircuit)))
       break;
   return std::nullopt;
 }
@@ -110,8 +110,8 @@ esp_err_t loop() {
   for (;;) {
     // Return on empty packet, suspend or short circuit
     if (auto const packet{receive_packet()};
-        !packet || std::to_underlying(state.load() &
-                                      (State::Suspend | State::ShortCircuit)))
+        !packet || std::to_underlying(
+                     state.load() & (State::Suspending | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
     // Transmit packet
     else {
