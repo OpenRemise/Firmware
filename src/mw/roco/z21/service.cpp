@@ -301,8 +301,8 @@ void Service::mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) {}
 bool Service::trackPower(bool on, State dcc_state) {
   if (on) {
     switch (state.load()) {
-      // Wait for suspend to complete
-      case State::Suspend:
+      // Wait for suspending to complete
+      case State::Suspending:
         while (state.load() != State::Suspended)
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
         [[fallthrough]];
@@ -337,9 +337,9 @@ bool Service::trackPower(bool on, State dcc_state) {
 
     /// \todo does... never... happen? Z21 app NEVER turn power off -.-
     auto expected{State::DCCOperations};
-    state.compare_exchange_strong(expected, State::Suspend);
+    state.compare_exchange_strong(expected, State::Suspending);
     expected = State::DCCService;
-    state.compare_exchange_strong(expected, State::Suspend);
+    state.compare_exchange_strong(expected, State::Suspending);
 
     return true;
   }

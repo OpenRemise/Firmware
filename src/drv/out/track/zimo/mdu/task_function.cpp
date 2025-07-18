@@ -253,8 +253,8 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   for (;;) {
     // Return on empty packet, suspend or short circuit
     if (auto const packet{receive_packet(timeout)};
-        !packet || std::to_underlying(state.load() &
-                                      (State::Suspend | State::ShortCircuit)))
+        !packet || std::to_underlying(
+                     state.load() & (State::Suspending | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
     // Transmit packet
     else {

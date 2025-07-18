@@ -241,8 +241,8 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
 
     // Return on empty packet, suspend or short circuit
     if (auto const packet{receive_packet()};
-        !packet || std::to_underlying(state.load() &
-                                      (State::Suspend | State::ShortCircuit)))
+        !packet || std::to_underlying(
+                     state.load() & (State::Suspending | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
     else packets.push_back(*packet);
 
@@ -342,8 +342,8 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
     do {
       // Return on empty packet, suspend or short circuit
       if (auto const packet{receive_packet()};
-          !packet || std::to_underlying(state.load() &
-                                        (State::Suspend | State::ShortCircuit)))
+          !packet || std::to_underlying(state.load() & (State::Suspending |
+                                                        State::ShortCircuit)))
         return rmt_tx_wait_all_done(channel, -1);
       else packets.push_back(*packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
