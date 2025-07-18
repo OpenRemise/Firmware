@@ -1,7 +1,8 @@
 # Changelog
 
-##
+## 0.4.1
 - Add `/dcc/` endpoint ([#84](https://github.com/OpenRemise/Firmware/pull/84))
+- Implement `z21::server::intf::System::systemState` ([#90](https://github.com/OpenRemise/Firmware/issues/90))
 - Bugfix task names inside `intf::usb::any_service_task_active` ([#86](https://github.com/OpenRemise/Firmware/pull/86))
 - Bugfix `intf::http::Endpoints` key comparison uses prefix-based matching ([#87](https://github.com/OpenRemise/Firmware/pull/87))
 
