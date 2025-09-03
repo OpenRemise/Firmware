@@ -216,35 +216,32 @@ void Service::locoMode(uint16_t loco_addr, z21::LocoInfo::Mode mode) {
 
 /// \todo document
 z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
-  return {};
+  return _dcc_service->turnoutInfo(accy_addr);
 }
 
 /// \todo document
 z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
-  return {};
+  return _dcc_service->accessoryInfo(accy_addr);
 }
 
 /// \todo document
 void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
-  LOGW("TODO IMPLEMENTED");
+  _dcc_service->turnout(accy_addr, p, a, q);
 }
 
 /// \todo document
 void Service::accessory(uint16_t accy_addr, uint8_t dddddddd) {
-  LOGW("TODO IMPLEMENTED");
+  _dcc_service->accessory(accy_addr, dddddddd);
 }
 
 /// \todo document
 z21::TurnoutInfo::Mode Service::turnoutMode(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
-  return {};
+  return _dcc_service->turnoutMode(accy_addr);
 }
 
 /// \todo document
 void Service::turnoutMode(uint16_t accy_addr, z21::TurnoutInfo::Mode mode) {
-  LOGW("TODO IMPLEMENTED");
+  _dcc_service->turnoutMode(accy_addr, mode);
 }
 
 /// \todo document

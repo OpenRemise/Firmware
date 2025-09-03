@@ -19,11 +19,59 @@
 namespace mw::dcc {
 
 /// \todo document
-void NvTurnoutBase::fromJsonDocument(JsonDocument const& doc) {}
+NvTurnoutBase::NvTurnoutBase(JsonDocument const& doc) { fromJsonDocument(doc); }
+
+/// \todo document
+void NvTurnoutBase::fromJsonDocument(JsonDocument const& doc) {
+  if (JsonVariantConst v{doc["name"]}; v.is<std::string>())
+    name = v.as<std::string>();
+
+  if (JsonVariantConst v{doc["mode"]}; v.is<Mode>())
+    if (v.as<Mode>() != Mode::DCC) LOGE("Can't set mode to anything but DCC");
+
+  if (JsonVariantConst v{doc["position"]}; v.is<uint8_t>()) position = v;
+
+  if (JsonVariantConst v{doc["type"]}; v.is<Type>()) type = v.as<Type>();
+
+  if (JsonObjectConst obj{doc["group"].as<JsonObjectConst>()}) {
+    if (JsonVariantConst arr{obj["addresses"]}; arr.is<JsonArrayConst>()) {
+      group.addresses.reserve(std::size(arr));
+      for (auto const v : arr.as<JsonArrayConst>())
+        group.addresses.push_back(v.as<Address::value_type>());
+    }
+
+    if (JsonVariantConst outer{obj["states"]}; outer.is<JsonArrayConst>()) {
+      group.states.reserve(std::size(outer));
+      for (auto const inner : outer.as<JsonArrayConst>()) {
+        std::vector<Position> states;
+        states.reserve(std::size(inner));
+        for (auto const v : inner.as<JsonArrayConst>())
+          states.push_back(v.as<Position>());
+        group.states.push_back(move(states));
+      }
+    }
+  }
+}
 
 /// \todo document
 JsonDocument NvTurnoutBase::toJsonDocument() const {
   JsonDocument doc;
+  doc["name"] = name;
+  doc["mode"] = mode;
+  doc["position"] = position;
+  doc["type"] = type;
+
+  JsonObject obj{doc.createNestedObject("group")};
+
+  JsonArray arr{obj.createNestedArray("addresses")};
+  for (auto const v : group.addresses) arr.add(v);
+
+  JsonArray outer{obj.createNestedArray("states")};
+  for (auto const& states : group.states) {
+    JsonArray inner{outer.createNestedArray()};
+    for (auto const v : states) inner.add(v);
+  }
+
   return doc;
 }
 
@@ -37,8 +85,7 @@ void Turnout::fromJsonDocument(JsonDocument const& doc) {
 
 /// \todo document
 JsonDocument Turnout::toJsonDocument() const {
-  auto doc{NvTurnoutBase::toJsonDocument()};
-  return doc;
+  return NvTurnoutBase::toJsonDocument();
 }
 
 } // namespace mw::dcc

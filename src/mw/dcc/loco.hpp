@@ -30,8 +30,12 @@ namespace z21 = ::z21;
 
 /// Non-volatile base
 struct NvLocoBase : z21::LocoInfo {
+  constexpr NvLocoBase() = default;
+  explicit NvLocoBase(JsonDocument const& doc);
+
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
+
   std::string name{};
 };
 

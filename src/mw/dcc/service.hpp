@@ -43,6 +43,11 @@ public:
   intf::http::Response locosDeleteRequest(intf::http::Request const& req);
   intf::http::Response locosPutRequest(intf::http::Request const& req);
 
+  //
+  intf::http::Response turnoutsGetRequest(intf::http::Request const& req);
+  intf::http::Response turnoutsDeleteRequest(intf::http::Request const& req);
+  intf::http::Response turnoutsPutRequest(intf::http::Request const& req);
+
 private:
   // This gets called by FreeRTOS
   [[noreturn]] void taskFunction(void*);
@@ -110,7 +115,8 @@ private:
   uint8_t _priority_count{Loco::min_priority};
 
   // Settings
-  uint8_t _dcc_loco_flags{};
+  uint8_t _loco_flags{};
+  uint8_t _accy_flags{};
   uint8_t _programming_type{};
   uint8_t _program_packet_count{};
   bool _bit_verify_to_1{};

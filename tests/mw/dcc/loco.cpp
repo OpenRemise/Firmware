@@ -9,11 +9,11 @@ TEST_F(DccTest, loco_to_base_to_json) {
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
-  EXPECT_EQ(json, "{\"name\":\"BR85\",\"mode\":0,\"speed_steps\":2}");
+  EXPECT_EQ(json, R"({"name":"BR85","mode":0,"speed_steps":2})");
 }
 
 TEST_F(DccTest, json_to_base_to_loco) {
-  std::string json{"{\"name\":\"BR85\",\"speed_steps\":2}"};
+  std::string json{R"({"name":"BR85","speed_steps":2})"};
   JsonDocument doc;
   deserializeJson(doc, json);
   mw::dcc::NvLocoBase base;
@@ -29,27 +29,25 @@ TEST_F(DccTest, loco_to_json) {
   loco.name = "Reihe 2190";
   loco.rvvvvvvv = 1u << 7u | 42u;
   loco.f31_0 = 1u << 3u | 1u << 1u;
+  loco.bidi.error_counter = 1u;
   auto doc{loco.toJsonDocument()};
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
-  EXPECT_EQ(json,
-            "{\"name\":\"Reihe "
-            "2190\",\"mode\":0,\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10,"
-            "\"bidi\":{\"receive_counter\":0,\"error_counter\":0,\"options\":0,"
-            "\"speed\":0,\"qos\":0}}");
+  EXPECT_EQ(
+    json,
+    R"({"name":"Reihe 2190","mode":0,"speed_steps":4,"rvvvvvvv":170,"f31_0":10,"bidi":{"receive_counter":0,"error_counter":1,"options":0,"speed":0,"qos":0}})");
 }
 
 TEST_F(DccTest, json_to_loco) {
   std::string json{
-    "{\"name\":\"Reihe "
-    "2190\",\"mode\":0,\"speed_steps\":4,\"rvvvvvvv\":170,\"f31_0\":10}"};
+    R"({"name":"Reihe 2190","mode":0,"speed_steps":4,"rvvvvvvv":170,"f31_0":10,"bidi":{"receive_counter":0,"error_counter":1,"options":0,"speed":0,"qos":0}})"};
   JsonDocument doc;
   deserializeJson(doc, json);
-  mw::dcc::Loco loco;
-  loco.fromJsonDocument(doc);
+  mw::dcc::Loco loco{doc};
   EXPECT_EQ(loco.name, "Reihe 2190");
   EXPECT_EQ(loco.speed_steps, z21::LocoInfo::DCC128);
   EXPECT_EQ(loco.rvvvvvvv, 170u);
   EXPECT_EQ(loco.f31_0, 10u);
+  EXPECT_EQ(loco.bidi.error_counter, 1u);
 }

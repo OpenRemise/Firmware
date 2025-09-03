@@ -45,9 +45,7 @@ mw::dcc::NvLocoBase Locos::get(std::string const& key) const {
     LOGE("Deserialization failed %s", err.c_str());
     return {};
   }
-  mw::dcc::NvLocoBase loco;
-  loco.fromJsonDocument(doc);
-  return loco;
+  return mw::dcc::NvLocoBase{doc};
 }
 
 /// Set loco from address

@@ -209,6 +209,117 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
 }
 
 /// \todo document
+intf::http::Response
+Service::turnoutsGetRequest(intf::http::Request const& req) {
+  // Singleton
+  if (auto const addr{uri2address(req.uri).value_or(0u)}) {
+    auto const it{_turnouts.find(addr)};
+    if (it == cend(_turnouts))
+      return std::unexpected<std::string>{"404 Not Found"};
+    auto doc{it->second.toJsonDocument()};
+    doc["address"] = addr;
+    std::string json;
+    json.reserve(1024uz);
+    serializeJson(doc, json);
+    return json;
+  }
+  // Collection
+  else {
+    JsonDocument doc;
+    auto array{doc.to<JsonArray>()}; // Explicitly convert to array
+    for (auto const& [addr, turnout] : _turnouts) {
+      auto turnout_doc{turnout.toJsonDocument()};
+      turnout_doc["address"] = addr;
+      array.add(turnout_doc);
+    }
+    std::string json;
+    json.reserve((size(_turnouts) + 1uz) * 1024uz);
+    serializeJson(doc, json);
+    return json;
+  }
+}
+
+/// \todo document
+intf::http::Response
+Service::turnoutsDeleteRequest(intf::http::Request const& req) {
+  auto const addr{uri2address(req.uri).value_or(0u)};
+
+  // Singleton
+  if (std::lock_guard lock{_internal_mutex}; addr) {
+    // Erase (doesn't matter if it exists or not)
+    _turnouts.erase(addr);
+    mem::nvs::Turnouts nvs;
+    nvs.erase(addr);
+  }
+  // Collection
+  else if (req.uri == "/dcc/turnouts/"sv) {
+    // Erase all
+    _turnouts.clear();
+    mem::nvs::Turnouts nvs;
+    nvs.eraseAll();
+  }
+
+  return {};
+}
+
+/// \todo document
+intf::http::Response
+Service::turnoutsPutRequest(intf::http::Request const& req) {
+  // Validate body
+  if (!validate_json(req.body))
+    return std::unexpected<std::string>{"415 Unsupported Media Type"};
+
+  // Address not found or other characters appended to it
+  // We currently only support singleton
+  auto addr{uri2address(req.uri).value_or(0u)};
+  if (!addr) return std::unexpected<std::string>{"417 Expectation Failed"};
+
+  // Deserialize
+  JsonDocument doc;
+  if (auto const err{deserializeJson(doc, req.body)}) {
+    LOGE("Deserialization failed %s", err.c_str());
+    return std::unexpected<std::string>{"500 Internal Server Error"};
+  }
+
+  auto it{_turnouts.find(addr)};
+  mem::nvs::Turnouts nvs;
+
+  // Address not found
+  if (std::lock_guard lock{_internal_mutex}; it == cend(_turnouts)) {
+    // Address in URI does not match body
+    if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
+      return std::unexpected<std::string>{"417 Expectation Failed"};
+    // Insert new turnout
+    else if (auto const ret{_turnouts.insert({addr, Turnout{doc}})}; ret.second)
+      it = ret.first; // Update iterator
+    // Insertion failed
+    else return std::unexpected<std::string>{"500 Internal Server Error"};
+  }
+  // Address found, but changing
+  else if (JsonVariantConst v{doc["address"]};
+           v.as<Address::value_type>() != addr) {
+    auto node{_turnouts.extract(addr)};
+    node.key() = v.as<Address::value_type>();
+    // Re-insert turnout with new address
+    if (auto const ret{_turnouts.insert(move(node))}; ret.inserted) {
+      it = ret.position;                  // Update iterator
+      nvs.erase(addr);                    // Erase old address
+      addr = v.as<Address::value_type>(); // Update address
+    }
+    // Insertion failed
+    else
+      return std::unexpected<std::string>{"500 Internal Server Error"};
+  }
+  // Address found, just update turnout
+  else
+    it->second.fromJsonDocument(doc); // Update iterator
+
+  nvs.set(addr, it->second);
+
+  return {};
+}
+
+/// \todo document
 [[noreturn]] void Service::taskFunction(void*) {
   switch (state.load()) {
     case State::DCCOperations:
@@ -311,7 +422,7 @@ void Service::operationsDcc() {
           basicOrExtendedLocoAddress(addr), loco.f31_0 >> 9u & 0xFu));
 
         // Higher functions
-        if (_dcc_loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
+        if (_loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
           sendToBack(make_feature_expansion_f20_f13_packet(
             basicOrExtendedLocoAddress(addr), loco.f31_0 >> 13u));
           sendToBack(make_feature_expansion_f28_f21_packet(
@@ -344,136 +455,56 @@ void Service::operationsBiDi() {
     if (addr.type != Address::BasicLoco && addr.type != Address::ExtendedLoco)
       continue;
 
-    // Channel 1 (which I don't care about currently)
-    std::span const ch1{cbegin(item.datagram), cbegin(item.datagram) + 2};
-
-    // Channel 2
-    std::span const ch2{cbegin(item.datagram) + 2, cend(item.datagram)};
-
-    // Invalid data
-    if (std::ranges::any_of(
-          ch2, [](uint8_t b) { return b && std::popcount(b) != CHAR_BIT / 2; }))
-      continue;
-    // ACK
-    else if (std::ranges::any_of(ch2, [](uint8_t b) {
-               return b == dcc::bidi::acks[0uz] || b == dcc::bidi::acks[1uz];
-             }))
-      ; /// \todo do something with ACK information... (e.g. lower priority)
-
-    // Count channel 2 bytes until ACK
-    size_t ch2_bytes{};
-    for (auto b : ch2)
-      if (b && b != dcc::bidi::acks[0uz] && b != dcc::bidi::acks[1uz])
-        ++ch2_bytes;
-      else break;
-    if (!ch2_bytes) continue;
-
-    // Make data
-    auto data{bidi::make_data(bidi::decode_datagram(item.datagram))};
-
-    // Remove channel 1 address part (bits 48-36)
-    data &= 0xF'FFFF'FFFFull;
-
-    auto const to{static_cast<int32_t>(bidi::Bits::_36) - ch2_bytes * 6};
-    for (auto from{static_cast<int32_t>(bidi::Bits::_36)}; from > to;) {
-      assert(from > 4);
-      switch (
-        auto const id{static_cast<uint8_t>((data >> (from - 4)) & 0b1111u)}) {
-        // app:pom
-        case 0u:
-          if (!empty(_cv_pom_request_deque)) {
-            if (decode_instruction(item.packet) == Instruction::CvLong) {
-              auto const off{addr.type == Address::ExtendedLoco};
-              auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
-                                 item.packet[2uz + off]};
-              if (auto const& req{_cv_pom_request_deque.front()};
-                  req.addr == addr && req.cv_addr == cv_addr) {
-                cvAck(cv_addr, static_cast<uint8_t>(data >> 24u));
-                _cv_pom_request_deque.pop_front();
-              }
+    for (bidi::Dissector dissector{item.datagram, addr};
+         auto const& dg : dissector) {
+      //
+      if (auto pom{get_if<bidi::app::Pom>(&dg)}) {
+        if (!empty(_cv_pom_request_deque)) {
+          if (decode_instruction(item.packet) == Instruction::CvLong) {
+            auto const off{addr.type == Address::ExtendedLoco};
+            auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
+                               item.packet[2uz + off]};
+            if (auto const& req{_cv_pom_request_deque.front()};
+                req.addr == addr && req.cv_addr == cv_addr) {
+              cvAck(cv_addr, pom->d);
+              _cv_pom_request_deque.pop_front();
             }
           }
-          from -= static_cast<int32_t>(bidi::Bits::_12);
-          break;
-
-        // app:adr_high
-        case 1u: from = 0; break;
-
-        // app:adr_low
-        case 2u: from = 0; break;
-
-        // app:ext
-        case 3u: from = 0; break;
-
-        // app:info
-        case 4u: from = 0; break;
-
-        // app:dyn
-        case 7u: {
-          if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
-            auto const x{
-              static_cast<uint8_t>((data >> (from - 18)) & 0b11'1111u)};
-            auto const d{static_cast<uint8_t>(data >> (from - 12))};
-            it->second.bidi.loco_address = addr;
-            auto const bidi_before{it->second.bidi};
-            switch (x) {
-              // Speed (<=255)
-              case 0u:
-                it->second.bidi.options =
-                  static_cast<z21::RailComData::Options>(
-                    (it->second.bidi.options &
-                     ~(z21::RailComData::Options::Speed2 |
-                       z21::RailComData::Options::Speed1)) |
-                    z21::RailComData::Options::Speed1);
-                it->second.bidi.speed = d;
-                break;
-              // Speed (>255)
-              case 1u:
-                it->second.bidi.options =
-                  static_cast<z21::RailComData::Options>(
-                    (it->second.bidi.options &
-                     ~(z21::RailComData::Options::Speed2 |
-                       z21::RailComData::Options::Speed1)) |
-                    z21::RailComData::Options::Speed2);
-                it->second.bidi.speed = d;
-                break;
-              // QoS
-              case 7u:
-                it->second.bidi.options =
-                  static_cast<z21::RailComData::Options>(
-                    it->second.bidi.options | z21::RailComData::Options::QoS);
-                it->second.bidi.qos = d;
-                break;
-            }
-            if (it->second.bidi != bidi_before) broadcastRailComData(addr);
-          }
-          from -= static_cast<int32_t>(bidi::Bits::_18);
-          break;
         }
-
-        // app:xpom
-        case 8u: from = 0; break;
-
-        // app:xpom
-        case 9u: from = 0; break;
-
-        // app:xpom
-        case 10u: from = 0; break;
-
-        // app:xpom
-        case 11u: from = 0; break;
-
-        // app:CV-auto
-        case 12u: from = 0; break;
-
-        // app:block
-        case 13u: from = 0; break;
-
-        // app:zeit
-        case 14u: from = 0; break;
-
-        // Error
-        default: from = 0; break;
+      }
+      //
+      else if (auto dyn{get_if<bidi::app::Dyn>(&dg)}) {
+        if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
+          it->second.bidi.loco_address = addr;
+          auto const bidi_before{it->second.bidi};
+          switch (dyn->x) {
+            // Speed (<=255)
+            case 0u:
+              it->second.bidi.options = static_cast<z21::RailComData::Options>(
+                (it->second.bidi.options &
+                 ~(z21::RailComData::Options::Speed2 |
+                   z21::RailComData::Options::Speed1)) |
+                z21::RailComData::Options::Speed1);
+              it->second.bidi.speed = dyn->d;
+              break;
+            // Speed (>255)
+            case 1u:
+              it->second.bidi.options = static_cast<z21::RailComData::Options>(
+                (it->second.bidi.options &
+                 ~(z21::RailComData::Options::Speed2 |
+                   z21::RailComData::Options::Speed1)) |
+                z21::RailComData::Options::Speed2);
+              it->second.bidi.speed = dyn->d;
+              break;
+            // QoS
+            case 7u:
+              it->second.bidi.options = static_cast<z21::RailComData::Options>(
+                it->second.bidi.options | z21::RailComData::Options::QoS);
+              it->second.bidi.qos = dyn->d;
+              break;
+          }
+          if (it->second.bidi != bidi_before) broadcastRailComData(addr);
+        }
       }
     }
   }
@@ -621,17 +652,18 @@ void Service::sendToBack(Packet const& packet, size_t n) {
 
 /// \todo document
 z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
-  assert(loco_addr);
+  if (!loco_addr) return {};
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{_locos[loco_addr]};
 
-  std::lock_guard lock{_internal_mutex};
-  auto& loco{_locos[loco_addr]};
+    //
+    if (empty(loco.name)) loco.name = std::to_string(loco_addr);
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
 
-  //
-  if (empty(loco.name)) loco.name = std::to_string(loco_addr);
-  mem::nvs::Locos nvs;
-  nvs.set(loco_addr, loco);
-
-  return loco;
+    return loco;
+  }
 }
 
 /// \todo document
@@ -697,7 +729,7 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
 
     // Higher functions don't get repeated, send them now
     if (mask >= (1u << 13u) &&
-        !(_dcc_loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
+        !(_loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
       if (mask & (0xFFu << 13u))
         sendToBack(make_feature_expansion_f20_f13_packet(
           basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 13u));
@@ -718,17 +750,7 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
 
 /// \todo document
 z21::LocoInfo::Mode Service::locoMode(uint16_t loco_addr) {
-  assert(loco_addr);
-
-  std::lock_guard lock{_internal_mutex};
-  auto& loco{_locos[loco_addr]};
-
-  //
-  if (empty(loco.name)) loco.name = std::to_string(loco_addr);
-  mem::nvs::Locos nvs;
-  nvs.set(loco_addr, loco);
-
-  return loco.mode;
+  return locoInfo(loco_addr).mode;
 }
 
 /// \todo document
@@ -737,51 +759,96 @@ void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
 }
 
 /// \todo document
-void Service::broadcastLocoInfo(uint16_t addr) {
-  _z21_dcc_service->broadcastLocoInfo(addr);
+void Service::broadcastLocoInfo(uint16_t loco_addr) {
+  _z21_dcc_service->broadcastLocoInfo(loco_addr);
 }
 
 /// \todo document
 z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
-  return {};
+  if (!accy_addr) return {};
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& turnout{_turnouts[accy_addr]};
+
+    if (empty(turnout.name)) turnout.name = std::to_string(accy_addr);
+    mem::nvs::Turnouts nvs;
+    nvs.set(accy_addr, turnout);
+
+    return turnout;
+  }
 }
 
 /// \todo document
 z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
-  return {};
+  LOGW("accessoryInfo not implemented");
+  if (!accy_addr) return {};
+  else { return {}; }
 }
 
 /// \todo document
 void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
-  LOGW("TODO IMPLEMENTED");
+  /*
+  Die Z21 sollt eigentlich den Port ein und dann nach einer Zeit wieder
+  ausschalten. Es gibt aber auch a Bit für automatische Überwachung, wo wohl
+  nach am Timeout so oder so a Aus gesendet wird?
+
+  Die Schaltzeit selbst is sonst nur Teil der App, die kann ma in der Zentrale
+  ned einstellen! Eventuell wärs also sinnvoll a "dcc_trn_sw_time" Einstellung
+  anzulegen?
+
+   10AA-AAAA 1AAA-DAAR
+                  DPPR
+   D - State ein/aus (bei Z21 "A")
+   PP - Port
+   R - links rechts? (bei Z21 "P")
+  */
+  LOGW("turnout addr %d    p %d    a %d    q %d", accy_addr, p, a, q);
+
+  if (!accy_addr) return;
+  //
+  else {
+    sendToFront(
+      make_basic_accessory_packet({accy_addr, Address::BasicAccessory}, p, a));
+
+    // Commands which deactivate outputs are basically nops
+    if (!a) return;
+
+    std::lock_guard lock{_internal_mutex};
+    auto& turnout{_turnouts[accy_addr]};
+
+    turnout.position = static_cast<z21::TurnoutInfo::Position>(1u << p);
+
+    mem::nvs::Turnouts nvs;
+    nvs.set(accy_addr, turnout);
+  }
+
+  //
+  broadcastTurnoutInfo(accy_addr);
 }
 
 /// \todo document
 void Service::accessory(uint16_t accy_addr, uint8_t dddddddd) {
-  LOGW("TODO IMPLEMENTED");
+  LOGW("accessory addr %d    dddddddd %d", accy_addr, dddddddd);
 }
 
 /// \todo document
 z21::TurnoutInfo::Mode Service::turnoutMode(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
-  return {};
+  return turnoutInfo(accy_addr).mode;
 }
 
 /// \todo document
-void Service::turnoutMode(uint16_t accy_addr, z21::TurnoutInfo::Mode mode) {
-  LOGW("TODO IMPLEMENTED");
+void Service::turnoutMode(uint16_t, z21::TurnoutInfo::Mode mode) {
+  if (mode == z21::TurnoutInfo::MM) LOGW("MM not supported");
 }
 
 /// \todo document
 void Service::broadcastTurnoutInfo(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
+  _z21_dcc_service->broadcastTurnoutInfo(accy_addr);
 }
 
 /// \todo document
 void Service::broadcastExtAccessoryInfo(uint16_t accy_addr) {
-  LOGW("TODO IMPLEMENTED");
+  _z21_dcc_service->broadcastExtAccessoryInfo(accy_addr);
 }
 
 /// \todo document
@@ -831,14 +898,14 @@ void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
 
 /// \todo document
 void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) {
-  assert(false);
+  LOGW("cvPomAccessoryRead not implemented");
 }
 
 /// \todo document
 void Service::cvPomAccessoryWrite(uint16_t accy_addr,
                                   uint16_t cv_addr,
                                   uint8_t byte) {
-  assert(false);
+  LOGW("cvPomAccessoryWrite not implemented");
 }
 
 /// \todo document
@@ -868,7 +935,8 @@ void Service::broadcastRailComData(uint16_t loco_addr) {
 void Service::resume() {
   // Update settings
   mem::nvs::Settings nvs;
-  _dcc_loco_flags = nvs.getDccLocoFlags();
+  _loco_flags = nvs.getDccLocoFlags();
+  _accy_flags = nvs.getDccAccessoryFlags();
   _programming_type = nvs.getDccProgrammingType();
   _program_packet_count = nvs.getDccProgramPacketCount();
   _bit_verify_to_1 = nvs.getDccBitVerifyTo1();
@@ -897,9 +965,8 @@ void Service::suspend() {
 Address Service::basicOrExtendedLocoAddress(Address::value_type addr) const {
   return {.value = addr,
           .type =
-            addr <= (_dcc_loco_flags & z21::MmDccSettings::Flags::DccShort127
-                       ? 127u
-                       : 99u)
+            addr <= (_loco_flags & z21::MmDccSettings::Flags::DccShort127 ? 127u
+                                                                          : 99u)
               ? Address::BasicLoco
               : Address::ExtendedLoco};
 }

@@ -30,9 +30,44 @@ namespace z21 = ::z21;
 
 /// Non-volatile base
 struct NvTurnoutBase : z21::TurnoutInfo {
+  constexpr NvTurnoutBase() = default;
+  explicit NvTurnoutBase(JsonDocument const& doc);
+
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
+
   std::string name{};
+  enum Type : uint16_t {
+    // Special
+    Unknown,
+    Hidden,
+    Custom,
+
+    // Track (move)
+    TurnoutRight = 256u,
+    TurnoutLeft,
+    TurnoutY,
+    Turnout3Way,
+
+    // Signal (guide)
+    Signal2Aspects = 512u,
+    Signal3Aspects,
+    Signal4Aspects,
+    SignalBlocking,
+    SignalSemaphore,
+
+    // Scenery (world)
+    Light = 768u,
+    CrossingGate,
+    Relay,
+
+    /// \todo Railway signals of actual countries?
+    AT = 1024u,
+  } type{};
+  struct Group {
+    std::vector<Address::value_type> addresses{};
+    std::vector<std::vector<Position>> states{};
+  } group{};
 };
 
 /// Actual object with volatile and non-volatile stuff

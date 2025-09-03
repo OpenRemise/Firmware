@@ -38,6 +38,18 @@ esp_err_t init() {
       service,
       &Service::locosPutRequest);
     intf::http::sta::server->subscribe(
+      {.uri = "/dcc/turnouts/", .method = HTTP_DELETE},
+      service,
+      &Service::turnoutsDeleteRequest);
+    intf::http::sta::server->subscribe(
+      {.uri = "/dcc/turnouts/", .method = HTTP_GET},
+      service,
+      &Service::turnoutsGetRequest);
+    intf::http::sta::server->subscribe(
+      {.uri = "/dcc/turnouts/", .method = HTTP_PUT},
+      service,
+      &Service::turnoutsPutRequest);
+    intf::http::sta::server->subscribe(
       {.uri = "/dcc/", .method = HTTP_GET}, service, &Service::getRequest);
     intf::http::sta::server->subscribe(
       {.uri = "/dcc/", .method = HTTP_POST}, service, &Service::postRequest);

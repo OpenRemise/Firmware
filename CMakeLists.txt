@@ -45,7 +45,7 @@ if(ESP_PLATFORM
         GITHUB_REPOSITORY
         "OpenRemise/Frontend"
         GIT_TAG
-        devel
+        turnouts
         DOWNLOAD_ONLY
         TRUE)
     endif()

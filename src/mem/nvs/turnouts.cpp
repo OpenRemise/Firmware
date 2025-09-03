@@ -39,7 +39,13 @@ mw::dcc::NvTurnoutBase Turnouts::get(dcc::Address::value_type addr) const {
 /// \param  addr  key
 /// \return Turnout
 mw::dcc::NvTurnoutBase Turnouts::get(std::string const& key) const {
-  return {};
+  auto const json{getBlob(key)};
+  JsonDocument doc;
+  if (auto const err{deserializeJson(doc, json)}) {
+    LOGE("Deserialization failed %s", err.c_str());
+    return {};
+  }
+  return mw::dcc::NvTurnoutBase{doc};
 }
 
 /// Set turnout from address
@@ -71,7 +77,11 @@ esp_err_t Turnouts::set(dcc::Address::value_type addr,
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Turnouts::set(std::string const& key,
                         mw::dcc::NvTurnoutBase const& turnout) {
-  return {};
+  auto const doc{turnout.toJsonDocument()};
+  std::string json;
+  json.reserve(1024uz);
+  if (!serializeJson(doc, json)) assert(false);
+  return setBlob(key, json);
 }
 
 /// Erase turnout from address

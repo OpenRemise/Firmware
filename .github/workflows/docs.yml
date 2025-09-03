@@ -36,7 +36,7 @@ jobs:
         run: |
           mkdir -p ~/esp
           cd ~/esp
-          git clone -b fix_ws_recv --recursive https://github.com/higaski/esp-idf.git
+          git clone -b v5.5.1 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
           ./install.sh esp32s3
       - run: |

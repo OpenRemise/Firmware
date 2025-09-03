@@ -72,6 +72,24 @@ Server::Server() {
   httpd_register_uri_handler(handle, &uri);
 
   //
+  uri = {.uri = "/dcc/turnouts/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::getHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/dcc/turnouts/*",
+         .method = HTTP_PUT,
+         .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/dcc/turnouts/*",
+         .method = HTTP_DELETE,
+         .handler = ztl::make_trampoline(this, &Server::deleteHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
   uri = {.uri = "/dcc/*",
          .method = HTTP_GET,
          .handler = ztl::make_trampoline(this, &Server::getHandler)};
