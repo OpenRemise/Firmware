@@ -144,13 +144,13 @@
 ///   ```sh
 ///   mkdir -p ~/esp
 ///   cd ~/esp
-///   git clone -b \idf_ver --recursive git@github.com:higaski/esp-idf.git
+///   git clone -b \idf_ver --recursive git@github.com:espressif/esp-idf.git
 ///   ```
 /// - <b class="tab-title">HTTPS</b>
 ///   ```sh
 ///   mkdir -p ~/esp
 ///   cd ~/esp
-///   git clone -b \idf_ver --recursive https://github.com/higaski/esp-idf.git
+///   git clone -b \idf_ver --recursive https://github.com/espressif/esp-idf.git
 ///   ```
 /// </div>
 ///
