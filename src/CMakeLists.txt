@@ -63,6 +63,7 @@ else()
     drv/wifi/task_function.cpp
     intf/http/ap/init.cpp
     intf/http/ap/server.cpp
+    intf/http/ap/dns.cpp
     intf/http/sta/init.cpp
     intf/http/sta/server.cpp
     intf/http/init.cpp
@@ -97,6 +98,7 @@ else()
     esp_app_format
     esp_http_server
     esp_wifi
+    lwip
     nvs_flash
     vfs
     EMBED_FILES
