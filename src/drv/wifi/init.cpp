@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +32,7 @@
 #include <vector>
 #include <ztl/string.hpp>
 #include "drv/led/wifi.hpp"
+#include "intf/http/ap/dns.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "task_function.hpp"
@@ -106,7 +108,8 @@ void event_handler(void*,
       // Set global MAC string
       ESP_ERROR_CHECK(esp_base_mac_addr_get(data(mac)));
       snprintf(data(mac_str), size(mac_str), MACSTR, MAC2STR(mac));
-      drv::led::wifi(true);
+      drv::led::wifi::on();
+      intf::http::ap::stop_dns();
     }
   }
   // WiFi events
@@ -118,7 +121,8 @@ void event_handler(void*,
       LOGI("AP: STA " MACSTR " connected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      drv::led::wifi(true);
+      drv::led::wifi::blink(1000, 500);
+      intf::http::ap::start_dns();
     }
     // STA disconnected from own AP
     else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
@@ -127,7 +131,9 @@ void event_handler(void*,
       LOGI("AP: STA " MACSTR " disconnected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      drv::led::wifi(false);
+      // defaults are (500, 250)
+      drv::led::wifi::blink();
+      intf::http::ap::stop_dns();
     }
     // STA disconnected from external AP
     else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
@@ -136,7 +142,7 @@ void event_handler(void*,
       LOGI("STA: " MACSTR " disconnected, AID=%d",
            MAC2STR(event->mac),
            event->aid);
-      drv::led::wifi(false);
+      drv::led::wifi::off();
       ip_str.clear();
       esp_wifi_connect();
     }
@@ -259,8 +265,10 @@ esp_err_t init() {
     return ESP_OK;
   }
   // ... or fallback to AP
-  else
+  else {
+    drv::led::wifi::blink();
     return ap_init(ap_config());
+  }
 }
 
 } // namespace drv::wifi

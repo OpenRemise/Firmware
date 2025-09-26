@@ -1,22 +1,129 @@
 <!DOCTYPE html>
-<div style="max-width:500px;margin:auto">
+<html lang="en">
+<head>
+  <title>OpenRemise Config</title>
+  <style>
+    body {{
+      overflow-y: scroll;
+      font-family: sans-serif;
+      background: #f3f3f3;
+      margin: 0;
+      padding: 1em;
+    }}
+
+    .container {{
+      width: 100%;
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 1.5em;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }}
+
+    @media screen and (min-width: 800px) {{
+      .container {{
+        max-width: 760px;
+      }}
+    }}
+
+    h2 {{
+      margin-top: 0;
+      color: #444;
+    }}
+
+    table {{
+      width: 100%;
+      border-spacing: 0;
+    }}
+
+    td {{
+      padding: 0.4em 0.2em;
+    }}
+
+    label {{
+      display: inline-block;
+      min-width: 130px;
+      font-weight: 500;
+    }}
+
+    input[type="text"],
+    input[type="password"] {{
+      width: calc(100% - 1em);
+      padding: 0.3em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }}
+
+    input[type="submit"] {{
+      background: #2a80f0;
+      color: white;
+      border: none;
+      padding: 0.6em;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }}
+
+    input[type="submit"]:hover {{
+      background: #1f67c1;
+    }}
+
+    a.eye {{
+      cursor: pointer;
+      font-size: 1.2em;
+      margin-left: 0.4em;
+    }}
+
+    details {{
+      margin-top: 1em;
+    }}
+
+    ul {{
+      padding-left: 1.2em;
+    }}
+
+    ul li {{
+      margin-bottom: 0.3em;
+    }}
+
+    details summary {{
+      font-weight: bold;
+      cursor: pointer;
+      outline: none;
+      margin-bottom: 0.4em;
+    }}
+
+    ul li {{
+      padding: 0.3em 0;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95em;
+    }}
+
+  </style>
+</head>
+<body>
+<div class="container">
   <h2>OpenRemise Config</h2>
   <form action="/save/" method="POST">
     <table>
       <tr>
         <td><label for="sta_mdns">mDNS:</label></td>
         <td><input type="text" pattern="[^\.]*remise" id="sta_mdns" name="sta_mdns" maxlength="32" placeholder="remise"
-            value="{}"></td>
+            value="{mdns}"></td>
       </tr>
       <tr>
         <td><label for="sta_ssid">SSID:</label></td>
         <td><input type="text" id="sta_ssid" name="sta_ssid" list="list_sta_ssid" maxlength="32" placeholder="SSID"
-            value="{}"> <datalist id="list_sta_ssid">{}</datalist></td>
+            value="{ssid}"> <datalist id="list_sta_ssid">{options}</datalist></td>
       </tr>
       <tr>
         <td><label for="sta_pass">Password:</label></td>
         <td><input type="password" id="sta_pass" name="sta_pass" maxlength="64" placeholder="Password"
-            autocomplete="off" value="{}"></td>
+            autocomplete="off" value="{pass}"></td>
         <td><a
             onclick="var pw = document.getElementById('sta_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
         </td>
@@ -24,14 +131,14 @@
       <tr>
         <td><label for="sta_alt_ssid">Alternative SSID:</label></td>
         <td><input type="text" id="sta_alt_ssid" name="sta_alt_ssid" list="list_sta_ssid" maxlength="32"
-            placeholder="SSID or blank" value="{}">
-          <datalist id="list_sta_ssid">{}</datalist>
+            placeholder="SSID or blank" value="{alt_ssid}">
+          <datalist id="list_sta_ssid">{options}</datalist>
         </td>
       </tr>
       <tr>
         <td><label for="sta_alt_pass">Alternative password:</label></td>
         <td><input type="password" id="sta_alt_pass" name="sta_alt_pass" maxlength="64" placeholder="Password or blank"
-            autocomplete="off" value="{}">
+            autocomplete="off" value="{alt_pass}">
         </td>
         <td><a
             onclick="var pw = document.getElementById('sta_alt_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
@@ -41,21 +148,21 @@
         <td><label for="sta_ip">IP:</label></td>
         <td><input type="text"
             pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
-            id="sta_ip" name="sta_ip" maxlength="15" placeholder="IP or blank" value="{}">
+            id="sta_ip" name="sta_ip" maxlength="15" placeholder="IP or blank" value="{ip}">
         </td>
       </tr>
       <tr>
         <td><label for="sta_netmask">Netmask:</label></td>
         <td><input type="text"
             pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
-            id="sta_netmask" name="sta_netmask" maxlength="15" placeholder="Netmask or blank" value="{}">
+            id="sta_netmask" name="sta_netmask" maxlength="15" placeholder="Netmask or blank" value="{netmask}">
         </td>
       </tr>
       <tr>
         <td><label for="sta_gateway">Gateway:</label></td>
         <td><input type="text"
             pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
-            id="sta_gateway" name="sta_gateway" maxlength="15" placeholder="Gateway or blank" value="{}">
+            id="sta_gateway" name="sta_gateway" maxlength="15" placeholder="Gateway or blank" value="{gateway}">
         </td>
       </tr>
       <tr>
@@ -67,6 +174,8 @@
   <br>
   <details>
     <summary>Networks</summary>
-    <ul>{}</ul>
+    <ul>{records}</ul>
   </details>
 </div>
+</body>
+</html>

@@ -37,6 +37,7 @@ private:
   void getConfig();
   void setConfig() const;
   esp_err_t wildcardGetHandler(httpd_req_t* req);
+  esp_err_t redirectHandler(httpd_req_t* req);
   esp_err_t savePostHandler(httpd_req_t* req);
 
   static constexpr auto unicode_lock_{"&#x1F512"};

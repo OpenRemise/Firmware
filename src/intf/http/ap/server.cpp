@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@
 #include "server.hpp"
 #include <esp_wifi.h>
 #include <fmt/core.h>
+#include <fmt/args.h>
 #include <freertos/queue.h>
 #include <ztl/string.hpp>
 #include "log.h"
@@ -37,6 +39,7 @@ namespace intf::http::ap {
 
 /// Ctor
 Server::Server() {
+  LOGW("Server: Constructor called: this=%p", this);
   _ap_records_str.reserve(1024uz);
   _ap_options_str.reserve(1024uz);
   _get_str.reserve(2048uz);
@@ -50,13 +53,34 @@ Server::Server() {
   config.lru_purge_enable = true;
   config.keep_alive_enable = true;
   config.uri_match_fn = httpd_uri_match_wildcard;
+  config.max_uri_handlers = 16;
   ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
-  //
-  httpd_uri_t uri{.uri = "/*",
-                  .method = HTTP_GET,
-                  .handler =
-                    ztl::make_trampoline(this, &Server::wildcardGetHandler)};
+  httpd_uri_t uri{};
+  // -------------- redirect uris -------------- //
+  // adjust config.max_uri_handlers above !
+  static const char* redirect_uris[] = {
+    "/generate_204",          // Android Trigger
+    "/hotspot-detect.html",   // Apple/macOS Trigger
+    "/redirect",              // Windows & Co.
+    "/connecttest.txt",
+    "/canonical.html",
+    "/success.txt",
+    "/ncsi.txt"
+  };
+
+  for (auto const& uri_path : redirect_uris) {
+    uri = {.uri = uri_path,
+           .method = HTTP_GET,
+           .handler = ztl::make_trampoline(this, &Server::redirectHandler)};
+    ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
+  }
+  // -------------- redirect uris -------------- //
+
+  // Wildcard as last!
+  uri = {.uri = "/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::wildcardGetHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 
   //
@@ -97,23 +121,32 @@ void Server::buildApRecordsStrings() {
 
 /// \todo document
 void Server::buildGetString() {
-  auto const result{fmt::format_to_n(
-    begin(_get_str),
+  auto const template_str = std::string_view(
+    &_binary_captive_portal_html_start,
+    static_cast<size_t>(&_binary_captive_portal_html_end -
+                        &_binary_captive_portal_html_start)
+  );
+
+  fmt::dynamic_format_arg_store<fmt::format_context> args;
+  args.push_back(fmt::arg("mdns",          _sta_mdns_str));
+  args.push_back(fmt::arg("ssid",          _sta_ssid_str));
+  args.push_back(fmt::arg("options",       _ap_options_str));
+  args.push_back(fmt::arg("pass",          _sta_pass_str));
+  args.push_back(fmt::arg("alt_ssid",      _sta_alt_ssid_str));
+  args.push_back(fmt::arg("alt_pass",      _sta_alt_pass_str));
+  args.push_back(fmt::arg("ip",            _sta_ip_str));
+  args.push_back(fmt::arg("netmask",       _sta_netmask_str));
+  args.push_back(fmt::arg("gateway",       _sta_gateway_str));
+  args.push_back(fmt::arg("records",       _ap_records_str));
+
+  // Ergebnis in den reservierten Buffer schreiben
+  auto result = fmt::vformat_to_n(
+    _get_str.begin(),
     _get_str.capacity(),
-    fmt::runtime({&_binary_captive_portal_html_start,
-                  static_cast<size_t>(&_binary_captive_portal_html_end -
-                                      &_binary_captive_portal_html_start)}),
-    _sta_mdns_str,
-    _sta_ssid_str,
-    _ap_options_str,
-    _sta_pass_str,
-    _sta_alt_ssid_str,
-    _ap_options_str,
-    _sta_alt_pass_str,
-    _sta_ip_str,
-    _sta_netmask_str,
-    _sta_gateway_str,
-    _ap_records_str)};
+    template_str,
+    args
+  );
+
   _get_str.resize(result.size);
 }
 
@@ -161,7 +194,16 @@ void Server::setConfig() const {
 
 /// \todo document
 esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
-  LOGD("GET request %s", req->uri);
+  LOGW("[wildcard] GET request %s", req->uri);
+
+  buildGetString();
+  httpd_resp_send(req, data(_get_str), ssize(_get_str));
+  return ESP_OK;
+}
+
+/// \todo document
+esp_err_t Server::redirectHandler(httpd_req_t* req) {
+  LOGW("[redirect] GET request %s", req->uri);
 
   buildGetString();
   httpd_resp_send(req, data(_get_str), ssize(_get_str));
@@ -258,5 +300,4 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
 
   return ESP_OK;
 }
-
 } // namespace intf::http::ap

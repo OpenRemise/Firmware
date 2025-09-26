@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,24 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// WiFi LED
+/// DNS server for access point
 ///
-/// \file   drv/led/wifi.hpp
-/// \author Vincent Hamp
-/// \date   27/04/2025
+/// \file   intf/http/ap/dns.hpp
+/// \author Franziska Walter
+/// \date   11/07/2025
 
 #pragma once
 
-#include "freertos/queue.h"
+extern "C" {
+namespace intf::http::ap {
 
-namespace drv::led {
+void start_dns();
+void stop_dns();
 
-    class wifi {
-        public:
-            static void on();
-            static void off();
-            static void blink(int on = 500, int off = 250);
-            static void init();  // Nur einmal beim Start aufrufen
-    };
+}
+}
 
-} // namespace drv::led

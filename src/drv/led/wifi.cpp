@@ -25,21 +25,53 @@
 
 namespace drv::led {
 
-/// Turn WiFi LED on or off
-///
-/// \param  on  LED state
-void wifi(bool on) {
-  // Apply duty cycle
-  if (on) {
-    mem::nvs::Settings nvs;
-    auto const dc{nvs.getLedDutyCycleWiFi()};
-    ESP_ERROR_CHECK(
-      ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, (dc * 256u) / 100u));
-  }
-  // ... don't care
-  else
-    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, 0u));
-  ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
-}
+  namespace {
+    int blink_on;
+    int blink_off;
 
+    uint32_t calculate_duty() {
+      mem::nvs::Settings nvs;
+      auto const dc = nvs.getLedDutyCycleWiFi();
+      return (dc * 256u) / 100u;
+    }
+
+    static TaskHandle_t blink_task_handle = nullptr;
+    static void blink_task(void*) {
+      uint32_t duty = calculate_duty();
+      for (;;) {
+        ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, duty));
+        ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
+        vTaskDelay(pdMS_TO_TICKS(blink_on));
+        ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, 0));
+        ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
+        vTaskDelay(pdMS_TO_TICKS(blink_off));
+      }
+    }
+  }  // namespace
+
+  void wifi::on() {
+    if (blink_task_handle) 
+      vTaskSuspend(blink_task_handle);
+    auto const duty = calculate_duty();
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, duty));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
+  }
+
+  void wifi::off() {
+    if (blink_task_handle) 
+      vTaskSuspend(blink_task_handle);
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, wifi_channel, 0));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, wifi_channel));
+  }
+
+  void wifi::blink(int on, int off) {
+    blink_on = on;
+    blink_off = off;
+    
+    if (blink_task_handle) {
+      vTaskResume(blink_task_handle);
+    } else {
+      xTaskCreate(blink_task, "wifi_blink", 2048, nullptr, 5, &blink_task_handle);
+    }
+  }
 } // namespace drv::led
