@@ -54,7 +54,8 @@ struct NvTurnoutBase : z21::TurnoutInfo {
     Signal3Aspects,
     Signal4Aspects,
     SignalBlocking,
-    SignalSemaphore,
+    SignalSemaphore2Aspects,
+    SignalSemaphore3Aspects,
 
     // Scenery (world)
     Light = 768u,
@@ -66,7 +67,7 @@ struct NvTurnoutBase : z21::TurnoutInfo {
   } type{};
   struct Group {
     std::vector<Address::value_type> addresses{};
-    std::vector<std::vector<Position>> states{};
+    std::vector<std::vector<Position>> positions{};
   } group{};
 };
 
@@ -77,6 +78,8 @@ struct Turnout : NvTurnoutBase {
 
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
+
+  TickType_t timeout_tick{}; ///<
 };
 
 } // namespace mw::dcc

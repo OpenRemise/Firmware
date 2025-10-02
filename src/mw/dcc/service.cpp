@@ -340,7 +340,8 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
 /// \todo document
 void Service::operationsLoop() {
   while (state.load() == State::DCCOperations) {
-    operationsDcc();
+    operationsLocos();
+    operationsTurnouts();
     operationsBiDi();
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
@@ -354,7 +355,7 @@ void Service::operationsLoop() {
 }
 
 /// Currently fills message buffer between 25 and 50%
-void Service::operationsDcc() {
+void Service::operationsLocos() {
   // Less than 50% space available
   if (xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) <
       drv::out::tx_message_buffer.size * 0.5)
@@ -422,7 +423,7 @@ void Service::operationsDcc() {
           basicOrExtendedLocoAddress(addr), loco.f31_0 >> 9u & 0xFu));
 
         // Higher functions
-        if (_loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
+        if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
           sendToBack(make_feature_expansion_f20_f13_packet(
             basicOrExtendedLocoAddress(addr), loco.f31_0 >> 13u));
           sendToBack(make_feature_expansion_f28_f21_packet(
@@ -445,15 +446,24 @@ void Service::operationsDcc() {
 }
 
 /// \todo document
+void Service::operationsTurnouts() {
+  for (auto const tick{xTaskGetTickCount()}; auto& [addr, turnout] : _turnouts)
+    // Handle turnout timeouts
+    if (turnout.timeout_tick && tick >= turnout.timeout_tick) {
+      turnout.timeout_tick = 0u;
+      bool const p{turnout.position == z21::TurnoutInfo::Position::P1};
+      sendToFront(make_basic_accessory_packet(
+                    {addr, Address::BasicAccessory}, maybeInvertR(p), false),
+                  _nvs.accy_packet_count);
+    }
+}
+
+/// \todo document
 void Service::operationsBiDi() {
   drv::out::track::RxQueue::value_type item;
 
   while (xQueueReceive(drv::out::track::rx_queue.handle, &item, 0u)) {
-    // Currently only care for loco addresses
-    /// \todo remove that once we care for other addresses
     auto const addr{decode_address(item.packet)};
-    if (addr.type != Address::BasicLoco && addr.type != Address::ExtendedLoco)
-      continue;
 
     for (bidi::Dissector dissector{item.datagram, addr};
          auto const& dg : dissector) {
@@ -461,7 +471,9 @@ void Service::operationsBiDi() {
       if (auto pom{get_if<bidi::app::Pom>(&dg)}) {
         if (!empty(_cv_pom_request_deque)) {
           if (decode_instruction(item.packet) == Instruction::CvLong) {
-            auto const off{addr.type == Address::ExtendedLoco};
+            auto const off{addr.type == Address::ExtendedLoco ||
+                           addr.type == Address::BasicAccessory ||
+                           addr.type == Address::ExtendedAccessory};
             auto const cv_addr{(item.packet[1uz + off] & 0b11u) << 8u |
                                item.packet[2uz + off]};
             if (auto const& req{_cv_pom_request_deque.front()};
@@ -511,7 +523,7 @@ void Service::operationsBiDi() {
 
   // Handle POM timeouts
   if (!empty(_cv_pom_request_deque) &&
-      xTaskGetTickCount() > _cv_pom_request_deque.front().then) {
+      xTaskGetTickCount() > _cv_pom_request_deque.front().timeout_tick) {
     _cv_pom_request_deque.pop_front();
     cvNack();
   }
@@ -561,35 +573,36 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
   std::optional<uint8_t> byte{};
 
   // Nothing
-  if (_programming_type == z21::CommonSettings::ProgrammingType::Nothing)
+  if (_nvs.programming_type == z21::CommonSettings::ProgrammingType::Nothing)
     return std::nullopt;
 
   // Byte verify only
-  if (_programming_type == z21::CommonSettings::ProgrammingType::ByteOnly) {
+  if (_nvs.programming_type == z21::CommonSettings::ProgrammingType::ByteOnly) {
     for (auto i{0u}; i < std::numeric_limits<uint8_t>::max(); ++i) {
       sendToFront(make_cv_access_long_verify_service_packet(cv_addr, i),
-                  _program_packet_count);
+                  _nvs.program_packet_count);
       if (serviceReceiveBit() == true) return i;
     }
   }
 
   // Bit verify
-  if (_programming_type & z21::CommonSettings::ProgrammingType::BitOnly) {
+  if (_nvs.programming_type & z21::CommonSettings::ProgrammingType::BitOnly) {
     for (uint8_t i{0u}; i < CHAR_BIT; ++i)
-      sendToFront(
-        make_cv_access_long_verify_service_packet(cv_addr, _bit_verify_to_1, i),
-        _program_packet_count);
+      sendToFront(make_cv_access_long_verify_service_packet(
+                    cv_addr, _nvs.bit_verify_to_1, i),
+                  _nvs.program_packet_count);
     byte = serviceReceiveByte();
 
     // Only
-    if (_programming_type == z21::CommonSettings::ProgrammingType::BitOnly)
+    if (_nvs.programming_type == z21::CommonSettings::ProgrammingType::BitOnly)
       return byte;
   }
 
   // Bit and byte verify
-  if (_programming_type == z21::CommonSettings::ProgrammingType::Both && byte) {
+  if (_nvs.programming_type == z21::CommonSettings::ProgrammingType::Both &&
+      byte) {
     sendToFront(make_cv_access_long_verify_service_packet(cv_addr, *byte),
-                _program_packet_count);
+                _nvs.program_packet_count);
     if (serviceReceiveBit() == true) return byte;
   }
 
@@ -599,7 +612,7 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
 /// \todo document
 std::optional<uint8_t> Service::serviceWrite(uint16_t cv_addr, uint8_t byte) {
   sendToFront(make_cv_access_long_write_service_packet(cv_addr, byte),
-              _program_packet_count);
+              _nvs.program_packet_count);
 
   if (serviceReceiveBit() == true) return byte;
 
@@ -624,7 +637,7 @@ std::optional<uint8_t> Service::serviceReceiveByte() {
   uint8_t byte{};
   for (auto i{0uz}; i < CHAR_BIT; ++i)
     if (auto const bit{serviceReceiveBit()})
-      byte |= static_cast<uint8_t>((*bit == _bit_verify_to_1) << i);
+      byte |= static_cast<uint8_t>((*bit == _nvs.bit_verify_to_1) << i);
     else return std::nullopt;
   return byte;
 }
@@ -655,13 +668,9 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
   if (!loco_addr) return {};
   else {
     std::lock_guard lock{_internal_mutex};
-    auto& loco{_locos[loco_addr]};
-
-    //
-    if (empty(loco.name)) loco.name = std::to_string(loco_addr);
+    auto& loco{getOrInsertLoco(loco_addr)};
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
-
     return loco;
   }
 }
@@ -670,30 +679,30 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
 void Service::locoDrive(uint16_t loco_addr,
                         z21::LocoInfo::SpeedSteps speed_steps,
                         uint8_t rvvvvvvv) {
-  //
+  // Broadcast
   if (!loco_addr) switch (speed_steps) {
       case z21::LocoInfo::DCC14:
         return sendToFront(
           make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
                                           (rvvvvvvv & 0x80u) >> 2u | // R
                                             (rvvvvvvv & 0x0Fu)),     // GGGG
-          _program_packet_count);
+          _nvs.program_packet_count);
       case z21::LocoInfo::DCC28:
         return sendToFront(
           make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
                                           (rvvvvvvv & 0x80u) >> 2u // R
                                             | (rvvvvvvv & 0x1Fu)), // G-GGGG
-          _program_packet_count);
+          _nvs.program_packet_count);
       case z21::LocoInfo::DCC128:
         return sendToFront(make_advanced_operations_speed_packet(
                              basicOrExtendedLocoAddress(loco_addr), rvvvvvvv),
-                           _program_packet_count);
+                           _nvs.program_packet_count);
       default: return;
     }
   //
   else {
     std::lock_guard lock{_internal_mutex};
-    auto& loco{_locos[loco_addr]};
+    auto& loco{getOrInsertLoco(loco_addr)};
 
     //
     if (loco.speed_steps == speed_steps && loco.rvvvvvvv == rvvvvvvv) return;
@@ -701,7 +710,6 @@ void Service::locoDrive(uint16_t loco_addr,
     loco.rvvvvvvv = rvvvvvvv;
 
     //
-    if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
   }
@@ -720,7 +728,7 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
   //
   else {
     std::lock_guard lock{_internal_mutex};
-    auto& loco{_locos[loco_addr]};
+    auto& loco{getOrInsertLoco(loco_addr)};
 
     //
     state = (~mask & loco.f31_0) | (mask & state);
@@ -729,7 +737,7 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
 
     // Higher functions don't get repeated, send them now
     if (mask >= (1u << 13u) &&
-        !(_loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
+        !(_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
       if (mask & (0xFFu << 13u))
         sendToBack(make_feature_expansion_f20_f13_packet(
           basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 13u));
@@ -739,7 +747,6 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     }
 
     //
-    if (empty(loco.name)) loco.name = std::to_string(loco_addr);
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
   }
@@ -765,58 +772,48 @@ void Service::broadcastLocoInfo(uint16_t loco_addr) {
 
 /// \todo document
 z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
-  if (!accy_addr) return {};
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& turnout{_turnouts[accy_addr]};
-
-    if (empty(turnout.name)) turnout.name = std::to_string(accy_addr);
-    mem::nvs::Turnouts nvs;
-    nvs.set(accy_addr, turnout);
-
-    return turnout;
-  }
+  std::lock_guard lock{_internal_mutex};
+  auto& turnout{getOrInsertTurnout(accy_addr)};
+  mem::nvs::Turnouts nvs;
+  nvs.set(accy_addr, turnout);
+  return turnout;
 }
 
 /// \todo document
 z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
   LOGW("accessoryInfo not implemented");
-  if (!accy_addr) return {};
-  else { return {}; }
+  return {};
 }
 
 /// \todo document
+// P ^= R in DCC
+// P0 -> diverging / left / stop(red)
+// P1 -> normal / right / proceed(green)
 void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
-  /*
-  Die Z21 sollt eigentlich den Port ein und dann nach einer Zeit wieder
-  ausschalten. Es gibt aber auch a Bit für automatische Überwachung, wo wohl
-  nach am Timeout so oder so a Aus gesendet wird?
+  sendToFront(make_basic_accessory_packet(
+                {accy_addr, Address::BasicAccessory}, maybeInvertR(p), a),
+              _nvs.accy_packet_count);
 
-  Die Schaltzeit selbst is sonst nur Teil der App, die kann ma in der Zentrale
-  ned einstellen! Eventuell wärs also sinnvoll a "dcc_trn_sw_time" Einstellung
-  anzulegen?
-
-   10AA-AAAA 1AAA-DAAR
-                  DPPR
-   D - State ein/aus (bei Z21 "A")
-   PP - Port
-   R - links rechts? (bei Z21 "P")
-  */
-  LOGW("turnout addr %d    p %d    a %d    q %d", accy_addr, p, a, q);
-
-  if (!accy_addr) return;
-  //
-  else {
-    sendToFront(
-      make_basic_accessory_packet({accy_addr, Address::BasicAccessory}, p, a));
-
-    // Commands which deactivate outputs are basically nops
-    if (!a) return;
-
+  {
     std::lock_guard lock{_internal_mutex};
-    auto& turnout{_turnouts[accy_addr]};
+    auto& turnout{getOrInsertTurnout(accy_addr)};
 
+    //
+    if (!a) {
+      turnout.timeout_tick = 0u;
+      return;
+    }
+
+    if (turnout.position == static_cast<z21::TurnoutInfo::Position>(1u << p))
+      return;
     turnout.position = static_cast<z21::TurnoutInfo::Position>(1u << p);
+
+    //
+    if (!(_nvs.accy_flags &
+          z21::CommonSettings::ExtFlags::TurnoutTimeoutDisable)) {
+      auto const timeout{(_nvs.accy_switch_time + 10u) * 10u};
+      turnout.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(timeout);
+    }
 
     mem::nvs::Turnouts nvs;
     nvs.set(accy_addr, turnout);
@@ -871,10 +868,10 @@ void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
 
   sendToFront(make_cv_access_long_verify_packet(
                 basicOrExtendedLocoAddress(loco_addr), cv_addr),
-              _program_packet_count);
+              _nvs.program_packet_count);
 
   _cv_pom_request_deque.push_back(
-    {.then = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
+    {.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
      .addr = loco_addr,
      .cv_addr = cv_addr});
 
@@ -882,30 +879,57 @@ void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
 
   // Mandatory delay
   vTaskDelay(
-    pdMS_TO_TICKS((_program_packet_count + 1u) * 10u)); // ~10ms per packet
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
 void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
   sendToFront(make_cv_access_long_write_packet(
                 basicOrExtendedLocoAddress(loco_addr), cv_addr, byte),
-              _program_packet_count);
+              _nvs.program_packet_count);
 
   // Mandatory delay
   vTaskDelay(
-    pdMS_TO_TICKS((_program_packet_count + 1u) * 10u)); // ~10ms per packet
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
-void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) {
-  LOGW("cvPomAccessoryRead not implemented");
+void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr, bool) {
+  if (full(_cv_pom_request_deque)) return cvNack();
+
+  sendToFront(make_cv_access_long_verify_packet(
+                {.value = accy_addr, .type = Address::BasicAccessory}, cv_addr),
+              _nvs.program_packet_count);
+
+  // Dummy CV7 write ensures we aren't receiving app:pom replies to different CV
+  // addresses when reading multiple values in row. According to RCN-226 all CV7
+  // PoM access are to be ignored by all decoders.
+  sendToFront(make_cv_access_long_write_packet(
+    {.value = accy_addr, .type = Address::BasicAccessory}, 7u, 0u));
+
+  _cv_pom_request_deque.push_back(
+    {.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
+     .addr = accy_addr,
+     .cv_addr = cv_addr});
+
+  // Mandatory delay
+  vTaskDelay(
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
 void Service::cvPomAccessoryWrite(uint16_t accy_addr,
                                   uint16_t cv_addr,
-                                  uint8_t byte) {
-  LOGW("cvPomAccessoryWrite not implemented");
+                                  uint8_t byte,
+                                  bool) {
+  sendToFront(
+    make_cv_access_long_write_packet(
+      {.value = accy_addr, .type = Address::BasicAccessory}, cv_addr, byte),
+    _nvs.program_packet_count);
+
+  // Mandatory delay
+  vTaskDelay(
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
 }
 
 /// \todo document
@@ -935,11 +959,13 @@ void Service::broadcastRailComData(uint16_t loco_addr) {
 void Service::resume() {
   // Update settings
   mem::nvs::Settings nvs;
-  _loco_flags = nvs.getDccLocoFlags();
-  _accy_flags = nvs.getDccAccessoryFlags();
-  _programming_type = nvs.getDccProgrammingType();
-  _program_packet_count = nvs.getDccProgramPacketCount();
-  _bit_verify_to_1 = nvs.getDccBitVerifyTo1();
+  _nvs.programming_type = nvs.getDccProgrammingType();
+  _nvs.program_packet_count = nvs.getDccProgramPacketCount();
+  _nvs.bit_verify_to_1 = nvs.getDccBitVerifyTo1();
+  _nvs.loco_flags = nvs.getDccLocoFlags();
+  _nvs.accy_flags = nvs.getDccAccessoryFlags();
+  _nvs.accy_switch_time = nvs.getDccAccessorySwitchTime();
+  _nvs.accy_packet_count = nvs.getDccAccessoryPacketCount();
 
   // Preload
   auto const packet{state.load() == State::DCCOperations ? make_idle_packet()
@@ -962,13 +988,49 @@ void Service::suspend() {
 }
 
 /// \todo document
+Loco& Service::getOrInsertLoco(uint16_t loco_addr) {
+  auto& loco{_locos[loco_addr]};
+
+  //
+  if (empty(loco.name)) loco.name = std::to_string(loco_addr);
+
+  return loco;
+}
+
+/// \todo document
+Turnout& Service::getOrInsertTurnout(uint16_t accy_addr) {
+  auto& turnout{_turnouts[accy_addr]};
+
+  //
+  if (empty(turnout.name)) turnout.name = std::to_string(accy_addr);
+
+  //
+  if (empty(turnout.group.addresses)) turnout.group.addresses = {accy_addr};
+
+  //
+  if (empty(turnout.group.positions))
+    turnout.group.positions = {{Turnout::Position::P0},
+                               {Turnout::Position::P1}};
+
+  return turnout;
+}
+
+/// \todo document
 Address Service::basicOrExtendedLocoAddress(Address::value_type addr) const {
   return {.value = addr,
           .type =
-            addr <= (_loco_flags & z21::MmDccSettings::Flags::DccShort127 ? 127u
-                                                                          : 99u)
+            addr <= (_nvs.loco_flags & z21::MmDccSettings::Flags::DccShort127
+                       ? 127u
+                       : 99u)
               ? Address::BasicLoco
               : Address::ExtendedLoco};
+}
+
+/// \todo document
+bool Service::maybeInvertR(bool p) const {
+  return _nvs.accy_flags & z21::CommonSettings::ExtFlags::AccessoryInvRedGreen
+           ? !p
+           : p;
 }
 
 } // namespace mw::dcc

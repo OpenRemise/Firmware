@@ -35,19 +35,21 @@ void NvTurnoutBase::fromJsonDocument(JsonDocument const& doc) {
 
   if (JsonObjectConst obj{doc["group"].as<JsonObjectConst>()}) {
     if (JsonVariantConst arr{obj["addresses"]}; arr.is<JsonArrayConst>()) {
+      group.addresses.clear();
       group.addresses.reserve(std::size(arr));
       for (auto const v : arr.as<JsonArrayConst>())
         group.addresses.push_back(v.as<Address::value_type>());
     }
 
-    if (JsonVariantConst outer{obj["states"]}; outer.is<JsonArrayConst>()) {
-      group.states.reserve(std::size(outer));
+    if (JsonVariantConst outer{obj["positions"]}; outer.is<JsonArrayConst>()) {
+      group.positions.clear();
+      group.positions.reserve(std::size(outer));
       for (auto const inner : outer.as<JsonArrayConst>()) {
-        std::vector<Position> states;
-        states.reserve(std::size(inner));
+        std::vector<Position> positions;
+        positions.reserve(std::size(inner));
         for (auto const v : inner.as<JsonArrayConst>())
-          states.push_back(v.as<Position>());
-        group.states.push_back(move(states));
+          positions.push_back(v.as<Position>());
+        group.positions.push_back(move(positions));
       }
     }
   }
@@ -66,10 +68,10 @@ JsonDocument NvTurnoutBase::toJsonDocument() const {
   JsonArray arr{obj.createNestedArray("addresses")};
   for (auto const v : group.addresses) arr.add(v);
 
-  JsonArray outer{obj.createNestedArray("states")};
-  for (auto const& states : group.states) {
+  JsonArray outer{obj.createNestedArray("positions")};
+  for (auto const& positions : group.positions) {
     JsonArray inner{outer.createNestedArray()};
-    for (auto const v : states) inner.add(v);
+    for (auto const v : positions) inner.add(v);
   }
 
   return doc;

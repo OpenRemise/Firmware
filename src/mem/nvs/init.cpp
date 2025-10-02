@@ -104,6 +104,10 @@ esp_err_t init() {
                           z21::MmDccSettings::Flags::DccOnly);
     if (nvs.find("dcc_accy_flags") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setDccAccessoryFlags(0x04u);
+    if (nvs.find("dcc_accy_swtime") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setDccAccessorySwitchTime(20u);
+    if (nvs.find("dcc_accy_pc") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setDccAccessorPacketCount(2u);
   }
 
   return err;
