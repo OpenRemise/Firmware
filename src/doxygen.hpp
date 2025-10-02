@@ -104,11 +104,11 @@
 ///
 /// - [CMake](https://cmake.org) ( >= 3.25 )
 /// - [GCC](https://gcc.gnu.org) ( >= 13.2.0 )
-/// - [ESP-IDF](https://github.com/espressif/esp-idf) ( >= 5.3 )
+/// - [ESP-IDF](https://github.com/espressif/esp-idf) ( == 5.5.1 )
 /// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
 /// - Optional
 ///   - for building documentation
-///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.12.0 )
+///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.14.0 )
 ///     - [Graphviz](https://graphviz.org) ( >= 12.1.1 )
 ///
 // clang-format off
@@ -421,10 +421,17 @@
 /// ```
 ///
 /// \section section_development_doc Doc
-/// If Doxygen was found during CMake's configuration phase, the `FirmwareDocs`
-/// target can be built to create the documentation.
+/// If the optional prerequisites for building the docs were found during
+/// CMake's configuration phase, the `FirmwareDocs` target can be built to
+/// create the documentation.
 /// ```sh
 /// cmake --build build --target FirmwareDocs
+/// ```
+///
+/// If the build was successful, the website can be viewed simply with a browser
+/// by opening "build/docs/html/index.html" or by creating a small web server.
+/// ```sh
+/// python -m http.server --directory build/docs/html --bind 127.0.0.1
 /// ```
 ///
 /// <div class="section_buttons">
@@ -447,11 +454,20 @@
 /// These definitions range from rather unimportant (e.g. type of newlib line
 /// ending) to absolutely essential (e.g. CPU frequency). As output, Kconfig
 /// creates a file called `sdkconfig`, which contains all the definitions
-/// necessary for the build. However, this file is not tracked by Git, only a
-/// file called
+/// necessary for the build. However, this file is not tracked by Git, only the
+/// files called `sdkconfig.*` (e.g.
 /// [`sdkconfig.defaults`](https://github.com/OpenRemise/Firmware/raw/master/sdkconfig.defaults)
-/// ends up in the repository, which contains the deviations from the default
-/// settings.
+/// or
+/// [`sdkconfig.release`](https://github.com/OpenRemise/Firmware/raw/master/sdkconfig.release))
+/// end up in the repository. Those files contain the **deviations** from the
+/// frameworks default settings. The file extension indicates when the
+/// corresponding `sdkconfig` file is used, e.g. `sdkconfig.release` will only
+/// be used for release builds. Which `sdkconfig` files are ultimately used in a
+/// build can be determined by passing the list of files to CMake using the
+/// variable `SDKCONFIG_DEFAULTS`, see
+/// [CMakePresets.json](https://github.com/OpenRemise/Firmware/raw/master/CMakePresets.json)
+/// for examples. Further information can be found in the official [Build System
+/// documentation](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-guides/build-system.html#custom-sdkconfig-defaults)
 ///
 /// \section section_config_config_hpp config.hpp
 /// The project-specific definitions are made in a header called `config.hpp`,

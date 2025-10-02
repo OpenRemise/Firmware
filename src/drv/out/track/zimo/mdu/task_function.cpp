@@ -211,7 +211,8 @@ esp_err_t zpp_entry() {
          {106u - 1u, 0x00u},
        }};
        auto const& [cv_addr, byte] : sequence) {
-    packet = ::dcc::make_cv_access_long_verify_packet(0u, cv_addr, byte);
+    packet = ::dcc::make_cv_access_long_verify_packet(
+      {.type = ::dcc::Address::Broadcast}, cv_addr, byte);
     for (auto i{0uz}; i < program_packet_count; ++i) {
       ESP_ERROR_CHECK(
         rmt_transmit(channel, encoder, data(packet), size(packet), &config));

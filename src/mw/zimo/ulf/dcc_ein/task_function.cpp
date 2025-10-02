@@ -134,16 +134,16 @@ void transmit_addressed_datagram(
 /// task_function() loop
 void loop() {
   auto const timeout{http_receive_timeout2ms()};
-  TickType_t then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
+  TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
 
   for (;;) {
     send_idle_packets_to_back();
 
     // Return on timeout
-    if (auto const now{xTaskGetTickCount()}; now >= then) return;
+    if (auto const tick{xTaskGetTickCount()}; tick >= timeout_tick) return;
     // In case we got a packet, reset timeout
     else if (auto const packet{receive_dcc_packet()}) {
-      then = now + pdMS_TO_TICKS(timeout);
+      timeout_tick = tick + pdMS_TO_TICKS(timeout);
       send_to_front(*packet);
       ack_senddcc_str();
     }

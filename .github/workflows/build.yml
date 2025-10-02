@@ -5,12 +5,13 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  workflow_call:
 
 jobs:
   esp-elf-gcc:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
       - name: Install prerequisites
@@ -27,4 +28,12 @@ jobs:
       - run: |
           . $HOME/esp/esp-idf/export.sh
           cmake --preset "Release"
-          cmake --build build --parallel
+          cmake --build build --parallel --target FirmwareRelease
+      - name: Find archive file
+        run: |
+          echo "ARTIFACT_NAME=$(find build -maxdepth 1 -type f -name "Firmware-*.zip" -printf "%f\n")" >> $GITHUB_ENV
+          echo "ARTIFACT_PATH=$(find build -maxdepth 1 -type f -name "Firmware-*.zip")" >> $GITHUB_ENV
+      - uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_PATH }}

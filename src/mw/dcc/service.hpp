@@ -53,7 +53,8 @@ private:
   [[noreturn]] void taskFunction(void*);
 
   void operationsLoop();
-  void operationsDcc();
+  void operationsLocos();
+  void operationsTurnouts();
   void operationsBiDi();
 
   void serviceLoop();
@@ -90,9 +91,11 @@ private:
   [[nodiscard]] bool cvWrite(uint16_t cv_addr, uint8_t byte) final;
   void cvPomRead(uint16_t loco_addr, uint16_t cv_addr) final;
   void cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) final;
-  void cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) final;
-  void
-  cvPomAccessoryWrite(uint16_t accy_addr, uint16_t cv_addr, uint8_t byte) final;
+  void cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr, bool) final;
+  void cvPomAccessoryWrite(uint16_t accy_addr,
+                           uint16_t cv_addr,
+                           uint8_t byte,
+                           bool) final;
   void cvNackShortCircuit() final;
   void cvNack() final;
   void cvAck(uint16_t cv_addr, uint8_t byte) final;
@@ -104,7 +107,11 @@ private:
   void resume();
   void suspend();
 
+  Loco& getOrInsertLoco(uint16_t loco_addr);
+  Turnout& getOrInsertTurnout(uint16_t accy_addr);
+
   Address basicOrExtendedLocoAddress(Address::value_type addr) const;
+  bool maybeInvertR(bool p) const;
 
   Locos _locos;
   Turnouts _turnouts;
@@ -114,16 +121,20 @@ private:
   std::shared_ptr<z21::server::intf::Dcc> _z21_dcc_service;
   uint8_t _priority_count{Loco::min_priority};
 
-  // Settings
-  uint8_t _loco_flags{};
-  uint8_t _accy_flags{};
-  uint8_t _programming_type{};
-  uint8_t _program_packet_count{};
-  bool _bit_verify_to_1{};
+  // NVS cache
+  struct {
+    uint8_t programming_type{};
+    uint8_t program_packet_count{};
+    bool bit_verify_to_1{};
+    uint8_t loco_flags{};
+    uint8_t accy_flags{};
+    uint8_t accy_switch_time{};
+    uint8_t accy_packet_count{};
+  } _nvs{};
 
   /// \todo document
   struct CvRequest {
-    TickType_t then{};             ///<
+    TickType_t timeout_tick{};     ///<
     uint16_t addr{};               ///<
     uint16_t cv_addr{};            ///<
     std::optional<uint8_t> byte{}; ///<

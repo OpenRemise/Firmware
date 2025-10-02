@@ -636,4 +636,48 @@ esp_err_t Settings::setDccAccessoryFlags(uint8_t value) {
   return setU8("dcc_accy_flags", value);
 }
 
+/// Get DCC accessory switch time
+///
+/// \return DCC accessory switch time [100ms]
+uint8_t Settings::getDccAccessorySwitchTime() const {
+  return getU8("dcc_accy_swtime");
+}
+
+/// Set DCC accessory switch time
+///
+/// \param  value                         DCC accessory switch time [100ms]
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC accessory switch time out of range
+esp_err_t Settings::setDccAccessorySwitchTime(uint8_t value) {
+  return value >= 10u ? setU8("dcc_accy_swtime", value) : ESP_ERR_INVALID_ARG;
+}
+
+/// Get DCC accessory packet count
+///
+/// \return DCC accessory packet count
+uint8_t Settings::getDccAccessoryPacketCount() const {
+  return getU8("dcc_accy_pc");
+}
+
+/// Set DCC accessory packet count
+///
+/// \param  value                         DCC accessory packet count
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_INVALID_ARG           DCC accessory packet count out of
+///                                       range
+esp_err_t Settings::setDccAccessorPacketCount(uint8_t value) {
+  return value >= 1u && value <= 64u ? setU8("dcc_accy_pc", value)
+                                     : ESP_ERR_INVALID_ARG;
+}
+
 } // namespace mem::nvs

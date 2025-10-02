@@ -1,0 +1,62 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v5.0.0
+        with:
+          path: ./artifacts
+      - name: Find archive files
+        run: |
+          ARTIFACTS=$(find artifacts -type f -name '*.zip')
+          [ -z "$ARTIFACTS" ] && exit 1
+          {
+            echo "ARTIFACT_FILES<<EOF"
+            printf "%s\n" "$ARTIFACTS"
+            echo "EOF"
+          } >> $GITHUB_ENV
+      - name: Release notes from CHANGELOG.md
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=$(echo "$TAG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          NOTES=$(awk -v version="$VERSION" '
+            $0 ~ "^##[[:space:]]+v?" version "$" { in_section=1; next }
+            in_section && /^##[[:space:]]/ { exit }
+            in_section && /^[[:space:]]*-/ { print $0 }
+          ' CHANGELOG.md)
+          [ -z "$NOTES" ] && exit 1
+          {
+            echo "RELEASE_NOTES<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> $GITHUB_ENV
+      - uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ env.RELEASE_NOTES }}
+          files: ${{ env.ARTIFACT_FILES }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # I'd have preferred a release trigger
+  # release:
+  #   types: [published]
+  #
+  # but this doesn't work.
+  docs:
+    needs: publish
+    uses: ./.github/workflows/docs.yml

@@ -266,15 +266,16 @@ void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
 }
 
 /// \todo document
-void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr) {
-  _dcc_service->cvPomAccessoryRead(accy_addr, cv_addr);
+void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr, bool c) {
+  _dcc_service->cvPomAccessoryRead(accy_addr, cv_addr, c);
 }
 
 /// \todo document
 void Service::cvPomAccessoryWrite(uint16_t accy_addr,
                                   uint16_t cv_addr,
-                                  uint8_t byte) {
-  _dcc_service->cvPomAccessoryWrite(accy_addr, cv_addr, byte);
+                                  uint8_t byte,
+                                  bool c) {
+  _dcc_service->cvPomAccessoryWrite(accy_addr, cv_addr, byte, c);
 }
 
 /// \todo document

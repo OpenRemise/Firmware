@@ -121,6 +121,12 @@ public:
 
   uint8_t getDccAccessoryFlags() const;
   esp_err_t setDccAccessoryFlags(uint8_t value);
+
+  uint8_t getDccAccessorySwitchTime() const;
+  esp_err_t setDccAccessorySwitchTime(uint8_t value);
+
+  uint8_t getDccAccessoryPacketCount() const;
+  esp_err_t setDccAccessorPacketCount(uint8_t value);
 };
 
 } // namespace mem::nvs
