@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+- Add support for basic accessory decoders
+- Add `/dcc/turnouts/` endpoint
+- Add `dcc_accy_swtime` setting
+- Add `dcc_accy_pc` setting
+
 ## 0.4.1
 - Add `/dcc/` endpoint ([#84](https://github.com/OpenRemise/Firmware/pull/84))
 - Implement `z21::server::intf::System::systemState` ([#90](https://github.com/OpenRemise/Firmware/issues/90))
