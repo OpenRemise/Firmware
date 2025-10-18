@@ -113,12 +113,6 @@ target_compile_options(
     "$<$<COMPILE_LANGUAGE:CXX>:-include;${CMAKE_CURRENT_SOURCE_DIR}/config.hpp>"
     -Wfatal-errors)
 
-# ESP-IDF stuff is full of -Werror=format...
-idf_build_set_property(
-  COMPILE_OPTIONS
-  "-Wno-error=all;-Wno-error=extra;-Wno-error=implicit-function-declaration;-Wno-error=format;-Wno-error=switch"
-  APPEND)
-
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.1")

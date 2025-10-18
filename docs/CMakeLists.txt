@@ -27,7 +27,7 @@ if(TARGET Doxygen::dot)
   set(PLANTUML_JAR_PATH ${PlantUML_SOURCE_DIR}/plantuml-1.2025.1.jar)
 
   # Get Doxygen Awesome
-  cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.4.0")
+  cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.4.1")
 
   # GitHub API does not allow different origin, so pack releases to docs
   # https://github.com/orgs/community/discussions/106849#discussioncomment-8534514

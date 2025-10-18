@@ -401,12 +401,12 @@ esp_err_t Settings::setDccPreamble(uint8_t value) {
 
 /// Get DCC bit 1 duration
 ///
-/// \return DCC bit 1 duration [µs]
+/// \return DCC bit 1 duration [us]
 uint8_t Settings::getDccBit1Duration() const { return getU8("dcc_bit1_dur"); }
 
 /// Set DCC bit 1 duration
 ///
-/// \param  value                         DCC bit 1 duration [µs]
+/// \param  value                         DCC bit 1 duration [us]
 /// \retval ESP_OK                        Value was set successfully
 /// \retval ESP_FAIL                      Internal error
 /// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
@@ -422,12 +422,12 @@ esp_err_t Settings::setDccBit1Duration(uint8_t value) {
 
 /// Get DCC bit 0 duration
 ///
-/// \return DCC bit 0 duration [µs]
+/// \return DCC bit 0 duration [us]
 uint8_t Settings::getDccBit0Duration() const { return getU8("dcc_bit0_dur"); }
 
 /// Set DCC bit 0 duration
 ///
-/// \param  value                         DCC bit 0 duration [µs]
+/// \param  value                         DCC bit 0 duration [us]
 /// \retval ESP_OK                        Value was set successfully
 /// \retval ESP_FAIL                      Internal error
 /// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
@@ -443,14 +443,14 @@ esp_err_t Settings::setDccBit0Duration(uint8_t value) {
 
 /// Get DCC BiDi bit duration
 ///
-/// \return DCC BiDi bit duration [µs]
+/// \return DCC BiDi bit duration [us]
 uint8_t Settings::getDccBiDiBitDuration() const {
   return getU8("dcc_bidibit_dur");
 }
 
 /// Set DCC BiDi bit duration
 ///
-/// \param  value                         DCC BiDi bit duration [µs]
+/// \param  value                         DCC BiDi bit duration [us]
 /// \retval ESP_OK                        Value was set successfully
 /// \retval ESP_FAIL                      Internal error
 /// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
@@ -548,7 +548,7 @@ uint8_t Settings::getDccProgramPacketCount() const {
 ///                                       write operation has failed
 /// \retval ESP_ERR_INVALID_ARG           DCC program packet count out of range
 esp_err_t Settings::setDccProgramPacketCount(uint8_t value) {
-  return value >= 2u && value <= 64u ? setU8("dcc_prog_pc", value)
+  return value >= 5u && value <= 64u ? setU8("dcc_prog_pc", value)
                                      : ESP_ERR_INVALID_ARG;
 }
 

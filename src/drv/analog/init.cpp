@@ -83,9 +83,13 @@ esp_err_t init() {
     adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle));
 
   // Both of those values are sizes in bytes
-  adc_continuous_handle_cfg_t adc_config = {
+  static constexpr adc_continuous_handle_cfg_t adc_config{
     .max_store_buf_size = conversion_frame_size * 2u,
     .conv_frame_size = conversion_frame_size,
+    .flags =
+      {
+        .flush_pool = true,
+      },
   };
   ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_config, &adc1_handle));
 

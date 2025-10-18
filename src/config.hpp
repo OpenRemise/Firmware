@@ -203,14 +203,14 @@ inline constexpr auto current_channel{ADC_CHANNEL_9};
 inline constexpr auto attenuation{ADC_ATTEN_DB_0};
 inline constexpr std::array channels{current_channel, voltage_channel};
 
-/// Sample frequency [Hz] (sample takes 125µs, conversion frame 20ms)
+/// Sample frequency [Hz] (sample takes 12.5us, conversion frame 20ms)
 ///
 /// This frequency was chosen explicitly to avoid any beats with the DCC signal
-/// (~58/100µs).
-inline constexpr auto sample_freq_hz{8'000u};
+/// (~58/100us).
+inline constexpr auto sample_freq_hz{80'000u};
 
 /// Number of samples per frame
-inline constexpr auto conversion_frame_samples{160uz};
+inline constexpr auto conversion_frame_samples{1600uz};
 
 /// Time per frame [ms]
 inline constexpr auto conversion_frame_time{(conversion_frame_samples * 1000u) /
@@ -219,6 +219,7 @@ static_assert(conversion_frame_time == 20u);
 
 inline constexpr auto conversion_frame_size{conversion_frame_samples *
                                             SOC_ADC_DIGI_DATA_BYTES_PER_CONV};
+static_assert(conversion_frame_size == 6400uz);
 inline constexpr auto conversion_frame_samples_per_channel{
   conversion_frame_samples / size(channels)};
 static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);

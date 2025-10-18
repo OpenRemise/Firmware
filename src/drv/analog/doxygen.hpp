@@ -35,6 +35,9 @@ namespace drv::analog {
 /// \section section_drv_analog_adc_task ADC task
 /// \copydetails adc_task_function
 ///
+/// \subsection subsection_drv_analog_adc Suspend/resume ADC task
+/// \copydetails handle_suspend_resume_on_notify
+///
 /// \section section_drv_analog_temp_task Temperature task
 /// \copydetails temp_task_function
 ///

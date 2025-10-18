@@ -23,6 +23,8 @@
 
 namespace drv::analog {
 
+void adc_task_notify_suspend();
+void adc_task_notify_resume();
 [[noreturn]] void adc_task_function(void*);
 
 } // namespace drv::analog

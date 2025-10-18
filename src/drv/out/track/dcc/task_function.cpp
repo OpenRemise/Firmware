@@ -186,15 +186,16 @@ esp_err_t transmit_packet(Packet const& packet) {
 /// \todo document
 Datagram<> receive_bidi() {
   //
-  auto const notification_value{
-    ulTaskNotifyTakeIndexed(default_notify_index, pdTRUE, portMAX_DELAY)};
+  uint32_t notified_value;
+  xTaskNotifyWaitIndexed(
+    default_notify_index, 0u, ULONG_MAX, &notified_value, portMAX_DELAY);
 
   //
   Datagram datagram{};
   auto const bytes_available{uart_ll_get_rxfifo_len(&UART1)};
 
   // CH1+2
-  if (notification_value & 0b1u)
+  if (notified_value & 0b1u)
     uart_ll_read_rxfifo(&UART1,
                         data(datagram),
                         std::min<size_t>(bytes_available, size(datagram)));
@@ -252,48 +253,50 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
 }
 
 /// \todo document
-drv::analog::CurrentsQueue::value_type peek_current_measurements() {
-  drv::analog::CurrentsQueue::value_type currents;
-  if (!xQueuePeek(drv::analog::currents_queue.handle, &currents, 0u))
+analog::CurrentMeasurement get_ref_current_measurement() {
+  analog::CurrentsQueue::value_type currents;
+  if (!xQueueReceive(analog::currents_queue.handle, &currents, 0u))
     assert(false);
-  return currents;
+  return analog::CurrentMeasurement{
+    static_cast<analog::CurrentMeasurement::value_type>(
+      std::accumulate(cbegin(currents), cend(currents), 0) / ssize(currents))};
 }
 
 /// \todo document
 template<std::ranges::contiguous_range R>
 void append_current_measurements(R&& r) {
-  auto const currents{peek_current_measurements()};
-  if (size(r) < size(currents) ||
-      !std::equal(cbegin(currents), cend(currents), cend(r) - size(currents)))
+  analog::CurrentsQueue::value_type currents;
+  if (xQueueReceive(analog::currents_queue.handle, &currents, 0u))
     std::ranges::copy(currents, std::back_inserter(r));
 }
 
 /// \todo document
-/// this is the mean version of ack detection
 template<std::ranges::contiguous_range R>
-bool detect_ack(R&& r, drv::analog::Current ack_current) {
+bool detect_ack(R&& r,
+                analog::CurrentMeasurement ref_current_measurement,
+                analog::CurrentMeasurement ack_current_measurement) {
   // ACKs must be at least 5ms long
-  static constexpr auto wlen{static_cast<int>(
-    5e-3 * (drv::analog::sample_freq_hz / size(drv::analog::channels)))};
-  static_assert(wlen == 20);
+  static constexpr auto wlen{
+    static_cast<int>(5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
+  static_assert(wlen == 200);
 
-  //
-  auto const delta_measurement{mA2measurement(ack_current)};
+  // Initialize rolling sum
+  int32_t sum{ref_current_measurement};
+  int32_t zero_count{std::count(cbegin(r), cbegin(r) + wlen, 0)};
 
-  // Reference value set to mean of first slide
-  std::optional<drv::analog::CurrentMeasurement::value_type> ref_measurement;
+  // Slide window
+  for (size_t i{wlen}; i < size(r); ++i) {
+    // Update rolling sum and zero count
+    sum += r[i] - r[i - wlen];
+    zero_count += (r[i] == 0) - (r[i - wlen] == 0);
 
-  //
-  for (auto const windows{r | std::views::slide(wlen)};
-       auto const& window : windows)
-    if (auto const movsum{(std::accumulate(cbegin(window), cend(window), 0))};
-        !ref_measurement)
-      ref_measurement = movsum;
-    else if (static constexpr auto ten_pct{static_cast<size_t>(0.1 * wlen)};
-             std::ranges::count(window, 0uz) < ten_pct &&
-             movsum - *ref_measurement > wlen * delta_measurement)
+    //
+    if (static constexpr auto ten_pct{
+          static_cast<decltype(zero_count)>(0.1 * wlen)};
+        zero_count < ten_pct &&
+        sum - wlen * ref_current_measurement > wlen * ack_current_measurement)
       return true;
-
+  }
   return false;
 }
 
@@ -312,18 +315,21 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   static constexpr auto read_timeout{50u};
   static constexpr auto write_timeout{100u};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
-  std::vector<drv::analog::CurrentMeasurement::value_type> current_measurements;
-  current_measurements.reserve(2048uz);
+  analog::CurrentMeasurement ref_current_measurement{};
+  std::vector<analog::CurrentMeasurement::value_type> current_measurements;
+  current_measurements.reserve(16384uz);
 
   mem::nvs::Settings nvs;
   auto const startup_reset_packet_count{nvs.getDccStartupResetPacketCount()};
   auto const continue_reset_packet_count{nvs.getDccContinueResetPacketCount()};
-  drv::analog::Current const ack_current{nvs.getDccProgrammingAckCurrent()};
+  auto const program_packet_count{nvs.getDccProgramPacketCount()};
+  auto const ack_current_measurement{
+    mA2measurement(analog::Current{nvs.getDccProgrammingAckCurrent()})};
   nvs.~Settings();
 
   // Transmit at least 25 reset packets to ensure entry
   ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
-  for (auto i{0uz}; i < startup_reset_packet_count + 3uz; ++i)
+  for (auto i{0uz}; i < startup_reset_packet_count; ++i)
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
 
   // Set current limit from NVS
@@ -350,28 +356,31 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
       packets.pop_front();
     } while (packets.back() == reset_packet);
 
-    // Transmit equal CV access packets, try to detect ack
-    auto const cv_access_packet{packets.back()};
+    // Transmit at least 5 CV access packets to ensure sequence (start at 1
+    // because the first has already been sent)
     TickType_t const then{
       xTaskGetTickCount() +
       pdMS_TO_TICKS(write_timeout + trans_queue_depth * 10u)};
     bool ack{};
-    do {
+    for (auto i{1uz}; i < program_packet_count; ++i) {
       if (auto const packet{receive_packet()}) packets.push_back(*packet);
       else break;
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
-      append_current_measurements(current_measurements);
-      ack |= detect_ack(current_measurements, ack_current);
-    } while (packets.back() == cv_access_packet);
+      if (i == 1uz) ref_current_measurement = get_ref_current_measurement();
+      else append_current_measurements(current_measurements);
+      ack |= detect_ack(
+        current_measurements, ref_current_measurement, ack_current_measurement);
+    }
 
-    // Transmit reset packets until ack or timeout
-    while (!ack && xTaskGetTickCount() < then) {
+    // Transmit reset packets until timeout
+    while (xTaskGetTickCount() < then) {
       packets.push_back(reset_packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
       append_current_measurements(current_measurements);
-      ack |= detect_ack(current_measurements, ack_current);
+      ack |= detect_ack(
+        current_measurements, ref_current_measurement, ack_current_measurement);
     }
     ESP_ERROR_CHECK(transmit_ack(ack));
     current_measurements.clear();

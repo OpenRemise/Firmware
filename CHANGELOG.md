@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1
+- Increase ADC sample rate to 80kHz
+- Bugfix service mode packets are interleaved ([#97](https://github.com/OpenRemise/Firmware/issues/97))
+- Bugfix increase minimum number of service mode programming packets to 5
+
 ## 0.5.0
 - Add support for basic accessory decoders
 - Add `/dcc/turnouts/` endpoint
