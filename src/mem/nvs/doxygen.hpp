@@ -72,13 +72,13 @@ namespace mem::nvs {
 /// | Duty cycle of the bug LED                                                                                                                             | led_dc_bug      | u8     | 0   | 100 | 5        |
 /// | Duty cycle of the WiFi LED                                                                                                                            | led_dc_wifi     | u8     | 0   | 100 | 50       |
 /// | Number of DCC preamble bits                                                                                                                           | dcc_preamble    | u8     | 17  | 30  | 17       |
-/// | Duration of a DCC 1 bit [µs]                                                                                                                          | dcc_bit1_dur    | u8     | 56  | 60  | 58       |
-/// | Duration of a DCC 0 bit [µs]                                                                                                                          | dcc_bit0_dur    | u8     | 97  | 114 | 100      |
-/// | Duration of a BiDi bit during cutout (0=BiDi off) [µs]                                                                                                | dcc_bidibit_dur | u8     | 57  | 61  | 60       |
+/// | Duration of a DCC 1 bit [us]                                                                                                                          | dcc_bit1_dur    | u8     | 56  | 60  | 58       |
+/// | Duration of a DCC 0 bit [us]                                                                                                                          | dcc_bit0_dur    | u8     | 97  | 114 | 100      |
+/// | Duration of a BiDi bit during cutout (0=BiDi off) [us]                                                                                                | dcc_bidibit_dur | u8     | 57  | 61  | 60       |
 /// | How a service mode verify is performed (bitwise, bytewise, or both)                                                                                   | dcc_prog_type   | u8     | 0   | 3   | 3        |
 /// | Number of DCC reset packets at the start of the service mode programming sequence                                                                     | dcc_strtp_rs_pc | u8     | 25  | 255 | 25       |
 /// | Number of DCC reset packets when continuing the service mode programming sequence                                                                     | dcc_cntn_rs_pc  | u8     | 3   | 64  | 6        |
-/// | Number of DCC programming packets in the service mode programming sequence                                                                            | dcc_prog_pc     | u8     | 2   | 64  | 7        |
+/// | Number of DCC programming packets in the service mode programming sequence                                                                            | dcc_prog_pc     | u8     | 5   | 64  | 7        |
 /// | Comparing bits to either 0 or 1 during a service mode verify                                                                                          | dcc_verify_bit1 | u8     | 0   | 1   | 1        |
 /// | DCC acknowledge pulse current (60mA according to [S-9.2.3](https://www.nmra.org/sites/default/files/standards/sandrp/DCC/S/S-9.2.3_2012_07.pdf)) [mA] | dcc_ack_cur     | u8     | 10  | 250 | 50       |
 /// | DCC loco flags                                                                                                                                        | dcc_loco_flags  | u8     | -   | -   | 226      |
