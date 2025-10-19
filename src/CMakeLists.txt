@@ -61,6 +61,7 @@ else()
     drv/trace/init.cpp
     drv/wifi/init.cpp
     drv/wifi/task_function.cpp
+    intf/dns/init.cpp
     intf/http/ap/init.cpp
     intf/http/ap/server.cpp
     intf/http/sta/init.cpp
@@ -92,6 +93,7 @@ else()
     REQUIRES
     app_update
     bootloader_support
+    dns_server
     driver
     esp_adc
     esp_app_format

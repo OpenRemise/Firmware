@@ -13,36 +13,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// mDNS documentation
+/// DNS documentation
 ///
-/// \file   intf/mdns/doxygen.hpp
+/// \file   intf/dns/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   21/03/2025
+/// \date   19/10/2025
 
 #pragma once
 
-namespace intf::mdns {
+namespace intf::dns {
 
-/// \page page_intf_mdns mDNS
+/// \page page_intf_dns DNS
 /// \details \tableofcontents
-/// [mDNS](https://en.wikipedia.org/wiki/Multicast_DNS) is a multicast UDP
-/// service that is used to provide local network service and host discovery.
-/// This module registers those services.
+/// The [Domain Name System
+/// (DNS)](https://en.wikipedia.org/wiki/Domain_Name_System) is a hierarchical
+/// and distributed name service that provides a naming system for computers,
+/// services, and other resources on the Internet or other Internet Protocol
+/// (IP) networks. This module registers those services.
 ///
-/// \section section_intf_mdns_init Initialization
+/// \section section_intf_dns_init Initialization
 /// \copydetails init
 ///
-/// \note
-/// To list mDNS services you can use [avahi](https://github.com/avahi/avahi),
-/// which is typically installed by default.
-/// ```sh
-/// avahi-browse -a
-/// ```
-///
 /// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_intf_dns | \ref page_intf_udp |
+/// | Previous            | Next                |
+/// | :------------------ | ------------------: |
+/// | \ref page_intf_http | \ref page_intf_mdns |
 /// </div>
 
-} // namespace intf::mdns
+} // namespace intf::dns
