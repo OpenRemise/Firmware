@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Add DNS server in AP mode ([#100](https://github.com/OpenRemise/Firmware/issues/100))
+
 ## 0.5.1
 - Increase ADC sample rate to 80kHz
 - Bugfix service mode packets are interleaved ([#97](https://github.com/OpenRemise/Firmware/issues/97))

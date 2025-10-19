@@ -8,7 +8,7 @@ on:
 
 jobs:
   tests:
-    uses: ZIMO-Elektronik/.github-workflows/.github/workflows/esp-elf-gcc.yml@v0.1.0
+    uses: ZIMO-Elektronik/.github-workflows/.github/workflows/esp-elf-gcc.yml@v0.2.0
     with:
       pre-build: |
         sudo apt update -y
@@ -18,4 +18,8 @@ jobs:
       command: |
         cmake --preset "Tests"
         cmake --build build --parallel
-      post-build: ./build/Firmware.elf
+      post-build: |
+        for i in {1..100}; do
+          ./build/Firmware.elf && exit 0
+        done
+        exit 1

@@ -88,9 +88,9 @@ namespace intf::http {
 /// comparator.
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next                |
-/// | :------------- | ------------------: |
-/// | \ref page_intf | \ref page_intf_mdns |
+/// | Previous       | Next               |
+/// | :------------- | -----------------: |
+/// | \ref page_intf | \ref page_intf_dns |
 /// </div>
 
 } // namespace intf::http

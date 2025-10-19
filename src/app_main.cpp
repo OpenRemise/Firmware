@@ -25,6 +25,7 @@
 #include "drv/out/init.hpp"
 #include "drv/trace/init.hpp"
 #include "drv/wifi/init.hpp"
+#include "intf/dns/init.hpp"
 #include "intf/http/init.hpp"
 #include "intf/mdns/init.hpp"
 #include "intf/udp/init.hpp"
@@ -74,6 +75,7 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::mdu::init));
   static_assert(APP_CPU_NUM == mw::zimo::mdu::task.core_id);
   static_assert(APP_CPU_NUM == mw::zimo::zusi::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::dns::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::mdns::init));
 
   // Don't disable serial JTAG

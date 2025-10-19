@@ -12,7 +12,12 @@ set(OPENREMISE_FRONTEND_SOURCE_DIR
     ""
     CACHE STRING "Overrides the frontend source code directory")
 
-set(EXTRA_COMPONENT_DIRS src)
+list(
+  APPEND
+  EXTRA_COMPONENT_DIRS
+  src
+  $ENV{IDF_PATH}/examples/protocols/http_server/captive_portal/components/dns_server
+)
 if(IDF_TARGET STREQUAL linux)
   # Don't change COMPONENTS on ESP32* targets, it removes a shit ton of defaults
   list(APPEND COMPONENTS src tests)

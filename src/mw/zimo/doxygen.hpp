@@ -56,7 +56,7 @@ namespace mw::zimo {
 /// Details on the individual protocols can be found in the corresponding GitHub
 /// repositories.
 ///
-/// \note
+/// \warning
 /// The tasks are **mutually exclusive** and share a \ref stack.
 ///
 /// \subsection subsection_mw_ulf_init Initialization
