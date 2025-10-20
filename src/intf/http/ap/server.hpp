@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,6 +37,7 @@ private:
   void buildGetString();
   void getConfig();
   void setConfig() const;
+  esp_err_t redirectHandler(httpd_req_t* req);
   esp_err_t wildcardGetHandler(httpd_req_t* req);
   esp_err_t savePostHandler(httpd_req_t* req);
 

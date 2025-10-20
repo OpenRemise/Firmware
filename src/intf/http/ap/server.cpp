@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,10 +48,38 @@ Server::Server() {
   //
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.core_id = WIFI_TASK_CORE_ID;
+  config.max_uri_handlers = 32u;
   config.lru_purge_enable = true;
   config.keep_alive_enable = true;
   config.uri_match_fn = httpd_uri_match_wildcard;
   ESP_ERROR_CHECK(httpd_start(&handle, &config));
+
+  // Redirect paths we need to cover
+  static constexpr std::array redirect_uris{
+    "/canonical.html",                // Linux / ChromeOS detection fallback
+    "/connecttest.txt",               // Windows NCSI primary detection
+    "/fwlink",                        // Legacy Windows redirect path
+    "/gen_204",                       // Android 9+ variant
+    "/generate_204",                  // Android 4.1+ main detection endpoint
+    "/hotspot-detect.html",           // iOS/macOS captive portal detection
+    "/hotspotdetect.html",            // Older Android fallback
+    "/kindle-wifi/wifiredirect.html", // Kindle captive portal redirect
+    "/kindle-wifi/wifistub.html",     // Kindle secondary check
+    "/mobile/status.php",             // Android 8.x detection
+    "/ncsi.txt",                      // Windows NCSI alternative detection
+    "/nm-check.txt",                  // Linux NetworkManager connectivity check
+    "/redirect",     // Windows fallback redirect (older versions)
+    "/robots.txt",   // Some browsers check this; useful fallback
+    "/success.txt"}; // Linux / ChromeOS detection
+
+  //
+  for (auto const redirect_uri : redirect_uris) {
+    httpd_uri_t uri{.uri = redirect_uri,
+                    .method = HTTP_GET,
+                    .handler =
+                      ztl::make_trampoline(this, &Server::redirectHandler)};
+    ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
+  }
 
   //
   httpd_uri_t uri{.uri = "/*",
@@ -157,6 +186,16 @@ void Server::setConfig() const {
   ESP_ERROR_CHECK(nvs.setStationIP(_sta_ip_str));
   ESP_ERROR_CHECK(nvs.setStationNetmask(_sta_netmask_str));
   ESP_ERROR_CHECK(nvs.setStationGateway(_sta_gateway_str));
+}
+
+/// \todo document
+esp_err_t Server::redirectHandler(httpd_req_t* req) {
+  LOGD("GET request %s", req->uri);
+
+  httpd_resp_set_status(req, "302 Found");
+  httpd_resp_set_hdr(req, "Location", "/");
+  httpd_resp_send(req, NULL, 0);
+  return ESP_OK;
 }
 
 /// \todo document
