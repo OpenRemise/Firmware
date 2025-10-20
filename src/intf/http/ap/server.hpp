@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,10 +37,9 @@ private:
   void buildGetString();
   void getConfig();
   void setConfig() const;
-  esp_err_t wildcardGetHandler(httpd_req_t* req);
+  esp_err_t rootGetHandler(httpd_req_t* req);
   esp_err_t savePostHandler(httpd_req_t* req);
-
-  static constexpr auto unicode_lock_{"&#x1F512"};
+  esp_err_t wildcardGetHandler(httpd_req_t* req);
 
   std::string _ap_options_str;
   std::string _ap_records_str;
