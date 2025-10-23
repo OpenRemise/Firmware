@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -53,16 +54,22 @@ Server::Server() {
   ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
   //
-  httpd_uri_t uri{.uri = "/*",
+  httpd_uri_t uri{.uri = "/",
                   .method = HTTP_GET,
                   .handler =
-                    ztl::make_trampoline(this, &Server::wildcardGetHandler)};
+                    ztl::make_trampoline(this, &Server::rootGetHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 
   //
   uri = {.uri = "/save/",
          .method = HTTP_POST,
          .handler = ztl::make_trampoline(this, &Server::savePostHandler)};
+  ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
+
+  //
+  uri = {.uri = "/*",
+         .method = HTTP_GET,
+         .handler = ztl::make_trampoline(this, &Server::wildcardGetHandler)};
   ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &uri));
 }
 
@@ -84,8 +91,10 @@ void Server::buildApRecordsStrings() {
     std::to_chars(begin(tmp), end(tmp), q);
     _ap_records_str.append(begin(tmp));
     _ap_records_str.append("% ");
-    if (ap_record.authmode != WIFI_AUTH_OPEN)
-      _ap_records_str.append(unicode_lock_);
+    if (ap_record.authmode != WIFI_AUTH_OPEN) {
+      static constexpr auto unicode_lock{"&#x1F512"};
+      _ap_records_str.append(unicode_lock);
+    }
     _ap_records_str.append("</li>");
 
     //
@@ -160,7 +169,7 @@ void Server::setConfig() const {
 }
 
 /// \todo document
-esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
+esp_err_t Server::rootGetHandler(httpd_req_t* req) {
   LOGD("GET request %s", req->uri);
 
   buildGetString();
@@ -256,6 +265,16 @@ esp_err_t Server::savePostHandler(httpd_req_t* req) {
   // Restart in 1s
   esp_delayed_restart();
 
+  return ESP_OK;
+}
+
+/// \todo document
+esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
+  LOGD("GET request %s", req->uri);
+
+  httpd_resp_set_status(req, "302 Found");
+  httpd_resp_set_hdr(req, "Location", "/");
+  httpd_resp_send(req, NULL, 0);
   return ESP_OK;
 }
 
