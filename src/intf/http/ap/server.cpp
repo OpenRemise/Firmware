@@ -22,6 +22,7 @@
 
 #include "server.hpp"
 #include <esp_wifi.h>
+#include <fmt/args.h>
 #include <fmt/core.h>
 #include <freertos/queue.h>
 #include <ztl/string.hpp>
@@ -40,7 +41,7 @@ namespace intf::http::ap {
 Server::Server() {
   _ap_records_str.reserve(1024uz);
   _ap_options_str.reserve(1024uz);
-  _get_str.reserve(2048uz);
+  _get_str.reserve(8096uz);
   getConfig();
   buildApRecordsStrings();
   buildGetString();
@@ -112,17 +113,16 @@ void Server::buildGetString() {
     fmt::runtime({&_binary_captive_portal_html_start,
                   static_cast<size_t>(&_binary_captive_portal_html_end -
                                       &_binary_captive_portal_html_start)}),
-    _sta_mdns_str,
-    _sta_ssid_str,
-    _ap_options_str,
-    _sta_pass_str,
-    _sta_alt_ssid_str,
-    _ap_options_str,
-    _sta_alt_pass_str,
-    _sta_ip_str,
-    _sta_netmask_str,
-    _sta_gateway_str,
-    _ap_records_str)};
+    fmt::arg("sta_mdns", _sta_mdns_str),
+    fmt::arg("sta_ssid", _sta_ssid_str),
+    fmt::arg("ap_options", _ap_options_str),
+    fmt::arg("sta_pass", _sta_pass_str),
+    fmt::arg("sta_alt_ssid", _sta_alt_ssid_str),
+    fmt::arg("sta_alt_pass", _sta_alt_pass_str),
+    fmt::arg("sta_ip", _sta_ip_str),
+    fmt::arg("sta_netmask", _sta_netmask_str),
+    fmt::arg("sta_gateway", _sta_gateway_str),
+    fmt::arg("ap_records", _ap_records_str))};
   _get_str.resize(result.size);
 }
 
