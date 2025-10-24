@@ -3,11 +3,11 @@ dependencies:
   bblanchon/arduinojson:
     version: "7.4.2"
   espressif/esp_tinyusb:
-    version: "1.7.6~1"
+    version: "2.0.1"
     rules:
       - if: "target != linux"
   espressif/tinyusb:
-    version: "0.18.0~2"
+    version: "0.19.0~1"
     rules:
       - if: "target != linux"
   espressif/mdns:

@@ -21,7 +21,7 @@
 
 #include "tx_task_function.hpp"
 #include <tinyusb.h>
-#include <tusb_cdc_acm.h>
+#include <tinyusb_cdc_acm.h>
 #include <array>
 #include <span>
 #include <string_view>
