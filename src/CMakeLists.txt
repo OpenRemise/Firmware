@@ -151,7 +151,7 @@ cpmaddpackage(
   GITHUB_REPOSITORY
   fmtlib/fmt
   GIT_TAG
-  11.2.0
+  12.0.0
   SYSTEM
   YES
   OPTIONS

@@ -227,7 +227,7 @@ static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
 ///
 inline TASK(adc_task,
             "drv::analog::adc",     // Name
-            4096uz,                 // Stack size
+            2048uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 2u, // Priority
             APP_CPU_NUM,            // Core
             200u);                  // Timeout

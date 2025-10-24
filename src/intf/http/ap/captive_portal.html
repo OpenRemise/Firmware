@@ -1,72 +1,108 @@
 <!DOCTYPE html>
-<div style="max-width:500px;margin:auto">
-  <h2>OpenRemise Config</h2>
-  <form action="/save/" method="POST">
-    <table>
-      <tr>
-        <td><label for="sta_mdns">mDNS:</label></td>
-        <td><input type="text" pattern="[^\.]*remise" id="sta_mdns" name="sta_mdns" maxlength="32" placeholder="remise"
-            value="{}"></td>
-      </tr>
-      <tr>
-        <td><label for="sta_ssid">SSID:</label></td>
-        <td><input type="text" id="sta_ssid" name="sta_ssid" list="list_sta_ssid" maxlength="32" placeholder="SSID"
-            value="{}"> <datalist id="list_sta_ssid">{}</datalist></td>
-      </tr>
-      <tr>
-        <td><label for="sta_pass">Password:</label></td>
-        <td><input type="password" id="sta_pass" name="sta_pass" maxlength="64" placeholder="Password"
-            autocomplete="off" value="{}"></td>
-        <td><a
-            onclick="var pw = document.getElementById('sta_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
-        </td>
-      </tr>
-      <tr>
-        <td><label for="sta_alt_ssid">Alternative SSID:</label></td>
-        <td><input type="text" id="sta_alt_ssid" name="sta_alt_ssid" list="list_sta_ssid" maxlength="32"
-            placeholder="SSID or blank" value="{}">
-          <datalist id="list_sta_ssid">{}</datalist>
-        </td>
-      </tr>
-      <tr>
-        <td><label for="sta_alt_pass">Alternative password:</label></td>
-        <td><input type="password" id="sta_alt_pass" name="sta_alt_pass" maxlength="64" placeholder="Password or blank"
-            autocomplete="off" value="{}">
-        </td>
-        <td><a
-            onclick="var pw = document.getElementById('sta_alt_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
-        </td>
-      </tr>
-      <tr>
-        <td><label for="sta_ip">IP:</label></td>
-        <td><input type="text"
-            pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
-            id="sta_ip" name="sta_ip" maxlength="15" placeholder="IP or blank" value="{}">
-        </td>
-      </tr>
-      <tr>
-        <td><label for="sta_netmask">Netmask:</label></td>
-        <td><input type="text"
-            pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
-            id="sta_netmask" name="sta_netmask" maxlength="15" placeholder="Netmask or blank" value="{}">
-        </td>
-      </tr>
-      <tr>
-        <td><label for="sta_gateway">Gateway:</label></td>
-        <td><input type="text"
-            pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
-            id="sta_gateway" name="sta_gateway" maxlength="15" placeholder="Gateway or blank" value="{}">
-        </td>
-      </tr>
-      <tr>
-        <td></td>
-        <td><input type="submit" value="Save and restart" style="width:100%"></td>
-      </tr>
-    </table>
-  </form>
-  <br>
-  <details>
-    <summary>Networks</summary>
-    <ul>{}</ul>
-  </details>
-</div>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenRemise Config</title>
+  <style>
+    body {{
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1em;
+    }}
+
+    div {{
+      max-width: 500px;
+      margin: auto;
+    }}
+
+    table {{
+      width: 100%;
+      border-spacing: 0.5em 0.5em;
+    }}
+
+    input[type="text"],
+    input[type="password"] {{
+      width: 100%;
+      box-sizing: border-box;
+    }}
+
+    input[type="submit"] {{
+      width: 100%;
+      padding: 0.75em;
+      font-size: 1em;
+    }}
+  </style>
+</head>
+
+<body>
+  <div>
+    <h2>OpenRemise Config</h2>
+    <form action="/save/" method="POST">
+      <table>
+        <tr>
+          <td><label for="sta_mdns">mDNS:</label></td>
+          <td><input type="text" pattern="[^\.]*remise" id="sta_mdns" name="sta_mdns" maxlength="32"
+              placeholder="remise" value="{sta_mdns}"></td>
+        </tr>
+        <tr>
+          <td><label for="sta_ssid">SSID:</label></td>
+          <td><input type="text" id="sta_ssid" name="sta_ssid" list="list_sta_ssid" maxlength="32" placeholder="SSID"
+              value="{sta_ssid}"> <datalist id="list_sta_ssid">{ap_options}</datalist></td>
+        </tr>
+        <tr>
+          <td><label for="sta_pass">Password:</label></td>
+          <td><input type="password" id="sta_pass" name="sta_pass" maxlength="64" placeholder="Password"
+              autocomplete="off" value="{sta_pass}"></td>
+          <td><a
+              onclick="var pw = document.getElementById('sta_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="sta_alt_ssid">Alternative SSID:</label></td>
+          <td><input type="text" id="sta_alt_ssid" name="sta_alt_ssid" list="list_sta_ssid" maxlength="32"
+              placeholder="SSID or blank" value="{sta_alt_ssid}"></td>
+        </tr>
+        <tr>
+          <td><label for="sta_alt_pass">Alternative password:</label></td>
+          <td><input type="password" id="sta_alt_pass" name="sta_alt_pass" maxlength="64"
+              placeholder="Password or blank" autocomplete="off" value="{sta_alt_pass}"></td>
+          <td><a
+              onclick="var pw = document.getElementById('sta_alt_pass'); pw.type = pw.type == 'password' ? 'text' : 'password';">&#128065;</a>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="sta_ip">IP:</label></td>
+          <td><input type="text"
+              pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+              id="sta_ip" name="sta_ip" maxlength="15" placeholder="IP or blank" value="{sta_ip}"></td>
+        </tr>
+        <tr>
+          <td><label for="sta_netmask">Netmask:</label></td>
+          <td><input type="text"
+              pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+              id="sta_netmask" name="sta_netmask" maxlength="15" placeholder="Netmask or blank" value="{sta_netmask}">
+          </td>
+        </tr>
+        <tr>
+          <td><label for="sta_gateway">Gateway:</label></td>
+          <td><input type="text"
+              pattern="^$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]?|0)$"
+              id="sta_gateway" name="sta_gateway" maxlength="15" placeholder="Gateway or blank" value="{sta_gateway}">
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type="submit" value="Save and restart"></td>
+        </tr>
+      </table>
+    </form>
+    <br>
+    <details>
+      <summary>Networks</summary>
+      <ul>{ap_records}</ul>
+    </details>
+  </div>
+</body>
+
+</html>

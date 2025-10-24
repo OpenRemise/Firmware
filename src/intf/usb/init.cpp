@@ -21,7 +21,8 @@
 
 #include "init.hpp"
 #include <tinyusb.h>
-#include <tusb_cdc_acm.h>
+#include <tinyusb_cdc_acm.h>
+#include <tinyusb_default_config.h>
 #include <array>
 #include "log.h"
 #include "rx_task_function.hpp"
@@ -71,24 +72,42 @@ esp_err_t init() {
   tx_task.create(tx_task_function);
 
   static constexpr tinyusb_config_t tusb_cfg{
-    .device_descriptor = NULL,
-    .string_descriptor = NULL,
-    .external_phy = false,
-    .configuration_descriptor = NULL,
-    /// \bug Currently can cause issues on Windows 11
-    /// https://github.com/espressif/esp-idf/issues/14638
-    //.self_powered = true,
-    //.vbus_monitor_io = vbus_gpio_num
+    .port = TINYUSB_PORT_FULL_SPEED_0,
+    .phy =
+      {
+        .skip_setup = false,
+        /// \bug Currently can cause issues on Windows 11
+        /// https://github.com/espressif/esp-idf/issues/14638
+        .self_powered = false,
+        .vbus_monitor_io = vbus_gpio_num,
+      },
+    .task =
+      {
+        .size = TINYUSB_DEFAULT_TASK_SIZE,
+        .priority = TINYUSB_DEFAULT_TASK_PRIO,
+        .xCoreID = PRO_CPU_NUM,
+      },
+    .descriptor =
+      {
+        .device = NULL,
+        .qualifier = NULL,
+        .string = NULL,
+        .string_count = 0,
+        .full_speed_config = NULL,
+        .high_speed_config = NULL,
+      },
+    .event_cb = NULL,
+    .event_arg = NULL,
   };
   ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
 
   static constexpr tinyusb_config_cdcacm_t acm_cfg{
-    .usb_dev = TINYUSB_USBDEV_0,
     .cdc_port = TINYUSB_CDC_ACM_0,
-    .rx_unread_buf_sz = buffer_size,
     .callback_rx = &tinyusb_cdc_rx_callback,
-    .callback_line_state_changed = &tinyusb_cdc_line_state_changed_callback};
-  ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
+    .callback_rx_wanted_char = NULL,
+    .callback_line_state_changed = &tinyusb_cdc_line_state_changed_callback,
+    .callback_line_coding_changed = NULL};
+  ESP_ERROR_CHECK(tinyusb_cdcacm_init(&acm_cfg));
 
   return ESP_OK;
 }

@@ -2,6 +2,7 @@
 
 ##
 - Add DNS server in AP mode ([#100](https://github.com/OpenRemise/Firmware/issues/100))
+- Add CSS to captive portal ([#103](https://github.com/OpenRemise/Firmware/pull/103))
 
 ## 0.5.1
 - Increase ADC sample rate to 80kHz
