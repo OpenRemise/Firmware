@@ -139,9 +139,9 @@ void loop() {
   for (;;) {
     send_idle_packets_to_back();
 
-    // Return on timeout
+    // Timeout
     if (auto const tick{xTaskGetTickCount()}; tick >= timeout_tick) return;
-    // In case we got a packet, reset timeout
+    // Got packet, reset timeout
     else if (auto const packet{receive_dcc_packet()}) {
       timeout_tick = tick + pdMS_TO_TICKS(timeout);
       send_to_front(*packet);

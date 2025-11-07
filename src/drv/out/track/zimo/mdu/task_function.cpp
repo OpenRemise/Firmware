@@ -252,10 +252,12 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
   auto const busy_packet{make_busy_packet()};
 
   for (;;) {
-    // Return on empty packet, suspend or short circuit
-    if (auto const packet{receive_packet(timeout)};
-        !packet || std::to_underlying(
-                     state.load() & (State::Suspending | State::ShortCircuit)))
+    // Suspend or short circuit
+    if (std::to_underlying(state.load() &
+                           (State::Suspending | State::ShortCircuit)))
+      return rmt_tx_wait_all_done(channel, -1);
+    // Timeout
+    else if (auto const packet{receive_packet(task.timeout)}; !packet)
       return rmt_tx_wait_all_done(channel, -1);
     // Transmit packet
     else {
