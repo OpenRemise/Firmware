@@ -93,15 +93,6 @@ void send_to_back(::dcc::Packet const& packet) {
                      portMAX_DELAY);
 }
 
-/// Send DCC idle packets to drv::out::tx_message_buffer back
-void send_idle_packets_to_back() {
-  static constexpr auto idle_packet{::dcc::make_idle_packet()};
-  while (
-    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
-    drv::out::tx_message_buffer.size * 0.5)
-    send_to_back(idle_packet);
-}
-
 /// Receive addressed datagram
 ///
 /// \retval AddressedDatagram received from out::track::rx_queue
@@ -137,8 +128,6 @@ void loop() {
   TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
 
   for (;;) {
-    send_idle_packets_to_back();
-
     // Timeout
     if (auto const tick{xTaskGetTickCount()}; tick >= timeout_tick) return;
     // Got packet, reset timeout
@@ -175,7 +164,6 @@ void loop() {
   if (auto expected{State::Suspended};
       state.compare_exchange_strong(expected, State::ULF_DCC_EIN)) {
     intf::usb::transmit_ok();
-    send_idle_packets_to_back();
     LOGI_TASK_CREATE(drv::out::track::dcc::task);
     loop();
   }

@@ -533,8 +533,6 @@ void Service::operationsBiDi() {
 void Service::serviceLoop() {
   drv::led::Bug const led_bug{};
 
-  if (empty(_cv_request_deque)) return;
-
   /// \todo oh god please make this safer...
   /// it changes from opmode to serv...
   if (auto expected{State::DCCOperations};
@@ -553,19 +551,23 @@ void Service::serviceLoop() {
     LOGI_TASK_CREATE(drv::out::track::dcc::task);
   }
 
-  auto const& req{_cv_request_deque.front()};
-  auto const cv_addr{req.cv_addr};
-  auto const byte{req.byte ? serviceWrite(cv_addr, *req.byte)
-                           : serviceRead(cv_addr)};
-  _cv_request_deque.pop_front();
+  while (state.load() == State::DCCService) {
+    if (empty(_cv_request_deque)) continue;
+
+    auto const& req{_cv_request_deque.front()};
+    auto const cv_addr{req.cv_addr};
+    auto const byte{req.byte ? serviceWrite(cv_addr, *req.byte)
+                             : serviceRead(cv_addr)};
+    _cv_request_deque.pop_front();
+
+    // send reply
+    if (byte) cvAck(cv_addr, *byte);
+    else cvNack();
+  }
 
   // wait for task to get deleted
   while (xTaskGetHandle("drv::out::track::dcc"))
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
-
-  // send reply
-  if (byte) cvAck(cv_addr, *byte);
-  else cvNack();
 }
 
 /// \todo document
@@ -966,14 +968,6 @@ void Service::resume() {
   _nvs.accy_flags = nvs.getDccAccessoryFlags();
   _nvs.accy_switch_time = nvs.getDccAccessorySwitchTime();
   _nvs.accy_packet_count = nvs.getDccAccessoryPacketCount();
-
-  // Preload
-  auto const packet{state.load() == State::DCCOperations ? make_idle_packet()
-                                                         : make_reset_packet()};
-  while (
-    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
-    drv::out::tx_message_buffer.size * 0.5)
-    sendToBack(packet);
 
   // Create out::track::dcc task
   LOGI_TASK_CREATE(drv::out::track::dcc::task);

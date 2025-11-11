@@ -1,7 +1,10 @@
 # Changelog
 
+## 0.5.3
+- Add timeout to `drv::out::track::dcc` task ([#107](https://github.com/OpenRemise/Firmware/issues/107))
+
 ## 0.5.2
-- Add DNS server in AP mode ([#100](https://github.com/OpenRemise/Firmware/issues/100))
+- Add DNS server in AP mode ([#100](https://github.com/OpenRemise/Firmware/pull/100))
 - Add CSS to captive portal ([#103](https://github.com/OpenRemise/Firmware/pull/103))
 - Disable ZIMO MX decoder updates and uploads ([#105](https://github.com/OpenRemise/Firmware/issues/105))
 
@@ -17,10 +20,10 @@
 - Add `dcc_accy_pc` setting
 
 ## 0.4.1
-- Add `/dcc/` endpoint ([#84](https://github.com/OpenRemise/Firmware/pull/84))
+- Add `/dcc/` endpoint ([#84](https://github.com/OpenRemise/Firmware/issues/84))
 - Implement `z21::server::intf::System::systemState` ([#90](https://github.com/OpenRemise/Firmware/issues/90))
-- Bugfix task names inside `intf::usb::any_service_task_active` ([#86](https://github.com/OpenRemise/Firmware/pull/86))
-- Bugfix `intf::http::Endpoints` key comparison uses prefix-based matching ([#87](https://github.com/OpenRemise/Firmware/pull/87))
+- Bugfix task names inside `intf::usb::any_service_task_active` ([#86](https://github.com/OpenRemise/Firmware/issues/86))
+- Bugfix `intf::http::Endpoints` key comparison uses prefix-based matching ([#87](https://github.com/OpenRemise/Firmware/issues/87))
 
 ## 0.4.0
 - Add `http_exit_msg` setting ([#83](https://github.com/OpenRemise/Firmware/pull/83))
