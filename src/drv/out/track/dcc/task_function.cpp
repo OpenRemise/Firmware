@@ -33,6 +33,7 @@
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
 #include "suspend.hpp"
+#include "utility.hpp"
 
 namespace drv::out::track::dcc {
 
@@ -221,6 +222,8 @@ esp_err_t transmit_bidi(RxQueue::value_type item) {
 esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
   static constexpr auto idle_packet{make_idle_packet()};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{};
+  auto const timeout{http_receive_timeout2ms()};
+  TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
 
   // Set current limit from NVS
   ESP_ERROR_CHECK(set_current_limit(mem::nvs::Settings{}.getCurrentLimit()));
@@ -240,12 +243,21 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
         {.packet = *(cbegin(packets) - 1), .datagram = receive_bidi()});
     packets.pop_front();
 
-    // Return on empty packet, suspend or short circuit
-    if (auto const packet{receive_packet()};
-        !packet || std::to_underlying(
-                     state.load() & (State::Suspending | State::ShortCircuit)))
+    // Suspend or short circuit
+    if (std::to_underlying(state.load() &
+                           (State::Suspending | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
-    else packets.push_back(*packet);
+    // Timeout
+    else if (auto const tick{xTaskGetTickCount()}; tick >= timeout_tick)
+      return rmt_tx_wait_all_done(channel, -1);
+    // No packet, transmit idle
+    else if (auto const packet{receive_packet()}; !packet)
+      packets.push_back(idle_packet);
+    // Got packet, reset timeout
+    else {
+      timeout_tick = tick + pdMS_TO_TICKS(timeout);
+      packets.push_back(*packet);
+    }
 
     // Transmit packet
     ESP_ERROR_CHECK(transmit_packet(packets.front()));
@@ -315,6 +327,8 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   static constexpr auto read_timeout{50u};
   static constexpr auto write_timeout{100u};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
+  auto const timeout{http_receive_timeout2ms()};
+  TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
   analog::CurrentMeasurement ref_current_measurement{};
   std::vector<analog::CurrentMeasurement::value_type> current_measurements;
   current_measurements.reserve(16384uz);
@@ -346,12 +360,21 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
 
     // Transmit reset packets until first non-reset packet
     do {
-      // Return on empty packet, suspend or short circuit
-      if (auto const packet{receive_packet()};
-          !packet || std::to_underlying(state.load() & (State::Suspending |
-                                                        State::ShortCircuit)))
+      // Suspend or short circuit
+      if (std::to_underlying(state.load() &
+                             (State::Suspending | State::ShortCircuit)))
         return rmt_tx_wait_all_done(channel, -1);
-      else packets.push_back(*packet);
+      // Timeout
+      else if (auto const tick{xTaskGetTickCount()}; tick >= timeout_tick)
+        return rmt_tx_wait_all_done(channel, -1);
+      // No packet, transmit reset
+      else if (auto const packet{receive_packet()}; !packet)
+        packets.push_back(reset_packet);
+      // Got packet, reset timeout
+      else {
+        timeout_tick = tick + pdMS_TO_TICKS(timeout);
+        packets.push_back(*packet);
+      }
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
     } while (packets.back() == reset_packet);
@@ -363,8 +386,9 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
       pdMS_TO_TICKS(write_timeout + trans_queue_depth * 10u)};
     bool ack{};
     for (auto i{1uz}; i < program_packet_count; ++i) {
-      if (auto const packet{receive_packet()}) packets.push_back(*packet);
-      else break;
+      auto const packet{receive_packet()};
+      assert(packet);
+      packets.push_back(*packet);
       ESP_ERROR_CHECK(transmit_packet(packets.front()));
       packets.pop_front();
       if (i == 1uz) ref_current_measurement = get_ref_current_measurement();

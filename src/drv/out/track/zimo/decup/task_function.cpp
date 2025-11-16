@@ -53,9 +53,9 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
 void IRAM_ATTR ack_isr_handler(void*) { ++ack_count; }
 
 /// \todo document
-std::optional<Packet> receive_packet() {
+std::optional<Packet> receive_packet(uint32_t timeout) {
   Packet packet;
-  auto const then{xTaskGetTickCount() + pdMS_TO_TICKS(task.timeout)};
+  auto const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
   while (xTaskGetTickCount() < then)
     //
     if (auto const bytes_received{
@@ -108,10 +108,12 @@ esp_err_t loop() {
   ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
 
   for (;;) {
-    // Return on empty packet, suspend or short circuit
-    if (auto const packet{receive_packet()};
-        !packet || std::to_underlying(
-                     state.load() & (State::Suspending | State::ShortCircuit)))
+    // Suspend or short circuit
+    if (std::to_underlying(state.load() &
+                           (State::Suspending | State::ShortCircuit)))
+      return rmt_tx_wait_all_done(channel, -1);
+    // Timeout
+    else if (auto const packet{receive_packet(task.timeout)}; !packet)
       return rmt_tx_wait_all_done(channel, -1);
     // Transmit packet
     else {
