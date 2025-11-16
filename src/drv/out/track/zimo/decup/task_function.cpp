@@ -83,8 +83,13 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
 
 /// \todo document
 uint8_t receive_acks(uint32_t us) {
-  // Wait for up to 2 acks
+  // Wait for first ack
   auto then{esp_timer_get_time() + us};
+  while (esp_timer_get_time() < then)
+    if (ack_count >= 1u) break;
+
+  // Wait for second ack
+  then = esp_timer_get_time() + 200u;
   while (esp_timer_get_time() < then)
     if (ack_count == 2u) break;
 
@@ -118,11 +123,11 @@ esp_err_t loop() {
     // Transmit packet
     else {
       if (get_current_limit() == CurrentLimit::_4100mA &&
-          packet->front() != std::to_underlying(decup::Command::Preamble0) &&
-          packet->front() != std::to_underlying(decup::Command::Preamble1))
+          packet->front() != std::to_underlying(Command::Preamble0) &&
+          packet->front() != std::to_underlying(Command::Preamble1))
         ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const us{decup::packet2pulse_timeout(*packet)};
+      auto const us{packet2timeout(*packet)};
       auto const acks{receive_acks(us)};
       ESP_ERROR_CHECK(transmit_acks(acks));
     }

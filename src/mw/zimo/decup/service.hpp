@@ -34,7 +34,7 @@ private:
   [[noreturn]] void taskFunction(void*);
   void loop();
 
-  uint8_t transmit(std::span<uint8_t const> bytes) final;
+  uint8_t transmit(std::span<uint8_t const> bytes, uint32_t) final;
 
   void close();
 

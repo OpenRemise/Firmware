@@ -116,7 +116,9 @@ target_compile_options(
 
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.0")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.1")
+cpmaddpackage(
+  NAME ULF_DECUP_EIN GITHUB_REPOSITORY "ZIMO-Elektronik/ULF_DECUP_EIN" GIT_TAG
+  e9b3f62b4045bbacc0d454d60be93cffcce3b59f)
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.2.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.2")
