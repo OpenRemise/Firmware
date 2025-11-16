@@ -22,7 +22,6 @@
 #include "init.hpp"
 #include <array>
 #include "dcc_ein/task_function.hpp"
-#include "decup_ein/task_function.hpp"
 #include "log.h"
 #include "susiv2/task_function.hpp"
 
@@ -33,11 +32,9 @@ namespace mw::zimo::ulf {
 /// This function basically does nothing except set the function pointer for the
 /// corresponding protocol tasks:
 /// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
-/// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
 /// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
 esp_err_t init() {
   dcc_ein::task.function = dcc_ein::task_function;
-  decup_ein::task.function = decup_ein::task_function;
   susiv2::task.function = susiv2::task_function;
   return ESP_OK;
 }

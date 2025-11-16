@@ -65,9 +65,6 @@ namespace mw::zimo {
 /// \subsection subsection_mw_ulf_dcc_ein DCC_EIN
 /// \copydetails ulf::dcc_ein::task_function
 ///
-/// \subsection subsection_mw_ulf_decup_ein DECUP_EIN
-/// \copydetails ulf::decup_ein::task_function
-///
 /// \subsection subsection_mw_ulf_susiv2 SUSIV2
 /// \copydetails ulf::susiv2::task_function
 ///

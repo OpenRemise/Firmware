@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.5.3
+##
 - Add timeout to `drv::out::track::dcc` task ([#107](https://github.com/OpenRemise/Firmware/issues/107))
+- Drop [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN) support ([#105](https://github.com/OpenRemise/Firmware/issues/105))
 
 ## 0.5.2
 - Add DNS server in AP mode ([#100](https://github.com/OpenRemise/Firmware/pull/100))

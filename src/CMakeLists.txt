@@ -81,7 +81,6 @@ else()
     mw/zimo/decup/service.cpp
     mw/zimo/mdu/init.cpp
     mw/zimo/mdu/service.cpp
-    mw/zimo/ulf/decup_ein/task_function.cpp
     mw/zimo/ulf/susiv2/task_function.cpp
     mw/zimo/ulf/init.cpp
     mw/zimo/zusi/init.cpp

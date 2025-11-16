@@ -160,8 +160,7 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 [[noreturn]] void task_function(void*) {
   switch (decup_encoder_config_t encoder_config{}; state.load()) {
     case State::DECUPZpp: [[fallthrough]];
-    case State::DECUPZsu: [[fallthrough]];
-    case State::ULF_DECUP_EIN:
+    case State::DECUPZsu:
       ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, ack_isr_handler));
       ESP_ERROR_CHECK(loop());
       ESP_ERROR_CHECK(suspend());

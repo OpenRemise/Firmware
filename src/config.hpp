@@ -162,13 +162,12 @@ enum class State : uint16_t {
   ZUSI = 7u << CHAR_BIT,          ///< ZUSI mode
 
   // USB protocols
-  ULF_DCC_EIN = 8u << CHAR_BIT,   ///< ULF_DCC_EIN USB mode
-  ULF_DECUP_EIN = 9u << CHAR_BIT, ///< ULF_DECUP_EIN USB mode
-  ULF_MDU_EIN = 10u << CHAR_BIT,  ///< ULF_MDU_EIN USB mode
-  ULF_SUSIV2 = 11u << CHAR_BIT,   ///< ULF_SUSIV2 USB mode
+  ULF_DCC_EIN = 8u << CHAR_BIT, ///< ULF_DCC_EIN USB mode
+  ULF_MDU_EIN = 9u << CHAR_BIT, ///< ULF_MDU_EIN USB mode
+  ULF_SUSIV2 = 10u << CHAR_BIT, ///< ULF_SUSIV2 USB mode
 
   // System
-  OTA = 12u << CHAR_BIT, ///< OTA update
+  OTA = 11u << CHAR_BIT, ///< OTA update
 };
 static_assert(std::to_underlying(State::OTA) < MAGIC_ENUM_RANGE_MAX);
 
@@ -472,7 +471,6 @@ inline int sock_fd;
 
 namespace usb {
 
-inline bool volatile rts{};
 inline constexpr auto vbus_gpio_num{GPIO_NUM_7};
 inline constexpr auto buffer_size{512uz};
 
@@ -601,17 +599,6 @@ inline SHARED_TASK(task,
 
 } // namespace dcc_ein
 
-namespace decup_ein {
-
-///
-inline SHARED_TASK(task,
-                   "mw::zimo::ulf::decup_ein",                  // Name
-                   intf::usb::rx_task.priority - 1u,            // Priority
-                   APP_CPU_NUM,                                 // Core
-                   drv::out::track::zimo::decup::task.timeout); // Timeout
-
-} // namespace decup_ein
-
 namespace susiv2 {
 
 ///
@@ -625,7 +612,6 @@ inline SHARED_TASK(task,
 
 // https://github.com/OpenRemise/Firmware/issues/36
 static_assert(dcc_ein::task.priority < intf::usb::rx_task.priority);
-static_assert(decup_ein::task.priority < intf::usb::rx_task.priority);
 static_assert(susiv2::task.priority < intf::usb::rx_task.priority);
 
 } // namespace ulf

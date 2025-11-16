@@ -26,6 +26,7 @@
 #include <string_view>
 #include <ulf/com.hpp>
 #include "log.h"
+#include "tx_task_function.hpp"
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #  include <esp_app_desc.h>
@@ -41,7 +42,6 @@ using namespace std::literals;
 /// \retval false if no service task is active
 bool any_service_task_active() {
   return xTaskGetHandle(mw::zimo::ulf::dcc_ein::task.name) ||
-         xTaskGetHandle(mw::zimo::ulf::decup_ein::task.name) ||
          xTaskGetHandle(mw::zimo::ulf::susiv2::task.name);
 }
 
@@ -84,14 +84,16 @@ void loop() {
         LOGI_TASK_CREATE(mw::zimo::ulf::dcc_ein::task);
         break;
       }
-      // Create ULF_DECUP_EIN task
+      // ULF_DECUP_EIN not supported
       else if (cmd == "DECUP_EIN\r"sv) {
-        LOGI_TASK_CREATE(mw::zimo::ulf::decup_ein::task);
-        break;
+        LOGW("DECUP_EIN not supported");
+        transmit_not_ok();
       }
       // Create ULF_MDU_EIN task
-      else if (cmd == "MDU_EIN\r"sv)
+      else if (cmd == "MDU_EIN\r"sv) {
         LOGW("MDU_EIN not implemented");
+        transmit_not_ok();
+      }
       // Create ULF_SUSIV2 task
       else if (cmd == "SUSIV2\r"sv) {
         LOGI_TASK_CREATE(mw::zimo::ulf::susiv2::task);
@@ -119,7 +121,6 @@ void wait_for_all_service_tasks_to_suspend() {
 ///
 /// Currently supported protocols are:
 /// - [ULF_DCC_EIN](https://github.com/ZIMO-Elektronik/ULF_DCC_EIN)
-/// - [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
 /// - [ULF_SUSIV2](https://github.com/ZIMO-Elektronik/ULF_SUSIV2)
 [[noreturn]] void rx_task_function(void*) {
   wait_for_all_service_tasks_to_suspend();
