@@ -82,7 +82,6 @@ extern "C" void app_main() {
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::ulf::init));
   static_assert(APP_CPU_NUM == mw::zimo::ulf::dcc_ein::task.core_id &&
-                APP_CPU_NUM == mw::zimo::ulf::decup_ein::task.core_id &&
                 APP_CPU_NUM == mw::zimo::ulf::susiv2::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, intf::usb::init));
   static_assert(APP_CPU_NUM == intf::usb::rx_task.core_id &&
@@ -107,7 +106,6 @@ static_assert(std::invoke([] {
                         mw::zimo::decup::task.name,
                         mw::zimo::mdu::task.name,
                         mw::zimo::ulf::dcc_ein::task.name,
-                        mw::zimo::ulf::decup_ein::task.name,
                         mw::zimo::ulf::susiv2::task.name,
                         mw::zimo::zusi::task.name};
   std::ranges::sort(task_names, [](char const* a, char const* b) {

@@ -578,7 +578,6 @@
 /// | mw::zimo::decup::task              | 1    |
 /// | mw::zimo::mdu::task                | 1    |
 /// | mw::zimo::ulf::dcc_ein::task       | 1    |
-/// | mw::zimo::ulf::decup_ein::task     | 1    |
 /// | mw::zimo::ulf::susiv2::task        | 1    |
 /// | mw::zimo::zusi::task               | 1    |
 /// | drv::analog::adc_task              | 1    |
@@ -781,7 +780,6 @@
 ///     }
 ///     package "ulf" as mw_zimo_ulf {
 ///       [DCC_EIN]
-///       [DECUP_EIN]
 ///       [SUSIV2]
 ///     }
 ///     package "zusi" as mw_zimo_zusi {
@@ -835,7 +833,6 @@
 /// intf_http_sta_server <--> mw_zimo_zusi_service
 ///
 /// intf_usb_tasks <--> DCC_EIN
-/// intf_usb_tasks <--> DECUP_EIN
 /// intf_usb_tasks <--> SUSIV2
 ///
 /// mw_roco_z21_service <-l-> mw_dcc_service
@@ -846,7 +843,6 @@
 /// mw_zimo_mdu_service <--> drv_out_track_zimo_mdu_task
 ///
 /// [DCC_EIN] <--> drv_out_track_dcc_task
-/// [DECUP_EIN] <--> drv_out_track_zimo_decup_task
 /// [SUSIV2] <--> drv_out_susi_zimo_zusi_task
 ///
 /// UDP <--> mw_roco_z21_service

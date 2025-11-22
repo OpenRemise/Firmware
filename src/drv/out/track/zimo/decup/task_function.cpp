@@ -83,8 +83,13 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
 
 /// \todo document
 uint8_t receive_acks(uint32_t us) {
-  // Wait for up to 2 acks
+  // Wait for first ack
   auto then{esp_timer_get_time() + us};
+  while (esp_timer_get_time() < then)
+    if (ack_count >= 1u) break;
+
+  // Wait for second ack
+  then = esp_timer_get_time() + 200u;
   while (esp_timer_get_time() < then)
     if (ack_count == 2u) break;
 
@@ -93,6 +98,53 @@ uint8_t receive_acks(uint32_t us) {
   while (esp_timer_get_time() < then);
 
   return ack_count;
+}
+
+/// \todo document
+/// https://github.com/OpenRemise/Firmware/issues/105
+uint8_t manipulate_acks_workaround(Packet const& packet, uint8_t acks) {
+  static uint8_t decoder_id{};
+
+  // No ack can only be preamble
+  if (auto const count{size(packet)}; !acks) {
+    if (count == 1uz &&
+        (packet[0uz] == std::to_underlying(Command::Preamble0) ||
+         packet[0uz] == std::to_underlying(Command::Preamble1)))
+      decoder_id = 0u;
+  }
+  // Manipulate acks depending on mode
+  else
+    switch (state.load()) {
+      case State::DECUPZpp:
+        // Flash erase
+        if (count == 4uz && (packet[0uz] == 0x03u && packet[1uz] == 0x55u &&
+                             packet[2uz] == 0xFFu && packet[3uz] == 0xFFu))
+          acks = 1u;
+        // Flash write, CV write
+        else acks = 2u;
+        break;
+
+      case State::DECUPZsu:
+        // Decoder ID, block count and security bytes
+        if (count == 1uz) {
+          // Decoder ID
+          if (!decoder_id) {
+            decoder_id = packet[0uz];
+            acks = 2u;
+          }
+          // Block count and security bytes
+          else
+            acks = 1u;
+        }
+        // Flash write
+        else
+          acks = 2u;
+        break;
+
+      default: assert(false); break;
+    }
+
+  return acks;
 }
 
 /// \todo document
@@ -118,13 +170,14 @@ esp_err_t loop() {
     // Transmit packet
     else {
       if (get_current_limit() == CurrentLimit::_4100mA &&
-          packet->front() != std::to_underlying(decup::Command::Preamble0) &&
-          packet->front() != std::to_underlying(decup::Command::Preamble1))
+          (*packet)[0uz] != std::to_underlying(Command::Preamble0) &&
+          (*packet)[0uz] != std::to_underlying(Command::Preamble1))
         ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_1300mA));
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const us{decup::packet2pulse_timeout(*packet)};
+      auto const us{packet2timeout(*packet)};
       auto const acks{receive_acks(us)};
-      ESP_ERROR_CHECK(transmit_acks(acks));
+      auto const manipulated_acks{manipulate_acks_workaround(*packet, acks)};
+      ESP_ERROR_CHECK(transmit_acks(manipulated_acks));
     }
   }
 }
@@ -145,7 +198,8 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
   Packet packet{decoder_id};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
   auto const acks{receive_acks(size(packet) > 1uz ? 100'000u : 5000u)};
-  if (acks == 2uz) {
+  auto const manipulated_acks{manipulate_acks_workaround(packet, acks)};
+  if (manipulated_acks == 2uz) {
     LOGI("DECUP test success");
     return ESP_OK;
   } else {
@@ -160,8 +214,7 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 [[noreturn]] void task_function(void*) {
   switch (decup_encoder_config_t encoder_config{}; state.load()) {
     case State::DECUPZpp: [[fallthrough]];
-    case State::DECUPZsu: [[fallthrough]];
-    case State::ULF_DECUP_EIN:
+    case State::DECUPZsu:
       ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, ack_isr_handler));
       ESP_ERROR_CHECK(loop());
       ESP_ERROR_CHECK(suspend());

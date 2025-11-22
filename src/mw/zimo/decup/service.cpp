@@ -112,7 +112,7 @@ void Service::loop() {
 }
 
 /// \todo document
-uint8_t Service::transmit(std::span<uint8_t const> bytes) {
+uint8_t Service::transmit(std::span<uint8_t const> bytes, uint32_t) {
   uint8_t acks{};
   if (!xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
                           data(bytes),
@@ -129,6 +129,7 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes) {
 void Service::close() {
   _queue = {};
   state.store(State::Suspending);
+  reset();
 }
 
 } // namespace mw::zimo::decup

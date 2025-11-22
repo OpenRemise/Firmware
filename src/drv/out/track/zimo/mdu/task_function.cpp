@@ -257,7 +257,7 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
                            (State::Suspending | State::ShortCircuit)))
       return rmt_tx_wait_all_done(channel, -1);
     // Timeout
-    else if (auto const packet{receive_packet(task.timeout)}; !packet)
+    else if (auto const packet{receive_packet(timeout)}; !packet)
       return rmt_tx_wait_all_done(channel, -1);
     // Transmit packet
     else {

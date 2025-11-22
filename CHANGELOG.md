@@ -1,7 +1,10 @@
 # Changelog
 
-## 0.5.3
+## 0.6.0
 - Add timeout to `drv::out::track::dcc` task ([#107](https://github.com/OpenRemise/Firmware/issues/107))
+- Drop [ULF_DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN) support ([#105](https://github.com/OpenRemise/Firmware/issues/105))
+- Enable ZIMO MX decoder updates and uploads again ([#105](https://github.com/OpenRemise/Firmware/issues/105))
+- Bugfix unknown BiDi ID causes out of bounds access ([#110](https://github.com/OpenRemise/Firmware/issues/110))
 
 ## 0.5.2
 - Add DNS server in AP mode ([#100](https://github.com/OpenRemise/Firmware/pull/100))

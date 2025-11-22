@@ -81,7 +81,6 @@ else()
     mw/zimo/decup/service.cpp
     mw/zimo/mdu/init.cpp
     mw/zimo/mdu/service.cpp
-    mw/zimo/ulf/decup_ein/task_function.cpp
     mw/zimo/ulf/susiv2/task_function.cpp
     mw/zimo/ulf/init.cpp
     mw/zimo/zusi/init.cpp
@@ -117,7 +116,7 @@ target_compile_options(
 
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.0")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.0.1")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.1.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.0.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.2.0")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.2")
