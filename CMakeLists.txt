@@ -5,7 +5,7 @@ include(FetchContent)
 FetchContent_Declare(
   CMakeModules
   GIT_REPOSITORY "https://github.com/ZIMO-Elektronik/CMakeModules"
-  GIT_TAG v0.9.5)
+  GIT_TAG v0.12.0)
 FetchContent_MakeAvailable(CMakeModules)
 
 set(OPENREMISE_FRONTEND_SOURCE_DIR
