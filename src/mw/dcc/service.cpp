@@ -348,10 +348,6 @@ void Service::operationsLoop() {
     //
     if (!empty(_cv_request_deque)) return serviceLoop();
   }
-
-  // wait for task to get deleted
-  while (xTaskGetHandle("drv::out::track::dcc"))
-    vTaskDelay(pdMS_TO_TICKS(task.timeout));
 }
 
 /// Currently fills message buffer between 25 and 50%
@@ -535,20 +531,16 @@ void Service::serviceLoop() {
 
   /// \todo oh god please make this safer...
   /// it changes from opmode to serv...
+  bool restore_opmode{};
   if (auto expected{State::DCCOperations};
       state.compare_exchange_strong(expected, State::Suspending)) {
-
-    // wait for task to get deleted
+    restore_opmode = true;
     while (xTaskGetHandle("drv::out::track::dcc"))
       vTaskDelay(pdMS_TO_TICKS(task.timeout));
-
-    // switch to serv mode
     expected = State::Suspended;
     if (!state.compare_exchange_strong(expected, State::DCCService))
       assert(false);
-
-    // then create
-    LOGI_TASK_CREATE(drv::out::track::dcc::task);
+    resume();
   }
 
   while (state.load() == State::DCCService) {
@@ -565,9 +557,15 @@ void Service::serviceLoop() {
     else cvNack();
   }
 
-  // wait for task to get deleted
-  while (xTaskGetHandle("drv::out::track::dcc"))
-    vTaskDelay(pdMS_TO_TICKS(task.timeout));
+  // back to opmode?
+  if (restore_opmode) {
+    suspend();
+    auto expected{State::Suspended};
+    if (!state.compare_exchange_strong(expected, State::DCCOperations))
+      assert(false);
+    resume();
+    return operationsLoop();
+  }
 }
 
 /// \todo document
@@ -975,10 +973,11 @@ void Service::resume() {
 
 /// \todo document
 void Service::suspend() {
+  while (xTaskGetHandle("drv::out::track::dcc"))
+    vTaskDelay(pdMS_TO_TICKS(task.timeout));
   _priority_count = 0uz;
   _cv_request_deque.clear();
   _cv_pom_request_deque.clear();
-  _z21_system_service->broadcastTrackPowerOff();
 }
 
 /// \todo document
