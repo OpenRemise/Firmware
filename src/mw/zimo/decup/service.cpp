@@ -126,6 +126,9 @@ uint8_t Service::transmit(std::span<uint8_t const> bytes, uint32_t) {
 }
 
 /// \todo document
+void Service::config(uint8_t) {}
+
+/// \todo document
 void Service::close() {
   _queue = {};
   state.store(State::Suspending);
