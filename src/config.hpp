@@ -525,6 +525,18 @@ inline TASK(task,
 
 } // namespace dcc
 
+namespace display {
+
+///
+inline TASK(task,
+            "mw::display",    // Name
+            4096uz,           // Stack size
+            tskIDLE_PRIORITY, // Priority
+            APP_CPU_NUM,      // Core
+            1000u);           // Timeout
+
+} // namespace display
+
 namespace ota {
 
 ///

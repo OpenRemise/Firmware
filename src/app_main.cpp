@@ -32,6 +32,7 @@
 #include "intf/usb/init.hpp"
 #include "mem/nvs/init.hpp"
 #include "mw/dcc/init.hpp"
+#include "mw/display/init.hpp"
 #include "mw/ota/init.hpp"
 #include "mw/roco/z21/init.hpp"
 #include "mw/zimo/decup/init.hpp"
@@ -65,6 +66,8 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
   static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::display::init));
+  static_assert(APP_CPU_NUM == mw::display::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
   static_assert(APP_CPU_NUM == mw::ota::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));

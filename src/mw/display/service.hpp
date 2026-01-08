@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2026 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,28 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize HTTP server for access point
 ///
-/// \file   intf/http/ap/init.cpp
+///
+/// \file   mw/display/service.hpp
 /// \author Vincent Hamp
-/// \date   01/03/2023
+/// \date   08/01/2026
 
-#include "init.hpp"
-#include <memory>
-#include "server.hpp"
+#pragma once
 
-namespace intf::http::ap {
+#include <functional>
+#include <string>
 
-namespace {
-
-std::unique_ptr<Server> server;
-
-} // namespace
+namespace mw::display {
 
 /// \todo document
-esp_err_t init() {
-  server = std::make_unique<Server>();
-  return ESP_OK;
-}
+class Service {
+public:
+  Service(std::function<std::string()> json_sys_get_request);
 
-} // namespace intf::http::ap
+private:
+  // This gets called by FreeRTOS
+  [[noreturn]] void taskFunction(void*);
+
+  std::function<std::string()> _json_sys_get_request;
+};
+
+} // namespace mw::display
