@@ -74,6 +74,8 @@ else()
     intf/usb/rx_task_function.cpp
     intf/usb/tx_task_function.cpp
     mw/dcc/init.cpp
+    mw/display/init.cpp
+    mw/display/service.cpp
     mw/ota/init.cpp
     mw/ota/service.cpp
     mw/roco/z21/init.cpp
