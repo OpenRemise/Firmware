@@ -13,6 +13,7 @@ set(COMMON_SRC
     mw/dcc/service.cpp
     mw/dcc/system_state.cpp
     mw/dcc/turnout.cpp
+    mw/display/service.cpp
     mw/zimo/ulf/dcc_ein/task_function.cpp
     utility.cpp)
 
@@ -73,6 +74,7 @@ else()
     intf/usb/rx_task_function.cpp
     intf/usb/tx_task_function.cpp
     mw/dcc/init.cpp
+    mw/display/init.cpp
     mw/ota/init.cpp
     mw/ota/service.cpp
     mw/roco/z21/init.cpp

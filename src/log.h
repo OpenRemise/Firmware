@@ -59,7 +59,7 @@
   } while (0)
 
 /// Helper to fit
-/// https://live.boost.org/doc/libs/1_88_0/libs/preprocessor/doc/ref/seq_for_each.html
+/// https://live.boost.org/doc/libs/1_90_0/libs/preprocessor/doc/ref/seq_for_each.html
 #define BOOST_PP_LOGI_TASK_CREATE(R, DATA, ELEM) LOGI_TASK_CREATE(ELEM);
 
 /// Log tasks creation

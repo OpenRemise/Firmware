@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2026 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,28 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize HTTP server for access point
 ///
-/// \file   intf/http/ap/init.cpp
+///
+/// \file   mw/display/init.hpp
 /// \author Vincent Hamp
-/// \date   01/03/2023
+/// \date   08/01/2026
 
-#include "init.hpp"
-#include <memory>
-#include "server.hpp"
+#pragma once
 
-namespace intf::http::ap {
+#include <esp_err.h>
 
-namespace {
+namespace mw::display {
 
-std::unique_ptr<Server> server;
+esp_err_t init();
 
-} // namespace
-
-/// \todo document
-esp_err_t init() {
-  server = std::make_unique<Server>();
-  return ESP_OK;
-}
-
-} // namespace intf::http::ap
+} // namespace mw::display
