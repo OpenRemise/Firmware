@@ -104,7 +104,7 @@
 ///
 /// - [CMake](https://cmake.org) ( >= 3.25 )
 /// - [GCC](https://gcc.gnu.org) ( >= 13.2.0 )
-/// - [ESP-IDF](https://github.com/espressif/esp-idf) ( == 5.5.1 )
+/// - [ESP-IDF](https://github.com/espressif/esp-idf) ( == 5.5.2 )
 /// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
 /// - Optional
 ///   - for building documentation
