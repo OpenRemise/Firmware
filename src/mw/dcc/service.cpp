@@ -405,25 +405,25 @@ void Service::operationsLocos() {
                 | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
             break;
           case z21::LocoInfo::DCC128:
-            sendToBack(make_advanced_operations_speed_packet(
+            sendToBack(make_128_speed_step_control_packet(
               basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
             break;
         }
 
         // Lower functions
-        sendToBack(make_function_group_f4_f0_packet(
-          basicOrExtendedLocoAddress(addr), loco.f31_0 & 0x1Fu));
-        sendToBack(make_function_group_f8_f5_packet(
-          basicOrExtendedLocoAddress(addr), loco.f31_0 >> 5u & 0xFu));
-        sendToBack(make_function_group_f12_f9_packet(
-          basicOrExtendedLocoAddress(addr), loco.f31_0 >> 9u & 0xFu));
+        sendToBack(make_f0_f4_packet(basicOrExtendedLocoAddress(addr),
+                                     loco.f31_0 & 0x1Fu));
+        sendToBack(make_f5_f8_packet(basicOrExtendedLocoAddress(addr),
+                                     loco.f31_0 >> 5u & 0xFu));
+        sendToBack(make_f9_f12_packet(basicOrExtendedLocoAddress(addr),
+                                      loco.f31_0 >> 9u & 0xFu));
 
         // Higher functions
         if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
-          sendToBack(make_feature_expansion_f20_f13_packet(
-            basicOrExtendedLocoAddress(addr), loco.f31_0 >> 13u));
-          sendToBack(make_feature_expansion_f28_f21_packet(
-            basicOrExtendedLocoAddress(addr), loco.f31_0 >> 21u));
+          sendToBack(make_f13_f20_packet(basicOrExtendedLocoAddress(addr),
+                                         loco.f31_0 >> 13u));
+          sendToBack(make_f21_f28_packet(basicOrExtendedLocoAddress(addr),
+                                         loco.f31_0 >> 21u));
         }
 
         loco.priority = std::clamp<decltype(loco.priority)>(
@@ -466,7 +466,7 @@ void Service::operationsBiDi() {
       //
       if (auto pom{get_if<bidi::app::Pom>(&dg)}) {
         if (!empty(_cv_pom_request_deque)) {
-          if (decode_instruction(item.packet) == Instruction::CvLong) {
+          if (decode_instruction(item.packet) == Instruction::CvAccess) {
             auto const off{addr.type == Address::ExtendedLoco ||
                            addr.type == Address::BasicAccessory ||
                            addr.type == Address::ExtendedAccessory};
@@ -694,7 +694,7 @@ void Service::locoDrive(uint16_t loco_addr,
                                             | (rvvvvvvv & 0x1Fu)), // G-GGGG
           _nvs.program_packet_count);
       case z21::LocoInfo::DCC128:
-        return sendToFront(make_advanced_operations_speed_packet(
+        return sendToFront(make_128_speed_step_control_packet(
                              basicOrExtendedLocoAddress(loco_addr), rvvvvvvv),
                            _nvs.program_packet_count);
       default: return;
@@ -739,11 +739,11 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     if (mask >= (1u << 13u) &&
         !(_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
       if (mask & (0xFFu << 13u))
-        sendToBack(make_feature_expansion_f20_f13_packet(
-          basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 13u));
+        sendToBack(make_f13_f20_packet(basicOrExtendedLocoAddress(loco_addr),
+                                       loco.f31_0 >> 13u));
       if (mask & (0xFFu << 21u))
-        sendToBack(make_feature_expansion_f28_f21_packet(
-          basicOrExtendedLocoAddress(loco_addr), loco.f31_0 >> 21u));
+        sendToBack(make_f21_f28_packet(basicOrExtendedLocoAddress(loco_addr),
+                                       loco.f31_0 >> 21u));
     }
 
     //
