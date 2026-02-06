@@ -34,16 +34,17 @@ jobs:
           git clone -b v5.5.2 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
           ./install.sh esp32s3
-      - run: |
+      - name: Build docs
+        run: |
           . $HOME/esp/esp-idf/export.sh
           cmake --preset "Release"
           cmake --build build --parallel --target FirmwareDocs
-      - name: Setup Pages
+      - name: Setup pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/docs/html
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub pages
         id: deployment
         uses: actions/deploy-pages@v4

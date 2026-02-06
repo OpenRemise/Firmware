@@ -15,7 +15,7 @@ dependencies:
     rules:
       - if: "target != linux"
   zimo-elektronik/dcc:
-    version: "0.46.0"
+    version: "0.46.1"
   zimo-elektronik/decup:
     version: "0.2.0"
   zimo-elektronik/mdu:

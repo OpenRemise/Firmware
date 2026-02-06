@@ -86,6 +86,7 @@ else()
     mw/zimo/zusi/init.cpp
     mw/zimo/zusi/service.cpp
     app_main.cpp
+    drv8328_test.cpp
     INCLUDE_DIRS
     .
     ${CMAKE_BINARY_DIR}

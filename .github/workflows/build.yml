@@ -25,7 +25,8 @@ jobs:
           git clone -b v5.5.2 --recursive https://github.com/espressif/esp-idf.git
           cd ~/esp/esp-idf
           ./install.sh esp32s3
-      - run: |
+      - name: Build release
+        run: |
           . $HOME/esp/esp-idf/export.sh
           cmake --preset "Release"
           cmake --build build --parallel --target FirmwareRelease
