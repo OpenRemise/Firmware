@@ -33,7 +33,7 @@ std::unique_ptr<Server> server;
 
 /// \todo document
 esp_err_t init() {
-  server.reset(new Server{});
+  server = std::make_unique<Server>();
   return ESP_OK;
 }
 
