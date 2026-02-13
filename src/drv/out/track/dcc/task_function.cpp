@@ -80,10 +80,10 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
                             rmt_tx_done_event_data_t const*,
                             void*) {
   gptimer_set_raw_count(gptimer, 0ull);
-  gptimer_alarm_config_t const alarm_config{
+  gptimer_alarm_config_t const alarm_cfg{
     .alarm_count = static_cast<decltype(gptimer_alarm_config_t::alarm_count)>(
       TCSMin + offsets.tcs)};
-  gptimer_set_alarm_action(gptimer, &alarm_config);
+  gptimer_set_alarm_action(gptimer, &alarm_cfg);
   return pdFALSE;
 }
 
@@ -103,14 +103,14 @@ bool IRAM_ATTR gptimer_callback(gptimer_handle_t timer,
     gpio_set_level(bidi_en_gpio_num, 1u);
 
     // Reset alarm to TS2
-    gptimer_alarm_config_t const alarm_config{.alarm_count = TTC1};
-    gptimer_set_alarm_action(timer, &alarm_config);
+    gptimer_alarm_config_t const alarm_cfg{.alarm_count = TTC1};
+    gptimer_set_alarm_action(timer, &alarm_cfg);
   }
   // TS2
   else if (edata->alarm_value < TTS2) {
     // Reset alarm to TCE
-    gptimer_alarm_config_t const alarm_config{.alarm_count = TCEMin};
-    gptimer_set_alarm_action(timer, &alarm_config);
+    gptimer_alarm_config_t const alarm_cfg{.alarm_count = TCEMin};
+    gptimer_set_alarm_action(timer, &alarm_cfg);
 
     // Check whether there has been data in channel 1
     ch1 = uart_ll_get_rxfifo_len(&UART1);
@@ -180,8 +180,8 @@ std::optional<Packet> receive_packet() {
 
 /// \todo document
 esp_err_t transmit_packet(Packet const& packet) {
-  static constexpr rmt_transmit_config_t config{};
-  return rmt_transmit(channel, encoder, data(packet), size(packet), &config);
+  static constexpr rmt_transmit_config_t cfg{};
+  return rmt_transmit(channel, encoder, data(packet), size(packet), &cfg);
 }
 
 /// \todo document
@@ -219,7 +219,7 @@ esp_err_t transmit_bidi(RxQueue::value_type item) {
 }
 
 /// \todo document
-esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
+esp_err_t operations_loop(dcc_encoder_config_t const& encoder_cfg) {
   static constexpr auto idle_packet{make_idle_packet()};
   ztl::inplace_deque<Packet, trans_queue_depth> packets{};
   auto const timeout{http_receive_timeout2ms()};
@@ -238,7 +238,7 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_config) {
     // Receive BiDi on last transmitted packet
     /// \bug Can't error check here? For some reason transmit_bidi immediately
     /// fails in ULF_DCC_EIN mode.
-    if (encoder_config.bidibit_duration)
+    if (encoder_cfg.bidibit_duration)
       transmit_bidi(
         {.packet = *(cbegin(packets) - 1), .datagram = receive_bidi()});
     packets.pop_front();
@@ -415,19 +415,19 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
 
 /// \todo document
 [[noreturn]] void task_function(void*) {
-  switch (auto encoder_config{dcc_encoder_config()}; state.load()) {
+  switch (auto encoder_cfg{dcc_encoder_config()}; state.load()) {
     case State::DCCOperations: [[fallthrough]];
     case State::ULF_DCC_EIN:
       ESP_ERROR_CHECK(
-        resume(encoder_config,
-               encoder_config.bidibit_duration ? rmt_callback : NULL,
-               encoder_config.bidibit_duration ? gptimer_callback : NULL));
-      ESP_ERROR_CHECK(operations_loop(encoder_config));
+        resume(encoder_cfg,
+               encoder_cfg.bidibit_duration ? rmt_callback : NULL,
+               encoder_cfg.bidibit_duration ? gptimer_callback : NULL));
+      ESP_ERROR_CHECK(operations_loop(encoder_cfg));
       ESP_ERROR_CHECK(suspend());
       break;
     case State::DCCService:
-      ESP_ERROR_CHECK(resume(encoder_config, nullptr, nullptr));
-      ESP_ERROR_CHECK(service_loop(encoder_config));
+      ESP_ERROR_CHECK(resume(encoder_cfg, nullptr, nullptr));
+      ESP_ERROR_CHECK(service_loop(encoder_cfg));
       ESP_ERROR_CHECK(suspend());
       break;
     default: assert(false); break;

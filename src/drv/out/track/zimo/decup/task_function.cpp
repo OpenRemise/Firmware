@@ -55,8 +55,8 @@ void IRAM_ATTR ack_isr_handler(void*) { ++ack_count; }
 /// \todo document
 std::optional<Packet> receive_packet(uint32_t timeout) {
   Packet packet;
-  auto const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
-  while (xTaskGetTickCount() < then)
+  for (auto const then{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
+       xTaskGetTickCount() < then;)
     //
     if (auto const bytes_received{
           xMessageBufferReceive(tx_message_buffer.front_handle,
@@ -75,27 +75,26 @@ std::optional<Packet> receive_packet(uint32_t timeout) {
 
 /// \todo document
 esp_err_t transmit_packet_blocking(Packet const& packet) {
-  static constexpr rmt_transmit_config_t config{.flags = {.eot_level = 1u}};
+  static constexpr rmt_transmit_config_t cfg{.flags = {.eot_level = 1u}};
   ESP_ERROR_CHECK(
-    rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+    rmt_transmit(channel, encoder, data(packet), size(packet), &cfg));
   return rmt_tx_wait_all_done(channel, -1);
 }
 
 /// \todo document
 uint8_t receive_acks(uint32_t us) {
   // Wait for first ack
-  auto then{esp_timer_get_time() + us};
-  while (esp_timer_get_time() < then)
+  for (auto const then{esp_timer_get_time() + us}; esp_timer_get_time() < then;)
     if (ack_count >= 1u) break;
 
   // Wait for second ack
-  then = esp_timer_get_time() + 200u;
-  while (esp_timer_get_time() < then)
+  for (auto const then{esp_timer_get_time() + 200u};
+       esp_timer_get_time() < then;)
     if (ack_count == 2u) break;
 
   // Mandatory delay
-  then = esp_timer_get_time() + 100u;
-  while (esp_timer_get_time() < then);
+  for (auto const then{esp_timer_get_time() + 100u};
+       esp_timer_get_time() < then;);
 
   return ack_count;
 }
@@ -212,10 +211,10 @@ esp_err_t test_loop(uint8_t decoder_id = 221u) {
 
 /// \todo document
 [[noreturn]] void task_function(void*) {
-  switch (decup_encoder_config_t encoder_config{}; state.load()) {
+  switch (decup_encoder_config_t encoder_cfg{}; state.load()) {
     case State::DECUPZpp: [[fallthrough]];
     case State::DECUPZsu:
-      ESP_ERROR_CHECK(resume(encoder_config, rmt_callback, ack_isr_handler));
+      ESP_ERROR_CHECK(resume(encoder_cfg, rmt_callback, ack_isr_handler));
       ESP_ERROR_CHECK(loop());
       ESP_ERROR_CHECK(suspend());
       break;

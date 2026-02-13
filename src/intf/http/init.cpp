@@ -29,11 +29,9 @@ namespace intf::http {
 
 /// \todo document
 esp_err_t init() {
-  wifi_mode_t mode;
-  ESP_ERROR_CHECK(esp_wifi_get_mode(&mode));
-  if (mode == WIFI_MODE_AP) return ap::init();
-  else if (mode == WIFI_MODE_STA) return sta::init();
-  else return ESP_FAIL;
+  wifi_mode_t mode{WIFI_MODE_NULL};
+  esp_wifi_get_mode(&mode);
+  return mode == WIFI_MODE_AP ? ap::init() : sta::init();
 }
 
 } // namespace intf::http

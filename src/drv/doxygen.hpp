@@ -33,6 +33,7 @@ namespace drv {
 /// | Chapter                  | Namespace   | Content                                      |
 /// | ------------------------ | ----------- | ---------------------------------------------|
 /// | \subpage page_drv_analog | \ref analog | ADC measurements, overcurrent                |
+/// | \subpage page_drv_eth    | \ref eth    | Setup Ethernet                               |
 /// | \subpage page_drv_led    | \ref led    | Dimming LEDs                                 |
 /// | \subpage page_drv_out    | \ref out    | Generation of various SUSI and track signals |
 /// | \subpage page_drv_trace  | \ref trace  | Debug purposes                               |

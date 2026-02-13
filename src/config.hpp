@@ -278,6 +278,27 @@ inline struct TemperatureQueue {
 
 } // namespace analog
 
+namespace eth {
+
+/// W5500 SPI chip select
+inline constexpr auto cs_gpio_num{GPIO_NUM_42};
+
+/// W5500 SPI clock
+inline constexpr auto sclk_gpio_num{GPIO_NUM_2};
+
+/// W5500 SPI MISO
+inline constexpr auto miso_gpio_num{GPIO_NUM_40};
+
+/// W5500 SPI MOSI
+inline constexpr auto mosi_gpio_num{GPIO_NUM_41};
+
+inline std::array<char, 16uz> ip{};
+inline std::string ip_str{};
+inline std::array<uint8_t, 6uz> mac{};
+inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
+
+} // namespace eth
+
 namespace led {
 
 /// Bug LED pin used to indicate errors or updates
@@ -418,12 +439,12 @@ inline SHARED_TASK(task,
 
 namespace wifi {
 
+//
+using eth::ip, eth::ip_str, eth::mac, eth::mac_str;
+
 #if CONFIG_IDF_TARGET_ESP32S3
 inline std::vector<wifi_ap_record_t> ap_records;
 #endif
-inline std::string ip_str;
-inline std::array<uint8_t, 6uz> mac;
-inline std::string mac_str(2uz * 6uz + 5uz + sizeof('\n'), '\0');
 
 ///
 inline TASK(task,

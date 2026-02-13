@@ -27,9 +27,9 @@
 namespace drv::out::track::dcc {
 
 /// \todo document
-esp_err_t init_encoder(dcc_encoder_config_t const& encoder_config) {
+esp_err_t init_encoder(dcc_encoder_config_t const& encoder_cfg) {
   assert(!encoder);
-  return rmt_new_dcc_encoder(&encoder_config, &encoder);
+  return rmt_new_dcc_encoder(&encoder_cfg, &encoder);
 }
 
 /// \todo document
@@ -49,7 +49,7 @@ esp_err_t init_alarm(gptimer_alarm_cb_t gptimer_cb) {
 /// \todo document
 esp_err_t init_bidi() {
   //
-  static constexpr uart_config_t uart_config{
+  static constexpr uart_config_t uart_cfg{
     .baud_rate = ::dcc::bidi::baudrate,
     .data_bits = UART_DATA_8_BITS,
     .parity = UART_PARITY_DISABLE,
@@ -59,7 +59,7 @@ esp_err_t init_bidi() {
   };
   ESP_ERROR_CHECK(uart_driver_install(
     UART_NUM_1, SOC_UART_FIFO_LEN * 2, 0, 0, NULL, ESP_INTR_FLAG_IRAM));
-  ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_config));
+  ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_cfg));
   return uart_set_pin(UART_NUM_1,
                       UART_PIN_NO_CHANGE,
                       bidi_rx_gpio_num,
@@ -75,10 +75,10 @@ esp_err_t init_gpio() {
 }
 
 /// \todo document
-esp_err_t resume(dcc_encoder_config_t const& encoder_config,
+esp_err_t resume(dcc_encoder_config_t const& encoder_cfg,
                  rmt_tx_done_callback_t rmt_cb,
                  gptimer_alarm_cb_t gptimer_cb) {
-  ESP_ERROR_CHECK(init_encoder(encoder_config));
+  ESP_ERROR_CHECK(init_encoder(encoder_cfg));
   ESP_ERROR_CHECK(init_rmt(rmt_cb));
   ESP_ERROR_CHECK(init_alarm(gptimer_cb));
   ESP_ERROR_CHECK(init_bidi());

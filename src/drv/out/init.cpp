@@ -27,13 +27,13 @@ namespace drv::out {
 
 /// \todo document
 esp_err_t init_gptimer() {
-  static constexpr gptimer_config_t timer_config{
+  static constexpr gptimer_config_t timer_cfg{
     .clk_src = GPTIMER_CLK_SRC_DEFAULT,
     .direction = GPTIMER_COUNT_UP,
     .resolution_hz = 1'000'000u, // 1 MHz
     .intr_priority = 2           // Priority 3 is taken by RMT!
   };
-  ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
+  ESP_ERROR_CHECK(gptimer_new_timer(&timer_cfg, &gptimer));
 
   // Install interrupt (nullptr argument doesn't matter)
   gptimer_event_callbacks_t cbs{.on_alarm = nullptr};

@@ -39,6 +39,7 @@ else()
     drv/analog/convert.cpp
     drv/analog/init.cpp
     drv/analog/temp_task_function.cpp
+    drv/eth/init.cpp
     drv/led/bug.cpp
     drv/led/init.cpp
     drv/led/wifi.cpp
@@ -97,6 +98,7 @@ else()
     driver
     esp_adc
     esp_app_format
+    esp_eth
     esp_http_server
     esp_wifi
     nvs_flash

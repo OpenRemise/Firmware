@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Add Ethernet support through [W5500](https://wiznet.io/products/ethernet-chips/w5500) ([#123](https://github.com/OpenRemise/Firmware/issues/123))
+
 ## 0.6.1
 - Add [Z21 ᴡʟᴀɴMAUS](https://www.z21.eu/en/products/z21-wlanmaus) support ([#115](https://github.com/OpenRemise/Firmware/issues/115))
 - Bugfix restore DCC operations- after service mode provided it was previously enabled ([#113](https://github.com/OpenRemise/Firmware/issues/113))

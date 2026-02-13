@@ -81,9 +81,9 @@ std::optional<Packet> receive_packet(uint32_t timeout) {
 
 /// \todo document
 esp_err_t transmit_packet_blocking(Packet const& packet) {
-  static constexpr rmt_transmit_config_t config{};
+  static constexpr rmt_transmit_config_t cfg{};
   ESP_ERROR_CHECK(
-    rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+    rmt_transmit(channel, encoder, data(packet), size(packet), &cfg));
 
   // Start timer
   ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, 0ull));
@@ -97,22 +97,21 @@ esp_err_t transmit_packet_blocking(Packet const& packet) {
 
 /// \todo document
 esp_err_t transmit_packet_blocking_for(Packet const& packet, uint32_t us) {
-  auto const then{esp_timer_get_time() + us};
-  while (esp_timer_get_time() < then)
+  for (auto const then{esp_timer_get_time() + us}; esp_timer_get_time() < then;)
     ESP_ERROR_CHECK(transmit_packet_blocking(packet));
   return ESP_OK;
 }
 
 /// \todo document
 std::pair<int32_t, int32_t>
-packet2ack_counts(mdu_encoder_config_t const& encoder_config,
+packet2ack_counts(mdu_encoder_config_t const& encoder_cfg,
                   Packet const& packet) {
   // Preamble
-  auto count{static_cast<int32_t>(encoder_config.num_preamble *
-                                  timings[encoder_config.transfer_rate].one)};
+  auto count{static_cast<int32_t>(encoder_cfg.num_preamble *
+                                  timings[encoder_cfg.transfer_rate].one)};
 
   // Start
-  count += size(packet) * timings[encoder_config.transfer_rate].zero;
+  count += size(packet) * timings[encoder_cfg.transfer_rate].zero;
 
   // Data
   auto const ones{
@@ -120,26 +119,26 @@ packet2ack_counts(mdu_encoder_config_t const& encoder_config,
       return a + std::popcount(b);
     })};
   auto const zeros{size(packet) * CHAR_BIT - ones};
-  count += ones * timings[encoder_config.transfer_rate].one +  // Ones
-           zeros * timings[encoder_config.transfer_rate].zero; // Zeros
+  count += ones * timings[encoder_cfg.transfer_rate].one +  // Ones
+           zeros * timings[encoder_cfg.transfer_rate].zero; // Zeros
 
   // End
-  count += timings[encoder_config.transfer_rate].one;
+  count += timings[encoder_cfg.transfer_rate].one;
 
-  return {count + 2u * timings[encoder_config.transfer_rate].ackreq,
-          count + 6u * timings[encoder_config.transfer_rate].ackreq};
+  return {count + 2u * timings[encoder_cfg.transfer_rate].ackreq,
+          count + 6u * timings[encoder_cfg.transfer_rate].ackreq};
 }
 
 /// \todo document
-std::array<uint8_t, 2uz>
-receive_acks(mdu_encoder_config_t const& encoder_config, Packet const& packet) {
+std::array<uint8_t, 2uz> receive_acks(mdu_encoder_config_t const& encoder_cfg,
+                                      Packet const& packet) {
   // Get timer count
   auto const count{static_cast<int32_t>(gptimer_count_at_first_ack)};
   std::array<uint8_t, 2uz> acks{nak, nak};
 
   // ACK
   if (count) {
-    auto const ack_counts{packet2ack_counts(encoder_config, packet)};
+    auto const ack_counts{packet2ack_counts(encoder_cfg, packet)};
     std::pair const ack_diffs{std::abs(ack_counts.first - count),
                               std::abs(ack_counts.second - count)};
     if (ack_diffs.first < ack_diffs.second) acks[0uz] = ack;
@@ -158,24 +157,24 @@ esp_err_t transmit_acks(std::array<uint8_t, 2uz> acks) {
 }
 
 /// \todo document
-esp_err_t config_transfer_rate(mdu_encoder_config_t& encoder_config,
+esp_err_t config_transfer_rate(mdu_encoder_config_t& encoder_cfg,
                                uint8_t transfer_rate,
                                std::array<uint8_t, 2uz> const& acks) {
   assert(transfer_rate <= std::to_underlying(TransferRate::Default));
   ESP_ERROR_CHECK(deinit_encoder());
-  encoder_config.transfer_rate = acks[0uz] == ack || acks[1uz] == ack
-                                   ? std::to_underlying(TransferRate::Fallback)
-                                   : transfer_rate;
-  ESP_ERROR_CHECK(init_encoder(encoder_config));
+  encoder_cfg.transfer_rate = acks[0uz] == ack || acks[1uz] == ack
+                                ? std::to_underlying(TransferRate::Fallback)
+                                : transfer_rate;
+  ESP_ERROR_CHECK(init_encoder(encoder_cfg));
   return acks[0uz] == ack ? ESP_ERR_INVALID_CRC : ESP_OK;
 }
 
 /// \todo document
 esp_err_t zpp_entry() {
-  static constexpr rmt_transmit_config_t config{};
+  static constexpr rmt_transmit_config_t cfg{};
 
   mem::nvs::Settings nvs;
-  dcc_encoder_config_t encoder_config{
+  dcc_encoder_config_t encoder_cfg{
     .num_preamble = DCC_TX_MAX_PREAMBLE_BITS,
     .bidibit_duration = 0u,
     .bit1_duration = nvs.getDccBit1Duration(),
@@ -188,13 +187,13 @@ esp_err_t zpp_entry() {
   ESP_ERROR_CHECK(set_current_limit(CurrentLimit::_4100mA));
 
   //
-  ESP_ERROR_CHECK(out::track::dcc::resume(encoder_config, nullptr, nullptr));
+  ESP_ERROR_CHECK(out::track::dcc::resume(encoder_cfg, nullptr, nullptr));
 
   // Transmit 500 idle packets (~4s)
   auto packet{::dcc::make_idle_packet()};
   for (auto i{0uz}; i < 500uz; ++i) {
     ESP_ERROR_CHECK(
-      rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+      rmt_transmit(channel, encoder, data(packet), size(packet), &cfg));
     ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
   }
 
@@ -215,7 +214,7 @@ esp_err_t zpp_entry() {
       {.type = ::dcc::Address::Broadcast}, cv_addr, byte);
     for (auto i{0uz}; i < program_packet_count; ++i) {
       ESP_ERROR_CHECK(
-        rmt_transmit(channel, encoder, data(packet), size(packet), &config));
+        rmt_transmit(channel, encoder, data(packet), size(packet), &cfg));
       ESP_ERROR_CHECK(rmt_tx_wait_all_done(channel, -1));
     }
   }
@@ -247,7 +246,7 @@ esp_err_t zsu_entry() {
 }
 
 /// \todo document
-esp_err_t loop(mdu_encoder_config_t& encoder_config) {
+esp_err_t loop(mdu_encoder_config_t& encoder_cfg) {
   auto const timeout{http_receive_timeout2ms()};
   auto const busy_packet{make_busy_packet()};
 
@@ -262,13 +261,13 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
     // Transmit packet
     else {
       ESP_ERROR_CHECK(transmit_packet_blocking(*packet));
-      auto const acks{receive_acks(encoder_config, *packet)};
+      auto const acks{receive_acks(encoder_cfg, *packet)};
       ESP_ERROR_CHECK(transmit_acks(acks));
 
       // Transfer rate packet
       if (auto const cmd{packet2command(*packet)};
           cmd == Command::ConfigTransferRate)
-        config_transfer_rate(encoder_config, (*packet)[4uz], acks);
+        config_transfer_rate(encoder_cfg, (*packet)[4uz], acks);
       // Exit
       else if (cmd == Command::ZppExitReset ||
                cmd == Command::ZsuCrc32ResultExit)
@@ -278,11 +277,11 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
 }
 
 /// \todo document that this pings a decoder (default MS450)
-[[maybe_unused]] esp_err_t test_loop(mdu_encoder_config_t& encoder_config,
+[[maybe_unused]] esp_err_t test_loop(mdu_encoder_config_t& encoder_cfg,
                                      uint8_t decoder_id = 6u) {
   auto const packet{make_ping_packet(decoder_id)};
   ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  auto const acks{receive_acks(encoder_config, packet)};
+  auto const acks{receive_acks(encoder_cfg, packet)};
   if (acks == std::array{nak, ack}) {
     LOGI("MDU test success");
     return ESP_OK;
@@ -296,13 +295,13 @@ esp_err_t loop(mdu_encoder_config_t& encoder_config) {
 
 /// \todo document
 [[noreturn]] void task_function(void*) {
-  switch (auto encoder_config{mdu_encoder_config()}; state.load()) {
+  switch (auto encoder_cfg{mdu_encoder_config()}; state.load()) {
     case State::MDUZpp: ESP_ERROR_CHECK(zpp_entry()); [[fallthrough]];
     case State::MDUZsu: [[fallthrough]];
     case State::ULF_MDU_EIN:
-      ESP_ERROR_CHECK(resume(encoder_config, ack_isr_handler));
+      ESP_ERROR_CHECK(resume(encoder_cfg, ack_isr_handler));
       ESP_ERROR_CHECK(zsu_entry());
-      ESP_ERROR_CHECK(loop(encoder_config));
+      ESP_ERROR_CHECK(loop(encoder_cfg));
       ESP_ERROR_CHECK(suspend());
       break;
     default: assert(false); break;

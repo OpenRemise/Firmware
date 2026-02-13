@@ -44,7 +44,7 @@ void IRAM_ATTR nfault_isr_handler(void*) {
 
 /// \todo document RMT pin no longer tristate after that
 esp_err_t init_channel() {
-  static constexpr rmt_tx_channel_config_t chan_config{
+  static constexpr rmt_tx_channel_config_t channel_cfg{
     .gpio_num = p_gpio_num,
     .clk_src = RMT_CLK_SRC_DEFAULT,
     .resolution_hz = 1'000'000u,
@@ -59,7 +59,7 @@ esp_err_t init_channel() {
       .io_loop_back = false,
       .io_od_mode = false,
     }};
-  ESP_ERROR_CHECK(rmt_new_tx_channel(&chan_config, &channel));
+  ESP_ERROR_CHECK(rmt_new_tx_channel(&channel_cfg, &channel));
   return rmt_enable(channel);
 }
 
@@ -67,27 +67,27 @@ esp_err_t init_channel() {
 esp_err_t init_gpio() {
   // Inputs and outputs
   {
-    static constexpr gpio_config_t io_conf{
+    static constexpr gpio_config_t gpio_cfg{
       .pin_bit_mask = 1ull << ilim0_gpio_num | 1ull << ilim1_gpio_num |
                       1ull << enable_gpio_num,
       .mode = GPIO_MODE_INPUT_OUTPUT,
       .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
     ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 0u));
   }
 
   // Outputs
   {
-    static constexpr gpio_config_t io_conf{
+    static constexpr gpio_config_t gpio_cfg{
       .pin_bit_mask = 1ull << nsleep_gpio_num | 1ull << n_force_low_gpio_num |
                       1ull << dcc::bidi_en_gpio_num,
       .mode = GPIO_MODE_OUTPUT,
       .pull_up_en = GPIO_PULLUP_DISABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_DISABLE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
     ESP_ERROR_CHECK(gpio_set_level(n_force_low_gpio_num, 1u));
     ESP_ERROR_CHECK(gpio_set_level(dcc::bidi_en_gpio_num, 0u));
     ESP_ERROR_CHECK(gpio_set_level(nsleep_gpio_num, 1u));
@@ -103,29 +103,29 @@ esp_err_t init_gpio() {
 
   //
   {
-    static constexpr gpio_config_t io_conf{
+    static constexpr gpio_config_t gpio_cfg{
       .pin_bit_mask = 1ull << nfault_gpio_num,
       .mode = GPIO_MODE_INPUT,
       .pull_up_en = GPIO_PULLUP_ENABLE,
       .pull_down_en = GPIO_PULLDOWN_DISABLE,
       .intr_type = GPIO_INTR_NEGEDGE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
   }
 
   //
   {
-    static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ack_gpio_num,
-                                           .mode = GPIO_MODE_INPUT,
-                                           .pull_up_en = GPIO_PULLUP_ENABLE,
-                                           .pull_down_en =
-                                             GPIO_PULLDOWN_DISABLE,
-                                           .intr_type = GPIO_INTR_NEGEDGE};
-    ESP_ERROR_CHECK(gpio_config(&io_conf));
+    static constexpr gpio_config_t gpio_cfg{
+      .pin_bit_mask = 1ull << ack_gpio_num,
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_NEGEDGE};
+    ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
 
     gpio_glitch_filter_handle_t filter;
-    static constexpr gpio_pin_glitch_filter_config_t config{
+    static constexpr gpio_pin_glitch_filter_config_t filter_cfg{
       .clk_src = GLITCH_FILTER_CLK_SRC_DEFAULT, .gpio_num = ack_gpio_num};
-    ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&config, &filter));
+    ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&filter_cfg, &filter));
     ESP_ERROR_CHECK(gpio_glitch_filter_enable(filter));
   }
 

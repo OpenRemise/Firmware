@@ -52,7 +52,7 @@ namespace drv::analog {
 /// <div class="section_buttons">
 /// | Previous      | Next              |
 /// | :------------ | ----------------: |
-/// | \ref page_drv | \ref page_drv_led |
+/// | \ref page_drv | \ref page_drv_eth |
 /// </div>
 
 } // namespace drv::analog
