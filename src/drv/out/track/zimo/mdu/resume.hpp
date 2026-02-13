@@ -27,8 +27,8 @@
 
 namespace drv::out::track::zimo::mdu {
 
-esp_err_t init_encoder(mdu_encoder_config_t const& encoder_config);
-esp_err_t resume(mdu_encoder_config_t const& encoder_config,
+esp_err_t init_encoder(mdu_encoder_config_t const& encoder_cfg);
+esp_err_t resume(mdu_encoder_config_t const& encoder_cfg,
                  gpio_isr_t gpio_isr_handler);
 
 } // namespace drv::out::track::zimo::mdu

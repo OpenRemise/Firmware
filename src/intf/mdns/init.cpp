@@ -44,11 +44,11 @@ esp_err_t init() {
   mem::nvs::Settings nvs;
   auto const sta_mdns_str{nvs.getStationmDNS()};
 
-  // STA mode: hostname is user setting
   // AP mode:  hostname fixed to "remise"
-  wifi_mode_t mode;
-  ESP_ERROR_CHECK(esp_wifi_get_mode(&mode));
-  str = mode == WIFI_MODE_STA && !empty(sta_mdns_str) ? sta_mdns_str : "remise";
+  // STA mode: hostname is user setting
+  wifi_mode_t mode{WIFI_MODE_NULL};
+  esp_wifi_get_mode(&mode);
+  str = mode == WIFI_MODE_AP || empty(sta_mdns_str) ? "remise" : sta_mdns_str;
   ESP_ERROR_CHECK(mdns_hostname_set(str.c_str()));
 
   // Add services

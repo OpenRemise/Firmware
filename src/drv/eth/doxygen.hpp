@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2026 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,27 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Trace (IO pins to toggle for debug purposes)
+/// Ethernet documentation
 ///
-/// \file   drv/trace/init.cpp
+/// \file   drv/eth/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   09/02/2023
+/// \date   28/01/2026
 
-#include "init.hpp"
-#include <driver/gpio.h>
-#include <soc/uart_pins.h>
+#pragma once
 
-namespace drv::trace {
+namespace drv::eth {
 
-/// \todo document
-esp_err_t init() {
-  static constexpr gpio_config_t gpio_cfg{
-    .pin_bit_mask = 1ull << U0RXD_GPIO_NUM | 1ull << U0TXD_GPIO_NUM,
-    .mode = GPIO_MODE_OUTPUT,
-    .pull_up_en = GPIO_PULLUP_DISABLE,
-    .pull_down_en = GPIO_PULLDOWN_DISABLE,
-    .intr_type = GPIO_INTR_DISABLE};
-  return gpio_config(&gpio_cfg);
-}
+/// \page page_drv_eth Ethernet
+/// \details \tableofcontents
+/// \todo document Ethernet page
+/// W5500, connectivity extension only, ...
+///
+/// <div class="section_buttons">
+/// | Previous             | Next              |
+/// | :------------------- | ----------------: |
+/// | \ref page_drv_analog | \ref page_drv_led |
+/// </div>
 
-} // namespace drv::trace
+} // namespace drv::eth

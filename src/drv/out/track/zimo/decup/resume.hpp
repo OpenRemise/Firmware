@@ -27,8 +27,8 @@
 
 namespace drv::out::track::zimo::decup {
 
-esp_err_t init_encoder(decup_encoder_config_t const& encoder_config);
-esp_err_t resume(decup_encoder_config_t const& encoder_config,
+esp_err_t init_encoder(decup_encoder_config_t const& encoder_cfg);
+esp_err_t resume(decup_encoder_config_t const& encoder_cfg,
                  rmt_tx_done_callback_t rmt_cb,
                  gpio_isr_t gpio_isr_handler);
 

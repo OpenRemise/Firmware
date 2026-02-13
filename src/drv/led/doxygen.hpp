@@ -49,9 +49,9 @@ namespace drv::led {
 /// mem::nvs::Settings::getLedDutyCycleWiFi().
 ///
 /// <div class="section_buttons">
-/// | Previous             | Next              |
-/// | :------------------- | ----------------: |
-/// | \ref page_drv_analog | \ref page_drv_out |
+/// | Previous          | Next              |
+/// | :---------------- | ----------------: |
+/// | \ref page_drv_eth | \ref page_drv_out |
 /// </div>
 
 } // namespace drv::led

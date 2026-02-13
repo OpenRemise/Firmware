@@ -39,12 +39,13 @@ namespace {
 ///
 /// \retval ESP_OK  Success
 esp_err_t init_gpio() {
-  static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << ol_on_gpio_num,
-                                         .mode = GPIO_MODE_OUTPUT,
-                                         .pull_up_en = GPIO_PULLUP_DISABLE,
-                                         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-                                         .intr_type = GPIO_INTR_DISABLE};
-  ESP_ERROR_CHECK(gpio_config(&io_conf));
+  static constexpr gpio_config_t gpio_cfg{.pin_bit_mask = 1ull
+                                                          << ol_on_gpio_num,
+                                          .mode = GPIO_MODE_OUTPUT,
+                                          .pull_up_en = GPIO_PULLUP_DISABLE,
+                                          .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                          .intr_type = GPIO_INTR_DISABLE};
+  ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
   return gpio_set_level(ol_on_gpio_num, 0u);
 }
 
@@ -73,17 +74,17 @@ esp_err_t init() {
   ESP_ERROR_CHECK(init_gpio());
 
   // Curve fitting calibration
-  static constexpr adc_cali_curve_fitting_config_t cali_config{
+  static constexpr adc_cali_curve_fitting_config_t cali_cfg{
     .unit_id = ADC_UNIT_1,
     .atten = attenuation,
     .bitwidth = static_cast<adc_bitwidth_t>(SOC_ADC_DIGI_MAX_BITWIDTH),
   };
   static_assert(SOC_ADC_DIGI_MAX_BITWIDTH == ADC_BITWIDTH_12);
   ESP_ERROR_CHECK(
-    adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle));
+    adc_cali_create_scheme_curve_fitting(&cali_cfg, &cali_handle));
 
   // Both of those values are sizes in bytes
-  static constexpr adc_continuous_handle_cfg_t adc_config{
+  static constexpr adc_continuous_handle_cfg_t adc_cfg{
     .max_store_buf_size = conversion_frame_size * 2u,
     .conv_frame_size = conversion_frame_size,
     .flags =
@@ -91,7 +92,7 @@ esp_err_t init() {
         .flush_pool = true,
       },
   };
-  ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_config, &adc1_handle));
+  ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cfg, &adc1_handle));
 
   // Create same pattern for both channels
   auto pattern{std::invoke([] {
@@ -115,10 +116,9 @@ esp_err_t init() {
   ESP_ERROR_CHECK(adc_continuous_config(adc1_handle, &dig_cfg));
 
   // Initialize internal temperature sensor
-  static constexpr temperature_sensor_config_t temp_sensor_config =
+  static constexpr temperature_sensor_config_t temp_sensor_cfg =
     TEMPERATURE_SENSOR_CONFIG_DEFAULT(-10, 80);
-  ESP_ERROR_CHECK(
-    temperature_sensor_install(&temp_sensor_config, &temp_sensor));
+  ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_cfg, &temp_sensor));
   ESP_ERROR_CHECK(temperature_sensor_enable(temp_sensor));
 
   // Create ADC and temp tasks

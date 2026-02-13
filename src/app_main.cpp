@@ -21,6 +21,7 @@
 
 #include <esp_wifi.h>
 #include "drv/analog/init.hpp"
+#include "drv/eth/init.hpp"
 #include "drv/led/init.hpp"
 #include "drv/out/init.hpp"
 #include "drv/trace/init.hpp"
@@ -45,8 +46,12 @@ extern "C" void app_main() {
   static_assert(PRO_CPU_NUM == 0 && WIFI_TASK_CORE_ID == 0);
   static_assert(APP_CPU_NUM == 1);
 
-  // Most important ones
+  // Use U0RX and U0TX as trace outputs
+#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
+#endif
+
+  // Most important ones
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::analog::init));
   static_assert(APP_CPU_NUM == drv::analog::adc_task.core_id &&
@@ -59,8 +64,10 @@ extern "C" void app_main() {
 
   // Don't change initialization order
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
-  ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
-  static_assert(WIFI_TASK_CORE_ID == drv::wifi::task.core_id);
+  if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)}) {
+    ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
+    static_assert(WIFI_TASK_CORE_ID == drv::wifi::task.core_id);
+  }
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::http::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));

@@ -25,9 +25,9 @@
 namespace drv::out::track::zimo::decup {
 
 /// \todo document
-esp_err_t init_encoder(decup_encoder_config_t const& encoder_config) {
+esp_err_t init_encoder(decup_encoder_config_t const& encoder_cfg) {
   assert(!encoder);
-  return rmt_new_decup_encoder(&encoder_config, &encoder);
+  return rmt_new_decup_encoder(&encoder_cfg, &encoder);
 }
 
 namespace {
@@ -47,10 +47,10 @@ esp_err_t init_gpio(gpio_isr_t gpio_isr_handler) {
 } // namespace
 
 /// \todo document
-esp_err_t resume(decup_encoder_config_t const& encoder_config,
+esp_err_t resume(decup_encoder_config_t const& encoder_cfg,
                  rmt_tx_done_callback_t rmt_cb,
                  gpio_isr_t gpio_isr_handler) {
-  ESP_ERROR_CHECK(init_encoder(encoder_config));
+  ESP_ERROR_CHECK(init_encoder(encoder_cfg));
   ESP_ERROR_CHECK(init_rmt(rmt_cb));
   return init_gpio(gpio_isr_handler);
 }

@@ -41,8 +41,8 @@ namespace {
 
 /// \todo document
 wifi_ap_config_t ap_config() {
-  constexpr auto ssid{"OpenRemise"};
-  constexpr auto ssid_len{ztl::strlen(ssid)};
+  static constexpr auto ssid{"OpenRemise"};
+  static constexpr auto ssid_len{ztl::strlen(ssid)};
   wifi_ap_config_t ap{};
   memcpy(&ap.ssid, ssid, ssid_len);
   ap.ssid_len = ssid_len;
@@ -93,86 +93,104 @@ void event_handler(void*,
                    esp_event_base_t event_base,
                    int32_t event_id,
                    void* event_data) {
-  // IP events
-  if (event_base == IP_EVENT) {
-    if (event_id == IP_EVENT_STA_GOT_IP) {
-      // Set global IP string
-      auto const event{std::bit_cast<ip_event_got_ip_t*>(event_data)};
-      std::array<char, 16uz> ip;
-      auto const count{
-        snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
-      ip_str.replace(0uz, count, data(ip));
-      LOGI("got ip: %s", ip_str.c_str());
-      // Set global MAC string
-      ESP_ERROR_CHECK(esp_base_mac_addr_get(data(mac)));
-      snprintf(data(mac_str), size(mac_str), MACSTR, MAC2STR(mac));
-      drv::led::wifi(true);
-    }
+  // Station got IP from connected AP
+  if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+    auto const event{std::bit_cast<ip_event_got_ip_t*>(event_data)};
+    auto const count{
+      snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
+    ip_str.replace(0uz, count, data(ip));
+    led::wifi(true);
+    LOGI("IP_EVENT_STA_GOT_IP %s", ip_str.c_str());
   }
-  // WiFi events
-  else if (event_base == WIFI_EVENT) {
-    // STA connected to own AP
-    if (event_id == WIFI_EVENT_AP_STACONNECTED) {
-      auto const event{
-        std::bit_cast<wifi_event_ap_staconnected_t*>(event_data)};
-      LOGI("AP: STA " MACSTR " connected, AID=%d",
-           MAC2STR(event->mac),
-           event->aid);
-      drv::led::wifi(true);
-    }
-    // STA disconnected from own AP
-    else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
-      auto const event{
-        std::bit_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
-      LOGI("AP: STA " MACSTR " disconnected, AID=%d",
-           MAC2STR(event->mac),
-           event->aid);
-      drv::led::wifi(false);
-    }
-    // STA disconnected from external AP
-    else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
-      auto const event{
-        std::bit_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
-      LOGI("STA: " MACSTR " disconnected, AID=%d",
-           MAC2STR(event->mac),
-           event->aid);
-      drv::led::wifi(false);
-      ip_str.clear();
-      esp_wifi_connect();
-    }
+  // Station lost IP and the IP is reset to 0
+  else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
+    ip.fill(0);
+    ip_str.clear();
+    led::wifi(false);
+    esp_wifi_connect();
+    LOGI("IP_EVENT_STA_LOST_IP");
+  }
+  // Station connected to AP
+  else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
+    auto const event{std::bit_cast<wifi_event_sta_connected_t*>(event_data)};
+    LOGI("WIFI_EVENT_STA_CONNECTED %.*s", event->ssid_len, event->ssid);
+  }
+  // Station disconnected from AP
+  else if (event_base == WIFI_EVENT &&
+           event_id == WIFI_EVENT_STA_DISCONNECTED) {
+    auto const event{std::bit_cast<wifi_event_sta_disconnected_t*>(event_data)};
+    ip.fill(0);
+    ip_str.clear();
+    led::wifi(false);
+    esp_wifi_connect();
+    LOGI("WIFI_EVENT_STA_DISCONNECTED %.*s", event->ssid_len, event->ssid);
+  }
+  // Station connected to Soft-AP
+  else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
+    auto const event{std::bit_cast<wifi_event_ap_staconnected_t*>(event_data)};
+    led::wifi(true);
+    LOGI("WIFI_EVENT_AP_STACONNECTED");
+  }
+  // Station disconnected from Soft-AP
+  else if (event_base == WIFI_EVENT &&
+           event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+    auto const event{
+      std::bit_cast<wifi_event_ap_stadisconnected_t*>(event_data)};
+    led::wifi(false);
+    LOGI("WIFI_EVENT_AP_STADISCONNECTED");
   }
 }
 
 /// \todo document
 esp_err_t gpio_init() {
-  static constexpr gpio_config_t io_conf{.pin_bit_mask = 1ull << boot_gpio_num,
-                                         .mode = GPIO_MODE_INPUT,
-                                         .pull_up_en = GPIO_PULLUP_ENABLE,
-                                         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-                                         .intr_type = GPIO_INTR_DISABLE};
-  return gpio_config(&io_conf);
+  static constexpr gpio_config_t gpio_cfg{.pin_bit_mask = 1ull << boot_gpio_num,
+                                          .mode = GPIO_MODE_INPUT,
+                                          .pull_up_en = GPIO_PULLUP_ENABLE,
+                                          .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                          .intr_type = GPIO_INTR_DISABLE};
+  return gpio_config(&gpio_cfg);
 }
 
 /// \todo document
 esp_err_t wifi_init() {
-  // Common stuff
-  ESP_ERROR_CHECK(esp_netif_init());
-  ESP_ERROR_CHECK(esp_event_loop_create_default());
-  if (auto sta_netif{esp_netif_create_default_wifi_sta()})
-    esp_netif_set_default_netif(sta_netif);
-  else assert(false);
-  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+  // Initialize TCP/IP stack and event loop
+  esp_netif_init();
+  esp_event_loop_create_default();
+
+  // Create the network interface handle
+  esp_netif_config_t netif_cfg = ESP_NETIF_DEFAULT_WIFI_STA();
+  esp_netif_t* netif{esp_netif_new(&netif_cfg)};
+  assert(netif);
+
+  // Attach
+  ESP_ERROR_CHECK(esp_netif_attach_wifi_station(netif));
+  ESP_ERROR_CHECK(esp_wifi_set_default_wifi_sta_handlers());
+  ESP_ERROR_CHECK(esp_netif_set_default_netif(netif));
+
+  // Init WiFi driver to default and install it
+  wifi_init_config_t wifi_cfg = WIFI_INIT_CONFIG_DEFAULT();
+  ESP_ERROR_CHECK(esp_wifi_init(&wifi_cfg));
+
+  // Register event handlers
   ESP_ERROR_CHECK(esp_event_handler_register(
     IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
+  ESP_ERROR_CHECK(esp_event_handler_register(
+    IP_EVENT, IP_EVENT_STA_LOST_IP, &event_handler, NULL));
+  ESP_ERROR_CHECK(esp_event_handler_register(
+    WIFI_EVENT, WIFI_EVENT_STA_CONNECTED, &event_handler, NULL));
+  ESP_ERROR_CHECK(esp_event_handler_register(
+    WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &event_handler, NULL));
   ESP_ERROR_CHECK(esp_event_handler_register(
     WIFI_EVENT, WIFI_EVENT_AP_STACONNECTED, &event_handler, NULL));
   ESP_ERROR_CHECK(esp_event_handler_register(
     WIFI_EVENT, WIFI_EVENT_AP_STADISCONNECTED, &event_handler, NULL));
-  ESP_ERROR_CHECK(esp_event_handler_register(
-    WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &event_handler, NULL));
+
+  // Start in null mode
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_NULL));
+
+  // Disable power saving
   ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
+
   return esp_wifi_start();
 }
 
@@ -190,30 +208,30 @@ esp_err_t scan_ap_records() {
 }
 
 /// \todo document
-esp_err_t ap_init(wifi_ap_config_t const& ap_config) {
+esp_err_t ap_init(wifi_ap_config_t const& ap_cfg) {
   if (auto ap_netif{esp_netif_create_default_wifi_ap()})
     esp_netif_set_default_netif(ap_netif);
   else assert(false);
-  wifi_config_t wifi_config{.ap = ap_config};
+  wifi_config_t wifi_cfg{.ap = ap_cfg};
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-  return esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+  return esp_wifi_set_config(WIFI_IF_AP, &wifi_cfg);
 }
 
 /// \todo document
 esp_err_t
-sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
+sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_cfgs) {
   // Pick the configuration with the best RSSI
-  wifi_config_t wifi_config{};
+  wifi_config_t wifi_cfg{};
   auto first{cbegin(ap_records)};
   auto const last{cend(ap_records)};
   while (first < last) {
     if (!strcmp(std::bit_cast<char*>(&first->ssid),
-                std::bit_cast<char*>(&sta_configs.first.ssid))) {
-      wifi_config.sta = sta_configs.first;
+                std::bit_cast<char*>(&sta_cfgs.first.ssid))) {
+      wifi_cfg.sta = sta_cfgs.first;
       break;
     } else if (!strcmp(std::bit_cast<char*>(&first->ssid),
-                       std::bit_cast<char*>(&sta_configs.second.ssid))) {
-      wifi_config.sta = sta_configs.second;
+                       std::bit_cast<char*>(&sta_cfgs.second.ssid))) {
+      wifi_cfg.sta = sta_cfgs.second;
       break;
     }
     ++first;
@@ -221,22 +239,22 @@ sta_init(std::pair<wifi_sta_config_t, wifi_sta_config_t> const& sta_configs) {
   if (first == last) return ESP_FAIL;
 
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-  ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+  ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg));
 
   // Static IP
   mem::nvs::Settings nvs;
   auto const sta_ip{nvs.getStationIP()};
   auto const sta_netmask{nvs.getStationNetmask()};
   auto const sta_gateway{nvs.getStationGateway()};
-  if (!sta_ip.empty() && !sta_netmask.empty() && !sta_gateway.empty()) {
+  if (!empty(sta_ip) && !empty(sta_netmask) && !empty(sta_gateway)) {
     esp_netif_ip_info_t ip_info;
     ESP_ERROR_CHECK(esp_netif_str_to_ip4(sta_ip.c_str(), &ip_info.ip));
     ESP_ERROR_CHECK(
       esp_netif_str_to_ip4(sta_netmask.c_str(), &ip_info.netmask));
     ESP_ERROR_CHECK(esp_netif_str_to_ip4(sta_gateway.c_str(), &ip_info.gw));
-    auto sta_netif{esp_netif_get_default_netif()};
-    ESP_ERROR_CHECK(esp_netif_dhcpc_stop(sta_netif));
-    ESP_ERROR_CHECK(esp_netif_set_ip_info(sta_netif, &ip_info));
+    auto netif{esp_netif_get_default_netif()};
+    ESP_ERROR_CHECK(esp_netif_dhcpc_stop(netif));
+    ESP_ERROR_CHECK(esp_netif_set_ip_info(netif, &ip_info));
   }
 
   return esp_wifi_connect();
@@ -253,8 +271,8 @@ esp_err_t init() {
   ESP_ERROR_CHECK(scan_ap_records());
 
   // Try to connect to network
-  if (auto const sta_configs{optional_sta_configs()};
-      sta_configs && sta_init(*sta_configs) == ESP_OK) {
+  if (auto const sta_cfgs{optional_sta_configs()};
+      sta_cfgs && sta_init(*sta_cfgs) == ESP_OK) {
     task.create(task_function);
     return ESP_OK;
   }
