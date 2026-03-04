@@ -30,9 +30,9 @@ namespace mw::dcc {
 /// The DCC module runs a service that...
 ///
 /// <div class="section_buttons">
-/// | Previous     | Next             |
-/// | :----------- | ---------------: |
-/// | \ref page_mw | \ref page_mw_ota |
+/// | Previous     | Next              |
+/// | :----------- | ----------------: |
+/// | \ref page_mw | \ref page_mw_disp |
 /// </div>
 
 } // namespace mw::dcc

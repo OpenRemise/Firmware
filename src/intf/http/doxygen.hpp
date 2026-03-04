@@ -84,13 +84,13 @@ namespace intf::http {
 /// be specified. Furthermore, a distinction is made between synchronous (HTTP)
 /// and asynchronous (WebSocket) connections.
 ///
-/// Both subscription types are stored in a std::map with a custom key
+/// Both subscription types are stored in a `std::map` with a custom key
 /// comparator.
 ///
 /// <div class="section_buttons">
-/// | Previous       | Next               |
-/// | :------------- | -----------------: |
-/// | \ref page_intf | \ref page_intf_dns |
+/// | Previous           | Next                |
+/// | :----------------- | ------------------: |
+/// | \ref page_intf_dns | \ref page_intf_mdns |
 /// </div>
 
 } // namespace intf::http

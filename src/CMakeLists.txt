@@ -35,10 +35,10 @@ else()
   idf_component_register(
     SRCS
     ${COMMON_SRC}
-    drv/analog/adc_task_function.cpp
-    drv/analog/convert.cpp
-    drv/analog/init.cpp
-    drv/analog/temp_task_function.cpp
+    drv/anlg/adc_task_function.cpp
+    drv/anlg/convert.cpp
+    drv/anlg/init.cpp
+    drv/anlg/temp_task_function.cpp
     drv/eth/init.cpp
     drv/led/bug.cpp
     drv/led/init.cpp
@@ -74,6 +74,8 @@ else()
     intf/usb/rx_task_function.cpp
     intf/usb/tx_task_function.cpp
     mw/dcc/init.cpp
+    mw/disp/init.cpp
+    mw/disp/task_function.cpp
     mw/ota/init.cpp
     mw/ota/service.cpp
     mw/roco/z21/init.cpp

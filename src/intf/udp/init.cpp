@@ -25,13 +25,16 @@
 
 namespace intf::udp {
 
-/// \todo document
+/// Initialize UDP
+///
+/// Initialization takes place in init(). This function creates an IPv4 UDP
+/// socket, stores the descriptor in \ref sock_fd, and binds it to \ref port
+/// "port 21105" on all local interfaces (INADDR_ANY).
+///
+/// The initialized socket is used by the \ref section_mw_roco_z21 service.
 esp_err_t init() {
-  //
   sock_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
   assert(sock_fd >= 0);
-
-  //
   sockaddr_in6 dest_addr;
   sockaddr_in* dest_addr_ip4{std::bit_cast<sockaddr_in*>(&dest_addr)};
   dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
@@ -40,7 +43,6 @@ esp_err_t init() {
   auto const err{
     bind(sock_fd, std::bit_cast<sockaddr*>(&dest_addr), sizeof(dest_addr))};
   assert(err >= 0);
-
   return ESP_OK;
 }
 

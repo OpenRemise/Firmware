@@ -33,8 +33,8 @@ namespace intf {
 /// \details
 /// | Chapter                 | Namespace | Content                                                                                                                                                                                                                           |
 /// | ----------------------- | --------- | ---------------------------------------------------------------------------------- |
-/// | \subpage page_intf_http | \ref http | Access point (AP) and station (STA) HTTP servers                                   |
 /// | \subpage page_intf_dns  | \ref dns  | Register DNS services                                                              |
+/// | \subpage page_intf_http | \ref http | Access point (AP) and station (STA) HTTP servers                                   |
 /// | \subpage page_intf_mdns | \ref mdns | Register mDNS services                                                             |
 /// | \subpage page_intf_udp  | \ref udp  | Create and bind UDP socket                                                         |
 /// | \subpage page_intf_usb  | \ref usb  | Create [CDC](https://en.wikipedia.org/wiki/USB_communications_device_class) device |
@@ -43,9 +43,9 @@ namespace intf {
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous                | Next                |
-/// | :---------------------- | ------------------: |
-/// | \ref page_api_reference | \ref page_intf_http |
+/// | Previous                | Next               |
+/// | :---------------------- | -----------------: |
+/// | \ref page_api_reference | \ref page_intf_dns |
 /// </div>
 
 } // namespace intf

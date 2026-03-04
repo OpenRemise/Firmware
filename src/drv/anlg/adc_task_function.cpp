@@ -15,7 +15,7 @@
 
 /// ADC voltage and current task function
 ///
-/// \file   drv/analog/adc_task_function.cpp
+/// \file   drv/anlg/adc_task_function.cpp
 /// \author Vincent Hamp
 /// \date   05/07/2023
 
@@ -27,7 +27,7 @@
 #include "mw/roco/z21/service.hpp"
 #include "utility.hpp"
 
-namespace drv::analog {
+namespace drv::anlg {
 
 namespace {
 
@@ -152,4 +152,4 @@ void adc_task_notify_resume() {
   }
 }
 
-} // namespace drv::analog
+} // namespace drv::anlg

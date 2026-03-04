@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,25 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Ethernet documentation
+/// ADC temperature task function
 ///
-/// \file   drv/eth/doxygen.hpp
+/// \file   drv/anlg/temp_task_function.hpp
 /// \author Vincent Hamp
-/// \date   28/01/2026
+/// \date   05/07/2023
 
 #pragma once
 
-namespace drv::eth {
+namespace drv::anlg {
 
-/// \page page_drv_eth Ethernet
-/// \details \tableofcontents
-/// \todo document Ethernet page
-/// W5500, connectivity extension only, ...
-///
-/// <div class="section_buttons">
-/// | Previous           | Next              |
-/// | :----------------- | ----------------: |
-/// | \ref page_drv_anlg | \ref page_drv_led |
-/// </div>
+[[noreturn]] void temp_task_function(void*);
 
-} // namespace drv::eth
+} // namespace drv::anlg

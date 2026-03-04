@@ -28,9 +28,9 @@ namespace mw::ota {
 /// \todo document OTA page
 ///
 /// <div class="section_buttons">
-/// | Previous         | Next              |
-/// | :--------------- | ----------------: |
-/// | \ref page_mw_dcc | \ref page_mw_roco |
+/// | Previous          | Next              |
+/// | :---------------- | ----------------: |
+/// | \ref page_mw_disp | \ref page_mw_roco |
 /// </div>
 
 } // namespace mw::ota

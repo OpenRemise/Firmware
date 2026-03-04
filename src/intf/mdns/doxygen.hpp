@@ -40,9 +40,9 @@ namespace intf::mdns {
 /// ```
 ///
 /// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_intf_dns | \ref page_intf_udp |
+/// | Previous            | Next               |
+/// | :------------------ | -----------------: |
+/// | \ref page_intf_http | \ref page_intf_udp |
 /// </div>
 
 } // namespace intf::mdns

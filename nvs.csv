@@ -31,3 +31,4 @@ dcc_loco_flags,data,u8,226
 dcc_accy_flags,data,u8,4
 dcc_accy_swtime,data,u8,20
 dcc_accy_pc,data,u8,2
+ext_flags,data,u8,255

@@ -13,23 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Convert between ADC measurements and SI units
+/// ADC voltage and current task function
 ///
-/// \file   drv/analog/convert.hpp
+/// \file   drv/anlg/adc_task_function.hpp
 /// \author Vincent Hamp
-/// \date   03/05/2023
+/// \date   05/07/2023
 
 #pragma once
 
-#include <esp_adc/adc_cali.h>
+namespace drv::anlg {
 
-namespace drv::analog {
+void adc_task_notify_suspend();
+void adc_task_notify_resume();
+[[noreturn]] void adc_task_function(void*);
 
-Voltage measurement2mV(VoltageMeasurement meas);
-VoltageMeasurement mV2measurement(Voltage mV);
-Current measurement2mA(CurrentMeasurement meas);
-CurrentMeasurement mA2measurement(Current mA);
-
-inline adc_cali_handle_t cali_handle{};
-
-} // namespace drv::analog
+} // namespace drv::anlg

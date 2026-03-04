@@ -16,7 +16,7 @@
 #include "service.hpp"
 #include <lwip/sockets.h>
 #include <ztl/string.hpp>
-#include "drv/analog/convert.hpp"
+#include "drv/anlg/convert.hpp"
 #include "drv/led/bug.hpp"
 #include "log.h"
 #include "utility.hpp"
@@ -156,7 +156,7 @@ void Service::logoff(z21::Socket const& sock) {
 
 /// \todo document
 [[nodiscard]] z21::SystemState& Service::systemState() {
-  using namespace drv::analog;
+  using namespace drv::anlg;
 
   auto& sys_state{ServerBase::systemState()};
 

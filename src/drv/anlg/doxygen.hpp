@@ -15,33 +15,33 @@
 
 /// Analog documentation
 ///
-/// \file   drv/analog/doxygen.hpp
+/// \file   drv/anlg/doxygen.hpp
 /// \author Vincent Hamp
 /// \date   23/08/2024
 
 #pragma once
 
-namespace drv::analog {
+namespace drv::anlg {
 
-/// \page page_drv_analog Analog
+/// \page page_drv_anlg Analog
 /// \details \tableofcontents
 /// This module takes over all analog functions of the firmware. This includes
 /// measuring track voltage and current, measuring temperature, and monitoring
 /// all of those measurements.
 ///
-/// \section section_drv_analog_init Initialization
+/// \section section_drv_anlg_init Initialization
 /// \copydetails init
 ///
-/// \section section_drv_analog_adc_task ADC task
+/// \section section_drv_anlg_adc_task ADC task
 /// \copydetails adc_task_function
 ///
-/// \subsection subsection_drv_analog_adc Suspend/resume ADC task
+/// \subsection subsection_drv_anlg_adc Suspend/resume ADC task
 /// \copydetails handle_suspend_resume_on_notify
 ///
-/// \section section_drv_analog_temp_task Temperature task
+/// \section section_drv_anlg_temp_task Temperature task
 /// \copydetails temp_task_function
 ///
-/// \section section_drv_analog_conversions Conversions
+/// \section section_drv_anlg_conversions Conversions
 /// The convert.hpp header provides some conversion functions to convert between
 /// raw ADC values ​​and Si units. The following functions are defined:
 /// - measurement2mV(VoltageMeasurement)
@@ -55,4 +55,4 @@ namespace drv::analog {
 /// | \ref page_drv | \ref page_drv_eth |
 /// </div>
 
-} // namespace drv::analog
+} // namespace drv::anlg

@@ -20,7 +20,7 @@
 /// \date   26/12/2022
 
 #include <esp_wifi.h>
-#include "drv/analog/init.hpp"
+#include "drv/anlg/init.hpp"
 #include "drv/eth/init.hpp"
 #include "drv/led/init.hpp"
 #include "drv/out/init.hpp"
@@ -33,6 +33,7 @@
 #include "intf/usb/init.hpp"
 #include "mem/nvs/init.hpp"
 #include "mw/dcc/init.hpp"
+#include "mw/disp/init.hpp"
 #include "mw/ota/init.hpp"
 #include "mw/roco/z21/init.hpp"
 #include "mw/zimo/decup/init.hpp"
@@ -53,9 +54,9 @@ extern "C" void app_main() {
 
   // Most important ones
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::analog::init));
-  static_assert(APP_CPU_NUM == drv::analog::adc_task.core_id &&
-                APP_CPU_NUM == drv::analog::temp_task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::anlg::init));
+  static_assert(APP_CPU_NUM == drv::anlg::adc_task.core_id &&
+                APP_CPU_NUM == drv::anlg::temp_task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::out::init));
   static_assert(APP_CPU_NUM == drv::out::susi::zimo::zusi::task.core_id &&
                 APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
@@ -72,6 +73,8 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
   static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
+  static_assert(APP_CPU_NUM == mw::disp::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
   static_assert(APP_CPU_NUM == mw::ota::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));
@@ -98,8 +101,8 @@ extern "C" void app_main() {
 
 // Assert that task names are unique and below max length
 static_assert(std::invoke([] {
-  std::array task_names{drv::analog::adc_task.name,
-                        drv::analog::temp_task.name,
+  std::array task_names{drv::anlg::adc_task.name,
+                        drv::anlg::temp_task.name,
                         drv::out::susi::zimo::zusi::task.name,
                         drv::out::track::dcc::task.name,
                         drv::out::track::zimo::decup::task.name,

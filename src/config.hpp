@@ -178,7 +178,7 @@ inline std::atomic<State> state{State::Suspended};
 
 namespace drv {
 
-namespace analog {
+namespace anlg {
 
 inline constexpr auto ol_on_gpio_num{GPIO_NUM_17};
 
@@ -225,7 +225,7 @@ static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
 
 ///
 inline TASK(adc_task,
-            "drv::analog::adc",     // Name
+            "drv::anlg::adc",       // Name
             2048uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 2u, // Priority
             APP_CPU_NUM,            // Core
@@ -233,10 +233,10 @@ inline TASK(adc_task,
 
 ///
 inline TASK(temp_task,
-            "drv::analog::temp", // Name
-            2048uz,              // Stack size
-            tskIDLE_PRIORITY,    // Priority
-            APP_CPU_NUM,         // Core
+            "drv::anlg::temp", // Name
+            2048uz,            // Stack size
+            tskIDLE_PRIORITY,  // Priority
+            APP_CPU_NUM,       // Core
             0u);
 
 using VoltageMeasurement =
@@ -276,7 +276,7 @@ inline struct TemperatureQueue {
   static inline QueueHandle_t handle{};
 } temperature_queue;
 
-} // namespace analog
+} // namespace anlg
 
 namespace eth {
 
@@ -545,6 +545,18 @@ inline TASK(task,
             50u);        // Timeout
 
 } // namespace dcc
+
+namespace disp {
+
+///
+inline TASK(task,
+            "mw::disp",       // Name
+            4096uz,           // Stack size
+            tskIDLE_PRIORITY, // Priority
+            APP_CPU_NUM,      // Core
+            1000u);           // Timeout
+
+} // namespace disp
 
 namespace ota {
 

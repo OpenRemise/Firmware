@@ -2,6 +2,7 @@
 
 ##
 - Add Ethernet support through [W5500](https://wiznet.io/products/ethernet-chips/w5500) ([#123](https://github.com/OpenRemise/Firmware/issues/123))
+- Add display support ([#116](https://github.com/OpenRemise/Firmware/issues/116))
 
 ## 0.6.1
 - Add [Z21 ᴡʟᴀɴMAUS](https://www.z21.eu/en/products/z21-wlanmaus) support ([#115](https://github.com/OpenRemise/Firmware/issues/115))
