@@ -13,29 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ADC temperature task function
+/// Initialize ADC
 ///
-/// \file   drv/analog/temp_task_function.cpp
+/// \file   drv/anlg/init.hpp
 /// \author Vincent Hamp
-/// \date   05/07/2023
+/// \date   09/02/2023
 
-#include "init.hpp"
-#include "log.h"
+#pragma once
 
-namespace drv::analog {
+#include <driver/temperature_sensor.h>
+#include <esp_adc/adc_continuous.h>
+#include <esp_err.h>
+#include <array>
 
-/// Temperature task function
-///
-/// Once started, the temperature task runs continuously. The internal
-/// temperature sensor is read once per second and the result is converted into
-/// degrees Celsius. The result is written to the corresponding queue.
-[[noreturn]] void temp_task_function(void*) {
-  for (;;) {
-    TemperatureQueue::value_type temp;
-    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_sensor, &temp));
-    xQueueOverwrite(temperature_queue.handle, &temp);
-    vTaskDelay(pdMS_TO_TICKS(1000u));
-  }
-}
+namespace drv::anlg {
 
-} // namespace drv::analog
+inline adc_continuous_handle_t adc1_handle{};
+inline temperature_sensor_handle_t temp_sensor{};
+
+esp_err_t init();
+
+} // namespace drv::anlg

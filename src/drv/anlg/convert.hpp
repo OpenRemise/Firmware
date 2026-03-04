@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,25 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Ethernet documentation
+/// Convert between ADC measurements and SI units
 ///
-/// \file   drv/eth/doxygen.hpp
+/// \file   drv/anlg/convert.hpp
 /// \author Vincent Hamp
-/// \date   28/01/2026
+/// \date   03/05/2023
 
 #pragma once
 
-namespace drv::eth {
+#include <esp_adc/adc_cali.h>
 
-/// \page page_drv_eth Ethernet
-/// \details \tableofcontents
-/// \todo document Ethernet page
-/// W5500, connectivity extension only, ...
-///
-/// <div class="section_buttons">
-/// | Previous           | Next              |
-/// | :----------------- | ----------------: |
-/// | \ref page_drv_anlg | \ref page_drv_led |
-/// </div>
+namespace drv::anlg {
 
-} // namespace drv::eth
+Voltage measurement2mV(VoltageMeasurement meas);
+VoltageMeasurement mV2measurement(Voltage mV);
+Current measurement2mA(CurrentMeasurement meas);
+CurrentMeasurement mA2measurement(Current mA);
+
+inline adc_cali_handle_t cali_handle{};
+
+} // namespace drv::anlg

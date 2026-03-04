@@ -30,22 +30,22 @@ namespace drv {
 // clang-format off
 /// \page page_drv Driver
 /// \details
-/// | Chapter                  | Namespace   | Content                                      |
-/// | ------------------------ | ----------- | ---------------------------------------------|
-/// | \subpage page_drv_analog | \ref analog | ADC measurements, overcurrent                |
-/// | \subpage page_drv_eth    | \ref eth    | Setup Ethernet                               |
-/// | \subpage page_drv_led    | \ref led    | Dimming LEDs                                 |
-/// | \subpage page_drv_out    | \ref out    | Generation of various SUSI and track signals |
-/// | \subpage page_drv_trace  | \ref trace  | Debug purposes                               |
-/// | \subpage page_drv_wifi   | \ref wifi   | Setup WiFi in AP or STA mode                 |
+/// | Chapter                 | Namespace  | Content                                      |
+/// | ----------------------- | ---------- | ---------------------------------------------|
+/// | \subpage page_drv_anlg  | \ref anlg  | ADC measurements, overcurrent                |
+/// | \subpage page_drv_eth   | \ref eth   | Setup Ethernet                               |
+/// | \subpage page_drv_led   | \ref led   | Dimming LEDs                                 |
+/// | \subpage page_drv_out   | \ref out   | Generation of various SUSI and track signals |
+/// | \subpage page_drv_trace | \ref trace | Debug purposes                               |
+/// | \subpage page_drv_wifi  | \ref wifi  | Setup WiFi in AP or STA mode                 |
 // clang-format on
 /// \page page_drv Driver
 /// \details
 ///
 /// <div class="section_buttons">
-/// | Previous          | Next                 |
-/// | :---------------- | -------------------: |
-/// | \ref page_mw_zimo | \ref page_drv_analog |
+/// | Previous          | Next               |
+/// | :---------------- | -----------------: |
+/// | \ref page_mw_zimo | \ref page_drv_anlg |
 /// </div>
 
 } // namespace drv

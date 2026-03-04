@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2026 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// ADC voltage and current task function
+/// Display task function
 ///
-/// \file   drv/analog/adc_task_function.hpp
+/// \file   mw/disp/task_function.hpp
 /// \author Vincent Hamp
-/// \date   05/07/2023
+/// \date   08/01/2026
 
 #pragma once
 
-namespace drv::analog {
+#include <string>
 
-void adc_task_notify_suspend();
-void adc_task_notify_resume();
-[[noreturn]] void adc_task_function(void*);
+namespace mw::disp {
 
-} // namespace drv::analog
+[[noreturn]] void task_function(void*);
+
+} // namespace mw::disp

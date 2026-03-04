@@ -104,7 +104,7 @@
 ///
 /// - [CMake](https://cmake.org) ( >= 3.25 )
 /// - [GCC](https://gcc.gnu.org) ( >= 13.2.0 )
-/// - [ESP-IDF](https://github.com/espressif/esp-idf) ( == 5.5.2 )
+/// - [ESP-IDF](https://github.com/espressif/esp-idf) ( == 5.5.3 )
 /// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
 /// - Optional
 ///   - for building documentation
@@ -479,7 +479,7 @@
 /// An example of the FreeRTOS definitions would be the struct for the ADC task.
 /// ```cpp
 /// inline struct AdcTask {
-///   static constexpr auto name{"analog::adc"};
+///   static constexpr auto name{"anlg::adc"};
 ///   static constexpr auto stack_size{4096uz};
 ///   static constexpr UBaseType_t priority{ESP_TASK_PRIO_MAX - 2u};
 ///   static constexpr auto timeout{200u};
@@ -580,8 +580,8 @@
 /// | mw::zimo::ulf::dcc_ein::task       | 1    |
 /// | mw::zimo::ulf::susiv2::task        | 1    |
 /// | mw::zimo::zusi::task               | 1    |
-/// | drv::analog::adc_task              | 1    |
-/// | drv::analog::temp_task             | 1    |
+/// | drv::anlg::adc_task                | 1    |
+/// | drv::anlg::temp_task               | 1    |
 /// | drv::out::susi::zimo::zusi::task   | 1    |
 /// | drv::out::track::dcc::task         | 1    |
 /// | drv::out::track::zimo::decup::task | 1    |
@@ -735,6 +735,9 @@
 /// }
 ///
 /// frame "Interfaces" {
+///   package "dns" as intf_dns {
+///     interface DNS
+///   }
 ///   package "http" as intf_http {
 ///     package "ap" as intf_http_ap {
 ///       interface "HTTP" as http_ap
@@ -747,7 +750,7 @@
 ///       http_sta - intf_http_sta_server
 ///     }
 ///   }
-///   package "mDNS" as intf_mdns {
+///   package "mdns" as intf_mdns {
 ///     interface mDNS
 ///   }
 ///   package "udp" as intf_udp {
@@ -789,11 +792,14 @@
 /// }
 ///
 /// frame "Drivers" {
-///   package "analog" as drv_analog {
-///     [Task] as analog_task
+///   package "anlg" as drv_anlg {
+///     [Task] as anlg_task
+///   }
+///   package "eth" as drv_eth {
+///     [Task] as eth_task
 ///   }
 ///   package "led" as drv_led {
-///     [" "]
+///     [Task] as led_task
 ///   }
 ///   package "out" as drv_out {
 ///     package "susi" as drv_out_susi {
@@ -818,7 +824,7 @@
 ///     }
 ///   }
 ///   package "trace" as drv_trace {
-///     ["  "]
+///     [""]
 ///   }
 ///   package "wifi" as drv_wifi {
 ///     [Task] as drv_wifi_task
@@ -850,6 +856,7 @@
 /// 'Links
 /// url of mem_nvs is [[page_mem.html#section_mem_nvs]]
 ///
+/// url of intf_dns is [[page_intf_dns.html]]
 /// url of intf_http is [[page_intf_http.html]]
 /// url of intf_http_ap is [[page_intf_http.html#section_http_ap]]
 /// url of intf_http_sta is [[page_intf_http.html#section_http_sta]]
@@ -860,13 +867,19 @@
 /// url of mw_dcc is [[page_mw_dcc.html]]
 /// url of mw_ota is [[page_mw_ota.html]]
 /// url of mw_roco is [[page_mw_roco.html]]
+/// url of mw_roco_z21 is [[page_mw_roco.html#section_mw_roco_z21]]
 /// url of mw_zimo is [[page_mw_zimo.html]]
+/// url of mw_zimo_decup is [[page_mw_zimo.html#section_mw_zimo_decup]]
+/// url of mw_zimo_mdu is [[page_mw_zimo.html#section_mw_zimo_mdu]]
+/// url of mw_zimo_ulf is [[page_mw_zimo.html#section_mw_zimo_ulf]]
+/// url of mw_zimo_zusi is [[page_mw_zimo.html#section_mw_zimo_zusi]]
 ///
-/// url of drv_analog is [[page_drv_analog.html]]
+/// url of drv_anlg is [[page_drv_anlg.html]]
+/// url of drv_eth is [[page_drv_eth.html]]
 /// url of drv_led is [[page_drv_led.html]]
 /// url of drv_out is [[page_drv_out.html]]
-/// url of drv_out_susi is [[page_drv_out.html#section_out_susi]]
-/// url of drv_out_track is [[page_drv_out.html#section_out_track]]
+/// url of drv_out_susi is [[page_drv_out.html#section_drv_out_susi]]
+/// url of drv_out_track is [[page_drv_out.html#section_drv_out_track]]
 /// url of drv_trace is [[page_drv_trace.html]]
 /// url of drv_wifi is [[page_drv_wifi.html]]
 /// \enduml
@@ -914,12 +927,12 @@
 // clang-format off
 /// \page page_api_reference API Reference
 /// \details
-/// | Chapter            | Namespace | Content                                   |
-/// | ------------------ | --------- | ----------------------------------------- |
-/// | \subpage page_intf | \ref intf | HTTP, mDNS, UDP, USB                      |
-/// | \subpage page_mw   | \ref mw   | DCC, OTA, Z21, ZIMO                       |
-/// | \subpage page_drv  | \ref drv  | Peripherals (Analog, RMT, SPI, WiFi, ...) |
-/// | \subpage page_mem  | \ref mem  | NVS                                       |
+/// | Chapter            | Namespace | Content                                             |
+/// | ------------------ | --------- | --------------------------------------------------- |
+/// | \subpage page_intf | \ref intf | DNS, HTTP, mDNS, UDP, USB                           |
+/// | \subpage page_mw   | \ref mw   | DCC, Display, OTA, Z21, ZIMO                        |
+/// | \subpage page_drv  | \ref drv  | Peripherals (Analog, Ethernet, RMT, SPI, WiFi, ...) |
+/// | \subpage page_mem  | \ref mem  | NVS                                                 |
 // clang-format on
 /// \page page_api_reference API Reference
 /// \details

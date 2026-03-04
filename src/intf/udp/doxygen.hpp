@@ -25,10 +25,11 @@ namespace intf::udp {
 
 /// \page page_intf_udp UDP
 /// \details \tableofcontents
-/// \todo document UDP page
-///
 /// The sole responsibility of this module is to initialize UDP and open
 /// endpoints for communications.
+///
+/// \section section_intf_mdns_init Initialization
+/// \copydetails init
 ///
 /// <div class="section_buttons">
 /// | Previous            | Next               |

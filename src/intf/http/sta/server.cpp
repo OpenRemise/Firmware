@@ -27,7 +27,7 @@
 #include <dcc/dcc.hpp>
 #include <gsl/util>
 #include <ztl/string.hpp>
-#include "drv/analog/convert.hpp"
+#include "drv/anlg/convert.hpp"
 #include "frontend_embeds.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
@@ -230,6 +230,7 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["dcc_accy_flags"] = nvs.getDccAccessoryFlags();
   doc["dcc_accy_swtime"] = nvs.getDccAccessorySwitchTime();
   doc["dcc_accy_pc"] = nvs.getDccAccessoryPacketCount();
+  doc["ext_flags"] = nvs.getExtensionFlags();
 
   //
   std::string json;
@@ -384,12 +385,16 @@ Response Server::settingsPostRequest(Request const& req) {
     if (nvs.setDccAccessorPacketCount(v.as<uint8_t>()) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
+  if (JsonVariantConst v{doc["ext_flags"]}; v.is<uint8_t>())
+    if (nvs.setExtensionFlags(v.as<uint8_t>()) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
   return {};
 }
 
 /// \todo document
 Response Server::sysGetRequest(Request const& req) {
-  using namespace drv::analog;
+  using namespace drv::anlg;
 
   //
   JsonDocument doc;

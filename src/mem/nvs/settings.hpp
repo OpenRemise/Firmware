@@ -127,6 +127,9 @@ public:
 
   uint8_t getDccAccessoryPacketCount() const;
   esp_err_t setDccAccessorPacketCount(uint8_t value);
+
+  uint8_t getExtensionFlags() const;
+  esp_err_t setExtensionFlags(uint8_t value);
 };
 
 } // namespace mem::nvs

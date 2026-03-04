@@ -85,6 +85,7 @@ namespace mem::nvs {
 /// | DCC accessory flags                                                                                                                                   | dcc_accy_flags  | u8     | -   | -   | 4        |
 /// | DCC accessory switch time [10ms]                                                                                                                      | dcc_accy_swtime | u8     | 10  | 255 | 20       |
 /// | DCC accessory packet count                                                                                                                            | dcc_accy_pc     | u8     | 1   | 64  | 2        |
+/// | Extension flags                                                                                                                                       | ext_flags       | u8     | 1   | 255 | 255      |
 // clang-format on
 /// \page page_mem_nvs NVS
 /// \details \tableofcontents

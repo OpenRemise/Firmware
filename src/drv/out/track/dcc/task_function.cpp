@@ -28,7 +28,7 @@
 #include <ztl/fail.hpp>
 #include <ztl/inplace_deque.hpp>
 #include "../current_limit.hpp"
-#include "drv/analog/convert.hpp"
+#include "drv/anlg/convert.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 #include "resume.hpp"
@@ -57,7 +57,7 @@ struct Offsets {
 /// \bug DCC/RailCom timings seem to get worse when the DCC tasks runs the
 /// second time?
 consteval Offsets make_offsets() {
-  static_assert(CONFIG_IDF_INIT_VERSION == "5.5.2"sv);
+  static_assert(CONFIG_IDF_INIT_VERSION == "5.5.3"sv);
 
   return {
 #if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
@@ -265,31 +265,30 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_cfg) {
 }
 
 /// \todo document
-analog::CurrentMeasurement get_ref_current_measurement() {
-  analog::CurrentsQueue::value_type currents;
-  if (!xQueueReceive(analog::currents_queue.handle, &currents, 0u))
-    assert(false);
-  return analog::CurrentMeasurement{
-    static_cast<analog::CurrentMeasurement::value_type>(
+anlg::CurrentMeasurement get_ref_current_measurement() {
+  anlg::CurrentsQueue::value_type currents;
+  if (!xQueueReceive(anlg::currents_queue.handle, &currents, 0u)) assert(false);
+  return anlg::CurrentMeasurement{
+    static_cast<anlg::CurrentMeasurement::value_type>(
       std::accumulate(cbegin(currents), cend(currents), 0) / ssize(currents))};
 }
 
 /// \todo document
 template<std::ranges::contiguous_range R>
 void append_current_measurements(R&& r) {
-  analog::CurrentsQueue::value_type currents;
-  if (xQueueReceive(analog::currents_queue.handle, &currents, 0u))
+  anlg::CurrentsQueue::value_type currents;
+  if (xQueueReceive(anlg::currents_queue.handle, &currents, 0u))
     std::ranges::copy(currents, std::back_inserter(r));
 }
 
 /// \todo document
 template<std::ranges::contiguous_range R>
 bool detect_ack(R&& r,
-                analog::CurrentMeasurement ref_current_measurement,
-                analog::CurrentMeasurement ack_current_measurement) {
+                anlg::CurrentMeasurement ref_current_measurement,
+                anlg::CurrentMeasurement ack_current_measurement) {
   // ACKs must be at least 5ms long
   static constexpr auto wlen{
-    static_cast<int>(5e-3 * (analog::sample_freq_hz / size(analog::channels)))};
+    static_cast<int>(5e-3 * (anlg::sample_freq_hz / size(anlg::channels)))};
   static_assert(wlen == 200);
 
   // Initialize rolling sum
@@ -329,8 +328,8 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
   auto const timeout{http_receive_timeout2ms()};
   TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
-  analog::CurrentMeasurement ref_current_measurement{};
-  std::vector<analog::CurrentMeasurement::value_type> current_measurements;
+  anlg::CurrentMeasurement ref_current_measurement{};
+  std::vector<anlg::CurrentMeasurement::value_type> current_measurements;
   current_measurements.reserve(16384uz);
 
   mem::nvs::Settings nvs;
@@ -338,7 +337,7 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   auto const continue_reset_packet_count{nvs.getDccContinueResetPacketCount()};
   auto const program_packet_count{nvs.getDccProgramPacketCount()};
   auto const ack_current_measurement{
-    mA2measurement(analog::Current{nvs.getDccProgrammingAckCurrent()})};
+    mA2measurement(anlg::Current{nvs.getDccProgrammingAckCurrent()})};
   nvs.~Settings();
 
   // Transmit at least 25 reset packets to ensure entry

@@ -13,25 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Ethernet documentation
+/// Display documentation
 ///
-/// \file   drv/eth/doxygen.hpp
+/// \file   mw/disp/doxygen.hpp
 /// \author Vincent Hamp
-/// \date   28/01/2026
+/// \date   04/06/2026
 
 #pragma once
 
-namespace drv::eth {
+namespace mw::disp {
 
-/// \page page_drv_eth Ethernet
+/// \page page_mw_disp Display
 /// \details \tableofcontents
-/// \todo document Ethernet page
-/// W5500, connectivity extension only, ...
+///
+/// \section section_mw_disp_init Initialization
+/// \copydetails init
+///
+/// \section section_mw_disp_task Task
+/// \copydetails task_function
 ///
 /// <div class="section_buttons">
-/// | Previous           | Next              |
-/// | :----------------- | ----------------: |
-/// | \ref page_drv_anlg | \ref page_drv_led |
+/// | Previous         | Next             |
+/// | :--------------- | ---------------: |
+/// | \ref page_mw_dcc | \ref page_mw_ota |
 /// </div>
 
-} // namespace drv::eth
+} // namespace mw::disp

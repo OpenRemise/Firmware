@@ -31,13 +31,20 @@ namespace intf::dns {
 /// services, and other resources on the Internet or other Internet Protocol
 /// (IP) networks. This module registers those services.
 ///
+/// \note
+/// The DNS server implementation is currently a [small example
+/// component](https://github.com/espressif/esp-idf/tree/\idf_ver/examples/protocols/http_server/captive_portal/components/dns_server)
+/// within a captive portal example. A [standalone DNS
+/// component](https://github.com/espressif/esp-protocols/tree/master/components/esp_dns)
+/// will be available starting with ESP-IDF version 6.0.0.
+///
 /// \section section_intf_dns_init Initialization
 /// \copydetails init
 ///
 /// <div class="section_buttons">
-/// | Previous            | Next                |
-/// | :------------------ | ------------------: |
-/// | \ref page_intf_http | \ref page_intf_mdns |
+/// | Previous       | Next                |
+/// | :------------- | ------------------: |
+/// | \ref page_intf | \ref page_intf_http |
 /// </div>
 
 } // namespace intf::dns

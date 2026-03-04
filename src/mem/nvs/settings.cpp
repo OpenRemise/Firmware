@@ -372,10 +372,9 @@ uint8_t Settings::getCurrentShortCircuitTime() const {
 /// \retval ESP_ERR_INVALID_ARG           Current short circuit time out of
 ///                                       range
 esp_err_t Settings::setCurrentShortCircuitTime(uint8_t value) {
-  return value >= 20u
-           ? setU8("cur_sc_time",
-                   round_to(value, drv::analog::conversion_frame_time))
-           : ESP_ERR_INVALID_ARG;
+  return value >= 20u ? setU8("cur_sc_time",
+                              round_to(value, drv::anlg::conversion_frame_time))
+                      : ESP_ERR_INVALID_ARG;
 }
 
 /// Get DCC preamble count
@@ -678,6 +677,24 @@ uint8_t Settings::getDccAccessoryPacketCount() const {
 esp_err_t Settings::setDccAccessorPacketCount(uint8_t value) {
   return value >= 1u && value <= 64u ? setU8("dcc_accy_pc", value)
                                      : ESP_ERR_INVALID_ARG;
+}
+
+/// Get extension flags
+///
+/// \return Extension flags
+uint8_t Settings::getExtensionFlags() const { return getU8("ext_flags"); }
+
+/// Set extension flags
+///
+/// \param  value                         Extension flags
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+esp_err_t Settings::setExtensionFlags(uint8_t value) {
+  return setU8("ext_flags", value);
 }
 
 } // namespace mem::nvs
