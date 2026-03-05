@@ -3,6 +3,7 @@
 ##
 - Add Ethernet support through [W5500](https://wiznet.io/products/ethernet-chips/w5500) ([#123](https://github.com/OpenRemise/Firmware/issues/123))
 - Add display support ([#116](https://github.com/OpenRemise/Firmware/issues/116))
+- Bugfix don't execute `LAN_X_SET_TRACK_POWER_ON` during service mode (also don't reply with `LAN_X_BC_TRACK_POWER_ON`) ([#125](https://github.com/OpenRemise/Firmware/issues/125))
 
 ## 0.6.1
 - Add [Z21 ᴡʟᴀɴMAUS](https://www.z21.eu/en/products/z21-wlanmaus) support ([#115](https://github.com/OpenRemise/Firmware/issues/115))

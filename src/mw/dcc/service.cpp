@@ -564,6 +564,7 @@ void Service::serviceLoop() {
     if (!state.compare_exchange_strong(expected, State::DCCOperations))
       assert(false);
     resume();
+    _z21_system_service->broadcastTrackPowerOn();
     return operationsLoop();
   }
 }
