@@ -187,7 +187,7 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
   // Address found, but changing
   else if (JsonVariantConst v{doc["address"]};
            v.as<Address::value_type>() != addr) {
-    auto node{_locos.extract(addr)};
+    auto node{_locos.extract(it)};
     node.key() = v.as<Address::value_type>();
     // Re-insert loco with new address
     if (auto const ret{_locos.insert(move(node))}; ret.inserted) {
@@ -298,7 +298,7 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
   // Address found, but changing
   else if (JsonVariantConst v{doc["address"]};
            v.as<Address::value_type>() != addr) {
-    auto node{_turnouts.extract(addr)};
+    auto node{_turnouts.extract(it)};
     node.key() = v.as<Address::value_type>();
     // Re-insert turnout with new address
     if (auto const ret{_turnouts.insert(move(node))}; ret.inserted) {
