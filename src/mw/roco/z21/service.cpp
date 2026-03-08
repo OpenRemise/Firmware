@@ -246,12 +246,15 @@ void Service::turnoutMode(uint16_t accy_addr, z21::TurnoutInfo::Mode mode) {
 
 /// \todo document
 bool Service::cvRead(uint16_t cv_addr) {
-  return trackPower(true, State::DCCService) && _dcc_service->cvRead(cv_addr);
+  return (state.load() == State::DCCService ||
+          trackPower(true, State::DCCService)) &&
+         _dcc_service->cvRead(cv_addr);
 }
 
 /// \todo document
 bool Service::cvWrite(uint16_t cv_addr, uint8_t byte) {
-  return trackPower(true, State::DCCService) &&
+  return (state.load() == State::DCCService ||
+          trackPower(true, State::DCCService)) &&
          _dcc_service->cvWrite(cv_addr, byte);
 }
 
@@ -299,19 +302,19 @@ void Service::mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) {}
 bool Service::trackPower(bool on, State dcc_state) {
   if (on) {
     switch (state.load()) {
-      // Wait for suspending to complete
-      case State::Suspending:
-        while (state.load() != State::Suspended)
-          vTaskDelay(pdMS_TO_TICKS(task.timeout));
-        [[fallthrough]];
-
       // Clear errors
       case State::ShortCircuit:
         state.store(State::Suspended);
         drv::led::bug(false);
         [[fallthrough]];
 
-      //
+      // Wait for suspending to complete
+      case State::Suspending:
+        while (state.load() != State::Suspended)
+          vTaskDelay(pdMS_TO_TICKS(task.timeout));
+        [[fallthrough]];
+
+      // Switch to desired state
       case State::Suspended:
         while (xTaskGetHandle("drv::out::track::dcc"))
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
@@ -319,26 +322,20 @@ bool Service::trackPower(bool on, State dcc_state) {
             state.compare_exchange_strong(expected, dcc_state))
           LOGI_TASK_CREATE(dcc::task);
         else assert(false);
-        [[fallthrough]];
+        return true;
 
       // Already running
-      case State::DCCOperations: [[fallthrough]];
-      case State::DCCService: return true;
+      case State::DCCOperations: return true;
 
-      //
-      default:
-        // broadcast track power off here?
-        // or maybe programming?
-        return false;
+      // Currently not possible
+      case State::DCCService: [[fallthrough]];
+      default: broadcastTrackPowerOff(); return false;
     }
   } else {
-
-    /// \todo does... never... happen? Z21 app NEVER turn power off -.-
     auto expected{State::DCCOperations};
     state.compare_exchange_strong(expected, State::Suspending);
     expected = State::DCCService;
     state.compare_exchange_strong(expected, State::Suspending);
-
     return true;
   }
 }
