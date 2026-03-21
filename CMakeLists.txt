@@ -129,9 +129,7 @@ if(ESP_PLATFORM
 endif()
 
 # Custom release target to create .zip
-if(ESP_PLATFORM
-   AND NOT IDF_TARGET STREQUAL linux
-   AND CONFIG_COMPILER_OPTIMIZATION_SIZE)
+if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
   add_custom_target(
     FirmwareRelease
     COMMAND

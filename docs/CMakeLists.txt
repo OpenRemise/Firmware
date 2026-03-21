@@ -3,9 +3,9 @@ cpmaddpackage(
   NAME
   Doxygen
   URL
-  "https://github.com/doxygen/doxygen/releases/download/Release_1_14_0/doxygen-1.14.0.linux.bin.tar.gz"
+  "https://github.com/doxygen/doxygen/releases/download/Release_1_16_1/doxygen-1.16.1.linux.bin.tar.gz"
   VERSION
-  1.14.0
+  1.16.1
   DOWNLOAD_ONLY
   ON)
 set(DOXYGEN_EXECUTABLE ${Doxygen_SOURCE_DIR}/bin/doxygen)
@@ -27,7 +27,7 @@ if(TARGET Doxygen::dot)
   set(PLANTUML_JAR_PATH ${PlantUML_SOURCE_DIR}/plantuml-1.2025.1.jar)
 
   # Get Doxygen Awesome
-  cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.4.1")
+  cpmaddpackage("gh:jothepro/doxygen-awesome-css@2.4.2")
 
   # GitHub API does not allow different origin, so pack releases to docs
   # https://github.com/orgs/community/discussions/106849#discussioncomment-8534514
