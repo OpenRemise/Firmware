@@ -100,8 +100,10 @@ intf::http::Response Service::postRequest(intf::http::Request const& req) {
 /// \todo document
 /// \todo filters?
 intf::http::Response Service::locosGetRequest(intf::http::Request const& req) {
+  auto const addr{uri2address(req.uri).value_or(0u)};
+
   // Singleton
-  if (auto const addr{uri2address(req.uri).value_or(0u)}) {
+  if (std::lock_guard lock{_internal_mutex}; addr) {
     auto const it{_locos.find(addr)};
     if (it == cend(_locos))
       return std::unexpected<std::string>{"404 Not Found"};
@@ -170,11 +172,12 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
+  std::lock_guard lock{_internal_mutex};
   auto it{_locos.find(addr)};
   mem::nvs::Locos nvs;
 
   // Address not found
-  if (std::lock_guard lock{_internal_mutex}; it == cend(_locos)) {
+  if (it == cend(_locos)) {
     // Address in URI does not match body
     if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
       return std::unexpected<std::string>{"417 Expectation Failed"};
@@ -211,8 +214,10 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
 /// \todo document
 intf::http::Response
 Service::turnoutsGetRequest(intf::http::Request const& req) {
+  auto const addr{uri2address(req.uri).value_or(0u)};
+
   // Singleton
-  if (auto const addr{uri2address(req.uri).value_or(0u)}) {
+  if (std::lock_guard lock{_internal_mutex}; addr) {
     auto const it{_turnouts.find(addr)};
     if (it == cend(_turnouts))
       return std::unexpected<std::string>{"404 Not Found"};
@@ -281,11 +286,12 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
+  std::lock_guard lock{_internal_mutex};
   auto it{_turnouts.find(addr)};
   mem::nvs::Turnouts nvs;
 
   // Address not found
-  if (std::lock_guard lock{_internal_mutex}; it == cend(_turnouts)) {
+  if (it == cend(_turnouts)) {
     // Address in URI does not match body
     if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
       return std::unexpected<std::string>{"417 Expectation Failed"};
@@ -345,8 +351,8 @@ void Service::operationsLoop() {
     operationsBiDi();
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
-    //
-    if (!empty(_cv_request_deque)) return serviceLoop();
+    // Temporarily switch over to service mode
+    if (!empty(_cv_request_deque)) serviceLoop();
   }
 }
 
@@ -365,6 +371,8 @@ void Service::operationsLocos() {
   // otherwise it's pointless.
   // Can we get in trouble if we address the same loco X times in a row? Are
   // there are circumstances where this is not ok?
+
+  std::lock_guard lock{_internal_mutex};
 
   // If all locos are up to maximum priority there must be some kind of "reset"?
   if (_priority_count == Loco::max_priority) {
@@ -443,6 +451,8 @@ void Service::operationsLocos() {
 
 /// \todo document
 void Service::operationsTurnouts() {
+  std::lock_guard lock{_internal_mutex};
+
   for (auto const tick{xTaskGetTickCount()}; auto& [addr, turnout] : _turnouts)
     // Handle turnout timeouts
     if (turnout.timeout_tick && tick >= turnout.timeout_tick) {
@@ -482,37 +492,45 @@ void Service::operationsBiDi() {
       }
       //
       else if (auto dyn{get_if<bidi::app::Dyn>(&dg)}) {
-        if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
-          it->second.bidi.loco_address = addr;
-          auto const bidi_before{it->second.bidi};
-          switch (dyn->x) {
-            // Speed (<=255)
-            case 0u:
-              it->second.bidi.options = static_cast<z21::RailComData::Options>(
-                (it->second.bidi.options &
-                 ~(z21::RailComData::Options::Speed2 |
-                   z21::RailComData::Options::Speed1)) |
-                z21::RailComData::Options::Speed1);
-              it->second.bidi.speed = dyn->d;
-              break;
-            // Speed (>255)
-            case 1u:
-              it->second.bidi.options = static_cast<z21::RailComData::Options>(
-                (it->second.bidi.options &
-                 ~(z21::RailComData::Options::Speed2 |
-                   z21::RailComData::Options::Speed1)) |
-                z21::RailComData::Options::Speed2);
-              it->second.bidi.speed = dyn->d;
-              break;
-            // QoS
-            case 7u:
-              it->second.bidi.options = static_cast<z21::RailComData::Options>(
-                it->second.bidi.options | z21::RailComData::Options::QoS);
-              it->second.bidi.qos = dyn->d;
-              break;
+        bool broadcast{};
+        {
+          std::lock_guard lock{_internal_mutex};
+          if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
+            it->second.bidi.loco_address = addr;
+            auto const bidi_before{it->second.bidi};
+            switch (dyn->x) {
+              // Speed (<=255)
+              case 0u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    (it->second.bidi.options &
+                     ~(z21::RailComData::Options::Speed2 |
+                       z21::RailComData::Options::Speed1)) |
+                    z21::RailComData::Options::Speed1);
+                it->second.bidi.speed = dyn->d;
+                break;
+              // Speed (>255)
+              case 1u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    (it->second.bidi.options &
+                     ~(z21::RailComData::Options::Speed2 |
+                       z21::RailComData::Options::Speed1)) |
+                    z21::RailComData::Options::Speed2);
+                it->second.bidi.speed = dyn->d;
+                break;
+              // QoS
+              case 7u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    it->second.bidi.options | z21::RailComData::Options::QoS);
+                it->second.bidi.qos = dyn->d;
+                break;
+            }
+            broadcast = it->second.bidi != bidi_before;
           }
-          if (it->second.bidi != bidi_before) broadcastRailComData(addr);
         }
+        if (broadcast) broadcastRailComData(addr);
       }
     }
   }
@@ -530,7 +548,7 @@ void Service::serviceLoop() {
   drv::led::Bug const led_bug{};
 
   /// \todo oh god please make this safer...
-  /// it changes from opmode to serv...
+  // When coming from operations mode, switch over
   bool restore_opmode{};
   if (auto expected{State::DCCOperations};
       state.compare_exchange_strong(expected, State::Suspending)) {
@@ -557,7 +575,7 @@ void Service::serviceLoop() {
     else cvNack();
   }
 
-  // back to opmode?
+  // When coming from operations mode, switch back before returning
   if (restore_opmode) {
     suspend();
     auto expected{State::Suspended};
@@ -565,7 +583,6 @@ void Service::serviceLoop() {
       assert(false);
     resume();
     _z21_system_service->broadcastTrackPowerOn();
-    return operationsLoop();
   }
 }
 
@@ -946,6 +963,7 @@ void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
 
 /// \todo document
 z21::RailComData Service::railComData(uint16_t loco_addr) {
+  std::lock_guard lock{_internal_mutex};
   auto const it{_locos.find(loco_addr)};
   return it != cend(_locos) ? it->second.bidi
                             : z21::RailComData{.loco_address = loco_addr};
@@ -983,6 +1001,7 @@ void Service::suspend() {
 
 /// \todo document
 Loco& Service::getOrInsertLoco(uint16_t loco_addr) {
+  assert(!_internal_mutex.try_lock());
   auto& loco{_locos[loco_addr]};
 
   //
@@ -993,6 +1012,7 @@ Loco& Service::getOrInsertLoco(uint16_t loco_addr) {
 
 /// \todo document
 Turnout& Service::getOrInsertTurnout(uint16_t accy_addr) {
+  assert(!_internal_mutex.try_lock());
   auto& turnout{_turnouts[accy_addr]};
 
   //
