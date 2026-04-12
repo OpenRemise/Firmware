@@ -184,6 +184,33 @@ void Service::logoff(z21::Socket const& sock) {
                        size(voltages)))
         .value();
 
+  // Central state
+  switch (state.load()) {
+    // Normally already covered by `adc_task_function`
+    case State::ShortCircuit:
+      sys_state.central_state |= z21::CentralState::ShortCircuit;
+      break;
+
+    // Can't be programming mode if off
+    case State::Suspending: [[fallthrough]];
+    case State::Suspended:
+      sys_state.central_state &= ~z21::CentralState::ProgrammingModeActive;
+      sys_state.central_state |= z21::CentralState::TrackVoltageOff;
+      break;
+
+    // Normally already covered by `LAN_X_SET_TRACK_POWER_ON`
+    case State::DCCOperations:
+      sys_state.central_state &= ~(z21::CentralState::TrackVoltageOff | //
+                                   z21::CentralState::ShortCircuit |    //
+                                   z21::CentralState::ProgrammingModeActive);
+      break;
+
+    // Pretend everything else is programming mode
+    default:
+      sys_state.central_state |= z21::CentralState::ProgrammingModeActive;
+      break;
+  }
+
   return ServerBase::systemState();
 }
 
@@ -299,7 +326,7 @@ z21::MmDccSettings Service::mmDccSettings() { return {}; }
 void Service::mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) {}
 
 /// \todo document
-bool Service::trackPower(bool on, State dcc_state) {
+bool Service::trackPower(bool on, State desired_dcc_state) {
   if (on) {
     switch (state.load()) {
       // Clear errors
@@ -319,7 +346,7 @@ bool Service::trackPower(bool on, State dcc_state) {
         while (xTaskGetHandle("drv::out::track::dcc"))
           vTaskDelay(pdMS_TO_TICKS(task.timeout));
         if (auto expected{State::Suspended};
-            state.compare_exchange_strong(expected, dcc_state))
+            state.compare_exchange_strong(expected, desired_dcc_state))
           LOGI_TASK_CREATE(dcc::task);
         else assert(false);
         return true;
@@ -328,8 +355,7 @@ bool Service::trackPower(bool on, State dcc_state) {
       case State::DCCOperations: return true;
 
       // Currently not possible
-      case State::DCCService: [[fallthrough]];
-      default: broadcastTrackPowerOff(); return false;
+      default: return false;
     }
   } else {
     auto expected{State::DCCOperations};

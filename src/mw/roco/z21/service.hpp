@@ -92,7 +92,7 @@ private:
   // void log(char const* str) final;
 
   //
-  bool trackPower(bool on, State dcc_state);
+  bool trackPower(bool on, State desired_dcc_state);
 
   ///
   std::shared_ptr<z21::server::intf::Dcc> _dcc_service;
