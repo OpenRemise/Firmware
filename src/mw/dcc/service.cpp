@@ -363,89 +363,65 @@ void Service::operationsLocos() {
       drv::out::tx_message_buffer.size * 0.5)
     return;
 
-  // So, we iterate over each loco and check it's priority
-  // if it's
-  // if (!(_priority_count % priority))
-  // then we push a bunch of commands... and increment its priority
-  // The maximum priority must be some remainder of 256 though (e.g. 32?),
-  // otherwise it's pointless.
-  // Can we get in trouble if we address the same loco X times in a row? Are
-  // there are circumstances where this is not ok?
-
   std::lock_guard lock{_internal_mutex};
 
-  // If all locos are up to maximum priority there must be some kind of "reset"?
-  if (_priority_count == Loco::max_priority) {
-    _priority_count = Loco::min_priority;
-    for (auto& [addr, loco] : _locos) loco.priority = Loco::min_priority;
-  }
+  // Get two locos and interleave packets between them. This is mandated by the
+  // NMRA/RCN as you're not allowed to send two consecutive packets to the same
+  // decoder... or at least the decoder isn't required to accept it then.
+  while (
+    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
+    drv::out::tx_message_buffer.size * 0.25) {
+    // Find locos with highest and second highest priority
+    std::array its{end(_locos), end(_locos)};
+    for (auto it{begin(_locos)}; it != end(_locos); ++it)
+      if (its[0uz] == end(_locos) ||
+          it->second.priority < its[0uz]->second.priority) {
+        its[1uz] = its[0uz];
+        its[0uz] = it;
+      } else if (its[1uz] == end(_locos) ||
+                 it->second.priority < its[1uz]->second.priority)
+        its[1uz] = it;
 
-  //
-  for (;;) {
-    //
-    if (empty(_locos)) {
-      sendToBack(make_idle_packet());
+    // Speed and direction
+    for (auto const& it : its)
+      it != end(_locos) ? sendLocoSpeedAndDirection(it->first, it->second)
+                        : sendToBack(make_idle_packet());
 
-      if (xMessageBufferSpacesAvailable(
-            drv::out::tx_message_buffer.back_handle) <
-          drv::out::tx_message_buffer.size * 0.25)
-        return;
+    // Lower functions
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f0_f4_packet(basicOrExtendedLocoAddress(it->first),
+                                       it->second.f31_0 & 0x1Fu)
+                   : make_idle_packet());
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f5_f8_packet(basicOrExtendedLocoAddress(it->first),
+                                       it->second.f31_0 >> 5u & 0xFu)
+                   : make_idle_packet());
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f9_f12_packet(basicOrExtendedLocoAddress(it->first),
+                                        it->second.f31_0 >> 9u & 0xFu)
+                   : make_idle_packet());
+
+    // Higher functions
+    if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
+      for (auto const& it : its)
+        sendToBack(it != end(_locos) ? make_f13_f20_packet(
+                                         basicOrExtendedLocoAddress(it->first),
+                                         it->second.f31_0 >> 13u)
+                                     : make_idle_packet());
+
+      for (auto const& it : its)
+        sendToBack(it != end(_locos) ? make_f21_f28_packet(
+                                         basicOrExtendedLocoAddress(it->first),
+                                         it->second.f31_0 >> 21u)
+                                     : make_idle_packet());
     }
-    //
-    else {
-      for (auto& [addr, loco] : _locos) {
-        //
-        if (_priority_count % loco.priority) continue;
 
-        // Speed and direction
-        switch (loco.speed_steps) {
-          case z21::LocoInfo::DCC14:
-            sendToBack(make_speed_and_direction_packet(
-              basicOrExtendedLocoAddress(addr),
-              (loco.rvvvvvvv & 0x80u) >> 2u | // R
-                (loco.f31_0 & 0x01u) << 4u |  // F0
-                (loco.rvvvvvvv & 0x0Fu)));    // GGGG
-            break;
-          case z21::LocoInfo::DCC28:
-            sendToBack(make_speed_and_direction_packet(
-              basicOrExtendedLocoAddress(addr),
-              (loco.rvvvvvvv & 0x80u) >> 2u  // R
-                | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
-            break;
-          case z21::LocoInfo::DCC128:
-            sendToBack(make_128_speed_step_control_packet(
-              basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
-            break;
-        }
-
-        // Lower functions
-        sendToBack(make_f0_f4_packet(basicOrExtendedLocoAddress(addr),
-                                     loco.f31_0 & 0x1Fu));
-        sendToBack(make_f5_f8_packet(basicOrExtendedLocoAddress(addr),
-                                     loco.f31_0 >> 5u & 0xFu));
-        sendToBack(make_f9_f12_packet(basicOrExtendedLocoAddress(addr),
-                                      loco.f31_0 >> 9u & 0xFu));
-
-        // Higher functions
-        if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
-          sendToBack(make_f13_f20_packet(basicOrExtendedLocoAddress(addr),
-                                         loco.f31_0 >> 13u));
-          sendToBack(make_f21_f28_packet(basicOrExtendedLocoAddress(addr),
-                                         loco.f31_0 >> 21u));
-        }
-
-        loco.priority = std::clamp<decltype(loco.priority)>(
-          loco.priority + 1u, Loco::min_priority, Loco::max_priority);
-
-        if (xMessageBufferSpacesAvailable(
-              drv::out::tx_message_buffer.back_handle) <
-            drv::out::tx_message_buffer.size * 0.25)
-          return;
-      }
-
-      _priority_count = std::clamp<decltype(_priority_count)>(
-        _priority_count + 1u, Loco::min_priority, Loco::max_priority);
-    }
+    // Decrease priority
+    for (auto const& it : its)
+      if (it != end(_locos)) it->second.priority += size(_locos) / 3uz;
   }
 }
 
@@ -661,7 +637,7 @@ std::optional<uint8_t> Service::serviceReceiveByte() {
 }
 
 /// \todo document
-void Service::sendToFront(Packet const& packet, size_t n) {
+void Service::sendToFront(Packet const& packet, size_t n) const {
   /*
   This is actually WAY more involved, we need to copy the entire back_handle
   message buffer to some temporary, search it for equal packets (same address,
@@ -675,7 +651,7 @@ void Service::sendToFront(Packet const& packet, size_t n) {
 }
 
 /// \todo document
-void Service::sendToBack(Packet const& packet, size_t n) {
+void Service::sendToBack(Packet const& packet, size_t n) const {
   for (auto i{0uz}; i < n; ++i)
     while (!xMessageBufferSend(
       drv::out::tx_message_buffer.back_handle, data(packet), size(packet), 0u));
@@ -994,7 +970,6 @@ void Service::resume() {
 void Service::suspend() {
   while (xTaskGetHandle("drv::out::track::dcc"))
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
-  _priority_count = 0uz;
   _cv_request_deque.clear();
   _cv_pom_request_deque.clear();
 }
@@ -1045,6 +1020,30 @@ bool Service::maybeInvertR(bool p) const {
   return _nvs.accy_flags & z21::CommonSettings::ExtFlags::AccessoryInvRedGreen
            ? !p
            : p;
+}
+
+/// \todo document
+void Service::sendLocoSpeedAndDirection(Address::value_type addr,
+                                        Loco const& loco) const {
+  switch (loco.speed_steps) {
+    case z21::LocoInfo::DCC14:
+      sendToBack(
+        make_speed_and_direction_packet(basicOrExtendedLocoAddress(addr),
+                                        (loco.rvvvvvvv & 0x80u) >> 2u | // R
+                                          (loco.f31_0 & 0x01u) << 4u |  // F0
+                                          (loco.rvvvvvvv & 0x0Fu)));    // GGGG
+      break;
+    case z21::LocoInfo::DCC28:
+      sendToBack(
+        make_speed_and_direction_packet(basicOrExtendedLocoAddress(addr),
+                                        (loco.rvvvvvvv & 0x80u) >> 2u  // R
+                                          | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
+      break;
+    case z21::LocoInfo::DCC128:
+      sendToBack(make_128_speed_step_control_packet(
+        basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
+      break;
+  }
 }
 
 } // namespace mw::dcc

@@ -47,11 +47,8 @@ struct Loco : NvLocoBase {
   void fromJsonDocument(JsonDocument const& doc);
   JsonDocument toJsonDocument() const;
 
+  uint64_t priority{};
   z21::RailComData bidi{};
-
-  static constexpr uint8_t min_priority{1u};
-  static constexpr uint8_t max_priority{smath::pow(2, priority_bits) - 1};
-  uint8_t priority{min_priority};
 };
 
 } // namespace mw::dcc
