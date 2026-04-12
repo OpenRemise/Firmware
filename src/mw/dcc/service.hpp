@@ -63,8 +63,8 @@ private:
   std::optional<bool> serviceReceiveBit();
   std::optional<uint8_t> serviceReceiveByte();
 
-  void sendToFront(Packet const& packet, size_t n = 1uz);
-  void sendToBack(Packet const& packet, size_t n = 1uz);
+  void sendToFront(Packet const& packet, size_t n = 1uz) const;
+  void sendToBack(Packet const& packet, size_t n = 1uz) const;
 
   // Driving interface
   z21::LocoInfo locoInfo(uint16_t loco_addr) final;
@@ -104,14 +104,19 @@ private:
   [[nodiscard]] z21::RailComData railComData(uint16_t loco_addr) final;
   void broadcastRailComData(uint16_t loco_addr) final;
 
+  //
   void resume();
   void suspend();
 
+  //
   Loco& getOrInsertLoco(uint16_t loco_addr);
   Turnout& getOrInsertTurnout(uint16_t accy_addr);
 
+  //
   Address basicOrExtendedLocoAddress(Address::value_type addr) const;
   bool maybeInvertR(bool p) const;
+  void sendLocoSpeedAndDirection(Address::value_type addr,
+                                 Loco const& loco) const;
 
   Locos _locos;
   Turnouts _turnouts;
@@ -119,7 +124,6 @@ private:
   std::mutex _internal_mutex;
   std::shared_ptr<z21::server::intf::System> _z21_system_service;
   std::shared_ptr<z21::server::intf::Dcc> _z21_dcc_service;
-  uint8_t _priority_count{Loco::min_priority};
 
   // NVS cache
   struct {

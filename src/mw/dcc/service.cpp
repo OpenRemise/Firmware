@@ -100,8 +100,10 @@ intf::http::Response Service::postRequest(intf::http::Request const& req) {
 /// \todo document
 /// \todo filters?
 intf::http::Response Service::locosGetRequest(intf::http::Request const& req) {
+  auto const addr{uri2address(req.uri).value_or(0u)};
+
   // Singleton
-  if (auto const addr{uri2address(req.uri).value_or(0u)}) {
+  if (std::lock_guard lock{_internal_mutex}; addr) {
     auto const it{_locos.find(addr)};
     if (it == cend(_locos))
       return std::unexpected<std::string>{"404 Not Found"};
@@ -170,11 +172,12 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
+  std::lock_guard lock{_internal_mutex};
   auto it{_locos.find(addr)};
   mem::nvs::Locos nvs;
 
   // Address not found
-  if (std::lock_guard lock{_internal_mutex}; it == cend(_locos)) {
+  if (it == cend(_locos)) {
     // Address in URI does not match body
     if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
       return std::unexpected<std::string>{"417 Expectation Failed"};
@@ -211,8 +214,10 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
 /// \todo document
 intf::http::Response
 Service::turnoutsGetRequest(intf::http::Request const& req) {
+  auto const addr{uri2address(req.uri).value_or(0u)};
+
   // Singleton
-  if (auto const addr{uri2address(req.uri).value_or(0u)}) {
+  if (std::lock_guard lock{_internal_mutex}; addr) {
     auto const it{_turnouts.find(addr)};
     if (it == cend(_turnouts))
       return std::unexpected<std::string>{"404 Not Found"};
@@ -281,11 +286,12 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
+  std::lock_guard lock{_internal_mutex};
   auto it{_turnouts.find(addr)};
   mem::nvs::Turnouts nvs;
 
   // Address not found
-  if (std::lock_guard lock{_internal_mutex}; it == cend(_turnouts)) {
+  if (it == cend(_turnouts)) {
     // Address in URI does not match body
     if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
       return std::unexpected<std::string>{"417 Expectation Failed"};
@@ -345,8 +351,8 @@ void Service::operationsLoop() {
     operationsBiDi();
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
 
-    //
-    if (!empty(_cv_request_deque)) return serviceLoop();
+    // Temporarily switch over to service mode
+    if (!empty(_cv_request_deque)) serviceLoop();
   }
 }
 
@@ -357,92 +363,72 @@ void Service::operationsLocos() {
       drv::out::tx_message_buffer.size * 0.5)
     return;
 
-  // So, we iterate over each loco and check it's priority
-  // if it's
-  // if (!(_priority_count % priority))
-  // then we push a bunch of commands... and increment its priority
-  // The maximum priority must be some remainder of 256 though (e.g. 32?),
-  // otherwise it's pointless.
-  // Can we get in trouble if we address the same loco X times in a row? Are
-  // there are circumstances where this is not ok?
+  std::lock_guard lock{_internal_mutex};
 
-  // If all locos are up to maximum priority there must be some kind of "reset"?
-  if (_priority_count == Loco::max_priority) {
-    _priority_count = Loco::min_priority;
-    for (auto& [addr, loco] : _locos) loco.priority = Loco::min_priority;
-  }
+  // Get two locos and interleave packets between them. This is mandated by the
+  // NMRA/RCN as you're not allowed to send two consecutive packets to the same
+  // decoder... or at least the decoder isn't required to accept it then.
+  while (
+    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
+    drv::out::tx_message_buffer.size * 0.25) {
+    // Find locos with highest and second highest priority
+    std::array its{end(_locos), end(_locos)};
+    for (auto it{begin(_locos)}; it != end(_locos); ++it)
+      if (its[0uz] == end(_locos) ||
+          it->second.priority < its[0uz]->second.priority) {
+        its[1uz] = its[0uz];
+        its[0uz] = it;
+      } else if (its[1uz] == end(_locos) ||
+                 it->second.priority < its[1uz]->second.priority)
+        its[1uz] = it;
 
-  //
-  for (;;) {
-    //
-    if (empty(_locos)) {
-      sendToBack(make_idle_packet());
+    // Speed and direction
+    for (auto const& it : its)
+      it != end(_locos) ? sendLocoSpeedAndDirection(it->first, it->second)
+                        : sendToBack(make_idle_packet());
 
-      if (xMessageBufferSpacesAvailable(
-            drv::out::tx_message_buffer.back_handle) <
-          drv::out::tx_message_buffer.size * 0.25)
-        return;
+    // Lower functions
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f0_f4_packet(basicOrExtendedLocoAddress(it->first),
+                                       it->second.f31_0 & 0x1Fu)
+                   : make_idle_packet());
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f5_f8_packet(basicOrExtendedLocoAddress(it->first),
+                                       it->second.f31_0 >> 5u & 0xFu)
+                   : make_idle_packet());
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f9_f12_packet(basicOrExtendedLocoAddress(it->first),
+                                        it->second.f31_0 >> 9u & 0xFu)
+                   : make_idle_packet());
+
+    // Higher functions
+    if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
+      for (auto const& it : its)
+        sendToBack(it != end(_locos) ? make_f13_f20_packet(
+                                         basicOrExtendedLocoAddress(it->first),
+                                         it->second.f31_0 >> 13u)
+                                     : make_idle_packet());
+
+      for (auto const& it : its)
+        sendToBack(it != end(_locos) ? make_f21_f28_packet(
+                                         basicOrExtendedLocoAddress(it->first),
+                                         it->second.f31_0 >> 21u)
+                                     : make_idle_packet());
     }
-    //
-    else {
-      for (auto& [addr, loco] : _locos) {
-        //
-        if (_priority_count % loco.priority) continue;
 
-        // Speed and direction
-        switch (loco.speed_steps) {
-          case z21::LocoInfo::DCC14:
-            sendToBack(make_speed_and_direction_packet(
-              basicOrExtendedLocoAddress(addr),
-              (loco.rvvvvvvv & 0x80u) >> 2u | // R
-                (loco.f31_0 & 0x01u) << 4u |  // F0
-                (loco.rvvvvvvv & 0x0Fu)));    // GGGG
-            break;
-          case z21::LocoInfo::DCC28:
-            sendToBack(make_speed_and_direction_packet(
-              basicOrExtendedLocoAddress(addr),
-              (loco.rvvvvvvv & 0x80u) >> 2u  // R
-                | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
-            break;
-          case z21::LocoInfo::DCC128:
-            sendToBack(make_128_speed_step_control_packet(
-              basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
-            break;
-        }
-
-        // Lower functions
-        sendToBack(make_f0_f4_packet(basicOrExtendedLocoAddress(addr),
-                                     loco.f31_0 & 0x1Fu));
-        sendToBack(make_f5_f8_packet(basicOrExtendedLocoAddress(addr),
-                                     loco.f31_0 >> 5u & 0xFu));
-        sendToBack(make_f9_f12_packet(basicOrExtendedLocoAddress(addr),
-                                      loco.f31_0 >> 9u & 0xFu));
-
-        // Higher functions
-        if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
-          sendToBack(make_f13_f20_packet(basicOrExtendedLocoAddress(addr),
-                                         loco.f31_0 >> 13u));
-          sendToBack(make_f21_f28_packet(basicOrExtendedLocoAddress(addr),
-                                         loco.f31_0 >> 21u));
-        }
-
-        loco.priority = std::clamp<decltype(loco.priority)>(
-          loco.priority + 1u, Loco::min_priority, Loco::max_priority);
-
-        if (xMessageBufferSpacesAvailable(
-              drv::out::tx_message_buffer.back_handle) <
-            drv::out::tx_message_buffer.size * 0.25)
-          return;
-      }
-
-      _priority_count = std::clamp<decltype(_priority_count)>(
-        _priority_count + 1u, Loco::min_priority, Loco::max_priority);
-    }
+    // Decrease priority
+    for (auto const& it : its)
+      if (it != end(_locos)) it->second.priority += size(_locos) / 3uz;
   }
 }
 
 /// \todo document
 void Service::operationsTurnouts() {
+  std::lock_guard lock{_internal_mutex};
+
   for (auto const tick{xTaskGetTickCount()}; auto& [addr, turnout] : _turnouts)
     // Handle turnout timeouts
     if (turnout.timeout_tick && tick >= turnout.timeout_tick) {
@@ -482,37 +468,45 @@ void Service::operationsBiDi() {
       }
       //
       else if (auto dyn{get_if<bidi::app::Dyn>(&dg)}) {
-        if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
-          it->second.bidi.loco_address = addr;
-          auto const bidi_before{it->second.bidi};
-          switch (dyn->x) {
-            // Speed (<=255)
-            case 0u:
-              it->second.bidi.options = static_cast<z21::RailComData::Options>(
-                (it->second.bidi.options &
-                 ~(z21::RailComData::Options::Speed2 |
-                   z21::RailComData::Options::Speed1)) |
-                z21::RailComData::Options::Speed1);
-              it->second.bidi.speed = dyn->d;
-              break;
-            // Speed (>255)
-            case 1u:
-              it->second.bidi.options = static_cast<z21::RailComData::Options>(
-                (it->second.bidi.options &
-                 ~(z21::RailComData::Options::Speed2 |
-                   z21::RailComData::Options::Speed1)) |
-                z21::RailComData::Options::Speed2);
-              it->second.bidi.speed = dyn->d;
-              break;
-            // QoS
-            case 7u:
-              it->second.bidi.options = static_cast<z21::RailComData::Options>(
-                it->second.bidi.options | z21::RailComData::Options::QoS);
-              it->second.bidi.qos = dyn->d;
-              break;
+        bool broadcast{};
+        {
+          std::lock_guard lock{_internal_mutex};
+          if (auto const it{_locos.find(addr)}; it != cend(_locos)) {
+            it->second.bidi.loco_address = addr;
+            auto const bidi_before{it->second.bidi};
+            switch (dyn->x) {
+              // Speed (<=255)
+              case 0u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    (it->second.bidi.options &
+                     ~(z21::RailComData::Options::Speed2 |
+                       z21::RailComData::Options::Speed1)) |
+                    z21::RailComData::Options::Speed1);
+                it->second.bidi.speed = dyn->d;
+                break;
+              // Speed (>255)
+              case 1u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    (it->second.bidi.options &
+                     ~(z21::RailComData::Options::Speed2 |
+                       z21::RailComData::Options::Speed1)) |
+                    z21::RailComData::Options::Speed2);
+                it->second.bidi.speed = dyn->d;
+                break;
+              // QoS
+              case 7u:
+                it->second.bidi.options =
+                  static_cast<z21::RailComData::Options>(
+                    it->second.bidi.options | z21::RailComData::Options::QoS);
+                it->second.bidi.qos = dyn->d;
+                break;
+            }
+            broadcast = it->second.bidi != bidi_before;
           }
-          if (it->second.bidi != bidi_before) broadcastRailComData(addr);
         }
+        if (broadcast) broadcastRailComData(addr);
       }
     }
   }
@@ -530,7 +524,7 @@ void Service::serviceLoop() {
   drv::led::Bug const led_bug{};
 
   /// \todo oh god please make this safer...
-  /// it changes from opmode to serv...
+  // When coming from operations mode, switch over
   bool restore_opmode{};
   if (auto expected{State::DCCOperations};
       state.compare_exchange_strong(expected, State::Suspending)) {
@@ -557,7 +551,7 @@ void Service::serviceLoop() {
     else cvNack();
   }
 
-  // back to opmode?
+  // When coming from operations mode, switch back before returning
   if (restore_opmode) {
     suspend();
     auto expected{State::Suspended};
@@ -565,7 +559,6 @@ void Service::serviceLoop() {
       assert(false);
     resume();
     _z21_system_service->broadcastTrackPowerOn();
-    return operationsLoop();
   }
 }
 
@@ -644,7 +637,7 @@ std::optional<uint8_t> Service::serviceReceiveByte() {
 }
 
 /// \todo document
-void Service::sendToFront(Packet const& packet, size_t n) {
+void Service::sendToFront(Packet const& packet, size_t n) const {
   /*
   This is actually WAY more involved, we need to copy the entire back_handle
   message buffer to some temporary, search it for equal packets (same address,
@@ -658,7 +651,7 @@ void Service::sendToFront(Packet const& packet, size_t n) {
 }
 
 /// \todo document
-void Service::sendToBack(Packet const& packet, size_t n) {
+void Service::sendToBack(Packet const& packet, size_t n) const {
   for (auto i{0uz}; i < n; ++i)
     while (!xMessageBufferSend(
       drv::out::tx_message_buffer.back_handle, data(packet), size(packet), 0u));
@@ -946,6 +939,7 @@ void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
 
 /// \todo document
 z21::RailComData Service::railComData(uint16_t loco_addr) {
+  std::lock_guard lock{_internal_mutex};
   auto const it{_locos.find(loco_addr)};
   return it != cend(_locos) ? it->second.bidi
                             : z21::RailComData{.loco_address = loco_addr};
@@ -976,13 +970,13 @@ void Service::resume() {
 void Service::suspend() {
   while (xTaskGetHandle("drv::out::track::dcc"))
     vTaskDelay(pdMS_TO_TICKS(task.timeout));
-  _priority_count = 0uz;
   _cv_request_deque.clear();
   _cv_pom_request_deque.clear();
 }
 
 /// \todo document
 Loco& Service::getOrInsertLoco(uint16_t loco_addr) {
+  assert(!_internal_mutex.try_lock());
   auto& loco{_locos[loco_addr]};
 
   //
@@ -993,6 +987,7 @@ Loco& Service::getOrInsertLoco(uint16_t loco_addr) {
 
 /// \todo document
 Turnout& Service::getOrInsertTurnout(uint16_t accy_addr) {
+  assert(!_internal_mutex.try_lock());
   auto& turnout{_turnouts[accy_addr]};
 
   //
@@ -1025,6 +1020,30 @@ bool Service::maybeInvertR(bool p) const {
   return _nvs.accy_flags & z21::CommonSettings::ExtFlags::AccessoryInvRedGreen
            ? !p
            : p;
+}
+
+/// \todo document
+void Service::sendLocoSpeedAndDirection(Address::value_type addr,
+                                        Loco const& loco) const {
+  switch (loco.speed_steps) {
+    case z21::LocoInfo::DCC14:
+      sendToBack(
+        make_speed_and_direction_packet(basicOrExtendedLocoAddress(addr),
+                                        (loco.rvvvvvvv & 0x80u) >> 2u | // R
+                                          (loco.f31_0 & 0x01u) << 4u |  // F0
+                                          (loco.rvvvvvvv & 0x0Fu)));    // GGGG
+      break;
+    case z21::LocoInfo::DCC28:
+      sendToBack(
+        make_speed_and_direction_packet(basicOrExtendedLocoAddress(addr),
+                                        (loco.rvvvvvvv & 0x80u) >> 2u  // R
+                                          | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
+      break;
+    case z21::LocoInfo::DCC128:
+      sendToBack(make_128_speed_step_control_packet(
+        basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
+      break;
+  }
 }
 
 } // namespace mw::dcc

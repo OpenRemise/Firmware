@@ -357,6 +357,13 @@
 /// \page page_development Development
 /// \details \tableofcontents
 ///
+/// Since these udev rules use the `plugdev` group, it is necessary to add your
+/// own user to this group to avoid having to constantly debug as root.
+/// ```sh
+/// sudo groupadd plugdev
+/// sudo gpasswd -a $USER plugdev
+/// ```
+///
 /// With the udev rules installed, we can now start a debug session. We
 /// recommend using VSCode for this, but of course you can also do it manually
 /// via CLI.
@@ -378,7 +385,7 @@
 ///   In the first session we launch OpenOCD with the built-in JTAG interface
 ///   configuration.
 ///   ```sh
-///   cd ~/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32
+///   cd ~/.espressif/tools/openocd-esp32/v0.12.0-esp32-20251215/openocd-esp32
 ///   bin/openocd -f board/esp32s3-builtin.cfg
 ///   ```
 ///   And in the second session, started in our project folder, we connect to
