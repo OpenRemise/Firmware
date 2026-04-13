@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.7.0
 - Add Ethernet support through [W5500](https://wiznet.io/products/ethernet-chips/w5500) ([#123](https://github.com/OpenRemise/Firmware/issues/123))
 - Add display support ([#116](https://github.com/OpenRemise/Firmware/issues/116))
 - Bugfix interleave DCC packet addresses ([#38](https://github.com/OpenRemise/Firmware/issues/38))
