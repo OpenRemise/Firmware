@@ -13,16 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// WiFi task function
+/// NVS task function
 ///
-/// \file   drv/wifi/task_function.hpp
+/// \file   mem/nvs/task_function.hpp
 /// \author Vincent Hamp
 /// \date   06/12/2024
 
 #pragma once
 
-namespace drv::wifi {
+namespace mem::nvs {
 
 [[noreturn]] void task_function(void*);
 
-} // namespace drv::wifi
+} // namespace mem::nvs

@@ -23,6 +23,7 @@
 #include <nvs_flash.h>
 #include <z21/z21.hpp>
 #include "settings.hpp"
+#include "task_function.hpp"
 
 namespace mem::nvs {
 
@@ -111,6 +112,9 @@ esp_err_t init() {
     if (nvs.find("ext_flags") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setExtensionFlags(255u);
   }
+
+  //
+  task.create(task_function);
 
   return err;
 }

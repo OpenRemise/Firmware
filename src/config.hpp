@@ -446,14 +446,6 @@ using eth::ip, eth::ip_str, eth::mac, eth::mac_str;
 inline std::vector<wifi_ap_record_t> ap_records;
 #endif
 
-///
-inline TASK(task,
-            "drv::wifi",       // Name
-            3072uz,            // Stack size
-            tskIDLE_PRIORITY,  // Priority
-            WIFI_TASK_CORE_ID, // Core
-            0u);
-
 } // namespace wifi
 
 } // namespace drv
@@ -526,6 +518,22 @@ inline struct TxStreamBuffer {
 } // namespace usb
 
 } // namespace intf
+
+namespace mem {
+
+namespace nvs {
+
+///
+inline TASK(task,
+            "mem::nvs",       // Name
+            3072uz,           // Stack size
+            tskIDLE_PRIORITY, // Priority
+            APP_CPU_NUM,      // Core
+            0u);
+
+} // namespace nvs
+
+} // namespace mem
 
 namespace mw {
 

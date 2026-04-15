@@ -13,29 +13,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// WiFi task function
+/// NVS task function
 ///
-/// \file   drv/wifi/task_function.cpp
+/// \file   mem/nvs/task_function.cpp
 /// \author Vincent Hamp
 /// \date   06/12/2024
 
 #include "task_function.hpp"
 #include <driver/gpio.h>
+#include "../../utility.hpp"
 #include "drv/led/bug.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
-#include "utility.hpp"
 
-namespace drv::wifi {
+namespace mem::nvs {
 
 namespace {
 
 /// \todo document
 void reset_sta_settings() {
-  mem::nvs::Settings settings;
-  settings.setStationmDNS("remise");
-  settings.setStationSSID("");
-  settings.setStationPassword("");
+  mem::nvs::Settings nvs;
+  nvs.setStationmDNS("remise");
+  nvs.setStationSSID("");
+  nvs.setStationPassword("");
+  nvs.setStationAlternativeSSID("");
+  nvs.setStationAlternativePassword("");
+  nvs.setStationIP("");
+  nvs.setStationNetmask("");
+  nvs.setStationGateway("");
 }
 
 } // namespace
@@ -55,4 +60,4 @@ void reset_sta_settings() {
   }
 }
 
-} // namespace drv::wifi
+} // namespace mem::nvs

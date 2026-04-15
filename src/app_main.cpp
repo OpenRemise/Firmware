@@ -54,6 +54,7 @@ extern "C" void app_main() {
 
   // Most important ones
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
+  static_assert(APP_CPU_NUM == mem::nvs::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::anlg::init));
   static_assert(APP_CPU_NUM == drv::anlg::adc_task.core_id &&
                 APP_CPU_NUM == drv::anlg::temp_task.core_id);
@@ -65,10 +66,8 @@ extern "C" void app_main() {
 
   // Don't change initialization order
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
-  if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)}) {
+  if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)})
     ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
-    static_assert(WIFI_TASK_CORE_ID == drv::wifi::task.core_id);
-  }
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::http::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
@@ -107,9 +106,9 @@ static_assert(std::invoke([] {
                         drv::out::track::dcc::task.name,
                         drv::out::track::zimo::decup::task.name,
                         drv::out::track::zimo::mdu::task.name,
-                        drv::wifi::task.name,
                         intf::usb::rx_task.name,
                         intf::usb::tx_task.name,
+                        mem::nvs::task.name,
                         mw::dcc::task.name,
                         mw::ota::task.name,
                         mw::roco::z21::task.name,

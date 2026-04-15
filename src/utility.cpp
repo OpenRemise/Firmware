@@ -21,6 +21,7 @@
 
 #include "utility.hpp"
 #include <ArduinoJson.h>
+#include <driver/gpio.h>
 #include <esp_system.h>
 #include "log.h"
 #include "mem/nvs/settings.hpp"

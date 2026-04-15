@@ -33,7 +33,6 @@
 #include "drv/led/wifi.hpp"
 #include "log.h"
 #include "mem/nvs/settings.hpp"
-#include "task_function.hpp"
 
 namespace drv::wifi {
 
@@ -272,13 +271,10 @@ esp_err_t init() {
 
   // Try to connect to network
   if (auto const sta_cfgs{optional_sta_configs()};
-      sta_cfgs && sta_init(*sta_cfgs) == ESP_OK) {
-    task.create(task_function);
+      sta_cfgs && sta_init(*sta_cfgs) == ESP_OK)
     return ESP_OK;
-  }
   // ... or fallback to AP
-  else
-    return ap_init(ap_config());
+  else return ap_init(ap_config());
 }
 
 } // namespace drv::wifi
