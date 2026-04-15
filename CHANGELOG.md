@@ -2,6 +2,7 @@
 
 ##
 - Bugfix disable track output when restarting ([#134](https://github.com/OpenRemise/Firmware/issues/134))
+- Bugfix Z21 `LAN_X_SET_STOP` and `LAN_X_SET_LOCO_E_STOP` ([#136](https://github.com/OpenRemise/Firmware/issues/136))
 
 ## 0.7.0
 - Add Ethernet support through [W5500](https://wiznet.io/products/ethernet-chips/w5500) ([#123](https://github.com/OpenRemise/Firmware/issues/123))

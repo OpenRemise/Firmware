@@ -658,6 +658,49 @@ void Service::sendToBack(Packet const& packet, size_t n) const {
 }
 
 /// \todo document
+void Service::locoEStop(uint16_t loco_addr) {
+  // Broadcast
+  if (!loco_addr) {
+    {
+      std::lock_guard lock{_internal_mutex};
+      for (auto& [addr, loco] : _locos)
+        loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+    }
+    sendToFront(
+      make_speed_and_direction_packet(0u, dcc::encode_rggggg(true, dcc::EStop)),
+      _nvs.program_packet_count);
+    return;
+  }
+  //
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+    sendToFront(
+      make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
+                                      (loco.rvvvvvvv & 0x80u) >> 2u | // R
+                                        (loco.rvvvvvvv & 0x0Fu)),
+      _nvs.program_packet_count);
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
+
+  //
+  broadcastLocoInfo(loco_addr);
+}
+
+/// \todo document
+void Service::locoPurge(uint16_t loco_addr) {
+  if (!loco_addr) return;
+  else {
+    std::lock_guard lock{_internal_mutex};
+    _locos.erase(loco_addr);
+    mem::nvs::Locos nvs;
+    nvs.erase(loco_addr);
+  }
+}
+
+/// \todo document
 z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
   if (!loco_addr) return {};
   else {
@@ -673,37 +716,15 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
 void Service::locoDrive(uint16_t loco_addr,
                         z21::LocoInfo::SpeedSteps speed_steps,
                         uint8_t rvvvvvvv) {
-  // Broadcast
-  if (!loco_addr) switch (speed_steps) {
-      case z21::LocoInfo::DCC14:
-        return sendToFront(
-          make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
-                                          (rvvvvvvv & 0x80u) >> 2u | // R
-                                            (rvvvvvvv & 0x0Fu)),     // GGGG
-          _nvs.program_packet_count);
-      case z21::LocoInfo::DCC28:
-        return sendToFront(
-          make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
-                                          (rvvvvvvv & 0x80u) >> 2u // R
-                                            | (rvvvvvvv & 0x1Fu)), // G-GGGG
-          _nvs.program_packet_count);
-      case z21::LocoInfo::DCC128:
-        return sendToFront(make_128_speed_step_control_packet(
-                             basicOrExtendedLocoAddress(loco_addr), rvvvvvvv),
-                           _nvs.program_packet_count);
-      default: return;
-    }
+  // Broadcast speed is a thing, but we can't set speed_steps on every loco...
+  if (!loco_addr) return;
   //
   else {
     std::lock_guard lock{_internal_mutex};
     auto& loco{getOrInsertLoco(loco_addr)};
-
-    //
     if (loco.speed_steps == speed_steps && loco.rvvvvvvv == rvvvvvvv) return;
     loco.speed_steps = speed_steps;
     loco.rvvvvvvv = rvvvvvvv;
-
-    //
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
   }
@@ -714,11 +735,8 @@ void Service::locoDrive(uint16_t loco_addr,
 
 /// \todo document
 void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
-  //
-  if (!loco_addr) {
-    /// \todo are broadcast functions a thing?
-    return;
-  }
+  // Broadcast functions aren't a thing
+  if (!loco_addr) return;
   //
   else {
     std::lock_guard lock{_internal_mutex};

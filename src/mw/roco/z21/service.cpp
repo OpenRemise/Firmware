@@ -138,8 +138,10 @@ bool Service::trackPower(bool on) {
 
 /// \todo document
 bool Service::stop() {
-  printf("%s\n", __PRETTY_FUNCTION__);
-  return true;
+  if (state.load() == State::DCCOperations) {
+    _dcc_service->locoEStop(0u);
+    return true;
+  } else return false;
 }
 
 /// \todo document
@@ -212,6 +214,16 @@ void Service::logoff(z21::Socket const& sock) {
   }
 
   return ServerBase::systemState();
+}
+
+/// \todo document
+void Service::locoEStop(uint16_t loco_addr) {
+  _dcc_service->locoEStop(loco_addr);
+}
+
+/// \todo document
+void Service::locoPurge(uint16_t loco_addr) {
+  _dcc_service->locoPurge(loco_addr);
 }
 
 /// \todo document
