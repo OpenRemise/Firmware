@@ -6,6 +6,7 @@ set(COMMON_SRC
     mem/nvs/init.cpp
     mem/nvs/locos.cpp
     mem/nvs/settings.cpp
+    mem/nvs/task_function.cpp
     mem/nvs/turnouts.cpp
     mem/nvs/utility.cpp
     mw/dcc/accessory.cpp
@@ -61,7 +62,6 @@ else()
     drv/out/suspend.cpp
     drv/trace/init.cpp
     drv/wifi/init.cpp
-    drv/wifi/task_function.cpp
     intf/dns/init.cpp
     intf/http/ap/init.cpp
     intf/http/ap/server.cpp

@@ -52,6 +52,8 @@ private:
   [[nodiscard]] z21::SystemState& systemState() final;
 
   // Driving interface
+  void locoEStop(uint16_t loco_addr) final;
+  void locoPurge(uint16_t loco_addr) final;
   z21::LocoInfo locoInfo(uint16_t loco_addr) final;
   void locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) final;
   void locoDrive(uint16_t loco_addr,

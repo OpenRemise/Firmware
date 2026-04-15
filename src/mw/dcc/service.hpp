@@ -67,6 +67,8 @@ private:
   void sendToBack(Packet const& packet, size_t n = 1uz) const;
 
   // Driving interface
+  void locoEStop(uint16_t loco_addr) final;
+  void locoPurge(uint16_t loco_addr) final;
   z21::LocoInfo locoInfo(uint16_t loco_addr) final;
   void locoDrive(uint16_t loco_addr,
                  z21::LocoInfo::SpeedSteps speed_steps,
