@@ -19,6 +19,7 @@
 #include "drv/anlg/convert.hpp"
 #include "drv/led/bug.hpp"
 #include "log.h"
+#include "mem/nvs/settings.hpp"
 #include "utility.hpp"
 
 namespace mw::roco::z21 {
@@ -326,16 +327,59 @@ z21::RailComData Service::railComData(uint16_t loco_addr) {
 }
 
 /// \todo document
-z21::CommonSettings Service::commonSettings() { return {}; }
+z21::CommonSettings Service::commonSettings() {
+  mem::nvs::Settings nvs;
+  return {.enable_railcom = nvs.getDccBiDiBitDuration() > 0u,
+          .programming_type = static_cast<z21::CommonSettings::ProgrammingType>(
+            nvs.getDccProgrammingType()),
+          .ext_settings = static_cast<z21::CommonSettings::ExtFlags>(
+            nvs.getDccAccessoryFlags())};
+}
 
 /// \todo document
-void Service::commonSettings(z21::CommonSettings const& common_settings) {}
+void Service::commonSettings(z21::CommonSettings const& common_settings) {
+  mem::nvs::Settings nvs;
+  if (common_settings.enable_railcom != (nvs.getDccBiDiBitDuration() > 0u))
+    nvs.setDccBiDiBitDuration(common_settings.enable_railcom ? 60u : 0u);
+  nvs.setDccProgrammingType(common_settings.programming_type);
+  nvs.setDccAccessoryFlags(common_settings.ext_settings);
+}
 
 /// \todo document
-z21::MmDccSettings Service::mmDccSettings() { return {}; }
+z21::MmDccSettings Service::mmDccSettings() {
+  mem::nvs::Settings nvs;
+  uint16_t voltage{};
+  if (drv::anlg::VoltagesQueue::value_type voltages;
+      xQueuePeek(drv::anlg::voltages_queue.handle, &voltages, 0u))
+    voltage =
+      measurement2mV(static_cast<drv::anlg::VoltageMeasurement>(
+                       std::accumulate(cbegin(voltages), cend(voltages), 0) /
+                       size(voltages)))
+        .value();
+  return {.startup_reset_package_count = nvs.getDccStartupResetPacketCount(),
+          .continue_reset_packet_count = nvs.getDccContinueResetPacketCount(),
+          .program_package_count = nvs.getDccProgramPacketCount(),
+          .bit_verify_to_one = nvs.getDccBitVerifyTo1(),
+          .programming_ack_current = nvs.getDccProgrammingAckCurrent(),
+          .flags =
+            static_cast<z21::MmDccSettings::Flags>(nvs.getDccLocoFlags()),
+          .output_voltage = voltage,
+          .programming_voltage = voltage};
+}
 
 /// \todo document
-void Service::mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) {}
+void Service::mmDccSettings(z21::MmDccSettings const& mm_dcc_settings) {
+  mem::nvs::Settings nvs;
+  nvs.setDccStartupResetPacketCount(
+    mm_dcc_settings.startup_reset_package_count);
+  nvs.setDccContinueResetPacketCount(
+    mm_dcc_settings.continue_reset_packet_count);
+  nvs.setDccProgramPacketCount(mm_dcc_settings.program_package_count);
+  nvs.setDccBitVerifyTo1(mm_dcc_settings.bit_verify_to_one);
+  nvs.setDccProgrammingAckCurrent(mm_dcc_settings.programming_ack_current);
+  nvs.setDccLocoFlags((mm_dcc_settings.flags & 0xF0u) |
+                      z21::MmDccSettings::Flags::DccOnly);
+}
 
 /// \todo document
 bool Service::trackPower(bool on, State desired_dcc_state) {
