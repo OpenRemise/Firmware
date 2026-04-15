@@ -29,7 +29,21 @@ namespace {
 
 /// Restart in 1s
 [[noreturn]] void restart_in_1s(void*) {
-  vTaskDelay(pdMS_TO_TICKS(1000u));
+  // If running DCC do emergency stop for 1s
+  if (state.load() == State::DCCOperations) {
+    static constexpr auto packet{dcc::make_speed_and_direction_packet(
+      0u, dcc::encode_rggggg(true, dcc::EStop))};
+    for (auto const then{xTaskGetTickCount() + pdMS_TO_TICKS(1000u)};
+         xTaskGetTickCount() < then;)
+      xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
+                         data(packet),
+                         size(packet),
+                         pdMS_TO_TICKS(10u));
+  }
+  // ... otherwise just wait
+  else
+    vTaskDelay(pdMS_TO_TICKS(1000u));
+  ESP_ERROR_CHECK(gpio_set_level(drv::out::track::enable_gpio_num, 0u));
   esp_restart();
 }
 
