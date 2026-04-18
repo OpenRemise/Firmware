@@ -46,6 +46,9 @@
 #include "mw/zimo/zusi/init.hpp"
 #include "utility.hpp"
 
+#include "soc/uart_reg.h"
+#include "soc/uart_struct.h"
+
 // wtf? 6.0.0 defines those publicly
 extern "C" esp_err_t gpio_od_enable(gpio_num_t gpio_num);
 
@@ -71,6 +74,9 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_39));
   ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_38));
 
+  // RS485 ... this enables loopback, but collisions aren't detected
+  ESP_ERROR_CHECK(uart_set_mode(UART_NUM_1, UART_MODE_RS485_COLLISION_DETECT));
+
   for (;;) {
     // Write random ASCII
     vTaskDelay(pdMS_TO_TICKS(1000u));
@@ -83,6 +89,11 @@ extern "C" void app_main() {
     char cr{};
     auto const bytes_read{uart_read_bytes(UART_NUM_1, &cr, sizeof(cr), 0u)};
     printf("rd %d-%c\n", bytes_read, cr);
+
+    // This errors if not in RS485 mode
+    bool collision{};
+    ESP_ERROR_CHECK(uart_get_collision_flag(UART_NUM_1, &collision));
+    printf("collision? %d\n", collision);
 
     // Flush inputs
     uart_flush(UART_NUM_1);
