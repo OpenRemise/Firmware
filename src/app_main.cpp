@@ -19,7 +19,11 @@
 /// \author Vincent Hamp
 /// \date   26/12/2022
 
+#include <driver/gpio.h>
+#include <driver/uart.h>
+#include <esp_random.h>
 #include <esp_wifi.h>
+#include <soc/uart_pins.h>
 #include "drv/anlg/init.hpp"
 #include "drv/eth/init.hpp"
 #include "drv/led/init.hpp"
@@ -42,60 +46,47 @@
 #include "mw/zimo/zusi/init.hpp"
 #include "utility.hpp"
 
+// wtf? 6.0.0 defines those publicly
+extern "C" esp_err_t gpio_od_enable(gpio_num_t gpio_num);
+
 /// ESP-IDF application entry point
 extern "C" void app_main() {
-  static_assert(PRO_CPU_NUM == 0 && WIFI_TASK_CORE_ID == 0);
-  static_assert(APP_CPU_NUM == 1);
+  // Basic UART config on pins 38/39
+  static constexpr uart_config_t uart_config{.baud_rate = 9600,
+                                             .data_bits = UART_DATA_8_BITS,
+                                             .parity = UART_PARITY_DISABLE,
+                                             .stop_bits = UART_STOP_BITS_1,
+                                             .flow_ctrl =
+                                               UART_HW_FLOWCTRL_DISABLE,
+                                             .source_clk = UART_SCLK_DEFAULT};
+  ESP_ERROR_CHECK(uart_driver_install(UART_NUM_1, 1024, 0, 0, NULL, 0));
+  ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_config));
+  ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1,
+                               GPIO_NUM_38, // TX
+                               GPIO_NUM_39, // RX
+                               UART_PIN_NO_CHANGE,
+                               UART_PIN_NO_CHANGE));
 
-  // Use U0RX and U0TX as trace outputs
-#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
-#endif
+  // Make GPIOs OD
+  ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_39));
+  ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_38));
 
-  // Most important ones
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
-  static_assert(APP_CPU_NUM == mem::nvs::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::anlg::init));
-  static_assert(APP_CPU_NUM == drv::anlg::adc_task.core_id &&
-                APP_CPU_NUM == drv::anlg::temp_task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::out::init));
-  static_assert(APP_CPU_NUM == drv::out::susi::zimo::zusi::task.core_id &&
-                APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
-                APP_CPU_NUM == drv::out::track::zimo::decup::task.core_id &&
-                APP_CPU_NUM == drv::out::track::zimo::mdu::task.core_id);
+  for (;;) {
+    // Write random ASCII
+    vTaskDelay(pdMS_TO_TICKS(1000u));
+    char const cw{static_cast<char>(esp_random() % 95 + 32)};
+    auto const bytes_written{uart_write_bytes(UART_NUM_1, &cw, sizeof(cw))};
+    printf("wr %d-%c    ", bytes_written, cw);
 
-  // Don't change initialization order
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
-  if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)})
-    ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::http::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
-  static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
-  static_assert(APP_CPU_NUM == mw::disp::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
-  static_assert(APP_CPU_NUM == mw::ota::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));
-  static_assert(APP_CPU_NUM == mw::roco::z21::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::zusi::init));
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::decup::init));
-  static_assert(APP_CPU_NUM == mw::zimo::decup::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::mdu::init));
-  static_assert(APP_CPU_NUM == mw::zimo::mdu::task.core_id);
-  static_assert(APP_CPU_NUM == mw::zimo::zusi::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::dns::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::mdns::init));
+    // Read it back
+    vTaskDelay(pdMS_TO_TICKS(100u));
+    char cr{};
+    auto const bytes_read{uart_read_bytes(UART_NUM_1, &cr, sizeof(cr), 0u)};
+    printf("rd %d-%c\n", bytes_read, cr);
 
-  // Don't disable serial JTAG
-#if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::ulf::init));
-  static_assert(APP_CPU_NUM == mw::zimo::ulf::dcc_ein::task.core_id &&
-                APP_CPU_NUM == mw::zimo::ulf::susiv2::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, intf::usb::init));
-  static_assert(APP_CPU_NUM == intf::usb::rx_task.core_id &&
-                APP_CPU_NUM == intf::usb::tx_task.core_id);
-#endif
+    // Flush inputs
+    uart_flush(UART_NUM_1);
+  }
 }
 
 // Assert that task names are unique and below max length
