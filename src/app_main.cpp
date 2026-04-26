@@ -77,6 +77,11 @@ extern "C" void app_main() {
   // RS485 ... this enables loopback, but collisions aren't detected
   ESP_ERROR_CHECK(uart_set_mode(UART_NUM_1, UART_MODE_RS485_COLLISION_DETECT));
 
+  // components/esp_driver_uart/src/uart.c
+  // components/hal/include/hal/uart_hal.h
+  // components/hal/esp32s3/include/hal/uart_ll.h
+  // UART1.rs485_conf.rs485_en = 1;
+
   for (;;) {
     // Write random ASCII
     vTaskDelay(pdMS_TO_TICKS(1000u));
@@ -91,9 +96,9 @@ extern "C" void app_main() {
     printf("rd %d-%c\n", bytes_read, cr);
 
     // This errors if not in RS485 mode
-    bool collision{};
-    ESP_ERROR_CHECK(uart_get_collision_flag(UART_NUM_1, &collision));
-    printf("collision? %d\n", collision);
+    // bool collision{};
+    // ESP_ERROR_CHECK(uart_get_collision_flag(UART_NUM_1, &collision));
+    // printf("collision? %d\n", collision);
 
     // Flush inputs
     uart_flush(UART_NUM_1);
