@@ -46,6 +46,7 @@
 #include "mw/zimo/zusi/init.hpp"
 #include "utility.hpp"
 
+#include "hal/uart_ll.h"
 #include "soc/uart_reg.h"
 #include "soc/uart_struct.h"
 
@@ -70,17 +71,33 @@ extern "C" void app_main() {
                                UART_PIN_NO_CHANGE,
                                UART_PIN_NO_CHANGE));
 
-  // Make GPIOs OD
-  ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_39));
+  // Configure a UART interrupt threshold and timeout
+  // Reading no longer works when this irq is enabled?
+  // static constexpr uart_intr_config_t uart_intr{.intr_enable_mask =
+  //                                                 UART_INTR_RS485_CLASH};
+  // ESP_ERROR_CHECK(uart_intr_config(UART_NUM_1, &uart_intr));
+  // ESP_ERROR_CHECK(uart_enable_rx_intr(UART_NUM_1));
+
+  // Enable pullup
+  ESP_ERROR_CHECK(gpio_pullup_en(GPIO_NUM_38));
+
+  // Enable OD
   ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_38));
+  ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_39));
 
   // RS485 ... this enables loopback, but collisions aren't detected
-  ESP_ERROR_CHECK(uart_set_mode(UART_NUM_1, UART_MODE_RS485_COLLISION_DETECT));
+  // ESP_ERROR_CHECK(uart_set_mode(UART_NUM_1,
+  // UART_MODE_RS485_COLLISION_DETECT));
 
   // components/esp_driver_uart/src/uart.c
   // components/hal/include/hal/uart_hal.h
   // components/hal/esp32s3/include/hal/uart_ll.h
   // UART1.rs485_conf.rs485_en = 1;
+  // UART1.rs485_conf.rs485tx_rx_en = 1;
+  // UART1.rs485_conf.rs485rxby_tx_en = 1;
+
+  //
+  gpio_dump_io_configuration(stdout, 1ull << GPIO_NUM_38 | 1ull << GPIO_NUM_39);
 
   for (;;) {
     // Write random ASCII
