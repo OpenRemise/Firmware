@@ -35,6 +35,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <ztl/enum.hpp>
 #include <ztl/implicit_wrapper.hpp>
@@ -51,6 +52,7 @@
 #  define APP_CPU_NUM 0
 #  define PRO_CPU_NUM APP_CPU_NUM
 #  define WIFI_TASK_CORE_ID APP_CPU_NUM
+#  define ADC_CHANNEL_0 0
 #  define ADC_CHANNEL_1 1
 #  define ADC_CHANNEL_2 2
 #  define ADC_CHANNEL_3 3
@@ -176,6 +178,9 @@ ZTL_MAKE_ENUM_CLASS_FLAGS(State)
 /// Restricts access to low-level tasks
 inline std::atomic<State> state{State::Suspended};
 
+/// Hardware revision
+inline std::string_view revision{"0.0.0"};
+
 namespace drv {
 
 namespace anlg {
@@ -197,31 +202,35 @@ inline constexpr auto current_k{800};
 inline constexpr auto vref{1000};
 inline constexpr auto max_measurement{smath::pow(2, SOC_ADC_DIGI_MAX_BITWIDTH) -
                                       1};
-inline constexpr auto voltage_channel{ADC_CHANNEL_2};
+inline constexpr auto vcc_voltage_channel{ADC_CHANNEL_0};
+inline constexpr auto supply_voltage_channel{ADC_CHANNEL_2};
 inline constexpr auto current_channel{ADC_CHANNEL_9};
 inline constexpr auto attenuation{ADC_ATTEN_DB_0};
-inline constexpr std::array channels{current_channel, voltage_channel};
+inline constexpr std::array channels{
+  vcc_voltage_channel, supply_voltage_channel, current_channel};
 
-/// Sample frequency [Hz] (sample takes 12.5us, conversion frame 20ms)
-///
-/// This frequency was chosen explicitly to avoid any beats with the DCC signal
-/// (~58/100us).
-inline constexpr auto sample_freq_hz{80'000u};
+/// Sample frequency [Hz] (sample takes 12us)
+inline constexpr auto sample_freq_hz{SOC_ADC_SAMPLE_FREQ_THRES_HIGH};
+static_assert(sample_freq_hz == 83333);
 
-/// Number of samples per frame
-inline constexpr auto conversion_frame_samples{1600uz};
+/// Number of samples per frame (84 * 12us = 1008us)
+inline constexpr auto conversion_frame_samples{84uz};
 
-/// Time per frame [ms]
-inline constexpr auto conversion_frame_time{(conversion_frame_samples * 1000u) /
-                                            sample_freq_hz};
-static_assert(conversion_frame_time == 20u);
-
-inline constexpr auto conversion_frame_size{conversion_frame_samples *
-                                            SOC_ADC_DIGI_DATA_BYTES_PER_CONV};
-static_assert(conversion_frame_size == 6400uz);
+/// Number of samples per frame and channel
 inline constexpr auto conversion_frame_samples_per_channel{
   conversion_frame_samples / size(channels)};
+static_assert(conversion_frame_samples_per_channel == 28uz);
 static_assert(size(channels) < SOC_ADC_PATT_LEN_MAX);
+
+/// Time per frame [us]
+inline constexpr auto conversion_frame_time{
+  (conversion_frame_samples * 1000u * 1000u) / sample_freq_hz};
+static_assert(conversion_frame_time == 1008u);
+
+/// Bytes per conversion frame
+inline constexpr auto conversion_frame_size{conversion_frame_samples *
+                                            SOC_ADC_DIGI_DATA_BYTES_PER_CONV};
+static_assert(conversion_frame_size == 336uz);
 
 ///
 inline TASK(adc_task,
@@ -239,35 +248,61 @@ inline TASK(temp_task,
             APP_CPU_NUM,       // Core
             0u);
 
-using VoltageMeasurement =
+using VccVoltageMeasurement =
   ztl::implicit_wrapper<ztl::smallest_signed_t<0, max_measurement>,
-                        struct VoltageMeasurementTag>;
+                        struct VccVoltageMeasurementTag>;
+static_assert(std::same_as<VccVoltageMeasurement::value_type, int16_t>);
 
-using Voltage =
-  ztl::implicit_wrapper<VoltageMeasurement::value_type, struct VoltageTag>;
+using VccVoltage = ztl::implicit_wrapper<VccVoltageMeasurement::value_type,
+                                         struct VccVoltageTag>;
+static_assert(std::same_as<VccVoltage::value_type, int16_t>);
+
+using SupplyVoltageMeasurement =
+  ztl::implicit_wrapper<ztl::smallest_signed_t<0, max_measurement>,
+                        struct SupplyVoltageMeasurementTag>;
+static_assert(std::same_as<SupplyVoltageMeasurement::value_type, int16_t>);
+
+using SupplyVoltage =
+  ztl::implicit_wrapper<SupplyVoltageMeasurement::value_type,
+                        struct SupplyVoltageTag>;
+static_assert(std::same_as<SupplyVoltage::value_type, int16_t>);
 
 using CurrentMeasurement =
   ztl::implicit_wrapper<ztl::smallest_signed_t<0, max_measurement>,
                         struct CurrentMeasurementTag>;
+static_assert(std::same_as<CurrentMeasurement::value_type, int16_t>);
 
 using Current =
   ztl::implicit_wrapper<CurrentMeasurement::value_type, struct CurrentTag>;
+static_assert(std::same_as<Current::value_type, int16_t>);
 
 ///
-inline struct VoltagesQueue {
-  using value_type =
-    std::array<VoltageMeasurement, conversion_frame_samples_per_channel>;
-  static constexpr auto size{1uz};
+inline struct VccVoltagesQueue {
+  using value_type = VccVoltageMeasurement;
+  static constexpr auto size{2000uz};
   static inline QueueHandle_t handle{};
-} voltages_queue;
+} vcc_voltages_queue;
+
+///
+inline struct SupplyVoltagesQueue {
+  using value_type = SupplyVoltageMeasurement;
+  static constexpr auto size{2000uz};
+  static inline QueueHandle_t handle{};
+} supply_voltages_queue;
 
 ///
 inline struct CurrentsQueue {
-  using value_type =
-    std::array<CurrentMeasurement, conversion_frame_samples_per_channel>;
-  static constexpr auto size{1uz};
+  using value_type = CurrentMeasurement;
+  static constexpr auto size{2000uz};
   static inline QueueHandle_t handle{};
 } currents_queue;
+
+///
+inline struct FilteredCurrentQueue {
+  using value_type = CurrentMeasurement;
+  static constexpr auto size{1uz};
+  static inline QueueHandle_t handle{};
+} filtered_current_queue;
 
 ///
 inline struct TemperatureQueue {

@@ -164,14 +164,11 @@ void Service::logoff(z21::Socket const& sock) {
   auto& sys_state{ServerBase::systemState()};
 
   // Currents
-  if (CurrentsQueue::value_type currents;
-      xQueuePeek(currents_queue.handle, &currents, 0u)) {
-    sys_state.main_current = sys_state.prog_current = measurement2mA(
-      static_cast<CurrentMeasurement>(std::ranges::max(currents)));
-    sys_state.filtered_main_current =
-      measurement2mA(static_cast<CurrentMeasurement>(
-        std::accumulate(cbegin(currents), cend(currents), 0) / size(currents)));
-  }
+  if (CurrentMeasurement meas; xQueuePeek(currents_queue.handle, &meas, 0u))
+    sys_state.main_current = sys_state.prog_current = measurement2mA(meas);
+  if (CurrentMeasurement meas;
+      xQueuePeek(filtered_current_queue.handle, &meas, 0u))
+    sys_state.filtered_main_current = measurement2mA(meas);
 
   // Temperature
   if (TemperatureQueue::value_type temp;
@@ -179,13 +176,12 @@ void Service::logoff(z21::Socket const& sock) {
     sys_state.temperature = temp;
 
   // Voltages
-  if (VoltagesQueue::value_type voltages;
-      xQueuePeek(voltages_queue.handle, &voltages, 0u))
-    sys_state.supply_voltage = sys_state.vcc_voltage =
-      measurement2mV(static_cast<VoltageMeasurement>(
-                       std::accumulate(cbegin(voltages), cend(voltages), 0) /
-                       size(voltages)))
-        .value();
+  if (SupplyVoltageMeasurement meas;
+      xQueuePeek(supply_voltages_queue.handle, &meas, 0u))
+    sys_state.supply_voltage = measurement2mV(meas).value();
+  if (VccVoltageMeasurement meas;
+      xQueuePeek(vcc_voltages_queue.handle, &meas, 0u))
+    sys_state.vcc_voltage = measurement2mV(meas).value();
 
   // Central state
   switch (state.load()) {
@@ -347,15 +343,15 @@ void Service::commonSettings(z21::CommonSettings const& common_settings) {
 
 /// \todo document
 z21::MmDccSettings Service::mmDccSettings() {
+  using namespace drv::anlg;
+
   mem::nvs::Settings nvs;
-  uint16_t voltage{};
-  if (drv::anlg::VoltagesQueue::value_type voltages;
-      xQueuePeek(drv::anlg::voltages_queue.handle, &voltages, 0u))
-    voltage =
-      measurement2mV(static_cast<drv::anlg::VoltageMeasurement>(
-                       std::accumulate(cbegin(voltages), cend(voltages), 0) /
-                       size(voltages)))
-        .value();
+
+  decltype(z21::MmDccSettings::output_voltage) voltage{};
+  if (VccVoltageMeasurement meas;
+      xQueuePeek(vcc_voltages_queue.handle, &meas, 0u))
+    voltage = measurement2mV(meas).value();
+
   return {.startup_reset_package_count = nvs.getDccStartupResetPacketCount(),
           .continue_reset_packet_count = nvs.getDccContinueResetPacketCount(),
           .program_package_count = nvs.getDccProgramPacketCount(),

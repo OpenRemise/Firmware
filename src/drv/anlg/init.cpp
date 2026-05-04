@@ -55,19 +55,23 @@ esp_err_t init_gpio() {
 ///
 /// Initialization takes place in init(). This function performs the following
 /// operations:
-/// - Creates queues for raw \ref voltages_queue "voltage" and \ref
-///   currents_queue "current" vales as well as \ref temperature_queue
-///   "temperatures" in Si units
+/// - Creates queues for raw \ref vcc_voltages_queue "VCC voltage", \ref
+///   supply_voltages_queue "supply voltage" and \ref currents_queue "current"
+///   vales as well as \ref temperature_queue "temperatures" in Si units
 /// - Initializes the ADC in [continuous
 ///   mode](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/peripherals/adc_continuous.html)
 ///   and applies a curve fitting calibration
 /// - Initializes the internal temperature sensor
 /// - Creates an ADC and temperature task
 esp_err_t init() {
-  voltages_queue.handle =
-    xQueueCreate(voltages_queue.size, sizeof(VoltagesQueue::value_type));
+  vcc_voltages_queue.handle =
+    xQueueCreate(vcc_voltages_queue.size, sizeof(VccVoltagesQueue::value_type));
+  supply_voltages_queue.handle = xQueueCreate(
+    supply_voltages_queue.size, sizeof(SupplyVoltagesQueue::value_type));
   currents_queue.handle =
     xQueueCreate(currents_queue.size, sizeof(CurrentsQueue::value_type));
+  filtered_current_queue.handle = xQueueCreate(
+    filtered_current_queue.size, sizeof(FilteredCurrentQueue::value_type));
   temperature_queue.handle =
     xQueueCreate(temperature_queue.size, sizeof(TemperatureQueue::value_type));
 
@@ -94,7 +98,7 @@ esp_err_t init() {
   };
   ESP_ERROR_CHECK(adc_continuous_new_handle(&adc_cfg, &adc1_handle));
 
-  // Create same pattern for both channels
+  // Create same pattern for all channels
   auto pattern{std::invoke([] {
     std::array<adc_digi_pattern_config_t, size(channels)> retval;
     for (auto i{0uz}; i < size(channels); ++i)

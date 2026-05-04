@@ -63,22 +63,15 @@ namespace mw::disp {
       if (wifi_ap_record_t ap_record;
           esp_wifi_sta_get_ap_info(&ap_record) == ESP_OK)
         doc["rssi"] = ap_record.rssi;
-      if (VoltagesQueue::value_type voltages;
-          xQueuePeek(voltages_queue.handle, &voltages, 0u))
-        doc["voltage"] =
-          measurement2mV(
-            static_cast<VoltageMeasurement>(
-              std::accumulate(cbegin(voltages), cend(voltages), 0) /
-              size(voltages)))
-            .value();
-      if (CurrentsQueue::value_type currents;
-          xQueuePeek(currents_queue.handle, &currents, 0u))
-        doc["current"] =
-          measurement2mA(
-            static_cast<CurrentMeasurement>(
-              std::accumulate(cbegin(currents), cend(currents), 0) /
-              size(currents)))
-            .value();
+      if (VccVoltageMeasurement meas;
+          xQueuePeek(vcc_voltages_queue.handle, &meas, 0u))
+        doc["vcc_voltage"] = measurement2mV(meas).value();
+      if (SupplyVoltageMeasurement meas;
+          xQueuePeek(supply_voltages_queue.handle, &meas, 0u))
+        doc["supply_voltage"] = measurement2mV(meas).value();
+      if (CurrentMeasurement meas;
+          xQueuePeek(filtered_current_queue.handle, &meas, 0u))
+        doc["current"] = measurement2mA(meas).value();
 
       //
       serializeJson(doc, json);
