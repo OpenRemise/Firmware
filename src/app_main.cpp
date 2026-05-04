@@ -47,11 +47,6 @@ extern "C" void app_main() {
   static_assert(PRO_CPU_NUM == 0 && WIFI_TASK_CORE_ID == 0);
   static_assert(APP_CPU_NUM == 1);
 
-  // Use U0RX and U0TX as trace outputs
-#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
-#endif
-
   // Most important ones
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
   static_assert(APP_CPU_NUM == mem::nvs::task.core_id);
@@ -72,8 +67,6 @@ extern "C" void app_main() {
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
   static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
-  static_assert(APP_CPU_NUM == mw::disp::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
   static_assert(APP_CPU_NUM == mw::ota::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));
@@ -86,6 +79,15 @@ extern "C" void app_main() {
   static_assert(APP_CPU_NUM == mw::zimo::zusi::task.core_id);
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::dns::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::mdns::init));
+
+  // Either use U0RX and U0TX as trace outputs
+#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
+  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
+  // ... or as UART display
+#else
+  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
+  static_assert(APP_CPU_NUM == mw::disp::task.core_id);
+#endif
 
   // Don't disable serial JTAG
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)

@@ -372,9 +372,9 @@ uint8_t Settings::getCurrentShortCircuitTime() const {
 /// \retval ESP_ERR_INVALID_ARG           Current short circuit time out of
 ///                                       range
 esp_err_t Settings::setCurrentShortCircuitTime(uint8_t value) {
-  return value >= 20u ? setU8("cur_sc_time",
-                              round_to(value, drv::anlg::conversion_frame_time))
-                      : ESP_ERR_INVALID_ARG;
+  return value ? setU8("cur_sc_time",
+                       round_to(value, drv::anlg::conversion_frame_time))
+               : ESP_ERR_INVALID_ARG;
 }
 
 /// Get DCC preamble count

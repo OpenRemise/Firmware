@@ -20,6 +20,7 @@
 /// \date   05/07/2023
 
 #include <driver/gpio.h>
+#include <ztl/moving_average.hpp>
 #include "drv/led/bug.hpp"
 #include "init.hpp"
 #include "log.h"
@@ -32,22 +33,18 @@ namespace drv::anlg {
 namespace {
 
 std::array<uint8_t, conversion_frame_size> conversion_frame;
-VoltagesQueue::value_type voltages;
-CurrentsQueue::value_type currents;
+ztl::moving_average<int32_t, smath::pow(2, 12)> filtered_current;
 
-/// Convert the NVS setting "cur_sc_time" to a counter value
-///
-/// For convenience, the \ref mem::nvs::Settings::getCurrentShortCircuitTime()
-/// "short circuit detection time" is stored in milliseconds. In order for this
-/// setting to be used by the ADC task, it must be converted to a counter value.
-///
-/// \return Short circuit counter value for ADC task function
-auto get_short_circuit_count() {
-  return mem::nvs::Settings{}.getCurrentShortCircuitTime() /
-         conversion_frame_time;
+/// \todo document
+BaseType_t xQueueSendOverwriteOldest(QueueHandle_t xQueue,
+                                     void const* pvItemToQueue) {
+  if (!xQueueSend(xQueue, pvItemToQueue, 0u)) {
+    int16_t dummy;
+    xQueueReceive(xQueue, &dummy, 0u);
+    return xQueueSend(xQueue, pvItemToQueue, 0u);
+  }
+  return pdPASS;
 }
-
-} // namespace
 
 /// Handles suspend/resume logic
 ///
@@ -70,6 +67,8 @@ void handle_suspend_resume_on_notify() {
   }
 }
 
+} // namespace
+
 /// Suspend ADC task with task notification
 void adc_task_notify_suspend() {
   xTaskNotifyIndexed(
@@ -85,18 +84,22 @@ void adc_task_notify_resume() {
 /// ADC task function
 ///
 /// Once started, the ADC task runs continuously. It measures voltages and
-/// currents at a frequency of \ref sample_freq_hz "8kHz". A total of \ref
-/// conversion_frame_samples "160" samples are recorded within one conversion
-/// frame meaning one frame lasts exactly \ref conversion_frame_time "20ms". All
-/// measurements are written to the corresponding \ref voltages_queue "voltages"
-/// or \ref currents_queue "currents" queue.
+/// currents at a frequency of \ref sample_freq_hz "83333Hz". A total of \ref
+/// conversion_frame_samples "84" samples are recorded within one conversion
+/// frame meaning one frame lasts approximately \ref conversion_frame_time
+/// "1ms". All measurements are written to the corresponding \ref
+/// vcc_voltages_queue "VCC voltages",
+/// \ref supply_voltages_queue "supply voltages" or
+/// \ref currents_queue "currents" queue.
 ///
 /// If the measured currents indicate a short circuit, the \ref led::bug
 /// "bug LED" is switched on, \ref state is set to \ref State::ShortCircuit
 /// "short circuit" and a \ref page_mw_roco track short circuit message is
 /// broadcast.
 [[noreturn]] void adc_task_function(void*) {
-  auto short_circuit_count{get_short_circuit_count()};
+  auto const initial_short_circuit_time{
+    mem::nvs::Settings{}.getCurrentShortCircuitTime()};
+  auto short_circuit_time{initial_short_circuit_time};
 
   // Start and stop must be called from the same task because the handle uses a
   // FreeRTOS mutex for internal locking
@@ -116,36 +119,45 @@ void adc_task_notify_resume() {
       continue;
     }
 
-    // The following conversion and copy takes 174us
-    auto voltages_it{begin(voltages)};
-    auto currents_it{begin(currents)};
+    // The following conversion and copy takes 359us
+    size_t short_circuit_count{};
     for (auto i{0uz}; i < bytes_received; i += SOC_ADC_DIGI_RESULT_BYTES) {
       auto const output{
         std::bit_cast<adc_digi_output_data_t*>(&conversion_frame[i])};
+      auto const data{static_cast<int16_t>(output->type2.data)};
       auto const chan{output->type2.channel};
-      auto const data{output->type2.data};
-      if (chan == voltage_channel)
-        *voltages_it++ = static_cast<VoltageMeasurement>(data);
-      else if (chan == current_channel)
-        *currents_it++ = static_cast<CurrentMeasurement>(data);
+      switch (chan) {
+        case vcc_voltage_channel:
+          xQueueSendOverwriteOldest(vcc_voltages_queue.handle, &data);
+          break;
+        case supply_voltage_channel:
+          xQueueSendOverwriteOldest(supply_voltages_queue.handle, &data);
+          break;
+        case current_channel:
+          xQueueSendOverwriteOldest(currents_queue.handle, &data);
+          filtered_current += data;
+          short_circuit_count += data == max_measurement;
+          break;
+        default: assert(false); break;
+      }
     }
-    xQueueOverwrite(voltages_queue.handle, &voltages);
-    xQueueOverwrite(currents_queue.handle, &currents);
+    auto const data{static_cast<int16_t>(filtered_current.value())};
+    xQueueOverwrite(filtered_current_queue.handle, &data);
 
     // >90% of all current measurements indicate short circuit
-    if (static constexpr auto ninty_pct{
-          static_cast<size_t>(0.9 * size(currents))};
-        state.load() != State::ShortCircuit &&                       //
-        std::ranges::count(currents, max_measurement) > ninty_pct && //
-        !--short_circuit_count &&                                    //
-        gpio_get_level(out::track::enable_gpio_num)) {               //
+    if (static constexpr auto ninety_pct{
+          static_cast<size_t>(0.9 * conversion_frame_samples_per_channel)};
+        state.load() != State::ShortCircuit &&         // Not ShortCircuit
+        short_circuit_count > ninety_pct &&            // 90% max measurements
+        !--short_circuit_time &&                       // Time until reaction
+        gpio_get_level(out::track::enable_gpio_num)) { // Tracks enabled
       state.store(State::ShortCircuit);
       led::bug(true);
       mw::roco::z21::service->broadcastTrackShortCircuit();
     }
     // Clear count if no short circuit
     else
-      short_circuit_count = get_short_circuit_count();
+      short_circuit_time = initial_short_circuit_time;
 
     // Handle suspend/resume on notify
     handle_suspend_resume_on_notify();

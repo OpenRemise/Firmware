@@ -266,19 +266,26 @@ esp_err_t operations_loop(dcc_encoder_config_t const& encoder_cfg) {
 
 /// \todo document
 anlg::CurrentMeasurement get_ref_current_measurement() {
-  anlg::CurrentsQueue::value_type currents;
-  if (!xQueueReceive(anlg::currents_queue.handle, &currents, 0u)) assert(false);
-  return anlg::CurrentMeasurement{
-    static_cast<anlg::CurrentMeasurement::value_type>(
-      std::accumulate(cbegin(currents), cend(currents), 0) / ssize(currents))};
+  using namespace anlg;
+  int32_t sum{};
+  auto const count{uxQueueMessagesWaiting(currents_queue.handle)};
+  for (auto i{0uz}; i < count - 1uz; ++i)
+    if (CurrentMeasurement meas;
+        xQueueReceive(currents_queue.handle, &meas, 0u))
+      sum += meas;
+  return CurrentMeasurement{
+    static_cast<CurrentMeasurement::value_type>(sum / (count - 1uz))};
 }
 
 /// \todo document
 template<std::ranges::contiguous_range R>
 void append_current_measurements(R&& r) {
-  anlg::CurrentsQueue::value_type currents;
-  if (xQueueReceive(anlg::currents_queue.handle, &currents, 0u))
-    std::ranges::copy(currents, std::back_inserter(r));
+  using namespace anlg;
+  auto const count{uxQueueMessagesWaiting(currents_queue.handle)};
+  for (auto i{0uz}; i < count - 1uz; ++i)
+    if (CurrentMeasurement meas;
+        xQueueReceive(currents_queue.handle, &meas, 0u))
+      r.push_back(meas);
 }
 
 /// \todo document
@@ -286,14 +293,16 @@ template<std::ranges::contiguous_range R>
 bool detect_ack(R&& r,
                 anlg::CurrentMeasurement ref_current_measurement,
                 anlg::CurrentMeasurement ack_current_measurement) {
+  using namespace anlg;
+
   // ACKs must be at least 5ms long
   static constexpr auto wlen{
-    static_cast<int>(5e-3 * (anlg::sample_freq_hz / size(anlg::channels)))};
-  static_assert(wlen == 200);
+    static_cast<int>(5e-3 * (sample_freq_hz / size(channels)))};
+  static_assert(wlen == 138);
 
   // Initialize rolling sum
   int32_t sum{ref_current_measurement};
-  int32_t zero_count{std::count(cbegin(r), cbegin(r) + wlen, 0)};
+  int32_t zero_count{count(cbegin(r), cbegin(r) + wlen, 0)};
 
   // Slide window
   for (size_t i{wlen}; i < size(r); ++i) {
