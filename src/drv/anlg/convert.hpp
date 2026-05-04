@@ -25,8 +25,10 @@
 
 namespace drv::anlg {
 
-Voltage measurement2mV(VoltageMeasurement meas);
-VoltageMeasurement mV2measurement(Voltage mV);
+VccVoltage measurement2mV(VccVoltageMeasurement meas);
+VccVoltageMeasurement mV2measurement(VccVoltage mV);
+SupplyVoltage measurement2mV(SupplyVoltageMeasurement meas);
+SupplyVoltageMeasurement mV2measurement(SupplyVoltage mV);
 Current measurement2mA(CurrentMeasurement meas);
 CurrentMeasurement mA2measurement(Current mA);
 
