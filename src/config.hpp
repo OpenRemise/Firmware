@@ -40,6 +40,7 @@
 #include <ztl/enum.hpp>
 #include <ztl/implicit_wrapper.hpp>
 #include <ztl/limits.hpp>
+#include <ztl/moving_average.hpp>
 #include <ztl/string.hpp>
 #include "task.hpp"
 
@@ -235,10 +236,10 @@ static_assert(conversion_frame_size == 336uz);
 ///
 inline TASK(adc_task,
             "drv::anlg::adc",       // Name
-            2048uz,                 // Stack size
+            3072uz,                 // Stack size
             ESP_TASK_PRIO_MAX - 2u, // Priority
             APP_CPU_NUM,            // Core
-            200u);                  // Timeout
+            100u);                  // Timeout
 
 ///
 inline TASK(temp_task,
@@ -275,6 +276,8 @@ static_assert(std::same_as<CurrentMeasurement::value_type, int16_t>);
 using Current =
   ztl::implicit_wrapper<CurrentMeasurement::value_type, struct CurrentTag>;
 static_assert(std::same_as<Current::value_type, int16_t>);
+
+using FilteredCurrent = ztl::moving_average<int32_t, smath::pow(2, 12)>;
 
 ///
 inline struct VccVoltagesQueue {

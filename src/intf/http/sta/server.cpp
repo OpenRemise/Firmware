@@ -408,6 +408,8 @@ Response Server::sysGetRequest(Request const& req) {
   doc["compile_date"] = app_desc->date;
   doc["idf_version"] = app_desc->idf_ver + 1; // Remove 'v' prefix
 
+  doc["revision"] = revision;
+
   doc["mdns"] = mdns::str;
   doc["ip"] = drv::wifi::ip_str;
   doc["mac"] = drv::wifi::mac_str;
