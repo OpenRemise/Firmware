@@ -408,6 +408,8 @@ Response Server::sysGetRequest(Request const& req) {
   doc["compile_date"] = app_desc->date;
   doc["idf_version"] = app_desc->idf_ver + 1; // Remove 'v' prefix
 
+  doc["revision"] = revision;
+
   doc["mdns"] = mdns::str;
   doc["ip"] = drv::wifi::ip_str;
   doc["mac"] = drv::wifi::mac_str;
@@ -415,21 +417,17 @@ Response Server::sysGetRequest(Request const& req) {
       esp_wifi_sta_get_ap_info(&ap_record) == ESP_OK)
     doc["rssi"] = ap_record.rssi;
 
-  if (VoltagesQueue::value_type voltages;
-      xQueuePeek(voltages_queue.handle, &voltages, 0u))
-    doc["voltage"] =
-      measurement2mV(static_cast<VoltageMeasurement>(
-                       std::accumulate(cbegin(voltages), cend(voltages), 0) /
-                       size(voltages)))
-        .value();
+  if (SupplyVoltageMeasurement meas;
+      xQueuePeek(supply_voltages_queue.handle, &meas, 0u))
+    doc["supply_voltage"] = measurement2mV(meas).value();
 
-  if (CurrentsQueue::value_type currents;
-      xQueuePeek(currents_queue.handle, &currents, 0u))
-    doc["current"] =
-      measurement2mA(static_cast<CurrentMeasurement>(
-                       std::accumulate(cbegin(currents), cend(currents), 0) /
-                       size(currents)))
-        .value();
+  if (VccVoltageMeasurement meas;
+      xQueuePeek(vcc_voltages_queue.handle, &meas, 0u))
+    doc["vcc_voltage"] = measurement2mV(meas).value();
+
+  if (CurrentMeasurement meas;
+      xQueuePeek(filtered_current_queue.handle, &meas, 0u))
+    doc["current"] = measurement2mA(meas).value();
 
   if (TemperatureQueue::value_type temp;
       xQueuePeek(temperature_queue.handle, &temp, 0u))

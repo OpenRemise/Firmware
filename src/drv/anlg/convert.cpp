@@ -37,25 +37,57 @@ int raw2mV(int meas) {
   return retval;
 }
 
-} // namespace
-
-/// Convert VoltageMeasurement to Voltage
+/// Convert measurement to voltage
 ///
-/// \param  meas  Voltage measurement
+/// \param  meas  Measurement
 /// \return Voltage
-Voltage measurement2mV(VoltageMeasurement meas) {
-  return static_cast<Voltage>(
-    (raw2mV(meas) * (voltage_upper_r + voltage_lower_r)) / voltage_lower_r);
+int measurement2mV(int meas) {
+  return (raw2mV(meas) * (voltage_upper_r + voltage_lower_r)) / voltage_lower_r;
 }
 
-/// Convert Voltage to VoltageMeasurement
+/// Convert voltage to measurement
 ///
 /// \param  mV  Voltage in [mV]
-/// \return VoltageMeasurement
-VoltageMeasurement mV2measurement(Voltage mV) {
-  return static_cast<VoltageMeasurement>(
-    (mV * voltage_lower_r * max_measurement) /
-    ((voltage_upper_r + voltage_lower_r) * vref));
+/// \return Voltage
+int mV2measurement(int mV) {
+  return (mV * voltage_lower_r * max_measurement) /
+         ((voltage_upper_r + voltage_lower_r) * vref);
+}
+
+} // namespace
+
+/// Convert VccVoltageMeasurement to VccVoltage
+///
+/// \param  meas  Vcc voltage measurement
+/// \return VccVoltage
+VccVoltage measurement2mV(VccVoltageMeasurement meas) {
+  return static_cast<VccVoltage>(measurement2mV(static_cast<int>(meas)));
+}
+
+/// Convert VccVoltage to VccVoltageMeasurement
+///
+/// \param  mV  Vcc voltage in [mV]
+/// \return VccVoltageMeasurement
+VccVoltageMeasurement mV2measurement(VccVoltage mV) {
+  return static_cast<VccVoltageMeasurement>(
+    mV2measurement(static_cast<int>(mV)));
+}
+
+/// Convert SupplyVoltageMeasurement to SupplyVoltage
+///
+/// \param  meas  Supply voltage measurement
+/// \return SupplyVoltage
+SupplyVoltage measurement2mV(SupplyVoltageMeasurement meas) {
+  return static_cast<SupplyVoltage>(measurement2mV(static_cast<int>(meas)));
+}
+
+/// Convert SupplyVoltage to SupplyVoltageMeasurement
+///
+/// \param  mV  Supply voltage in [mV]
+/// \return SupplyVoltageMeasurement
+SupplyVoltageMeasurement mV2measurement(SupplyVoltage mV) {
+  return static_cast<SupplyVoltageMeasurement>(
+    mV2measurement(static_cast<int>(mV)));
 }
 
 /// Convert CurrentMeasurement to Current

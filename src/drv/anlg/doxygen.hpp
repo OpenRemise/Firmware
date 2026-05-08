@@ -26,8 +26,8 @@ namespace drv::anlg {
 /// \page page_drv_anlg Analog
 /// \details \tableofcontents
 /// This module takes over all analog functions of the firmware. This includes
-/// measuring track voltage and current, measuring temperature, and monitoring
-/// all of those measurements.
+/// measuring supply- and (if available) VCC voltage and current, measuring
+/// temperature, and monitoring all of those measurements.
 ///
 /// \section section_drv_anlg_init Initialization
 /// \copydetails init
@@ -35,7 +35,7 @@ namespace drv::anlg {
 /// \section section_drv_anlg_adc_task ADC task
 /// \copydetails adc_task_function
 ///
-/// \subsection subsection_drv_anlg_adc Suspend/resume ADC task
+/// \subsection subsection_drv_anlg_adc Suspend/resume
 /// \copydetails handle_suspend_resume_on_notify
 ///
 /// \section section_drv_anlg_temp_task Temperature task

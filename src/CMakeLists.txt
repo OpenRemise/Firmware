@@ -143,7 +143,7 @@ cpmaddpackage(
 
 # According to this answer here https://stackoverflow.com/a/55312360/5840652
 # magic enum works up to INT16_MAX
-cpmaddpackage("gh:Neargye/magic_enum@0.9.7")
+cpmaddpackage("gh:Neargye/magic_enum@0.9.8")
 math(EXPR INT16_MAX "(1 << 15) - 1" OUTPUT_FORMAT DECIMAL)
 target_compile_definitions(
   magic_enum INTERFACE MAGIC_ENUM_RANGE_MIN=0 MAGIC_ENUM_RANGE_MAX=${INT16_MAX})

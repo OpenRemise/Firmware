@@ -24,21 +24,6 @@
 
 namespace mem::nvs {
 
-namespace {
-
-/// Round integer towards
-///
-/// \param  n   Value to round
-/// \param  to  Value to round towards to
-/// \return Rounded value
-constexpr auto round_to(std::integral auto n, std::integral auto to) {
-  auto const a{(n / to) * to};
-  auto const b{a + to};
-  return (n - a >= b - n) ? b : a;
-}
-
-} // namespace
-
 /// Get station mDNS
 ///
 /// \return Station mDNS
@@ -372,9 +357,7 @@ uint8_t Settings::getCurrentShortCircuitTime() const {
 /// \retval ESP_ERR_INVALID_ARG           Current short circuit time out of
 ///                                       range
 esp_err_t Settings::setCurrentShortCircuitTime(uint8_t value) {
-  return value >= 20u ? setU8("cur_sc_time",
-                              round_to(value, drv::anlg::conversion_frame_time))
-                      : ESP_ERR_INVALID_ARG;
+  return value >= 1u ? setU8("cur_sc_time", value) : ESP_ERR_INVALID_ARG;
 }
 
 /// Get DCC preamble count
