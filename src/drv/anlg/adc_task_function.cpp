@@ -37,6 +37,9 @@ namespace drv::anlg {
 /// `temp_task_function`.
 std::atomic<uint8_t> nvs_short_circuit_time;
 
+/// Short circuit time
+uint8_t short_circuit_time{};
+
 namespace {
 
 /// Send item to queue (even if full)
@@ -155,6 +158,32 @@ size_t parse(std::span<uint8_t const> conversion_frame,
   return short_circuit_count;
 }
 
+/// Detect short circuits
+///
+/// \param  short_circuit_count Number of current samples indicating short
+///                             circuit
+void detect_short_circuit(uint8_t short_circuit_count) {
+  // Reset time if already in short circuit state or tracks disabled
+  if (state.load() == State::ShortCircuit ||
+      !gpio_get_level(out::track::enable_gpio_num)) {
+    short_circuit_time = 0u;
+    return;
+  }
+
+  // >90% of all current measurements indicate short circuit
+  static constexpr auto ninety_pct{
+    static_cast<size_t>(0.9 * conversion_frame_samples_per_channel)};
+  if (short_circuit_count > ninety_pct) ++short_circuit_time;
+  else if (short_circuit_time) --short_circuit_time;
+
+  // Set short circuit state, bug led and transmit broadcast
+  if (short_circuit_time >= nvs_short_circuit_time.load()) {
+    state.store(State::ShortCircuit);
+    led::bug(true);
+    mw::roco::z21::service->broadcastTrackShortCircuit();
+  }
+}
+
 } // namespace
 
 /// Handles suspend/resume logic
@@ -209,11 +238,11 @@ void adc_task_notify_resume() {
 [[noreturn]] void adc_task_function(void*) {
   std::array<uint8_t, conversion_frame_size> stack;
   FilteredCurrent filtered_current;
-  uint8_t short_circuit_time{};
 
   // Detect hardware revision by trying to measure VCC
   ESP_ERROR_CHECK(detect_revision(stack));
-  auto parse_fn{revision.back() == '2' ? &parse<"0.1.2"> : &parse<"0.1.0">};
+  auto const parse_fn{revision.back() == '2' ? &parse<"0.1.2">
+                                             : &parse<"0.1.0">};
 
   // Start
   ESP_ERROR_CHECK(adc_continuous_start(adc1_handle));
@@ -221,26 +250,14 @@ void adc_task_notify_resume() {
   for (;;) {
     // Read conversion frame
     auto const conversion_frame{read(stack)};
-    assert(size(conversion_frame));
+    if (!size(conversion_frame)) continue;
 
     // Parse conversion frame
     auto const short_circuit_count{
       parse_fn(conversion_frame, filtered_current)};
 
-    // >90% of all current measurements indicate short circuit
-    if (static constexpr auto ninety_pct{
-          static_cast<size_t>(0.9 * conversion_frame_samples_per_channel)};
-        state.load() != State::ShortCircuit &&         // Not ShortCircuit
-        short_circuit_count > ninety_pct &&            // 90% max measurements
-        !--short_circuit_time &&                       // Time until reaction
-        gpio_get_level(out::track::enable_gpio_num)) { // Tracks enabled
-      state.store(State::ShortCircuit);
-      led::bug(true);
-      mw::roco::z21::service->broadcastTrackShortCircuit();
-    }
-    // Reset if no short circuit
-    else
-      short_circuit_time = nvs_short_circuit_time.load();
+    // Detect short circuits
+    detect_short_circuit(short_circuit_count);
 
     // Handle suspend/resume on notify
     handle_suspend_resume_on_notify();

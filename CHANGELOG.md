@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Add VCC voltage measurements and hardware revision detection ([#141](https://github.com/OpenRemise/Firmware/pull/141))
+
 ## 0.7.1
 - Add (supported) Z21 settings ([#138](https://github.com/OpenRemise/Firmware/issues/138))
 - Bugfix disable track output when restarting ([#134](https://github.com/OpenRemise/Firmware/issues/134))

@@ -35,16 +35,16 @@ extern std::atomic<uint8_t> nvs_short_circuit_time;
 /// temperature_queue "temperature" queue.
 [[noreturn]] void temp_task_function(void*) {
   for (;;) {
-    TemperatureQueue::value_type temp;
-    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_sensor, &temp));
-    xQueueOverwrite(temperature_queue.handle, &temp);
-    vTaskDelay(pdMS_TO_TICKS(1000u));
-
     // Ugly workaround to update initial short circuit time from NVS. This
     // atomic is used in the `adc_task_function` but can't be updated there due
     // to timing constraints.
     nvs_short_circuit_time.store(
       mem::nvs::Settings{}.getCurrentShortCircuitTime());
+
+    TemperatureQueue::value_type temp;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_sensor, &temp));
+    xQueueOverwrite(temperature_queue.handle, &temp);
+    vTaskDelay(pdMS_TO_TICKS(1000u));
   }
 }
 

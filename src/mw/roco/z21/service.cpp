@@ -185,9 +185,10 @@ void Service::logoff(z21::Socket const& sock) {
 
   // Central state
   switch (state.load()) {
-    // Normally already covered by `adc_task_function`
+    // Can't have track voltage if short
     case State::ShortCircuit:
       sys_state.central_state |= z21::CentralState::ShortCircuit;
+      sys_state.central_state |= z21::CentralState::TrackVoltageOff;
       break;
 
     // Can't be programming mode if off
