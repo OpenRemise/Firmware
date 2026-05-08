@@ -25,15 +25,30 @@
 #include "drv/led/bug.hpp"
 #include "init.hpp"
 #include "log.h"
-#include "mem/nvs/settings.hpp"
 #include "mw/roco/z21/service.hpp"
 #include "utility.hpp"
 
 namespace drv::anlg {
 
+/// Cached current short circuit time from NVS
+///
+/// Ugly necessity because `adc_task_function` can't update directly from NVS
+/// due to timing constraints. Instead this value get's updated inside
+/// `temp_task_function`.
+std::atomic<uint8_t> nvs_short_circuit_time;
+
 namespace {
 
-/// \todo document
+/// Send item to queue (even if full)
+///
+/// Small FreeRTOS-style helper to post an item on a queue. As long as there is
+/// still space in the queue, the element is inserted at the end; when the queue
+/// is full, the oldest element is removed first.
+///
+/// \param  xQueue        Queue handle
+/// \param  pvItemToQueue Pointer to the item
+/// \retval pdPASS        Success
+/// \retval errQUEUE_FULL Error
 BaseType_t xQueueSendOverwriteOldest(QueueHandle_t xQueue,
                                      void const* pvItemToQueue) {
   if (!xQueueSend(xQueue, pvItemToQueue, 0u)) {
@@ -44,7 +59,10 @@ BaseType_t xQueueSendOverwriteOldest(QueueHandle_t xQueue,
   return pdPASS;
 }
 
-/// \todo document
+/// Read conversion from to stack
+///
+/// \param  stack Stack
+/// \return Conversion frame
 std::span<uint8_t const> read(std::span<uint8_t> stack) {
   uint32_t bytes_received;
   if (auto const err{adc_continuous_read(adc1_handle,
@@ -61,7 +79,10 @@ std::span<uint8_t const> read(std::span<uint8_t> stack) {
   return stack;
 }
 
-/// \todo document
+/// Detect hardware revision by measuring VCC channel
+///
+/// \param  stack   Stack
+/// \retval ESP_OK  Success
 esp_err_t detect_revision(std::span<uint8_t> stack) {
   // Enable pulldown
   std::underlying_type_t<gpio_num_t> vcc_voltage_gpio_num;
@@ -85,9 +106,8 @@ esp_err_t detect_revision(std::span<uint8_t> stack) {
        i += SOC_ADC_DIGI_RESULT_BYTES) {
     auto const output{
       std::bit_cast<adc_digi_output_data_t*>(&conversion_frame[i])};
-    auto const data{static_cast<int16_t>(output->type2.data)};
-    auto const chan{output->type2.channel};
-    if (chan == vcc_voltage_channel && data > 200) {
+    if (output->type2.channel == vcc_voltage_channel &&
+        output->type2.data > 200u) {
       revision = "0.1.2";
       return ESP_OK;
     }
@@ -97,7 +117,12 @@ esp_err_t detect_revision(std::span<uint8_t> stack) {
   return ESP_OK;
 }
 
-/// \todo document
+/// Parse conversion frame
+///
+/// \tparam revision          Hardware revision
+/// \param  conversion_frame  Conversion frame
+/// \param  filtered_current  Filtered current
+/// \return Number of current samples indicating short circuit
 template<ztl::fixed_string revision>
 size_t parse(std::span<uint8_t const> conversion_frame,
              FilteredCurrent& filtered_current) {
@@ -107,8 +132,7 @@ size_t parse(std::span<uint8_t const> conversion_frame,
     auto const output{
       std::bit_cast<adc_digi_output_data_t*>(&conversion_frame[i])};
     auto const data{static_cast<int16_t>(output->type2.data)};
-    auto const chan{output->type2.channel};
-    switch (chan) {
+    switch (output->type2.channel) {
       case vcc_voltage_channel:
         if constexpr (!ztl::strcmp(revision.c_str(), "0.1.2"))
           xQueueSendOverwriteOldest(vcc_voltages_queue.handle, &data);
@@ -131,6 +155,8 @@ size_t parse(std::span<uint8_t const> conversion_frame,
   return short_circuit_count;
 }
 
+} // namespace
+
 /// Handles suspend/resume logic
 ///
 /// Since the ADC task holds a mutex on the [continuous mode
@@ -152,8 +178,6 @@ void handle_suspend_resume_on_notify() {
   }
 }
 
-} // namespace
-
 /// Suspend ADC task with task notification
 void adc_task_notify_suspend() {
   xTaskNotifyIndexed(
@@ -174,8 +198,9 @@ void adc_task_notify_resume() {
 /// frame meaning one frame lasts approximately \ref conversion_frame_time
 /// "1ms". All measurements are written to the corresponding \ref
 /// vcc_voltages_queue "VCC voltages",
-/// \ref supply_voltages_queue "supply voltages" or
-/// \ref currents_queue "currents" queue.
+/// \ref supply_voltages_queue "supply voltages",
+/// \ref currents_queue "currents" and
+/// \ref filtered_current_queue "filtered current" queue.
 ///
 /// If the measured currents indicate a short circuit, the \ref led::bug
 /// "bug LED" is switched on, \ref state is set to \ref State::ShortCircuit
@@ -184,9 +209,7 @@ void adc_task_notify_resume() {
 [[noreturn]] void adc_task_function(void*) {
   std::array<uint8_t, conversion_frame_size> stack;
   FilteredCurrent filtered_current;
-  auto const initial_short_circuit_time{
-    mem::nvs::Settings{}.getCurrentShortCircuitTime()};
-  auto short_circuit_time{initial_short_circuit_time};
+  uint8_t short_circuit_time{};
 
   // Detect hardware revision by trying to measure VCC
   ESP_ERROR_CHECK(detect_revision(stack));
@@ -215,9 +238,9 @@ void adc_task_notify_resume() {
       led::bug(true);
       mw::roco::z21::service->broadcastTrackShortCircuit();
     }
-    // Clear count if no short circuit
+    // Reset if no short circuit
     else
-      short_circuit_time = initial_short_circuit_time;
+      short_circuit_time = nvs_short_circuit_time.load();
 
     // Handle suspend/resume on notify
     handle_suspend_resume_on_notify();

@@ -56,8 +56,9 @@ esp_err_t init_gpio() {
 /// Initialization takes place in init(). This function performs the following
 /// operations:
 /// - Creates queues for raw \ref vcc_voltages_queue "VCC voltage", \ref
-///   supply_voltages_queue "supply voltage" and \ref currents_queue "current"
-///   vales as well as \ref temperature_queue "temperatures" in Si units
+///   supply_voltages_queue "supply voltage", \ref currents_queue "current" and
+///   \ref filtered_current_queue "filtered current" values as well as \ref
+///   temperature_queue "temperatures" in Si units
 /// - Initializes the ADC in [continuous
 ///   mode](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/peripherals/adc_continuous.html)
 ///   and applies a curve fitting calibration
