@@ -66,8 +66,8 @@ extern "C" void app_main() {
 
   // Don't change initialization order
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
-  if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)})
-    ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
+  // if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)})
+  ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::http::init));
   ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
   ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
