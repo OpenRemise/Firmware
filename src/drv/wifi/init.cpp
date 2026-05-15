@@ -152,6 +152,10 @@ esp_err_t gpio_init() {
 
 /// \todo document
 esp_err_t wifi_init() {
+  // Set global MAC string
+  ESP_ERROR_CHECK(esp_base_mac_addr_get(data(mac)));
+  snprintf(data(mac_str), size(mac_str), MACSTR, MAC2STR(mac));
+
   // Initialize TCP/IP stack and event loop
   esp_netif_init();
   esp_event_loop_create_default();
