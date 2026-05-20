@@ -11,7 +11,7 @@ jobs:
   esp-elf-gcc:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Install prerequisites
@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "ARTIFACT_NAME=$(find build -maxdepth 1 -type f -name "Firmware-*.zip" -printf "%f\n")" >> $GITHUB_ENV
           echo "ARTIFACT_PATH=$(find build -maxdepth 1 -type f -name "Firmware-*.zip")" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.ARTIFACT_PATH }}
