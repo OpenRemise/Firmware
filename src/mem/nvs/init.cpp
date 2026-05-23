@@ -110,7 +110,7 @@ esp_err_t init() {
     if (nvs.find("dcc_accy_pc") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setDccAccessorPacketCount(2u);
     if (nvs.find("ext_flags") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setExtensionFlags(255u);
+      nvs.setExtensionFlags(0u);
   }
 
   //
