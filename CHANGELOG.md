@@ -2,6 +2,7 @@
 
 ##
 - Add VCC voltage measurements and hardware revision detection ([#141](https://github.com/OpenRemise/Firmware/pull/141))
+- Bugfix DCC service mode byte only verify never checks for value 255 ([#145](https://github.com/OpenRemise/Firmware/issues/145))
 
 ## 0.7.1
 - Add (supported) Z21 settings ([#138](https://github.com/OpenRemise/Firmware/issues/138))
