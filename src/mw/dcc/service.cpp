@@ -572,7 +572,7 @@ std::optional<uint8_t> Service::serviceRead(uint16_t cv_addr) {
 
   // Byte verify only
   if (_nvs.programming_type == z21::CommonSettings::ProgrammingType::ByteOnly) {
-    for (auto i{0u}; i < std::numeric_limits<uint8_t>::max(); ++i) {
+    for (auto i{0u}; i <= std::numeric_limits<uint8_t>::max(); ++i) {
       sendToFront(make_cv_access_long_verify_service_packet(cv_addr, i),
                   _nvs.program_packet_count);
       if (serviceReceiveBit() == true) return i;
