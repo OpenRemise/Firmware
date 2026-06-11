@@ -49,6 +49,20 @@
             }
         },
         {
+            "name": "Release JTAG",
+            "generator": "Ninja",
+            "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CCACHE_ENABLE": "OFF",
+                "CMAKE_BUILD_TYPE": "Release",
+                "ESP_PLATFORM": "ON",
+                "IDF_TARGET": "esp32s3",
+                "PYTHON_DEPS_CHECKED": "ON",
+                "SDKCONFIG_DEFAULTS": "sdkconfig.defaults;sdkconfig.release;sdkconfig.jtag"
+            }
+        },
+        {
             "name": "Tests",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",

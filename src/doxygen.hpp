@@ -723,6 +723,55 @@
 /// module which stores settings or locomotives in a key-value pair system. All
 /// modules are considered global and can be accessed from all other layers.
 ///
+/// \section section_architecture_project_structure Project structure
+/// There are two popular means of organizing code:
+/// - By feature - classes needed for each feature are grouped together
+/// - By type - types of classes are grouped together
+///
+/// The structure used here is by feature. This also follows the physical design
+/// philosophy frequently used in C++, where folder names are represented by
+/// namespaces.
+///
+/// \htmlonly
+/// <details>
+///   <summary>src/</summary>
+///   <ul>
+///     <details>
+///       <summary>drv/</summary>
+///       <ul>
+///         <details>
+///           <summary>&lt;driver&gt;/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///     <details>
+///       <summary>intf/</summary>
+///       <ul>
+///         <details>
+///           <summary>&lt;interface&gt;/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///     <details>
+///       <summary>mem/</summary>
+///       <ul>
+///         <details>
+///           <summary>&lt;memory&gt;/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///     <details>
+///       <summary>mw/</summary>
+///       <ul>
+///         <details>
+///           <summary>&lt;middleware&gt;/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///   </ul>
+/// </details>
+/// \endhtmlonly
+///
 /// \section section_architecture_diagram Diagram
 // clang-format off
 /// \page page_architecture Architecture
