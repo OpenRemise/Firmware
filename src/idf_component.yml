@@ -1,5 +1,5 @@
 dependencies:
-  idf: "5.5.3"
+  idf: "5.5.4"
   bblanchon/arduinojson:
     version: "7.4.3"
   espressif/esp_tinyusb:
