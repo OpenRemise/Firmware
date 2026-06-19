@@ -132,7 +132,7 @@ void loop() {
     transmit_response(resp);
     if (static_cast<Command>((*packet)[0uz]) == Command::Exit &&
         resp[0uz] == ack) {
-      vTaskDelay(pdMS_TO_TICKS(1000u));
+      vTaskDelay(pdMS_TO_TICKS(2000u));
       return;
     }
   }
