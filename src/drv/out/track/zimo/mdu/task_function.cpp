@@ -271,7 +271,7 @@ esp_err_t loop(mdu_encoder_config_t& encoder_cfg) {
       // Exit
       else if (cmd == Command::ZppExitReset ||
                cmd == Command::ZsuCrc32ResultExit)
-        return transmit_packet_blocking_for(busy_packet, 1'000'000u);
+        return transmit_packet_blocking_for(busy_packet, 2'000'000u);
     }
   }
 }
