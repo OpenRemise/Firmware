@@ -42,62 +42,77 @@
 #include "mw/zimo/zusi/init.hpp"
 #include "utility.hpp"
 
+#include <esp_random.h>
+
+#include <driver/gpio.h>
+extern "C" esp_err_t gpio_od_enable(gpio_num_t gpio_num);
+
+#include <driver/uart.h>
+#include <hal/uart_hal.h>
+
+// Open-drain with the internal (weak) pull-up needs a moderate baud rate so the
+// line can rise back to the idle level within a bit period.
+#define RS485_SW_BAUD_RATE 16667
+
+// Keep the single-wire packets short so the test stays fast at this baud rate.
+#define RS485_SW_PACKET_SIZE (32)
+#define RS485_SW_ITERATIONS (50)
+
 /// ESP-IDF application entry point
 extern "C" void app_main() {
-  static_assert(PRO_CPU_NUM == 0 && WIFI_TASK_CORE_ID == 0);
-  static_assert(APP_CPU_NUM == 1);
+  static constexpr uart_config_t uart_config{
+    .baud_rate = RS485_SW_BAUD_RATE,
+    .data_bits = UART_DATA_8_BITS,
+    .parity = UART_PARITY_DISABLE,
+    .stop_bits = UART_STOP_BITS_1,
+    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    .rx_flow_ctrl_thresh = 0u,
+    .source_clk = UART_SCLK_DEFAULT,
+  };
 
-  // Most important ones
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, mem::nvs::init));
-  static_assert(APP_CPU_NUM == mem::nvs::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, drv::anlg::init));
-  static_assert(APP_CPU_NUM == drv::anlg::adc_task.core_id &&
-                APP_CPU_NUM == drv::anlg::temp_task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, drv::out::init));
-  static_assert(APP_CPU_NUM == drv::out::susi::zimo::zusi::task.core_id &&
-                APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
-                APP_CPU_NUM == drv::out::track::zimo::decup::task.core_id &&
-                APP_CPU_NUM == drv::out::track::zimo::mdu::task.core_id);
+  ESP_ERROR_CHECK(uart_wait_tx_idle_polling(UART_NUM_1));
+  ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_config));
+  ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1,
+                               GPIO_NUM_38, // TX
+                               GPIO_NUM_39, // RX
+                               UART_PIN_NO_CHANGE,
+                               UART_PIN_NO_CHANGE));
 
-  // Don't change initialization order
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, drv::led::init));
-  if (auto const err{ipc_call_blocking(WIFI_TASK_CORE_ID, drv::eth::init)})
-    ESP_ERROR_CHECK(ipc_call_blocking(WIFI_TASK_CORE_ID, drv::wifi::init));
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::http::init));
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::udp::init));
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::dcc::init));
-  static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::ota::init));
-  static_assert(APP_CPU_NUM == mw::ota::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, mw::roco::z21::init));
-  static_assert(APP_CPU_NUM == mw::roco::z21::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::zusi::init));
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::decup::init));
-  static_assert(APP_CPU_NUM == mw::zimo::decup::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::mdu::init));
-  static_assert(APP_CPU_NUM == mw::zimo::mdu::task.core_id);
-  static_assert(APP_CPU_NUM == mw::zimo::zusi::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::dns::init));
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::mdns::init));
+  // Protect the pads: open-drain output + pull-up so the bus idles high
+  // and several devices can drive it simultaneously without a short circuit.
+  ESP_ERROR_CHECK(gpio_set_pull_mode(GPIO_NUM_38, GPIO_PULLUP_ONLY));
+  ESP_ERROR_CHECK(gpio_set_pull_mode(GPIO_NUM_39, GPIO_PULLUP_ONLY));
 
-  // Either use U0RX and U0TX as trace outputs
-#if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
-  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, drv::trace::init));
-  // ... or as UART display
-#else
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::disp::init));
-  static_assert(APP_CPU_NUM == mw::disp::task.core_id);
-#endif
+  ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_38));
+  ESP_ERROR_CHECK(gpio_od_enable(GPIO_NUM_39));
 
-  // Don't disable serial JTAG
-#if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::ulf::init));
-  static_assert(APP_CPU_NUM == mw::zimo::ulf::dcc_ein::task.core_id &&
-                APP_CPU_NUM == mw::zimo::ulf::susiv2::task.core_id);
-  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, intf::usb::init));
-  static_assert(APP_CPU_NUM == intf::usb::rx_task.core_id &&
-                APP_CPU_NUM == intf::usb::tx_task.core_id);
-#endif
+  ESP_ERROR_CHECK(uart_driver_install(UART_NUM_1, 1024, 1024, 0, NULL, 0));
+  ESP_ERROR_CHECK(uart_set_mode(UART_NUM_1, UART_MODE_RS485_COLLISION_DETECT));
+
+  for (;;) {
+    // Write random string
+    vTaskDelay(pdMS_TO_TICKS(1000u));
+    std::array<uint8_t, 32uz> str;
+    std::ranges::generate(
+      str, [] { return static_cast<uint8_t>(esp_random() % 95 + 32); });
+    auto const bytes_written{
+      uart_write_bytes(UART_NUM_1, data(str), size(str))};
+    uart_wait_tx_done(UART_NUM_1, pdMS_TO_TICKS(1000u));
+    printf("wr %.*s\n", bytes_written, data(str));
+
+    bool collision{};
+    ESP_ERROR_CHECK(uart_get_collision_flag(UART_NUM_1, &collision));
+
+    // Read it back (must be from FIFO because driver blocks reads from buffer)
+    auto const bytes_available{uart_ll_get_rxfifo_len(&UART1)};
+    uart_ll_read_rxfifo(&UART1, data(str), bytes_available);
+    printf("rd %.*s\n", static_cast<int>(bytes_available), data(str));
+
+    printf("collision? %d\n\n", collision);
+
+    // Flush
+    uart_flush(UART_NUM_1);
+  }
 }
 
 // Assert that task names are unique and below max length
