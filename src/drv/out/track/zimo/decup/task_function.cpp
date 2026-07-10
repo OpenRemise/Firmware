@@ -21,6 +21,7 @@
 
 #include "task_function.hpp"
 #include <driver/gpio.h>
+#include <esp_timer.h>
 #include <decup/decup.hpp>
 #include <ulf/decup_ein.hpp>
 #include "../../current_limit.hpp"
@@ -50,7 +51,7 @@ bool IRAM_ATTR rmt_callback(rmt_channel_handle_t,
 }
 
 /// \todo document
-void IRAM_ATTR ack_isr_handler(void*) { ++ack_count; }
+void IRAM_ATTR ack_isr_handler(void*) { ack_count = ack_count + 1u; }
 
 /// \todo document
 std::optional<Packet> receive_packet(uint32_t timeout) {

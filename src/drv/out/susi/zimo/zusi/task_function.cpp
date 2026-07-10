@@ -22,6 +22,7 @@
 #include "task_function.hpp"
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
+#include <esp_rom_gpio.h>
 #include <hal/gpio_ll.h>
 #include <soc/spi_periph.h>
 #include <ulf/susiv2.hpp>

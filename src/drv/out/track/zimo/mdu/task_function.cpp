@@ -20,6 +20,7 @@
 /// \date   10/04/2024
 
 #include "task_function.hpp"
+#include <esp_timer.h>
 #include <rmt_dcc_encoder.h>
 #include <dcc/dcc.hpp>
 #include <mdu/mdu.hpp>

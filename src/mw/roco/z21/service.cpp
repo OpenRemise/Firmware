@@ -154,7 +154,7 @@ int32_t Service::serialNumber() const {
 void Service::logoff(z21::Socket const& sock) {
   printf("%s\n", __PRETTY_FUNCTION__);
   /// \todo should this broadcast stop? if there are no more clients?
-  if (empty(clients())) trackPower(false);
+  if (empty(clients())) std::ignore = trackPower(false);
 }
 
 /// \todo document

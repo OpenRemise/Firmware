@@ -48,16 +48,14 @@ esp_err_t init_channel() {
     .gpio_num = p_gpio_num,
     .clk_src = RMT_CLK_SRC_DEFAULT,
     .resolution_hz = 1'000'000u,
-    .mem_block_symbols =
-      SOC_RMT_CHANNELS_PER_GROUP *
-      SOC_RMT_MEM_WORDS_PER_CHANNEL, // 8 channels sharing 384x32 bit RAM
+    .mem_block_symbols = SOC_RMT_MEM_WORDS_PER_CHANNEL,
     .trans_queue_depth = trans_queue_depth,
     .intr_priority = 3,
     .flags = {
       .invert_out = false,
       .with_dma = false,
-      .io_loop_back = false,
-      .io_od_mode = false,
+      .allow_pd = false,
+      .init_level = false,
     }};
   ESP_ERROR_CHECK(rmt_new_tx_channel(&channel_cfg, &channel));
   return rmt_enable(channel);

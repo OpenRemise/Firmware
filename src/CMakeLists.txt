@@ -97,11 +97,19 @@ else()
     app_update
     bootloader_support
     dns_server
-    driver
     esp_adc
     esp_app_format
+    esp_driver_gpio
+    esp_driver_gptimer
+    esp_driver_i2c
+    esp_driver_ledc
+    esp_driver_rmt
+    esp_driver_spi
+    esp_driver_tsens
+    esp_driver_uart
     esp_eth
     esp_http_server
+    esp_timer
     esp_wifi
     nvs_flash
     vfs
@@ -111,19 +119,17 @@ endif()
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
 
-target_common_warnings(${COMPONENT_LIB} PRIVATE)
-
 target_compile_options(
   ${COMPONENT_LIB}
   PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:-include;${CMAKE_CURRENT_SOURCE_DIR}/config.hpp>"
-    -Wfatal-errors)
+    -Wfatal-errors -Wno-missing-field-initializers)
 
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.1")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.0")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.2")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.2.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.2.0")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.3")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.4")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.5")
 cpmaddpackage("gh:microsoft/GSL@4.2.2")
 cpmaddpackage(
@@ -155,7 +161,7 @@ cpmaddpackage(
   GITHUB_REPOSITORY
   fmtlib/fmt
   GIT_TAG
-  12.1.0
+  12.2.0
   SYSTEM
   YES
   OPTIONS

@@ -21,7 +21,9 @@
 
 #include "suspend.hpp"
 #include <driver/gpio.h>
+#include <esp_rom_gpio.h>
 #include <hal/gpio_ll.h>
+#include <soc/spi_periph.h>
 #include <algorithm>
 #include "../../../suspend.hpp"
 

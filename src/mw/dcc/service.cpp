@@ -915,7 +915,7 @@ void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr, bool) {
 
   // Dummy CV7 write ensures we aren't receiving app:pom replies to different CV
   // addresses when reading multiple values in row. According to RCN-226 all CV7
-  // PoM access are to be ignored by all decoders.
+  // POM access are to be ignored by all decoders.
   sendToFront(make_cv_access_long_write_packet(
     {.value = accy_addr, .type = Address::BasicAccessory}, 7u, 0u));
 
