@@ -19,11 +19,11 @@
 /// \author Vincent Hamp
 /// \date   28/01/2026
 
-#pragma once
-
 #include <driver/gpio.h>
 #include <esp_eth_driver.h>
+#include <esp_eth_mac_w5500.h>
 #include <esp_eth_netif_glue.h>
+#include <esp_eth_phy_w5500.h>
 #include <esp_mac.h>
 #include <esp_netif.h>
 #include <cassert>
@@ -44,7 +44,7 @@ void event_handler(void*,
                    void* event_data) {
   // Ethernet got IP from connected AP
   if (event_base == IP_EVENT && event_id == IP_EVENT_ETH_GOT_IP) {
-    auto const event{std::bit_cast<ip_event_got_ip_t*>(event_data)};
+    auto const event{static_cast<ip_event_got_ip_t*>(event_data)};
     auto const count{
       snprintf(data(ip), size(ip), IPSTR, IP2STR(&event->ip_info.ip))};
     ip_str.replace(0uz, count, data(ip));
@@ -103,10 +103,10 @@ esp_err_t init() {
                                         .spics_io_num = cs_gpio_num,
                                         .queue_size = 20};
 
-  eth_w5500_config_t w5500_cfg{.int_gpio_num = -1,
-                               .poll_period_ms = 10u,
-                               .spi_host_id = SPI3_HOST,
-                               .spi_devcfg = &dev_cfg};
+  eth_w5500_config_t w5500_cfg{.base = {.int_gpio_num = -1,
+                                        .poll_period_ms = 10u,
+                                        .spi_host_id = SPI3_HOST,
+                                        .spi_devcfg = &dev_cfg}};
 
   // Init common MAC and PHY configs to default
   static constexpr eth_mac_config_t mac_cfg{.sw_reset_timeout_ms = 100u,

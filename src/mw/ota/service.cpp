@@ -19,8 +19,6 @@
 /// \author Vincent Hamp
 /// \date   13/06/2023
 
-#pragma once
-
 #include "service.hpp"
 #include <esp_app_desc.h>
 #include <esp_app_format.h>

@@ -48,53 +48,53 @@ extern "C" void app_main() {
   static_assert(APP_CPU_NUM == 1);
 
   // Most important ones
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mem::nvs::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, mem::nvs::init));
   static_assert(APP_CPU_NUM == mem::nvs::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::anlg::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, drv::anlg::init));
   static_assert(APP_CPU_NUM == drv::anlg::adc_task.core_id &&
                 APP_CPU_NUM == drv::anlg::temp_task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::out::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, drv::out::init));
   static_assert(APP_CPU_NUM == drv::out::susi::zimo::zusi::task.core_id &&
                 APP_CPU_NUM == drv::out::track::dcc::task.core_id &&
                 APP_CPU_NUM == drv::out::track::zimo::decup::task.core_id &&
                 APP_CPU_NUM == drv::out::track::zimo::mdu::task.core_id);
 
   // Don't change initialization order
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, drv::led::init));
-  if (auto const err{invoke_on_core(WIFI_TASK_CORE_ID, drv::eth::init)})
-    ESP_ERROR_CHECK(invoke_on_core(WIFI_TASK_CORE_ID, drv::wifi::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::http::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::udp::init));
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::dcc::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, drv::led::init));
+  if (auto const err{ipc_call_blocking(WIFI_TASK_CORE_ID, drv::eth::init)})
+    ESP_ERROR_CHECK(ipc_call_blocking(WIFI_TASK_CORE_ID, drv::wifi::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::http::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::udp::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::dcc::init));
   static_assert(APP_CPU_NUM == mw::dcc::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::ota::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::ota::init));
   static_assert(APP_CPU_NUM == mw::ota::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, mw::roco::z21::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, mw::roco::z21::init));
   static_assert(APP_CPU_NUM == mw::roco::z21::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::zusi::init));
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::decup::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::zusi::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::decup::init));
   static_assert(APP_CPU_NUM == mw::zimo::decup::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::mdu::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::mdu::init));
   static_assert(APP_CPU_NUM == mw::zimo::mdu::task.core_id);
   static_assert(APP_CPU_NUM == mw::zimo::zusi::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::dns::init));
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, intf::mdns::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::dns::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, intf::mdns::init));
 
   // Either use U0RX and U0TX as trace outputs
 #if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
-  ESP_ERROR_CHECK(invoke_on_core(PRO_CPU_NUM, drv::trace::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(PRO_CPU_NUM, drv::trace::init));
   // ... or as UART display
 #else
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::disp::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::disp::init));
   static_assert(APP_CPU_NUM == mw::disp::task.core_id);
 #endif
 
   // Don't disable serial JTAG
 #if !defined(CONFIG_USJ_ENABLE_USB_SERIAL_JTAG)
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, mw::zimo::ulf::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, mw::zimo::ulf::init));
   static_assert(APP_CPU_NUM == mw::zimo::ulf::dcc_ein::task.core_id &&
                 APP_CPU_NUM == mw::zimo::ulf::susiv2::task.core_id);
-  ESP_ERROR_CHECK(invoke_on_core(APP_CPU_NUM, intf::usb::init));
+  ESP_ERROR_CHECK(ipc_call_blocking(APP_CPU_NUM, intf::usb::init));
   static_assert(APP_CPU_NUM == intf::usb::rx_task.core_id &&
                 APP_CPU_NUM == intf::usb::tx_task.core_id);
 #endif

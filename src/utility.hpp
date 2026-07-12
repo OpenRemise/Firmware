@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <esp_heap_caps.h>
 #include <bit>
 #include <charconv>
 #include <dcc/dcc.hpp>
@@ -80,78 +79,10 @@ OutputIt decode_uri(std::string_view uri, OutputIt out) {
 }
 
 /// \todo document
-template<typename T>
-using unique_caps_ptr = std::unique_ptr<T, decltype(heap_caps_free)*>;
-
-/// \todo document
-template<typename T>
-constexpr auto make_unique_caps(size_t size, uint32_t caps) {
-  return unique_caps_ptr<T>{std::bit_cast<T*>(heap_caps_malloc(size, caps)),
-                            heap_caps_free};
-}
-
-/// \todo document
 uint32_t http_receive_timeout2ms();
 
 /// \todo document
-template<typename F, typename... Ts>
-auto invoke_on_core(BaseType_t core_id, F&& f, Ts&&... ts) {
-  using R = decltype(f(std::forward<Ts>(ts)...));
-
-  // Pinned and current core are the same
-  if (core_id == xPortGetCoreID())
-    return std::invoke(std::forward<F>(f), std::forward<Ts>(ts)...);
-  // Pinned core is different, return type is void
-  else if constexpr (constexpr auto default_stacksize{4096uz};
-                     std::is_void_v<R>) {
-    // Create tuple to pass to task
-    std::tuple<F, std::tuple<Ts...>> t{
-      std::forward<F>(f), std::tuple<Ts...>{std::forward<Ts>(ts)...}};
-
-    // Create task and wait for it's deletion
-    TaskHandle_t handle;
-    if (!xTaskCreatePinnedToCore(
-          [](void* pv) {
-            auto& _t{*static_cast<decltype(t)*>(pv)};
-            std::apply(std::get<0uz>(_t), std::get<1uz>(_t));
-            vTaskDelete(NULL);
-          },
-          NULL,
-          default_stacksize,
-          &t,
-          ESP_TASK_PRIO_MAX - 1u,
-          &handle,
-          core_id))
-      assert(false);
-    while (eTaskGetState(handle) < eDeleted) vTaskDelay(1u);
-  }
-  // Pinned core is different, return type isn't void
-  else {
-    // Create tuple to pass to task
-    std::tuple<R, F, std::tuple<Ts...>> t{
-      {}, std::forward<F>(f), std::tuple<Ts...>{std::forward<Ts>(ts)...}};
-
-    // Create task and wait for it's deletion
-    TaskHandle_t handle;
-    if (!xTaskCreatePinnedToCore(
-          [](void* pv) {
-            auto& _t{*static_cast<decltype(t)*>(pv)};
-            std::get<0uz>(_t) =
-              std::apply(std::get<1uz>(_t), std::get<2uz>(_t));
-            vTaskDelete(NULL);
-          },
-          NULL,
-          default_stacksize,
-          &t,
-          ESP_TASK_PRIO_MAX - 1u,
-          &handle,
-          core_id))
-      assert(false);
-    while (eTaskGetState(handle) < eDeleted) vTaskDelay(1u);
-
-    return std::get<0uz>(t);
-  }
-}
+esp_err_t ipc_call_blocking(BaseType_t core_id, esp_err_t (*f)());
 
 /// \todo document
 template<typename... Ts>
@@ -164,7 +95,7 @@ inline auto httpd_queue_work(intf::http::Message* msg) {
   return httpd_queue_work(
     intf::http::handle,
     [](void* arg) {
-      auto msg{std::bit_cast<intf::http::Message*>(arg)};
+      auto msg{static_cast<intf::http::Message*>(arg)};
 
       // Wrap message in httpd_ws_frame_t
       httpd_ws_frame_t frame{

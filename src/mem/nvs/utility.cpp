@@ -19,8 +19,6 @@
 /// \author Vincent Hamp
 /// \date   12/06/2025
 
-#pragma once
-
 namespace mem::nvs {
 
 /// Convert address to key

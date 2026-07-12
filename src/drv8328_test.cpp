@@ -20,6 +20,7 @@
 /// \date   04/02/2026
 
 #include <driver/gpio.h>
+#include <esp_timer.h>
 
 void drv8328_test() {
   // Inputs and outputs

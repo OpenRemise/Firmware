@@ -9,10 +9,6 @@ TEST(utility, decode_uri) {
   EXPECT_EQ(decoded, "http://foo bar/");
 }
 
-TEST(utility, make_unique_caps) {
-  [[maybe_unused]] auto heap{make_unique_caps<char>(42uz, MALLOC_CAP_SPIRAM)};
-}
-
 TEST(utility, validate_json) {
   std::string_view valid{"{\"address\":100,\"name\":\"MoFo\",\"functions\":"
                          "1234,\"speed\":42,\"dir\":1}"};
