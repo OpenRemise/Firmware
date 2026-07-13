@@ -20,12 +20,12 @@ TEST_F(EndpointsTest, same_method_different_uri) {
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_GET, .uri = "/a/"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_GET, .uri = "/b/"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 }
 
@@ -42,17 +42,17 @@ TEST_F(EndpointsTest, same_method_same_uri_prefix) {
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_GET, .uri = "/dcc/"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_GET, .uri = "/dcc/locos/"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_GET, .uri = "/dcc/locos/3"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 }
 
@@ -68,11 +68,11 @@ TEST_F(EndpointsTest, different_method_same_uri) {
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_GET, .uri = "/a/"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 
   {
     httpd_req_t req{.handle = NULL, .method = HTTP_POST, .uri = "/a/"};
-    syncResponse(&req);
+    std::ignore = syncResponse(&req);
   }
 }
