@@ -17,7 +17,6 @@ TEST_F(DccTest, turnout_to_json) {
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
-  std::cout << json << "\n";
   EXPECT_EQ(
     json,
     R"({"name":"North","mode":0,"position":2,"type":0,"group":{"addresses":[13],"positions":[[1,1],[1,2],[2,1],[2,2]]}})");
