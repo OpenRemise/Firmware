@@ -10,7 +10,7 @@
             "name": "Debug",
             "generator": "Ninja",
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -24,7 +24,7 @@
             "name": "Debug JTAG",
             "generator": "Ninja",
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -38,7 +38,7 @@
             "name": "Release",
             "generator": "Ninja",
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "Release",
@@ -52,7 +52,7 @@
             "name": "Release JTAG",
             "generator": "Ninja",
             "toolchainFile": "$env{IDF_PATH}/tools/cmake/toolchain-esp32s3.cmake",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "build",
             "cacheVariables": {
                 "CCACHE_ENABLE": "OFF",
                 "CMAKE_BUILD_TYPE": "Release",
@@ -65,7 +65,7 @@
         {
             "name": "Tests",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "build",
             "cacheVariables": {
                 "BUILD_TESTING": "OFF",
                 "CCACHE_ENABLE": "OFF",
