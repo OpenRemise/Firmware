@@ -23,6 +23,6 @@ dependencies:
   zimo-elektronik/decup:
     version: "0.2.2"
   zimo-elektronik/mdu:
-    version: "0.19.4"
+    version: "0.19.5"
   zimo-elektronik/z21:
     version: "0.4.0"
