@@ -277,18 +277,35 @@ esp_err_t loop(mdu_encoder_config_t& encoder_cfg) {
   }
 }
 
+/// \todo document
+[[maybe_unused]] void zpp_test_loop(mdu_encoder_config_t& encoder_cfg) {
+  ESP_ERROR_CHECK(zpp_entry());
+  ESP_ERROR_CHECK(resume(encoder_cfg, ack_isr_handler));
+  ESP_ERROR_CHECK(zsu_entry());
+
+  for (;;) {
+    auto const packet{make_ping_packet(0u, 0u)};
+    ESP_ERROR_CHECK(transmit_packet_blocking(packet));
+    auto const acks{receive_acks(encoder_cfg, packet)};
+    if (acks == std::array{nak, ack}) LOGI("%s success", __PRETTY_FUNCTION__);
+    else LOGI("%s failure", __PRETTY_FUNCTION__);
+    vTaskDelay(pdMS_TO_TICKS(5000u));
+  }
+}
+
 /// \todo document that this pings a decoder (default MS450)
-[[maybe_unused]] esp_err_t test_loop(mdu_encoder_config_t& encoder_cfg,
-                                     uint8_t decoder_id = 6u) {
-  auto const packet{make_ping_packet(decoder_id)};
-  ESP_ERROR_CHECK(transmit_packet_blocking(packet));
-  auto const acks{receive_acks(encoder_cfg, packet)};
-  if (acks == std::array{nak, ack}) {
-    LOGI("MDU test success");
-    return ESP_OK;
-  } else {
-    LOGE("MDU test failure");
-    return ESP_FAIL;
+[[maybe_unused]] void zsu_test_loop(mdu_encoder_config_t& encoder_cfg,
+                                    uint32_t decoder_id = 0x06043203u) {
+  ESP_ERROR_CHECK(resume(encoder_cfg, ack_isr_handler));
+  ESP_ERROR_CHECK(zsu_entry());
+
+  for (;;) {
+    auto const packet{make_ping_packet(0u, decoder_id)};
+    ESP_ERROR_CHECK(transmit_packet_blocking(packet));
+    auto const acks{receive_acks(encoder_cfg, packet)};
+    if (acks == std::array{nak, ack}) LOGI("%s success", __PRETTY_FUNCTION__);
+    else LOGI("%s failure", __PRETTY_FUNCTION__);
+    vTaskDelay(pdMS_TO_TICKS(5000u));
   }
 }
 
