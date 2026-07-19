@@ -19,10 +19,10 @@ dependencies:
     rules:
       - if: target != linux
   zimo-elektronik/dcc:
-    version: "0.48.0"
+    version: "0.48.1"
   zimo-elektronik/decup:
     version: "0.2.2"
   zimo-elektronik/mdu:
-    version: "0.19.4"
+    version: "0.19.5"
   zimo-elektronik/z21:
     version: "0.4.0"
