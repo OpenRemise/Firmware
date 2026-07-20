@@ -221,7 +221,7 @@ esp_err_t transmit_bidi(RxQueue::value_type item) {
 /// \todo document
 esp_err_t operations_loop(dcc_encoder_config_t const& encoder_cfg) {
   static constexpr auto idle_packet{make_idle_packet()};
-  ztl::inplace_deque<Packet, trans_queue_depth> packets{};
+  ztl::inplace_deque<Packet, trans_queue_depth + 1uz> packets{};
   auto const timeout{http_receive_timeout2ms()};
   TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
 
@@ -334,7 +334,7 @@ esp_err_t service_loop(dcc_encoder_config_t const&) {
   static constexpr auto reset_packet{make_reset_packet()};
   static constexpr auto read_timeout{50u};
   static constexpr auto write_timeout{100u};
-  ztl::inplace_deque<Packet, trans_queue_depth> packets{reset_packet};
+  ztl::inplace_deque<Packet, trans_queue_depth + 1uz> packets{reset_packet};
   auto const timeout{http_receive_timeout2ms()};
   TickType_t timeout_tick{xTaskGetTickCount() + pdMS_TO_TICKS(timeout)};
   anlg::CurrentMeasurement ref_current_measurement{};
