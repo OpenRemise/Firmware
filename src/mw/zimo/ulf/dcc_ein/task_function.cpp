@@ -83,16 +83,6 @@ void send_to_front(::dcc::Packet const& packet) {
                      portMAX_DELAY);
 }
 
-/// Send DCC packet to drv::out::tx_message_buffer back
-///
-/// \param  packet  DCC packet
-void send_to_back(::dcc::Packet const& packet) {
-  xMessageBufferSend(drv::out::tx_message_buffer.back_handle,
-                     data(packet),
-                     size(packet),
-                     portMAX_DELAY);
-}
-
 /// Receive addressed datagram
 ///
 /// \retval AddressedDatagram received from out::track::rx_queue
