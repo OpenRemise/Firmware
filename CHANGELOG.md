@@ -2,6 +2,7 @@
 
 ##
 - Add VCC voltage measurements and hardware revision detection ([#141](https://github.com/OpenRemise/Firmware/pull/141))
+- Add Z21 `LAN_X_SET_LOCO_NAME` ([#164](https://github.com/OpenRemise/Firmware/issues/164))
 - Bugfix DCC service mode byte only verify never checks for value 255 ([#145](https://github.com/OpenRemise/Firmware/issues/145))
 - Bugfix DCC BiDi channel 1 collision invalidates entire datagram ([#153](https://github.com/OpenRemise/Firmware/issues/153))
 - Bugfix RMT memory corruption ([#160](https://github.com/OpenRemise/Firmware/issues/160))
