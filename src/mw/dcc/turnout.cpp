@@ -19,29 +19,31 @@
 namespace mw::dcc {
 
 /// \todo document
-NvTurnoutBase::NvTurnoutBase(JsonDocument const& doc) { fromJsonDocument(doc); }
+NvTurnoutBase::NvTurnoutBase(JsonVariantConst src) { fromJson(src); }
 
 /// \todo document
-void NvTurnoutBase::fromJsonDocument(JsonDocument const& doc) {
-  if (JsonVariantConst v{doc["name"]}; v.is<std::string>())
+void NvTurnoutBase::fromJson(JsonVariantConst src) {
+  if (JsonVariantConst v{src["name"]}; v.is<std::string>())
     name = v.as<std::string>();
 
-  if (JsonVariantConst v{doc["mode"]}; v.is<Mode>())
+  if (JsonVariantConst v{src["mode"]}; v.is<Mode>())
     if (v.as<Mode>() != Mode::DCC) LOGE("Can't set mode to anything but DCC");
 
-  if (JsonVariantConst v{doc["position"]}; v.is<uint8_t>()) position = v;
+  if (JsonVariantConst v{src["position"]}; v.is<uint8_t>()) position = v;
 
-  if (JsonVariantConst v{doc["type"]}; v.is<Type>()) type = v.as<Type>();
+  if (JsonVariantConst v{src["type"]}; v.is<Type>()) type = v.as<Type>();
 
-  if (JsonObjectConst obj{doc["group"].as<JsonObjectConst>()}) {
-    if (JsonVariantConst arr{obj["addresses"]}; arr.is<JsonArrayConst>()) {
+  if (JsonObjectConst group_obj{src["group"].as<JsonObjectConst>()}) {
+    if (JsonVariantConst arr{group_obj["addresses"]};
+        arr.is<JsonArrayConst>()) {
       group.addresses.clear();
       group.addresses.reserve(std::size(arr));
       for (auto const v : arr.as<JsonArrayConst>())
         group.addresses.push_back(v.as<Address::value_type>());
     }
 
-    if (JsonVariantConst outer{obj["positions"]}; outer.is<JsonArrayConst>()) {
+    if (JsonVariantConst outer{group_obj["positions"]};
+        outer.is<JsonArrayConst>()) {
       group.positions.clear();
       group.positions.reserve(std::size(outer));
       for (auto const inner : outer.as<JsonArrayConst>()) {
@@ -56,21 +58,21 @@ void NvTurnoutBase::fromJsonDocument(JsonDocument const& doc) {
 }
 
 /// \todo document
-JsonDocument NvTurnoutBase::toJsonDocument() const {
+JsonDocument NvTurnoutBase::toJson() const {
   JsonDocument doc;
   doc["name"] = name;
   doc["mode"] = mode;
   doc["position"] = position;
   doc["type"] = type;
 
-  JsonObject obj{doc.createNestedObject("group")};
+  JsonObject obj{doc["group"].to<JsonObject>()};
 
-  JsonArray arr{obj.createNestedArray("addresses")};
+  JsonArray arr{obj["addresses"].to<JsonArray>()};
   for (auto const v : group.addresses) arr.add(v);
 
-  JsonArray outer{obj.createNestedArray("positions")};
+  JsonArray outer{obj["positions"].to<JsonArray>()};
   for (auto const& positions : group.positions) {
-    JsonArray inner{outer.createNestedArray()};
+    JsonArray inner{outer.add<JsonArray>()};
     for (auto const v : positions) inner.add(v);
   }
 
@@ -78,16 +80,12 @@ JsonDocument NvTurnoutBase::toJsonDocument() const {
 }
 
 /// \todo document
-Turnout::Turnout(JsonDocument const& doc) { fromJsonDocument(doc); }
+Turnout::Turnout(JsonVariantConst src) { fromJson(src); }
 
 /// \todo document
-void Turnout::fromJsonDocument(JsonDocument const& doc) {
-  NvTurnoutBase::fromJsonDocument(doc);
-}
+void Turnout::fromJson(JsonVariantConst src) { NvTurnoutBase::fromJson(src); }
 
 /// \todo document
-JsonDocument Turnout::toJsonDocument() const {
-  return NvTurnoutBase::toJsonDocument();
-}
+JsonDocument Turnout::toJson() const { return NvTurnoutBase::toJson(); }
 
 } // namespace mw::dcc

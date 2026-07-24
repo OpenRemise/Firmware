@@ -19,22 +19,22 @@
 namespace mw::dcc {
 
 /// \todo document
-NvLocoBase::NvLocoBase(JsonDocument const& doc) { fromJsonDocument(doc); }
+NvLocoBase::NvLocoBase(JsonVariantConst src) { fromJson(src); }
 
 /// \todo document
-void NvLocoBase::fromJsonDocument(JsonDocument const& doc) {
-  if (JsonVariantConst v{doc["name"]}; v.is<std::string>())
+void NvLocoBase::fromJson(JsonVariantConst src) {
+  if (JsonVariantConst v{src["name"]}; v.is<std::string>())
     name = v.as<std::string>();
 
-  if (JsonVariantConst v{doc["mode"]}; v.is<Mode>())
+  if (JsonVariantConst v{src["mode"]}; v.is<Mode>())
     if (v.as<Mode>() != Mode::DCC) LOGE("Can't set mode to anything but DCC");
 
-  if (JsonVariantConst v{doc["speed_steps"]}; v.is<SpeedSteps>())
+  if (JsonVariantConst v{src["speed_steps"]}; v.is<SpeedSteps>())
     speed_steps = v.as<SpeedSteps>();
 }
 
 /// \todo document
-JsonDocument NvLocoBase::toJsonDocument() const {
+JsonDocument NvLocoBase::toJson() const {
   JsonDocument doc;
   doc["name"] = name;
   doc["mode"] = mode;
@@ -43,41 +43,41 @@ JsonDocument NvLocoBase::toJsonDocument() const {
 }
 
 /// \todo document
-Loco::Loco(JsonDocument const& doc) { fromJsonDocument(doc); }
+Loco::Loco(JsonVariantConst src) { fromJson(src); }
 
 /// \todo document
-void Loco::fromJsonDocument(JsonDocument const& doc) {
-  NvLocoBase::fromJsonDocument(doc);
+void Loco::fromJson(JsonVariantConst src) {
+  NvLocoBase::fromJson(src);
 
-  if (JsonVariantConst v{doc["rvvvvvvv"]}; v.is<uint8_t>()) rvvvvvvv = v;
+  if (JsonVariantConst v{src["rvvvvvvv"]}; v.is<uint8_t>()) rvvvvvvv = v;
 
-  if (JsonVariantConst v{doc["f31_0"]}; v.is<uint32_t>()) f31_0 = v;
+  if (JsonVariantConst v{src["f31_0"]}; v.is<uint32_t>()) f31_0 = v;
 
-  if (JsonObjectConst obj{doc["bidi"].as<JsonObjectConst>()}) {
-    if (JsonVariantConst v{obj["receive_counter"]}; v.is<uint32_t>())
+  if (JsonObjectConst bidi_obj{src["bidi"].as<JsonObjectConst>()}) {
+    if (JsonVariantConst v{bidi_obj["receive_counter"]}; v.is<uint32_t>())
       bidi.receive_counter = v.as<uint32_t>();
 
-    if (JsonVariantConst v{obj["error_counter"]}; v.is<uint16_t>())
+    if (JsonVariantConst v{bidi_obj["error_counter"]}; v.is<uint16_t>())
       bidi.error_counter = v.as<uint16_t>();
 
-    if (JsonVariantConst v{obj["options"]}; v.is<uint8_t>())
+    if (JsonVariantConst v{bidi_obj["options"]}; v.is<uint8_t>())
       bidi.options = v.as<z21::RailComData::Options>();
 
-    if (JsonVariantConst v{obj["speed"]}; v.is<uint8_t>())
+    if (JsonVariantConst v{bidi_obj["speed"]}; v.is<uint8_t>())
       bidi.speed = v.as<uint8_t>();
 
-    if (JsonVariantConst v{obj["qos"]}; v.is<uint8_t>())
+    if (JsonVariantConst v{bidi_obj["qos"]}; v.is<uint8_t>())
       bidi.qos = v.as<uint8_t>();
   }
 }
 
 /// \todo document
-JsonDocument Loco::toJsonDocument() const {
-  auto doc{NvLocoBase::toJsonDocument()};
+JsonDocument Loco::toJson() const {
+  auto doc{NvLocoBase::toJson()};
   doc["rvvvvvvv"] = rvvvvvvv;
   doc["f31_0"] = f31_0;
 
-  JsonObject obj{doc.createNestedObject("bidi")};
+  JsonObject obj{doc["bidi"].to<JsonObject>()};
   obj["receive_counter"] = bidi.receive_counter;
   obj["error_counter"] = bidi.error_counter;
   obj["options"] = bidi.options;

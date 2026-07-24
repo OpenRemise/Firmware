@@ -13,7 +13,7 @@ TEST_F(DccTest, turnout_to_json) {
        {z21::TurnoutInfo::Position::P1, z21::TurnoutInfo::Position::P0},
        {z21::TurnoutInfo::Position::P1, z21::TurnoutInfo::Position::P1}},
   };
-  auto doc{turnout.toJsonDocument()};
+  auto doc{turnout.toJson()};
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);

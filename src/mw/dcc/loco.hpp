@@ -31,10 +31,10 @@ namespace z21 = ::z21;
 /// Non-volatile base
 struct NvLocoBase : z21::LocoInfo {
   constexpr NvLocoBase() = default;
-  explicit NvLocoBase(JsonDocument const& doc);
+  explicit NvLocoBase(JsonVariantConst src);
 
-  void fromJsonDocument(JsonDocument const& doc);
-  JsonDocument toJsonDocument() const;
+  void fromJson(JsonVariantConst src);
+  JsonDocument toJson() const;
 
   std::string name{};
 };
@@ -42,10 +42,10 @@ struct NvLocoBase : z21::LocoInfo {
 /// Actual object with volatile and non-volatile stuff
 struct Loco : NvLocoBase {
   constexpr Loco() = default;
-  explicit Loco(JsonDocument const& doc);
+  explicit Loco(JsonVariantConst src);
 
-  void fromJsonDocument(JsonDocument const& doc);
-  JsonDocument toJsonDocument() const;
+  void fromJson(JsonVariantConst src);
+  JsonDocument toJson() const;
 
   uint64_t priority{};
   z21::RailComData bidi{};

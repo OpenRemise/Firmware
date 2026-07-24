@@ -30,18 +30,18 @@ namespace z21 = ::z21;
 
 /// Non-volatile base
 struct NvAccessoryBase : z21::AccessoryInfo {
-  void fromJsonDocument(JsonDocument const& doc);
-  JsonDocument toJsonDocument() const;
+  void fromJson(JsonVariantConst src);
+  JsonDocument toJson() const;
   std::string name{};
 };
 
 /// Actual object with volatile and non-volatile stuff
 struct Accessory : NvAccessoryBase {
   constexpr Accessory() = default;
-  explicit Accessory(JsonDocument const& doc);
+  explicit Accessory(JsonVariantConst src);
 
-  void fromJsonDocument(JsonDocument const& doc);
-  JsonDocument toJsonDocument() const;
+  void fromJson(JsonVariantConst src);
+  JsonDocument toJson() const;
 };
 
 } // namespace mw::dcc

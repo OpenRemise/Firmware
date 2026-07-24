@@ -19,7 +19,7 @@
 namespace mw::dcc {
 
 /// \todo document
-JsonDocument SystemState::toJsonDocument() const {
+JsonDocument SystemState::toJson() const {
   JsonDocument doc;
   doc["main_current"] = main_current;
   doc["prog_current"] = prog_current;
