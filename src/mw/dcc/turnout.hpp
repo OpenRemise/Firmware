@@ -31,10 +31,10 @@ namespace z21 = ::z21;
 /// Non-volatile base
 struct NvTurnoutBase : z21::TurnoutInfo {
   constexpr NvTurnoutBase() = default;
-  explicit NvTurnoutBase(JsonDocument const& doc);
+  explicit NvTurnoutBase(JsonVariantConst src);
 
-  void fromJsonDocument(JsonDocument const& doc);
-  JsonDocument toJsonDocument() const;
+  void fromJson(JsonVariantConst src);
+  JsonDocument toJson() const;
 
   std::string name{};
   enum Type : uint16_t {
@@ -74,10 +74,10 @@ struct NvTurnoutBase : z21::TurnoutInfo {
 /// Actual object with volatile and non-volatile stuff
 struct Turnout : NvTurnoutBase {
   constexpr Turnout() = default;
-  explicit Turnout(JsonDocument const& doc);
+  explicit Turnout(JsonVariantConst src);
 
-  void fromJsonDocument(JsonDocument const& doc);
-  JsonDocument toJsonDocument() const;
+  void fromJson(JsonVariantConst src);
+  JsonDocument toJson() const;
 
   TickType_t timeout_tick{}; ///<
 };

@@ -19,25 +19,25 @@
 namespace mw::dcc {
 
 /// \todo document
-void NvAccessoryBase::fromJsonDocument(JsonDocument const& doc) {}
+void NvAccessoryBase::fromJson([[maybe_unused]] JsonVariantConst src) {}
 
 /// \todo document
-JsonDocument NvAccessoryBase::toJsonDocument() const {
+JsonDocument NvAccessoryBase::toJson() const {
   JsonDocument doc;
   return doc;
 }
 
 /// \todo document
-Accessory::Accessory(JsonDocument const& doc) { fromJsonDocument(doc); }
+Accessory::Accessory(JsonVariantConst src) { fromJson(src); }
 
 /// \todo document
-void Accessory::fromJsonDocument(JsonDocument const& doc) {
-  NvAccessoryBase::fromJsonDocument(doc);
+void Accessory::fromJson(JsonVariantConst src) {
+  NvAccessoryBase::fromJson(src);
 }
 
 /// \todo document
-JsonDocument Accessory::toJsonDocument() const {
-  auto doc{NvAccessoryBase::toJsonDocument()};
+JsonDocument Accessory::toJson() const {
+  auto doc{NvAccessoryBase::toJson()};
   return doc;
 }
 

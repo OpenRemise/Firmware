@@ -5,7 +5,7 @@ TEST_F(DccTest, loco_to_base_to_json) {
   mw::dcc::Loco loco;
   loco.name = "BR85";
   loco.speed_steps = z21::LocoInfo::DCC28;
-  auto doc{static_cast<mw::dcc::NvLocoBase&>(loco).toJsonDocument()};
+  auto doc{static_cast<mw::dcc::NvLocoBase&>(loco).toJson()};
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
@@ -17,7 +17,7 @@ TEST_F(DccTest, json_to_base_to_loco) {
   JsonDocument doc;
   deserializeJson(doc, json);
   mw::dcc::NvLocoBase base;
-  base.fromJsonDocument(doc);
+  base.fromJson(doc);
   mw::dcc::Loco loco;
   dynamic_cast<mw::dcc::NvLocoBase&>(loco) = base;
   EXPECT_EQ(loco.name, "BR85");
@@ -30,7 +30,7 @@ TEST_F(DccTest, loco_to_json) {
   loco.rvvvvvvv = 1u << 7u | 42u;
   loco.f31_0 = 1u << 3u | 1u << 1u;
   loco.bidi.error_counter = 1u;
-  auto doc{loco.toJsonDocument()};
+  auto doc{loco.toJson()};
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);

@@ -58,7 +58,7 @@ void Service::z21(std::shared_ptr<z21::server::intf::System> z21_system_service,
 intf::http::Response Service::getRequest(intf::http::Request const& req) {
   SystemState const system_state{
     static_cast<SystemState&>(_z21_system_service->systemState())};
-  auto doc{system_state.toJsonDocument()};
+  auto doc{system_state.toJson()};
   std::string json;
   json.reserve(1024uz);
   serializeJson(doc, json);
@@ -107,27 +107,29 @@ intf::http::Response Service::locosGetRequest(intf::http::Request const& req) {
     auto const it{_locos.find(addr)};
     if (it == cend(_locos))
       return std::unexpected<std::string>{"404 Not Found"};
-    auto doc{it->second.toJsonDocument()};
-    doc["address"] = addr;
+    auto loco_doc{it->second.toJson()};
+    loco_doc["address"] = addr;
     std::string json;
     json.reserve(1024uz);
-    serializeJson(doc, json);
+    serializeJson(loco_doc, json);
     return json;
   }
   // Collection
-  else {
+  else if (req.uri == "/dcc/locos/"sv) {
     JsonDocument doc;
-    auto array{doc.to<JsonArray>()}; // Explicitly convert to array
+    auto arr{doc.to<JsonArray>()};
     for (auto const& [addr, loco] : _locos) {
-      auto loco_doc{loco.toJsonDocument()};
+      auto loco_doc{loco.toJson()};
       loco_doc["address"] = addr;
-      array.add(loco_doc);
+      arr.add(loco_doc);
     }
     std::string json;
     json.reserve((size(_locos) + 1uz) * 1024uz);
     serializeJson(doc, json);
     return json;
   }
+
+  return std::unexpected<std::string>{"417 Expectation Failed"};
 }
 
 /// \todo document
@@ -142,6 +144,7 @@ Service::locosDeleteRequest(intf::http::Request const& req) {
     _locos.erase(addr);
     mem::nvs::Locos nvs;
     nvs.erase(addr);
+    return {};
   }
   // Collection
   else if (req.uri == "/dcc/locos/"sv) {
@@ -149,9 +152,10 @@ Service::locosDeleteRequest(intf::http::Request const& req) {
     _locos.clear();
     mem::nvs::Locos nvs;
     nvs.eraseAll();
+    return {};
   }
 
-  return {};
+  return std::unexpected<std::string>{"417 Expectation Failed"};
 }
 
 /// \todo document
@@ -160,10 +164,7 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
   if (!validate_json(req.body))
     return std::unexpected<std::string>{"415 Unsupported Media Type"};
 
-  // Address not found or other characters appended to it
-  // We currently only support singleton
   auto addr{uri2address(req.uri).value_or(0u)};
-  if (!addr) return std::unexpected<std::string>{"417 Expectation Failed"};
 
   // Deserialize
   JsonDocument doc;
@@ -172,43 +173,64 @@ intf::http::Response Service::locosPutRequest(intf::http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
-  std::lock_guard lock{_internal_mutex};
-  auto it{_locos.find(addr)};
-  mem::nvs::Locos nvs;
-
-  // Address not found
-  if (it == cend(_locos)) {
-    // Address in URI does not match body
-    if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
-      return std::unexpected<std::string>{"417 Expectation Failed"};
-    // Insert new loco
-    else if (auto const ret{_locos.insert({addr, Loco{doc}})}; ret.second)
-      it = ret.first; // Update iterator
-    // Insertion failed
-    else return std::unexpected<std::string>{"500 Internal Server Error"};
-  }
-  // Address found, but changing
-  else if (JsonVariantConst v{doc["address"]};
-           v.as<Address::value_type>() != addr) {
-    auto node{_locos.extract(it)};
-    node.key() = v.as<Address::value_type>();
-    // Re-insert loco with new address
-    if (auto const ret{_locos.insert(move(node))}; ret.inserted) {
-      it = ret.position;                  // Update iterator
-      nvs.erase(addr);                    // Erase old address
-      addr = v.as<Address::value_type>(); // Update address
+  // Singleton
+  if (std::lock_guard lock{_internal_mutex}; addr) {
+    auto it{_locos.find(addr)};
+    mem::nvs::Locos nvs;
+    // Address not found
+    if (it == cend(_locos)) {
+      // Address in URI does not match body
+      if (JsonVariantConst v{doc["address"]};
+          v.as<Address::value_type>() != addr)
+        return std::unexpected<std::string>{"417 Expectation Failed"};
+      // Insert new loco
+      else if (auto const ret{_locos.emplace(addr, Loco{doc})}; ret.second)
+        it = ret.first; // Update iterator
+      // Insertion failed
+      else return std::unexpected<std::string>{"500 Internal Server Error"};
     }
-    // Insertion failed
+    // Address found, but changing
+    else if (JsonVariantConst v{doc["address"]};
+             v.as<Address::value_type>() != addr) {
+      auto node{_locos.extract(it)};
+      node.key() = v.as<Address::value_type>();
+      // Re-insert loco with new address
+      if (auto const ret{_locos.insert(move(node))}; ret.inserted) {
+        it = ret.position;                  // Update iterator
+        nvs.erase(addr);                    // Erase old address
+        addr = v.as<Address::value_type>(); // Update address
+        it->second.fromJson(doc);           // Update loco
+      }
+      // Insertion failed
+      else
+        return std::unexpected<std::string>{"500 Internal Server Error"};
+    }
+    // Address found, just update loco
     else
-      return std::unexpected<std::string>{"500 Internal Server Error"};
+      it->second.fromJson(doc); // Update iterator
+    nvs.set(addr, it->second);
+    return {};
   }
-  // Address found, just update loco
-  else
-    it->second.fromJsonDocument(doc); // Update iterator
+  // Collection
+  else if (req.uri == "/dcc/locos/"sv) {
+    // Must be array
+    if (!doc.is<JsonArrayConst>())
+      return std::unexpected<std::string>{"415 Unsupported Media Type"};
+    // Erase all
+    _locos.clear();
+    mem::nvs::Locos nvs;
+    nvs.eraseAll();
+    // Insert all
+    for (JsonVariantConst obj : doc.as<JsonArrayConst>())
+      if (JsonVariantConst v{obj["address"]}; v.as<Address::value_type>()) {
+        addr = v.as<Address::value_type>();
+        if (auto const ret{_locos.emplace(addr, Loco{obj})}; ret.second)
+          nvs.set(addr, ret.first->second);
+      }
+    return {};
+  }
 
-  nvs.set(addr, it->second);
-
-  return {};
+  return std::unexpected<std::string>{"417 Expectation Failed"};
 }
 
 /// \todo document
@@ -221,27 +243,29 @@ Service::turnoutsGetRequest(intf::http::Request const& req) {
     auto const it{_turnouts.find(addr)};
     if (it == cend(_turnouts))
       return std::unexpected<std::string>{"404 Not Found"};
-    auto doc{it->second.toJsonDocument()};
-    doc["address"] = addr;
+    auto turnout_doc{it->second.toJson()};
+    turnout_doc["address"] = addr;
     std::string json;
     json.reserve(1024uz);
-    serializeJson(doc, json);
+    serializeJson(turnout_doc, json);
     return json;
   }
   // Collection
-  else {
+  else if (req.uri == "/dcc/turnouts/"sv) {
     JsonDocument doc;
-    auto array{doc.to<JsonArray>()}; // Explicitly convert to array
+    auto arr{doc.to<JsonArray>()};
     for (auto const& [addr, turnout] : _turnouts) {
-      auto turnout_doc{turnout.toJsonDocument()};
+      auto turnout_doc{turnout.toJson()};
       turnout_doc["address"] = addr;
-      array.add(turnout_doc);
+      arr.add(turnout_doc);
     }
     std::string json;
     json.reserve((size(_turnouts) + 1uz) * 1024uz);
     serializeJson(doc, json);
     return json;
   }
+
+  return std::unexpected<std::string>{"417 Expectation Failed"};
 }
 
 /// \todo document
@@ -255,6 +279,7 @@ Service::turnoutsDeleteRequest(intf::http::Request const& req) {
     _turnouts.erase(addr);
     mem::nvs::Turnouts nvs;
     nvs.erase(addr);
+    return {};
   }
   // Collection
   else if (req.uri == "/dcc/turnouts/"sv) {
@@ -262,9 +287,10 @@ Service::turnoutsDeleteRequest(intf::http::Request const& req) {
     _turnouts.clear();
     mem::nvs::Turnouts nvs;
     nvs.eraseAll();
+    return {};
   }
 
-  return {};
+  return std::unexpected<std::string>{"417 Expectation Failed"};
 }
 
 /// \todo document
@@ -274,10 +300,7 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
   if (!validate_json(req.body))
     return std::unexpected<std::string>{"415 Unsupported Media Type"};
 
-  // Address not found or other characters appended to it
-  // We currently only support singleton
   auto addr{uri2address(req.uri).value_or(0u)};
-  if (!addr) return std::unexpected<std::string>{"417 Expectation Failed"};
 
   // Deserialize
   JsonDocument doc;
@@ -286,43 +309,65 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
     return std::unexpected<std::string>{"500 Internal Server Error"};
   }
 
-  std::lock_guard lock{_internal_mutex};
-  auto it{_turnouts.find(addr)};
-  mem::nvs::Turnouts nvs;
-
-  // Address not found
-  if (it == cend(_turnouts)) {
-    // Address in URI does not match body
-    if (JsonVariantConst v{doc["address"]}; v.as<Address::value_type>() != addr)
-      return std::unexpected<std::string>{"417 Expectation Failed"};
-    // Insert new turnout
-    else if (auto const ret{_turnouts.insert({addr, Turnout{doc}})}; ret.second)
-      it = ret.first; // Update iterator
-    // Insertion failed
-    else return std::unexpected<std::string>{"500 Internal Server Error"};
-  }
-  // Address found, but changing
-  else if (JsonVariantConst v{doc["address"]};
-           v.as<Address::value_type>() != addr) {
-    auto node{_turnouts.extract(it)};
-    node.key() = v.as<Address::value_type>();
-    // Re-insert turnout with new address
-    if (auto const ret{_turnouts.insert(move(node))}; ret.inserted) {
-      it = ret.position;                  // Update iterator
-      nvs.erase(addr);                    // Erase old address
-      addr = v.as<Address::value_type>(); // Update address
+  // Singleton
+  if (std::lock_guard lock{_internal_mutex}; addr) {
+    auto it{_turnouts.find(addr)};
+    mem::nvs::Turnouts nvs;
+    // Address not found
+    if (it == cend(_turnouts)) {
+      // Address in URI does not match body
+      if (JsonVariantConst v{doc["address"]};
+          v.as<Address::value_type>() != addr)
+        return std::unexpected<std::string>{"417 Expectation Failed"};
+      // Insert new turnout
+      else if (auto const ret{_turnouts.emplace(addr, Turnout{doc})};
+               ret.second)
+        it = ret.first; // Update iterator
+      // Insertion failed
+      else return std::unexpected<std::string>{"500 Internal Server Error"};
     }
-    // Insertion failed
+    // Address found, but changing
+    else if (JsonVariantConst v{doc["address"]};
+             v.as<Address::value_type>() != addr) {
+      auto node{_turnouts.extract(it)};
+      node.key() = v.as<Address::value_type>();
+      // Re-insert turnout with new address
+      if (auto const ret{_turnouts.insert(move(node))}; ret.inserted) {
+        it = ret.position;                  // Update iterator
+        nvs.erase(addr);                    // Erase old address
+        addr = v.as<Address::value_type>(); // Update address
+        it->second.fromJson(doc);           // Update turnout
+      }
+      // Insertion failed
+      else
+        return std::unexpected<std::string>{"500 Internal Server Error"};
+    }
+    // Address found, just update turnout
     else
-      return std::unexpected<std::string>{"500 Internal Server Error"};
+      it->second.fromJson(doc); // Update iterator
+    nvs.set(addr, it->second);
+    return {};
   }
-  // Address found, just update turnout
-  else
-    it->second.fromJsonDocument(doc); // Update iterator
+  // Collection
+  else if (req.uri == "/dcc/turnouts/"sv) {
+    // Must be array
+    if (!doc.is<JsonArrayConst>())
+      return std::unexpected<std::string>{"415 Unsupported Media Type"};
+    // Erase all
+    _turnouts.clear();
+    mem::nvs::Turnouts nvs;
+    nvs.eraseAll();
+    // Insert all
+    for (JsonVariantConst obj : doc.as<JsonArrayConst>())
+      if (JsonVariantConst v{obj["address"]}; v.as<Address::value_type>()) {
+        addr = v.as<Address::value_type>();
+        if (auto const ret{_turnouts.emplace(addr, Turnout{obj})}; ret.second)
+          nvs.set(addr, ret.first->second);
+      }
+    return {};
+  }
 
-  nvs.set(addr, it->second);
-
-  return {};
+  return std::unexpected<std::string>{"417 Expectation Failed"};
 }
 
 /// \todo document

@@ -76,7 +76,7 @@ esp_err_t Locos::set(dcc::Address::value_type addr,
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Locos::set(std::string const& key, mw::dcc::NvLocoBase const& loco) {
-  auto const doc{loco.toJsonDocument()};
+  auto const doc{loco.toJson()};
   std::string json;
   json.reserve(1024uz);
   if (!serializeJson(doc, json)) assert(false);

@@ -77,7 +77,7 @@ esp_err_t Turnouts::set(dcc::Address::value_type addr,
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Turnouts::set(std::string const& key,
                         mw::dcc::NvTurnoutBase const& turnout) {
-  auto const doc{turnout.toJsonDocument()};
+  auto const doc{turnout.toJson()};
   std::string json;
   json.reserve(1024uz);
   if (!serializeJson(doc, json)) assert(false);

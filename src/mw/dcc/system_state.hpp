@@ -30,7 +30,7 @@ namespace z21 = ::z21;
 
 /// \todo document
 struct SystemState : z21::SystemState {
-  JsonDocument toJsonDocument() const;
+  JsonDocument toJson() const;
 };
 
 } // namespace mw::dcc
