@@ -758,6 +758,18 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
 }
 
 /// \todo document
+void Service::locoName(uint16_t loco_addr, uint8_t, std::string_view name) {
+  if (!loco_addr) return;
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    loco.name = name;
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
+}
+
+/// \todo document
 void Service::locoDrive(uint16_t loco_addr,
                         z21::LocoInfo::SpeedSteps speed_steps,
                         uint8_t rvvvvvvv) {

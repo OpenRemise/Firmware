@@ -70,6 +70,7 @@ private:
   void locoEStop(uint16_t loco_addr) final;
   void locoPurge(uint16_t loco_addr) final;
   z21::LocoInfo locoInfo(uint16_t loco_addr) final;
+  void locoName(uint16_t loco_addr, uint8_t, std::string_view name) final;
   void locoDrive(uint16_t loco_addr,
                  z21::LocoInfo::SpeedSteps speed_steps,
                  uint8_t rvvvvvvv) final;
