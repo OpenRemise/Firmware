@@ -25,4 +25,4 @@ dependencies:
   zimo-elektronik/mdu:
     version: "0.19.5"
   zimo-elektronik/z21:
-    version: "0.4.1"
+    version: "0.4.2"

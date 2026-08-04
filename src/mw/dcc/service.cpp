@@ -36,12 +36,12 @@ using namespace std::literals;
 Service::Service() {
   for (mem::nvs::Locos nvs; auto const& entry_info : nvs) {
     auto const addr{mem::nvs::key2address(entry_info.key)};
-    dynamic_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
+    static_cast<NvLocoBase&>(_locos[addr]) = nvs.get(entry_info.key);
   }
 
   for (mem::nvs::Turnouts nvs; auto const& entry_info : nvs) {
     auto const addr{mem::nvs::key2address(entry_info.key)};
-    dynamic_cast<NvTurnoutBase&>(_turnouts[addr]) = nvs.get(entry_info.key);
+    static_cast<NvTurnoutBase&>(_turnouts[addr]) = nvs.get(entry_info.key);
   }
 
   task.function = ztl::make_trampoline(this, &Service::taskFunction);
@@ -758,12 +758,24 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
 }
 
 /// \todo document
-void Service::locoName(uint16_t loco_addr, uint8_t, std::string_view name) {
+z21::LocoEntry Service::locoEntry(uint16_t loco_addr) {
+  if (!loco_addr) return {};
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+    return loco;
+  }
+}
+
+/// \todo document
+void Service::locoEntry(uint16_t loco_addr, z21::LocoEntry loco_entry) {
   if (!loco_addr) return;
   else {
     std::lock_guard lock{_internal_mutex};
     auto& loco{getOrInsertLoco(loco_addr)};
-    loco.name = name;
+    static_cast<z21::LocoEntry&>(loco) = loco_entry;
     mem::nvs::Locos nvs;
     nvs.set(loco_addr, loco);
   }
@@ -837,6 +849,11 @@ void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
 /// \todo document
 void Service::broadcastLocoInfo(uint16_t loco_addr) {
   _z21_dcc_service->broadcastLocoInfo(loco_addr);
+}
+
+/// \todo document
+void Service::broadcastLocoEntry(uint16_t loco_addr) {
+  _z21_dcc_service->broadcastLocoEntry(loco_addr);
 }
 
 /// \todo document

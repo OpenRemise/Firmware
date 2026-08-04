@@ -18,7 +18,6 @@
 #include <ArduinoJson.h>
 #include <dcc/dcc.hpp>
 #include <optional>
-#include <string>
 #include <type_traits>
 #include <z21/z21.hpp>
 #include <ztl/string.hpp>
@@ -29,14 +28,12 @@ using namespace ::dcc;
 namespace z21 = ::z21;
 
 /// Non-volatile base
-struct NvLocoBase : z21::LocoInfo {
+struct NvLocoBase : z21::LocoInfo, z21::LocoEntry {
   constexpr NvLocoBase() = default;
   explicit NvLocoBase(JsonVariantConst src);
 
   void fromJson(JsonVariantConst src);
   JsonDocument toJson() const;
-
-  std::string name{};
 };
 
 /// Actual object with volatile and non-volatile stuff

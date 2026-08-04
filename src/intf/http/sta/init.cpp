@@ -37,6 +37,8 @@ esp_err_t init() {
                     &Server::settingsPostRequest);
   server->subscribe(
     {.uri = "/sys/", .method = HTTP_GET}, server, &Server::sysGetRequest);
+  server->subscribe(
+    {.uri = "/sys/", .method = HTTP_POST}, server, &Server::sysPostRequest);
   return ESP_OK;
 }
 

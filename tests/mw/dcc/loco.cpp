@@ -19,7 +19,7 @@ TEST_F(DccTest, json_to_base_to_loco) {
   mw::dcc::NvLocoBase base;
   base.fromJson(doc);
   mw::dcc::Loco loco;
-  dynamic_cast<mw::dcc::NvLocoBase&>(loco) = base;
+  static_cast<mw::dcc::NvLocoBase&>(loco) = base;
   EXPECT_EQ(loco.name, "BR85");
   EXPECT_EQ(loco.speed_steps, z21::LocoInfo::DCC28);
 }
