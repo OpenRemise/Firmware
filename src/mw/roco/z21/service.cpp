@@ -230,10 +230,13 @@ z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
 }
 
 /// \todo document
-void Service::locoName(uint16_t loco_addr,
-                       uint8_t index,
-                       std::string_view name) {
-  _dcc_service->locoName(loco_addr, index, name);
+z21::LocoEntry Service::locoEntry(uint16_t loco_addr) {
+  return _dcc_service->locoEntry(loco_addr);
+}
+
+/// \todo document
+void Service::locoEntry(uint16_t loco_addr, z21::LocoEntry loco_entry) {
+  _dcc_service->locoEntry(loco_addr, loco_entry);
 }
 
 /// \todo document

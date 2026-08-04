@@ -36,6 +36,7 @@ public:
   Response settingsGetRequest(Request const& req);
   Response settingsPostRequest(Request const& req);
   Response sysGetRequest(Request const& req);
+  Response sysPostRequest(Request const& req);
 
 private:
   esp_err_t getHandler(httpd_req_t* req);

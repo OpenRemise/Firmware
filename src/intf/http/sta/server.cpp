@@ -46,7 +46,7 @@ Server::Server() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.stack_size = stack_size;
   config.core_id = WIFI_TASK_CORE_ID;
-  config.max_uri_handlers = 32u;
+  config.max_uri_handlers = 24u;
   config.lru_purge_enable = true;
   config.recv_wait_timeout = nvs.getHttpReceiveTimeout();
   config.send_wait_timeout = nvs.getHttpTransmitTimeout();
@@ -117,6 +117,12 @@ Server::Server() {
   uri = {.uri = "/sys/*",
          .method = HTTP_GET,
          .handler = ztl::make_trampoline(this, &Server::getHandler)};
+  httpd_register_uri_handler(handle, &uri);
+
+  //
+  uri = {.uri = "/sys/*",
+         .method = HTTP_POST,
+         .handler = ztl::make_trampoline(this, &Server::putPostHandler)};
   httpd_register_uri_handler(handle, &uri);
 
   //
@@ -441,10 +447,18 @@ Response Server::sysGetRequest(Request const& req) {
   json.reserve(1024uz);
   serializeJson(doc, json);
 
+  return json;
+}
+
+/// \todo document
+Response Server::sysPostRequest(Request const& req) {
+  LOGD("uri %s", req.uri.c_str());
+  LOGD("body %s", req.body.c_str());
+
   //
   if (req.uri.contains("restart")) esp_delayed_restart();
 
-  return json;
+  return {};
 }
 
 /// \todo document
@@ -470,13 +484,8 @@ esp_err_t Server::getHandler(httpd_req_t* req) {
 esp_err_t Server::putPostHandler(httpd_req_t* req) {
   LOGD("%s request %s", req->method == HTTP_PUT ? "PUT" : "POST", req->uri);
 
-  // No content
-  if (!req->content_len) {
-    httpd_resp_send_err(req, HTTPD_411_LENGTH_REQUIRED, NULL);
-    return ESP_FAIL;
-  }
   //
-  else if (auto resp{syncResponse(req)}) {
+  if (auto resp{syncResponse(req)}) {
     httpd_resp_send(req, data(*resp), size(*resp));
     return ESP_OK;
   }

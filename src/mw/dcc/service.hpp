@@ -70,7 +70,8 @@ private:
   void locoEStop(uint16_t loco_addr) final;
   void locoPurge(uint16_t loco_addr) final;
   z21::LocoInfo locoInfo(uint16_t loco_addr) final;
-  void locoName(uint16_t loco_addr, uint8_t, std::string_view name) final;
+  [[nodiscard]] z21::LocoEntry locoEntry(uint16_t loco_addr) final;
+  void locoEntry(uint16_t loco_addr, z21::LocoEntry loco_entry) final;
   void locoDrive(uint16_t loco_addr,
                  z21::LocoInfo::SpeedSteps speed_steps,
                  uint8_t rvvvvvvv) final;
@@ -78,6 +79,7 @@ private:
   z21::LocoInfo::Mode locoMode(uint16_t loco_addr) final;
   void locoMode(uint16_t, z21::LocoInfo::Mode mode) final;
   void broadcastLocoInfo(uint16_t loco_addr) final;
+  void broadcastLocoEntry(uint16_t loco_addr) final;
 
   // Switching interface
   [[nodiscard]] z21::TurnoutInfo turnoutInfo(uint16_t accy_addr) final;
