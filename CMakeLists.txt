@@ -71,8 +71,6 @@ if(ESP_PLATFORM
       Frontend
       URL
       "https://github.com/OpenRemise/Frontend/releases/download/v${VERSION_FROM_GIT}/Frontend-${VERSION_FROM_GIT}.zip"
-      VERSION
-      ${OPENREMISE_FRONTENVERSION_FROM_GITD_VERSION}
       DOWNLOAD_ONLY
       ON)
     set(FRONTEND_WEB_DIR ${Frontend_SOURCE_DIR})
@@ -133,7 +131,8 @@ if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
   add_custom_target(
     FirmwareRelease
     COMMAND
-      ${CMAKE_COMMAND} -E tar "cf" ${PROJECT_NAME}-${PROJECT_VERSION}.zip
+      ${CMAKE_COMMAND} -E tar "cf"
+      ${PROJECT_NAME}-${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
       --format=zip #
       flasher_args.json #
       bootloader/bootloader.bin #

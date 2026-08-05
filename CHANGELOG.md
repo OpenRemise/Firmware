@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.1
+- Add ᴡʟᴀɴMAUS export ([#164](https://github.com/OpenRemise/Firmware/issues/164))
+
 ## 0.8.0
 - Add VCC voltage measurements and hardware revision detection ([#141](https://github.com/OpenRemise/Firmware/pull/141))
 - Add Z21 `LAN_X_SET_LOCO_NAME` ([#164](https://github.com/OpenRemise/Firmware/issues/164))
