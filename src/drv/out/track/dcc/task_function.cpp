@@ -57,7 +57,7 @@ struct Offsets {
 /// \bug DCC/RailCom timings seem to get worse when the DCC tasks runs the
 /// second time?
 consteval Offsets make_offsets() {
-  static_assert(CONFIG_IDF_INIT_VERSION == "6.0.2"sv);
+  static_assert(CONFIG_IDF_INIT_VERSION == "6.1.0"sv);
 
   return {
 #if defined(CONFIG_COMPILER_OPTIMIZATION_DEBUG)
