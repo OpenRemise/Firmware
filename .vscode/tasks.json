@@ -50,6 +50,12 @@
       "command": ". esp-idf.fish && cmake --preset \"Release\""
     },
     {
+      "label": "Config Release JTAG",
+      "type": "shell",
+      "isBackground": true,
+      "command": ". esp-idf.fish && cmake --preset \"Release JTAG\""
+    },
+    {
       "label": "Config Tests",
       "type": "shell",
       "isBackground": true,
