@@ -705,12 +705,16 @@ void Service::sendToBack(Packet const& packet, size_t n) const {
 /// \todo document
 void Service::locoEStop(uint16_t loco_addr) {
   // Broadcast
-  if (!loco_addr) {
-    {
-      std::lock_guard lock{_internal_mutex};
-      for (auto& [addr, loco] : _locos)
-        loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+  if (std::lock_guard lock{_internal_mutex}; !loco_addr) {
+    for (auto& [addr, loco] : _locos)
+      loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+
+    // Clear back_handle message buffer
+    while (!xMessageBufferReset(drv::out::tx_message_buffer.back_handle)) {
+      LOGW("Can't reset drv::out::tx_message_buffer.back_handle");
+      vTaskDelay(pdMS_TO_TICKS(20u));
     }
+    // ... before broadcasting EStop
     sendToFront(
       make_speed_and_direction_packet(0u, dcc::encode_rggggg(true, dcc::EStop)),
       _nvs.program_packet_count);
@@ -718,7 +722,6 @@ void Service::locoEStop(uint16_t loco_addr) {
   }
   //
   else {
-    std::lock_guard lock{_internal_mutex};
     auto& loco{getOrInsertLoco(loco_addr)};
     loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
     sendToFront(
@@ -820,11 +823,11 @@ void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
     if (mask >= (1u << 13u) &&
         !(_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
       if (mask & (0xFFu << 13u))
-        sendToBack(make_f13_f20_packet(basicOrExtendedLocoAddress(loco_addr),
-                                       loco.f31_0 >> 13u));
+        sendToFront(make_f13_f20_packet(basicOrExtendedLocoAddress(loco_addr),
+                                        loco.f31_0 >> 13u));
       if (mask & (0xFFu << 21u))
-        sendToBack(make_f21_f28_packet(basicOrExtendedLocoAddress(loco_addr),
-                                       loco.f31_0 >> 21u));
+        sendToFront(make_f21_f28_packet(basicOrExtendedLocoAddress(loco_addr),
+                                        loco.f31_0 >> 21u));
     }
 
     //

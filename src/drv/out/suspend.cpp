@@ -33,10 +33,12 @@ void reset_queue_and_message_buffers() {
     LOGW("Can't reset drv::out::rx_message_buffer");
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
-  // Don't short circuit here!
-  while (!xMessageBufferReset(tx_message_buffer.front_handle) |
-         !xMessageBufferReset(tx_message_buffer.back_handle)) {
-    LOGW("Can't reset drv::out::tx_message_buffer");
+  while (!xMessageBufferReset(tx_message_buffer.front_handle)) {
+    LOGW("Can't reset drv::out::tx_message_buffer.front_handle");
+    vTaskDelay(pdMS_TO_TICKS(20u));
+  }
+  while (!xMessageBufferReset(tx_message_buffer.back_handle)) {
+    LOGW("Can't reset drv::out::tx_message_buffer.back_handle");
     vTaskDelay(pdMS_TO_TICKS(20u));
   }
 }
