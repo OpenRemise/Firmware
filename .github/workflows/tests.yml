@@ -8,12 +8,12 @@ on:
 
 jobs:
   tests:
-    uses: ZIMO-Elektronik/.github-workflows/.github/workflows/esp-elf-gcc.yml@v0.3.2
+    uses: ZIMO-Elektronik/.github-workflows/.github/workflows/esp-elf-gcc.yml@v0.4.0
     with:
       pre-build: |
         sudo apt update -y
         sudo apt install -y libbsd-dev ninja-build
-      esp_idf_version: v6.0.2
+      esp_idf_version: v6.1
       target: linux
       command: |
         cmake --preset "Tests"

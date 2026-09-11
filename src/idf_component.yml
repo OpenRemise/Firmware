@@ -1,5 +1,5 @@
 dependencies:
-  idf: "6.0.2"
+  idf: "6.1"
   bblanchon/arduinojson:
     version: "7.4.3"
   espressif/esp_tinyusb:
@@ -19,7 +19,7 @@ dependencies:
     rules:
       - if: target != linux
   zimo-elektronik/dcc:
-    version: "0.48.1"
+    version: "0.49.0"
   zimo-elektronik/decup:
     version: "0.2.2"
   zimo-elektronik/mdu:
