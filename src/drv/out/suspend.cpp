@@ -21,6 +21,7 @@
 
 #include "suspend.hpp"
 #include "log.h"
+#include "utility.hpp"
 
 namespace drv::out {
 
@@ -29,16 +30,9 @@ namespace {
 /// \todo document
 void reset_queue_and_message_buffers() {
   xQueueReset(track::rx_queue.handle);
-  while (!xMessageBufferReset(rx_message_buffer.handle)) {
-    LOGW("Can't reset drv::out::rx_message_buffer");
-    vTaskDelay(pdMS_TO_TICKS(20u));
-  }
-  // Don't short circuit here!
-  while (!xMessageBufferReset(tx_message_buffer.front_handle) |
-         !xMessageBufferReset(tx_message_buffer.back_handle)) {
-    LOGW("Can't reset drv::out::tx_message_buffer");
-    vTaskDelay(pdMS_TO_TICKS(20u));
-  }
+  reset_rx_message_buffer_blocking();
+  reset_tx_message_buffer_front_blocking();
+  reset_tx_message_buffer_back_blocking();
 }
 
 } // namespace

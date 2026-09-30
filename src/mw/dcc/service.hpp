@@ -49,23 +49,6 @@ public:
   intf::http::Response turnoutsPutRequest(intf::http::Request const& req);
 
 private:
-  // This gets called by FreeRTOS
-  [[noreturn]] void taskFunction(void*);
-
-  void operationsLoop();
-  void operationsLocos();
-  void operationsTurnouts();
-  void operationsBiDi();
-
-  void serviceLoop();
-  std::optional<uint8_t> serviceRead(uint16_t cv_addr);
-  std::optional<uint8_t> serviceWrite(uint16_t cv_addr, uint8_t byte);
-  std::optional<bool> serviceReceiveBit();
-  std::optional<uint8_t> serviceReceiveByte();
-
-  void sendToFront(Packet const& packet, size_t n = 1uz) const;
-  void sendToBack(Packet const& packet, size_t n = 1uz) const;
-
   // Driving interface
   void locoEStop(uint16_t loco_addr) final;
   void locoPurge(uint16_t loco_addr) final;
@@ -109,6 +92,20 @@ private:
   [[nodiscard]] z21::RailComData railComData(uint16_t loco_addr) final;
   void broadcastRailComData(uint16_t loco_addr) final;
 
+  // This gets called by FreeRTOS
+  [[noreturn]] void taskFunction(void*);
+
+  //
+  void operationsLoop();
+  void operationsLocos();
+  void operationsTurnouts();
+  void operationsBiDi();
+  void serviceLoop();
+  std::optional<uint8_t> serviceRead(uint16_t cv_addr);
+  std::optional<uint8_t> serviceWrite(uint16_t cv_addr, uint8_t byte);
+  std::optional<bool> serviceReceiveBit();
+  std::optional<uint8_t> serviceReceiveByte();
+
   //
   void resume();
   void suspend();
@@ -118,10 +115,14 @@ private:
   Turnout& getOrInsertTurnout(uint16_t accy_addr);
 
   //
+  void sendLocos(std::span<Locos::iterator, 2uz> its) const;
+  Packet makeDrivePacket(Address::value_type addr, Loco const& loco) const;
   Address basicOrExtendedLocoAddress(Address::value_type addr) const;
   bool maybeInvertR(bool p) const;
-  void sendLocoSpeedAndDirection(Address::value_type addr,
-                                 Loco const& loco) const;
+
+  //
+  void sendToFront(Packet const& packet, size_t n = 1uz) const;
+  void sendToBack(Packet const& packet, size_t n = 1uz) const;
 
   Locos _locos;
   Turnouts _turnouts;

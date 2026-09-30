@@ -24,6 +24,7 @@
 #include <driver/gpio.h>
 #include <esp_ipc.h>
 #include <esp_system.h>
+#include <freertos/message_buffer.h>
 #include "log.h"
 #include "mem/nvs/settings.hpp"
 
@@ -110,5 +111,29 @@ esp_err_t ipc_call_blocking(BaseType_t core_id, esp_err_t (*f)()) {
 #endif
 
     return std::get<0uz>(t);
+  }
+}
+
+/// \todo document
+void reset_rx_message_buffer_blocking() {
+  while (!xMessageBufferReset(drv::out::rx_message_buffer.handle)) {
+    LOGW("Can't reset drv::out::rx_message_buffer");
+    vTaskDelay(pdMS_TO_TICKS(10u));
+  }
+}
+
+/// \todo document
+void reset_tx_message_buffer_front_blocking() {
+  while (!xMessageBufferReset(drv::out::tx_message_buffer.front_handle)) {
+    LOGW("Can't reset drv::out::tx_message_buffer.front_handle");
+    vTaskDelay(pdMS_TO_TICKS(10u));
+  }
+}
+
+/// \todo document
+void reset_tx_message_buffer_back_blocking() {
+  while (!xMessageBufferReset(drv::out::tx_message_buffer.back_handle)) {
+    LOGW("Can't reset drv::out::tx_message_buffer.back_handle");
+    vTaskDelay(pdMS_TO_TICKS(10u));
   }
 }

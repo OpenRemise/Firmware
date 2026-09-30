@@ -247,7 +247,7 @@ inline TASK(temp_task,
             2048uz,            // Stack size
             tskIDLE_PRIORITY,  // Priority
             APP_CPU_NUM,       // Core
-            0u);
+            1000u);            // Timeout
 
 using VccVoltageMeasurement =
   ztl::implicit_wrapper<ztl::smallest_signed_t<0, max_measurement>,
@@ -588,7 +588,7 @@ inline TASK(task,
             4096uz,      // Stack size
             2u,          // Priority
             APP_CPU_NUM, // Core
-            50u);        // Timeout
+            10u);        // Timeout
 
 } // namespace dcc
 

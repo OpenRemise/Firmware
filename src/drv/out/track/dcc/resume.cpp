@@ -70,7 +70,7 @@ esp_err_t init_bidi() {
 /// \todo document
 esp_err_t init_gpio() {
   ESP_ERROR_CHECK(gpio_set_level(enable_gpio_num, 1u));
-  vTaskDelay(pdMS_TO_TICKS(20u));
+  vTaskDelay(pdMS_TO_TICKS(10u));
   return gpio_set_level(n_force_low_gpio_num, 0u);
 }
 

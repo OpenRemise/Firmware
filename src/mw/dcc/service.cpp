@@ -371,6 +371,345 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
 }
 
 /// \todo document
+void Service::locoEStop(uint16_t loco_addr) {
+  // Broadcast
+  if (std::lock_guard lock{_internal_mutex}; !loco_addr) {
+    for (auto& [addr, loco] : _locos)
+      loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+    reset_tx_message_buffer_back_blocking();
+    sendToFront(
+      make_speed_and_direction_packet(0u, dcc::encode_rggggg(true, dcc::EStop)),
+      _nvs.program_packet_count);
+    return;
+  }
+  //
+  else {
+    auto& loco{getOrInsertLoco(loco_addr)};
+    loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+    loco.priority = 0ull;
+    sendToFront(makeDrivePacket(loco_addr, loco), _nvs.program_packet_count);
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
+
+  //
+  broadcastLocoInfo(loco_addr);
+}
+
+/// \todo document
+void Service::locoPurge(uint16_t loco_addr) {
+  if (!loco_addr) return;
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
+    reset_tx_message_buffer_back_blocking();
+    sendToFront(makeDrivePacket(loco_addr, loco), _nvs.program_packet_count);
+    _locos.erase(loco_addr);
+    mem::nvs::Locos nvs;
+    nvs.erase(loco_addr);
+  }
+}
+
+/// \todo document
+z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
+  if (!loco_addr) return {};
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+    return loco;
+  }
+}
+
+/// \todo document
+z21::LocoEntry Service::locoEntry(uint16_t loco_addr) {
+  if (!loco_addr) return {};
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+    return loco;
+  }
+}
+
+/// \todo document
+void Service::locoEntry(uint16_t loco_addr, z21::LocoEntry loco_entry) {
+  if (!loco_addr) return;
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    static_cast<z21::LocoEntry&>(loco) = loco_entry;
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
+}
+
+/// \todo document
+void Service::locoDrive(uint16_t loco_addr,
+                        z21::LocoInfo::SpeedSteps speed_steps,
+                        uint8_t rvvvvvvv) {
+  // Broadcast speed is a thing, but we can't set speed_steps on every loco...
+  if (!loco_addr) return;
+  //
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    if (loco.speed_steps == speed_steps && loco.rvvvvvvv == rvvvvvvv) return;
+    loco.speed_steps = speed_steps;
+    loco.rvvvvvvv = rvvvvvvv;
+    loco.priority = 0ull;
+    sendToFront(makeDrivePacket(loco_addr, loco));
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
+
+  //
+  broadcastLocoInfo(loco_addr);
+}
+
+/// \todo document
+void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
+  // Broadcast functions aren't a thing
+  if (!loco_addr) return;
+  //
+  else {
+    std::lock_guard lock{_internal_mutex};
+    auto& loco{getOrInsertLoco(loco_addr)};
+    state = (~mask & loco.f31_0) | (mask & state);
+    if (loco.f31_0 == state) return;
+    loco.f31_0 = state;
+    loco.priority = 0ull;
+    if (mask & ztl::mask<4u, 3u, 2u, 1u, 0u>)
+      sendToFront(make_f0_f4_packet(basicOrExtendedLocoAddress(loco_addr),
+                                    loco.f31_0 >> 0u));
+    if (mask & ztl::mask<8u, 7u, 6u, 5u>)
+      sendToFront(make_f5_f8_packet(basicOrExtendedLocoAddress(loco_addr),
+                                    loco.f31_0 >> 5u));
+    if (mask & ztl::mask<12u, 11u, 10u, 9u>)
+      sendToFront(make_f9_f12_packet(basicOrExtendedLocoAddress(loco_addr),
+                                     loco.f31_0 >> 9u));
+    if (mask & ztl::mask<20u, 19u, 18u, 17u, 16u, 15u, 14u, 13u>)
+      sendToFront(make_f13_f20_packet(basicOrExtendedLocoAddress(loco_addr),
+                                      loco.f31_0 >> 13u));
+    if (mask & ztl::mask<28u, 27u, 26u, 25u, 24u, 23u, 22u, 21u>)
+      sendToFront(make_f21_f28_packet(basicOrExtendedLocoAddress(loco_addr),
+                                      loco.f31_0 >> 21u));
+    mem::nvs::Locos nvs;
+    nvs.set(loco_addr, loco);
+  }
+
+  //
+  broadcastLocoInfo(loco_addr);
+}
+
+/// \todo document
+z21::LocoInfo::Mode Service::locoMode(uint16_t loco_addr) {
+  return locoInfo(loco_addr).mode;
+}
+
+/// \todo document
+void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
+  if (mode == z21::LocoInfo::MM) LOGW("MM not supported");
+}
+
+/// \todo document
+void Service::broadcastLocoInfo(uint16_t loco_addr) {
+  _z21_dcc_service->broadcastLocoInfo(loco_addr);
+}
+
+/// \todo document
+void Service::broadcastLocoEntry(uint16_t loco_addr) {
+  _z21_dcc_service->broadcastLocoEntry(loco_addr);
+}
+
+/// \todo document
+z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
+  std::lock_guard lock{_internal_mutex};
+  auto& turnout{getOrInsertTurnout(accy_addr)};
+  mem::nvs::Turnouts nvs;
+  nvs.set(accy_addr, turnout);
+  return turnout;
+}
+
+/// \todo document
+z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
+  LOGW("accessoryInfo not implemented");
+  return {};
+}
+
+/// \todo document
+// P ^= R in DCC
+// P0 -> diverging / left / stop(red)
+// P1 -> normal / right / proceed(green)
+void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
+  sendToFront(make_basic_accessory_packet(
+                {accy_addr, Address::BasicAccessory}, maybeInvertR(p), a),
+              _nvs.accy_packet_count);
+
+  {
+    std::lock_guard lock{_internal_mutex};
+    auto& turnout{getOrInsertTurnout(accy_addr)};
+
+    //
+    if (!a) {
+      turnout.timeout_tick = 0u;
+      return;
+    }
+
+    if (turnout.position == static_cast<z21::TurnoutInfo::Position>(1u << p))
+      return;
+    turnout.position = static_cast<z21::TurnoutInfo::Position>(1u << p);
+
+    //
+    if (!(_nvs.accy_flags &
+          z21::CommonSettings::ExtFlags::TurnoutTimeoutDisable)) {
+      auto const timeout{(_nvs.accy_switch_time + 10u) * 10u};
+      turnout.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(timeout);
+    }
+
+    mem::nvs::Turnouts nvs;
+    nvs.set(accy_addr, turnout);
+  }
+
+  //
+  broadcastTurnoutInfo(accy_addr);
+}
+
+/// \todo document
+void Service::accessory(uint16_t accy_addr, uint8_t dddddddd) {
+  LOGW("accessory addr %d    dddddddd %d", accy_addr, dddddddd);
+}
+
+/// \todo document
+z21::TurnoutInfo::Mode Service::turnoutMode(uint16_t accy_addr) {
+  return turnoutInfo(accy_addr).mode;
+}
+
+/// \todo document
+void Service::turnoutMode(uint16_t, z21::TurnoutInfo::Mode mode) {
+  if (mode == z21::TurnoutInfo::MM) LOGW("MM not supported");
+}
+
+/// \todo document
+void Service::broadcastTurnoutInfo(uint16_t accy_addr) {
+  _z21_dcc_service->broadcastTurnoutInfo(accy_addr);
+}
+
+/// \todo document
+void Service::broadcastExtAccessoryInfo(uint16_t accy_addr) {
+  _z21_dcc_service->broadcastExtAccessoryInfo(accy_addr);
+}
+
+/// \todo document
+bool Service::cvRead(uint16_t cv_addr) {
+  if (full(_cv_request_deque)) return false;
+  _cv_request_deque.push_back({.cv_addr = cv_addr});
+  return true;
+}
+
+/// \todo document
+bool Service::cvWrite(uint16_t cv_addr, uint8_t byte) {
+  if (full(_cv_request_deque)) return false;
+  _cv_request_deque.push_back({.cv_addr = cv_addr, .byte = byte});
+  return true;
+}
+
+/// \todo document
+void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
+  if (full(_cv_pom_request_deque)) return cvNack();
+
+  sendToFront(make_cv_access_long_verify_packet(
+                basicOrExtendedLocoAddress(loco_addr), cv_addr),
+              _nvs.program_packet_count);
+
+  _cv_pom_request_deque.push_back(
+    {.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
+     .addr = loco_addr,
+     .cv_addr = cv_addr});
+
+  // Mandatory delay
+  vTaskDelay(
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
+}
+
+/// \todo document
+void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
+  sendToFront(make_cv_access_long_write_packet(
+                basicOrExtendedLocoAddress(loco_addr), cv_addr, byte),
+              _nvs.program_packet_count);
+
+  // Mandatory delay
+  vTaskDelay(
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
+}
+
+/// \todo document
+void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr, bool) {
+  if (full(_cv_pom_request_deque)) return cvNack();
+
+  sendToFront(make_cv_access_long_verify_packet(
+                {.value = accy_addr, .type = Address::BasicAccessory}, cv_addr),
+              _nvs.program_packet_count);
+
+  // Dummy CV7 write ensures we aren't receiving app:pom replies to different CV
+  // addresses when reading multiple values in row. According to RCN-226 all CV7
+  // POM access are to be ignored by all decoders.
+  sendToFront(make_cv_access_long_write_packet(
+    {.value = accy_addr, .type = Address::BasicAccessory}, 7u, 0u));
+
+  _cv_pom_request_deque.push_back(
+    {.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
+     .addr = accy_addr,
+     .cv_addr = cv_addr});
+
+  // Mandatory delay
+  vTaskDelay(
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
+}
+
+/// \todo document
+void Service::cvPomAccessoryWrite(uint16_t accy_addr,
+                                  uint16_t cv_addr,
+                                  uint8_t byte,
+                                  bool) {
+  sendToFront(
+    make_cv_access_long_write_packet(
+      {.value = accy_addr, .type = Address::BasicAccessory}, cv_addr, byte),
+    _nvs.program_packet_count);
+
+  // Mandatory delay
+  vTaskDelay(
+    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
+}
+
+/// \todo document
+void Service::cvNackShortCircuit() { _z21_dcc_service->cvNackShortCircuit(); }
+
+/// \todo document
+void Service::cvNack() { _z21_dcc_service->cvNack(); }
+
+/// \todo document
+void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
+  _z21_dcc_service->cvAck(cv_addr, byte);
+}
+
+/// \todo document
+z21::RailComData Service::railComData(uint16_t loco_addr) {
+  std::lock_guard lock{_internal_mutex};
+  auto const it{_locos.find(loco_addr)};
+  return it != cend(_locos) ? it->second.bidi
+                            : z21::RailComData{.loco_address = loco_addr};
+}
+
+/// \todo document
+void Service::broadcastRailComData(uint16_t loco_addr) {
+  _z21_dcc_service->broadcastRailComData(loco_addr);
+}
+
+/// \todo document
 [[noreturn]] void Service::taskFunction(void*) {
   switch (state.load()) {
     case State::DCCOperations:
@@ -390,22 +729,20 @@ Service::turnoutsPutRequest(intf::http::Request const& req) {
 
 /// \todo document
 void Service::operationsLoop() {
-  while (state.load() == State::DCCOperations) {
+  for (auto tick{xTaskGetTickCount()}; state.load() == State::DCCOperations;) {
     operationsLocos();
     operationsTurnouts();
     operationsBiDi();
-    vTaskDelay(pdMS_TO_TICKS(task.timeout));
-
-    // Temporarily switch over to service mode
     if (!empty(_cv_request_deque)) serviceLoop();
+    vTaskDelayUntil(&tick, pdMS_TO_TICKS(task.timeout));
   }
 }
 
-/// Currently fills message buffer between 25 and 50%
+/// \todo document
 void Service::operationsLocos() {
-  // Less than 50% space available
+  //
   if (xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) <
-      drv::out::tx_message_buffer.size * 0.5)
+      drv::out::tx_message_buffer.size - 20uz)
     return;
 
   std::lock_guard lock{_internal_mutex};
@@ -413,61 +750,18 @@ void Service::operationsLocos() {
   // Get two locos and interleave packets between them. This is mandated by the
   // NMRA/RCN as you're not allowed to send two consecutive packets to the same
   // decoder... or at least the decoder isn't required to accept it then.
-  while (
-    xMessageBufferSpacesAvailable(drv::out::tx_message_buffer.back_handle) >
-    drv::out::tx_message_buffer.size * 0.25) {
-    // Find locos with highest and second highest priority
-    std::array its{end(_locos), end(_locos)};
-    for (auto it{begin(_locos)}; it != end(_locos); ++it)
-      if (its[0uz] == end(_locos) ||
-          it->second.priority < its[0uz]->second.priority) {
-        its[1uz] = its[0uz];
-        its[0uz] = it;
-      } else if (its[1uz] == end(_locos) ||
-                 it->second.priority < its[1uz]->second.priority)
-        its[1uz] = it;
+  // Find locos with highest and second highest priority
+  std::array its{end(_locos), end(_locos)};
+  for (auto it{begin(_locos)}; it != end(_locos); ++it)
+    if (its[0uz] == end(_locos) ||
+        it->second.priority < its[0uz]->second.priority) {
+      its[1uz] = its[0uz];
+      its[0uz] = it;
+    } else if (its[1uz] == end(_locos) ||
+               it->second.priority < its[1uz]->second.priority)
+      its[1uz] = it;
 
-    // Speed and direction
-    for (auto const& it : its)
-      it != end(_locos) ? sendLocoSpeedAndDirection(it->first, it->second)
-                        : sendToBack(make_idle_packet());
-
-    // Lower functions
-    for (auto const& it : its)
-      sendToBack(it != end(_locos)
-                   ? make_f0_f4_packet(basicOrExtendedLocoAddress(it->first),
-                                       it->second.f31_0 & 0x1Fu)
-                   : make_idle_packet());
-    for (auto const& it : its)
-      sendToBack(it != end(_locos)
-                   ? make_f5_f8_packet(basicOrExtendedLocoAddress(it->first),
-                                       it->second.f31_0 >> 5u & 0xFu)
-                   : make_idle_packet());
-    for (auto const& it : its)
-      sendToBack(it != end(_locos)
-                   ? make_f9_f12_packet(basicOrExtendedLocoAddress(it->first),
-                                        it->second.f31_0 >> 9u & 0xFu)
-                   : make_idle_packet());
-
-    // Higher functions
-    if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
-      for (auto const& it : its)
-        sendToBack(it != end(_locos) ? make_f13_f20_packet(
-                                         basicOrExtendedLocoAddress(it->first),
-                                         it->second.f31_0 >> 13u)
-                                     : make_idle_packet());
-
-      for (auto const& it : its)
-        sendToBack(it != end(_locos) ? make_f21_f28_packet(
-                                         basicOrExtendedLocoAddress(it->first),
-                                         it->second.f31_0 >> 21u)
-                                     : make_idle_packet());
-    }
-
-    // Decrease priority
-    for (auto const& it : its)
-      if (it != end(_locos)) it->second.priority += size(_locos) / 3uz;
-  }
+  sendLocos(its);
 }
 
 /// \todo document
@@ -682,367 +976,6 @@ std::optional<uint8_t> Service::serviceReceiveByte() {
 }
 
 /// \todo document
-void Service::sendToFront(Packet const& packet, size_t n) const {
-  /*
-  This is actually WAY more involved, we need to copy the entire back_handle
-  message buffer to some temporary, search it for equal packets (same address,
-  same instruction) and then copy all the filtered messages back...
-  */
-  for (auto i{0uz}; i < n; ++i)
-    while (!xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
-                               data(packet),
-                               size(packet),
-                               0u));
-}
-
-/// \todo document
-void Service::sendToBack(Packet const& packet, size_t n) const {
-  for (auto i{0uz}; i < n; ++i)
-    while (!xMessageBufferSend(
-      drv::out::tx_message_buffer.back_handle, data(packet), size(packet), 0u));
-}
-
-/// \todo document
-void Service::locoEStop(uint16_t loco_addr) {
-  // Broadcast
-  if (!loco_addr) {
-    {
-      std::lock_guard lock{_internal_mutex};
-      for (auto& [addr, loco] : _locos)
-        loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
-    }
-    sendToFront(
-      make_speed_and_direction_packet(0u, dcc::encode_rggggg(true, dcc::EStop)),
-      _nvs.program_packet_count);
-    return;
-  }
-  //
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{getOrInsertLoco(loco_addr)};
-    loco.rvvvvvvv = (loco.rvvvvvvv & ztl::mask<7u>) | 0b1u;
-    sendToFront(
-      make_speed_and_direction_packet(basicOrExtendedLocoAddress(loco_addr),
-                                      (loco.rvvvvvvv & 0x80u) >> 2u | // R
-                                        (loco.rvvvvvvv & 0x0Fu)),
-      _nvs.program_packet_count);
-    mem::nvs::Locos nvs;
-    nvs.set(loco_addr, loco);
-  }
-
-  //
-  broadcastLocoInfo(loco_addr);
-}
-
-/// \todo document
-void Service::locoPurge(uint16_t loco_addr) {
-  if (!loco_addr) return;
-  else {
-    std::lock_guard lock{_internal_mutex};
-    _locos.erase(loco_addr);
-    mem::nvs::Locos nvs;
-    nvs.erase(loco_addr);
-  }
-}
-
-/// \todo document
-z21::LocoInfo Service::locoInfo(uint16_t loco_addr) {
-  if (!loco_addr) return {};
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{getOrInsertLoco(loco_addr)};
-    mem::nvs::Locos nvs;
-    nvs.set(loco_addr, loco);
-    return loco;
-  }
-}
-
-/// \todo document
-z21::LocoEntry Service::locoEntry(uint16_t loco_addr) {
-  if (!loco_addr) return {};
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{getOrInsertLoco(loco_addr)};
-    mem::nvs::Locos nvs;
-    nvs.set(loco_addr, loco);
-    return loco;
-  }
-}
-
-/// \todo document
-void Service::locoEntry(uint16_t loco_addr, z21::LocoEntry loco_entry) {
-  if (!loco_addr) return;
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{getOrInsertLoco(loco_addr)};
-    static_cast<z21::LocoEntry&>(loco) = loco_entry;
-    mem::nvs::Locos nvs;
-    nvs.set(loco_addr, loco);
-  }
-}
-
-/// \todo document
-void Service::locoDrive(uint16_t loco_addr,
-                        z21::LocoInfo::SpeedSteps speed_steps,
-                        uint8_t rvvvvvvv) {
-  // Broadcast speed is a thing, but we can't set speed_steps on every loco...
-  if (!loco_addr) return;
-  //
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{getOrInsertLoco(loco_addr)};
-    if (loco.speed_steps == speed_steps && loco.rvvvvvvv == rvvvvvvv) return;
-    loco.speed_steps = speed_steps;
-    loco.rvvvvvvv = rvvvvvvv;
-    mem::nvs::Locos nvs;
-    nvs.set(loco_addr, loco);
-  }
-
-  //
-  broadcastLocoInfo(loco_addr);
-}
-
-/// \todo document
-void Service::locoFunction(uint16_t loco_addr, uint32_t mask, uint32_t state) {
-  // Broadcast functions aren't a thing
-  if (!loco_addr) return;
-  //
-  else {
-    std::lock_guard lock{_internal_mutex};
-    auto& loco{getOrInsertLoco(loco_addr)};
-
-    //
-    state = (~mask & loco.f31_0) | (mask & state);
-    if (loco.f31_0 == state) return;
-    loco.f31_0 = state;
-
-    // Higher functions don't get repeated, send them now
-    if (mask >= (1u << 13u) &&
-        !(_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx)) {
-      if (mask & (0xFFu << 13u))
-        sendToBack(make_f13_f20_packet(basicOrExtendedLocoAddress(loco_addr),
-                                       loco.f31_0 >> 13u));
-      if (mask & (0xFFu << 21u))
-        sendToBack(make_f21_f28_packet(basicOrExtendedLocoAddress(loco_addr),
-                                       loco.f31_0 >> 21u));
-    }
-
-    //
-    mem::nvs::Locos nvs;
-    nvs.set(loco_addr, loco);
-  }
-
-  //
-  broadcastLocoInfo(loco_addr);
-}
-
-/// \todo document
-z21::LocoInfo::Mode Service::locoMode(uint16_t loco_addr) {
-  return locoInfo(loco_addr).mode;
-}
-
-/// \todo document
-void Service::locoMode(uint16_t, z21::LocoInfo::Mode mode) {
-  if (mode == z21::LocoInfo::MM) LOGW("MM not supported");
-}
-
-/// \todo document
-void Service::broadcastLocoInfo(uint16_t loco_addr) {
-  _z21_dcc_service->broadcastLocoInfo(loco_addr);
-}
-
-/// \todo document
-void Service::broadcastLocoEntry(uint16_t loco_addr) {
-  _z21_dcc_service->broadcastLocoEntry(loco_addr);
-}
-
-/// \todo document
-z21::TurnoutInfo Service::turnoutInfo(uint16_t accy_addr) {
-  std::lock_guard lock{_internal_mutex};
-  auto& turnout{getOrInsertTurnout(accy_addr)};
-  mem::nvs::Turnouts nvs;
-  nvs.set(accy_addr, turnout);
-  return turnout;
-}
-
-/// \todo document
-z21::AccessoryInfo Service::accessoryInfo(uint16_t accy_addr) {
-  LOGW("accessoryInfo not implemented");
-  return {};
-}
-
-/// \todo document
-// P ^= R in DCC
-// P0 -> diverging / left / stop(red)
-// P1 -> normal / right / proceed(green)
-void Service::turnout(uint16_t accy_addr, bool p, bool a, bool q) {
-  sendToFront(make_basic_accessory_packet(
-                {accy_addr, Address::BasicAccessory}, maybeInvertR(p), a),
-              _nvs.accy_packet_count);
-
-  {
-    std::lock_guard lock{_internal_mutex};
-    auto& turnout{getOrInsertTurnout(accy_addr)};
-
-    //
-    if (!a) {
-      turnout.timeout_tick = 0u;
-      return;
-    }
-
-    if (turnout.position == static_cast<z21::TurnoutInfo::Position>(1u << p))
-      return;
-    turnout.position = static_cast<z21::TurnoutInfo::Position>(1u << p);
-
-    //
-    if (!(_nvs.accy_flags &
-          z21::CommonSettings::ExtFlags::TurnoutTimeoutDisable)) {
-      auto const timeout{(_nvs.accy_switch_time + 10u) * 10u};
-      turnout.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(timeout);
-    }
-
-    mem::nvs::Turnouts nvs;
-    nvs.set(accy_addr, turnout);
-  }
-
-  //
-  broadcastTurnoutInfo(accy_addr);
-}
-
-/// \todo document
-void Service::accessory(uint16_t accy_addr, uint8_t dddddddd) {
-  LOGW("accessory addr %d    dddddddd %d", accy_addr, dddddddd);
-}
-
-/// \todo document
-z21::TurnoutInfo::Mode Service::turnoutMode(uint16_t accy_addr) {
-  return turnoutInfo(accy_addr).mode;
-}
-
-/// \todo document
-void Service::turnoutMode(uint16_t, z21::TurnoutInfo::Mode mode) {
-  if (mode == z21::TurnoutInfo::MM) LOGW("MM not supported");
-}
-
-/// \todo document
-void Service::broadcastTurnoutInfo(uint16_t accy_addr) {
-  _z21_dcc_service->broadcastTurnoutInfo(accy_addr);
-}
-
-/// \todo document
-void Service::broadcastExtAccessoryInfo(uint16_t accy_addr) {
-  _z21_dcc_service->broadcastExtAccessoryInfo(accy_addr);
-}
-
-/// \todo document
-bool Service::cvRead(uint16_t cv_addr) {
-  if (full(_cv_request_deque)) return false;
-  _cv_request_deque.push_back({.cv_addr = cv_addr});
-  return true;
-}
-
-/// \todo document
-bool Service::cvWrite(uint16_t cv_addr, uint8_t byte) {
-  if (full(_cv_request_deque)) return false;
-  _cv_request_deque.push_back({.cv_addr = cv_addr, .byte = byte});
-  return true;
-}
-
-/// \todo document
-void Service::cvPomRead(uint16_t loco_addr, uint16_t cv_addr) {
-  if (full(_cv_pom_request_deque)) return cvNack();
-
-  sendToFront(make_cv_access_long_verify_packet(
-                basicOrExtendedLocoAddress(loco_addr), cv_addr),
-              _nvs.program_packet_count);
-
-  _cv_pom_request_deque.push_back(
-    {.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
-     .addr = loco_addr,
-     .cv_addr = cv_addr});
-
-  /// \todo reset loco prio here
-
-  // Mandatory delay
-  vTaskDelay(
-    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
-}
-
-/// \todo document
-void Service::cvPomWrite(uint16_t loco_addr, uint16_t cv_addr, uint8_t byte) {
-  sendToFront(make_cv_access_long_write_packet(
-                basicOrExtendedLocoAddress(loco_addr), cv_addr, byte),
-              _nvs.program_packet_count);
-
-  // Mandatory delay
-  vTaskDelay(
-    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
-}
-
-/// \todo document
-void Service::cvPomAccessoryRead(uint16_t accy_addr, uint16_t cv_addr, bool) {
-  if (full(_cv_pom_request_deque)) return cvNack();
-
-  sendToFront(make_cv_access_long_verify_packet(
-                {.value = accy_addr, .type = Address::BasicAccessory}, cv_addr),
-              _nvs.program_packet_count);
-
-  // Dummy CV7 write ensures we aren't receiving app:pom replies to different CV
-  // addresses when reading multiple values in row. According to RCN-226 all CV7
-  // POM access are to be ignored by all decoders.
-  sendToFront(make_cv_access_long_write_packet(
-    {.value = accy_addr, .type = Address::BasicAccessory}, 7u, 0u));
-
-  _cv_pom_request_deque.push_back(
-    {.timeout_tick = xTaskGetTickCount() + pdMS_TO_TICKS(500u), // See RCN-217
-     .addr = accy_addr,
-     .cv_addr = cv_addr});
-
-  // Mandatory delay
-  vTaskDelay(
-    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
-}
-
-/// \todo document
-void Service::cvPomAccessoryWrite(uint16_t accy_addr,
-                                  uint16_t cv_addr,
-                                  uint8_t byte,
-                                  bool) {
-  sendToFront(
-    make_cv_access_long_write_packet(
-      {.value = accy_addr, .type = Address::BasicAccessory}, cv_addr, byte),
-    _nvs.program_packet_count);
-
-  // Mandatory delay
-  vTaskDelay(
-    pdMS_TO_TICKS((_nvs.program_packet_count + 1u) * 10u)); // ~10ms per packet
-}
-
-/// \todo document
-void Service::cvNackShortCircuit() { _z21_dcc_service->cvNackShortCircuit(); }
-
-/// \todo document
-void Service::cvNack() { _z21_dcc_service->cvNack(); }
-
-/// \todo document
-void Service::cvAck(uint16_t cv_addr, uint8_t byte) {
-  _z21_dcc_service->cvAck(cv_addr, byte);
-}
-
-/// \todo document
-z21::RailComData Service::railComData(uint16_t loco_addr) {
-  std::lock_guard lock{_internal_mutex};
-  auto const it{_locos.find(loco_addr)};
-  return it != cend(_locos) ? it->second.bidi
-                            : z21::RailComData{.loco_address = loco_addr};
-}
-
-/// \todo document
-void Service::broadcastRailComData(uint16_t loco_addr) {
-  _z21_dcc_service->broadcastRailComData(loco_addr);
-}
-
-/// \todo document
 void Service::resume() {
   // Update settings
   mem::nvs::Settings nvs;
@@ -1097,6 +1030,75 @@ Turnout& Service::getOrInsertTurnout(uint16_t accy_addr) {
 }
 
 /// \todo document
+void Service::sendLocos(std::span<Locos::iterator, 2uz> its) const {
+  // Speed and direction
+  for (auto const& it : its)
+    it != end(_locos) ? sendToBack(makeDrivePacket(it->first, it->second))
+                      : sendToBack(make_idle_packet());
+
+  // Lower functions
+  for (auto const& it : its)
+    sendToBack(it != end(_locos)
+                 ? make_f0_f4_packet(basicOrExtendedLocoAddress(it->first),
+                                     it->second.f31_0 & 0x1Fu)
+                 : make_idle_packet());
+  for (auto const& it : its)
+    sendToBack(it != end(_locos)
+                 ? make_f5_f8_packet(basicOrExtendedLocoAddress(it->first),
+                                     it->second.f31_0 >> 5u & 0xFu)
+                 : make_idle_packet());
+  for (auto const& it : its)
+    sendToBack(it != end(_locos)
+                 ? make_f9_f12_packet(basicOrExtendedLocoAddress(it->first),
+                                      it->second.f31_0 >> 9u & 0xFu)
+                 : make_idle_packet());
+
+  // Higher functions
+  if (_nvs.loco_flags & z21::MmDccSettings::Flags::RepeatHfx) {
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f13_f20_packet(basicOrExtendedLocoAddress(it->first),
+                                         it->second.f31_0 >> 13u)
+                   : make_idle_packet());
+
+    for (auto const& it : its)
+      sendToBack(it != end(_locos)
+                   ? make_f21_f28_packet(basicOrExtendedLocoAddress(it->first),
+                                         it->second.f31_0 >> 21u)
+                   : make_idle_packet());
+  }
+
+  // Decrease priority
+  for (auto const& it : its)
+    if (it != end(_locos)) it->second.priority += size(_locos) / 3uz;
+}
+
+/// \todo document
+Packet Service::makeDrivePacket(Address::value_type addr,
+                                Loco const& loco) const {
+  switch (loco.speed_steps) {
+    case z21::LocoInfo::DCC14:
+      return make_speed_and_direction_packet(
+        basicOrExtendedLocoAddress(addr),
+        (loco.rvvvvvvv & 0x80u) >> 2u | // R
+          (loco.f31_0 & 0x01u) << 4u |  // F0
+          (loco.rvvvvvvv & 0x0Fu));     // GGGG
+      break;
+    case z21::LocoInfo::DCC28:
+      return make_speed_and_direction_packet(
+        basicOrExtendedLocoAddress(addr),
+        (loco.rvvvvvvv & 0x80u) >> 2u // R
+          | (loco.rvvvvvvv & 0x1Fu)); // G-GGGG
+      break;
+    case z21::LocoInfo::DCC128:
+      return make_128_speed_step_control_packet(
+        basicOrExtendedLocoAddress(addr), loco.rvvvvvvv);
+      break;
+  }
+  std::unreachable();
+}
+
+/// \todo document
 Address Service::basicOrExtendedLocoAddress(Address::value_type addr) const {
   return {.value = addr,
           .type =
@@ -1115,27 +1117,19 @@ bool Service::maybeInvertR(bool p) const {
 }
 
 /// \todo document
-void Service::sendLocoSpeedAndDirection(Address::value_type addr,
-                                        Loco const& loco) const {
-  switch (loco.speed_steps) {
-    case z21::LocoInfo::DCC14:
-      sendToBack(
-        make_speed_and_direction_packet(basicOrExtendedLocoAddress(addr),
-                                        (loco.rvvvvvvv & 0x80u) >> 2u | // R
-                                          (loco.f31_0 & 0x01u) << 4u |  // F0
-                                          (loco.rvvvvvvv & 0x0Fu)));    // GGGG
-      break;
-    case z21::LocoInfo::DCC28:
-      sendToBack(
-        make_speed_and_direction_packet(basicOrExtendedLocoAddress(addr),
-                                        (loco.rvvvvvvv & 0x80u) >> 2u  // R
-                                          | (loco.rvvvvvvv & 0x1Fu))); // G-GGGG
-      break;
-    case z21::LocoInfo::DCC128:
-      sendToBack(make_128_speed_step_control_packet(
-        basicOrExtendedLocoAddress(addr), loco.rvvvvvvv));
-      break;
-  }
+void Service::sendToFront(Packet const& packet, size_t n) const {
+  for (auto i{0uz}; i < n; ++i)
+    while (!xMessageBufferSend(drv::out::tx_message_buffer.front_handle,
+                               data(packet),
+                               size(packet),
+                               0u));
+}
+
+/// \todo document
+void Service::sendToBack(Packet const& packet, size_t n) const {
+  for (auto i{0uz}; i < n; ++i)
+    while (!xMessageBufferSend(
+      drv::out::tx_message_buffer.back_handle, data(packet), size(packet), 0u));
 }
 
 } // namespace mw::dcc

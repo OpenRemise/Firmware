@@ -14,4 +14,7 @@ auto task_create_stub(TaskHandle_t& task_handle) {
 void stream_buffer_delete_clear_handle(
   StreamBufferHandle_t& stream_buffer_handle);
 
+void message_buffer_delete_clear_handle(
+  MessageBufferHandle_t& message_buffer_handle);
+
 void queue_delete_clear_handle(QueueHandle_t& queue_handle);

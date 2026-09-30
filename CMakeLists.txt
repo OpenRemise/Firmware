@@ -37,7 +37,7 @@ if(ESP_PLATFORM
    AND NOT IDF_TARGET STREQUAL linux
    AND NOT EXISTS ${Frontend_BINARY_DIR})
 
-  # Build from local repo or devel branch at config time
+  # Build from local repo or dev branch at config time
   if(NOT ${OPENREMISE_FRONTEND_SOURCE_DIR} STREQUAL "" OR CMAKE_BUILD_TYPE
                                                           STREQUAL Debug)
     if(OPENREMISE_FRONTEND_SOURCE_DIR)
@@ -50,7 +50,7 @@ if(ESP_PLATFORM
         GITHUB_REPOSITORY
         "OpenRemise/Frontend"
         GIT_TAG
-        devel
+        dev
         DOWNLOAD_ONLY
         TRUE)
     endif()
