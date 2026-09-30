@@ -49,8 +49,8 @@ void reset_sta_settings() {
 [[noreturn]] void task_function(void*) {
   size_t seconds{};
 
-  for (;;) {
-    vTaskDelay(pdMS_TO_TICKS(1000u));
+  for (auto tick{xTaskGetTickCount()};;) {
+    vTaskDelayUntil(&tick, pdMS_TO_TICKS(1000u));
     seconds = gpio_get_level(boot_gpio_num) ? 0uz : seconds + 1uz;
     if (seconds < 5uz) continue;
     drv::led::bug(true);

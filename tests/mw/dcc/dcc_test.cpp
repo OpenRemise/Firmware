@@ -1,5 +1,5 @@
 #include "dcc_test.hpp"
-#include "freertos_helpers.hpp"
+#include "freertos.hpp"
 
 // Create stream buffers and task stubs
 DccTest::DccTest() {}

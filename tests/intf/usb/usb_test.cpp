@@ -1,5 +1,5 @@
 #include "usb_test.hpp"
-#include "freertos_helpers.hpp"
+#include "freertos.hpp"
 
 // Create stream buffers
 UsbTest::UsbTest() {

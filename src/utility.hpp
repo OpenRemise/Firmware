@@ -112,3 +112,12 @@ inline auto httpd_queue_work(intf::http::Message* msg) {
     },
     msg);
 }
+
+/// \todo document
+void reset_rx_message_buffer_blocking();
+
+/// \todo document
+void reset_tx_message_buffer_front_blocking();
+
+/// \todo document
+void reset_tx_message_buffer_back_blocking();

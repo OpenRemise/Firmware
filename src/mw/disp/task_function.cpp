@@ -31,8 +31,8 @@ namespace mw::disp {
 
 /// Display telemetry task
 ///
-/// This task periodically emits a JSON status frame over `UART_NUM_0` when the
-/// display extension is enabled.
+/// This task sends a JSON status frame via `UART_NUM_0` once per second when
+/// the display extension is enabled.
 ///
 /// The payload contains:
 /// - firmware version
@@ -54,7 +54,7 @@ namespace mw::disp {
   std::string json{};
   json.reserve(capacity);
 
-  for (;;) {
+  for (auto tick{xTaskGetTickCount()};;) {
     if (mem::nvs::Settings nvs; nvs.getExtensionFlags() & 0b1u) {
       doc["ip"] = drv::wifi::ip_str;
       doc["state"] = magic_enum::enum_name(state.load());
@@ -78,7 +78,7 @@ namespace mw::disp {
       assert(json.capacity() == capacity);
       uart_write_bytes(UART_NUM_0, data(json), size(json));
     }
-    vTaskDelay(pdMS_TO_TICKS(task.timeout));
+    vTaskDelayUntil(&tick, pdMS_TO_TICKS(task.timeout));
   }
 }
 

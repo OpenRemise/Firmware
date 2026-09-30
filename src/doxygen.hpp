@@ -564,36 +564,38 @@
 /// (e.g.
 /// [LWIP_TCPIP_TASK_AFFINITY_CPU0](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/kconfig.html#config-lwip-tcpip-task-affinity)),
 /// or are simply allocated on the core that called the function. To work around
-/// this, there is the utility function `invoke_on_core()`, which executes a
+/// this, there is the utility function `ipc_call_blocking()`, which executes a
 /// passed function on an assigned core.
 ///
 /// \note
-/// `invoke_on_core()` works in blocking mode and is really only used during
+/// `ipc_call_blocking()` works in blocking mode and is really only used during
 /// startup.
 ///
 /// The following table provides an overview of the distribution of tasks across
 /// cores.
 ///
-/// | Task                               | Core |
-/// | ---------------------------------- | ---- |
-/// | lwIP                               | 0    |
-/// | intf::usb::rx_task                 | 1    |
-/// | intf::usb::tx_task                 | 1    |
-/// | mw::dcc::task                      | 1    |
-/// | mw::ota::task                      | 1    |
-/// | mw::z21::task                      | 0    |
-/// | mw::zimo::decup::task              | 1    |
-/// | mw::zimo::mdu::task                | 1    |
-/// | mw::zimo::ulf::dcc_ein::task       | 1    |
-/// | mw::zimo::ulf::susiv2::task        | 1    |
-/// | mw::zimo::zusi::task               | 1    |
-/// | drv::anlg::adc_task                | 1    |
-/// | drv::anlg::temp_task               | 1    |
-/// | drv::out::susi::zimo::zusi::task   | 1    |
-/// | drv::out::track::dcc::task         | 1    |
-/// | drv::out::track::zimo::decup::task | 1    |
-/// | drv::out::track::zimo::mdu::task   | 1    |
-/// | drv::wifi::task                    | 0    |
+/// | Task                               | Core | Priority |
+/// | ---------------------------------- | ---- | -------- |
+/// | lwIP                               | 0    | 18       |
+/// | mw::z21::task                      | 0    | 5        |
+/// |                                    |      |          |
+/// | intf::usb::rx_task                 | 1    | 5        |
+/// | intf::usb::tx_task                 | 1    | 1        |
+/// | mw::dcc::task                      | 1    | 2        |
+/// | mw::disp::task                     | 1    | 0        |
+/// | mw::ota::task                      | 1    | 24       |
+/// | mw::zimo::decup::task              | 1    | 2        |
+/// | mw::zimo::mdu::task                | 1    | 2        |
+/// | mw::zimo::ulf::dcc_ein::task       | 1    | 4        |
+/// | mw::zimo::ulf::susiv2::task        | 1    | 4        |
+/// | mw::zimo::zusi::task               | 1    | 2        |
+/// | drv::anlg::adc_task                | 1    | 23       |
+/// | drv::anlg::temp_task               | 1    | 0        |
+/// | drv::out::susi::zimo::zusi::task   | 1    | 24       |
+/// | drv::out::track::dcc::task         | 1    | 24       |
+/// | drv::out::track::zimo::decup::task | 1    | 24       |
+/// | drv::out::track::zimo::mdu::task   | 1    | 24       |
+/// | mem::nvs::task                     | 1    | 0        |
 ///
 /// All other ESP-IDF internal tasks ([ESP
 /// Timer](https://docs.espressif.com/projects/esp-idf/en/\idf_ver/esp32s3/api-reference/system/esp_timer.html),
