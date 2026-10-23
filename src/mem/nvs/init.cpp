@@ -20,12 +20,27 @@
 /// \date   09/02/2023
 
 #include "init.hpp"
+#include <driver/gpio.h>
 #include <nvs_flash.h>
 #include <z21/z21.hpp>
 #include "settings.hpp"
 #include "task_function.hpp"
 
 namespace mem::nvs {
+
+namespace {
+
+/// \todo document
+esp_err_t gpio_init() {
+  static constexpr gpio_config_t gpio_cfg{.pin_bit_mask = 1ull << boot_gpio_num,
+                                          .mode = GPIO_MODE_INPUT,
+                                          .pull_up_en = GPIO_PULLUP_ENABLE,
+                                          .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                          .intr_type = GPIO_INTR_DISABLE};
+  return gpio_config(&gpio_cfg);
+}
+
+} // namespace
 
 /// Initialize NVS
 ///
@@ -34,6 +49,8 @@ namespace mem::nvs {
 /// erased and then reinitialized. The default settings will be restored in this
 /// case.
 esp_err_t init() {
+  ESP_ERROR_CHECK(gpio_init());
+
   auto err{nvs_flash_init()};
 
   if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
