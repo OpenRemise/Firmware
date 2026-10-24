@@ -33,6 +33,8 @@ namespace {
 /// \todo document
 void reset_sta_settings() {
   mem::nvs::Settings nvs;
+  nvs.setAccessPointSSID("OpenRemise");
+  nvs.setAccessPointPassword("");
   nvs.setStationmDNS("remise");
   nvs.setStationSSID("");
   nvs.setStationPassword("");

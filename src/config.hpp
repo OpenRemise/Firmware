@@ -498,12 +498,8 @@ inline httpd_handle_t handle{};
 ///
 inline constexpr auto stack_size{6144uz};
 
-namespace sta {
-
 class Server;
 inline std::shared_ptr<Server> server;
-
-} // namespace sta
 
 } // namespace http
 

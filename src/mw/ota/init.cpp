@@ -23,7 +23,7 @@
 #include <esp_ota_ops.h>
 #include <esp_partition.h>
 #include <memory>
-#include "intf/http/sta/server.hpp"
+#include "intf/http/server.hpp"
 #include "log.h"
 #include "service.hpp"
 
@@ -44,10 +44,9 @@ esp_err_t init() {
          "if either the OTA boot data or preferred boot image become corrupted "
          "somehow.");
 
-  if (intf::http::sta::server) {
+  if (intf::http::server) {
     service = std::make_shared<Service>();
-    intf::http::sta::server->subscribe(
-      {.uri = "/ota/"}, service, &Service::socket);
+    intf::http::server->subscribe({.uri = "/ota/"}, service, &Service::socket);
   }
 
   return ESP_OK;

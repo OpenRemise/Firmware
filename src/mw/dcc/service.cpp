@@ -786,7 +786,7 @@ void Service::operationsBiDi() {
   while (xQueueReceive(drv::out::track::rx_queue.handle, &item, 0u)) {
     auto const addr{decode_address(item.packet)};
 
-    for (bidi::Dissector dissector{item.datagram, addr};
+    for (bidi::Dissector dissector{item.packet, item.datagram};
          auto const& dg : dissector) {
       //
       if (auto pom{get_if<bidi::app::Pom>(&dg)}) {
