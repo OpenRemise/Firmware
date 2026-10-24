@@ -13,19 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// HTTP server for station
+/// HTTP server
 ///
-/// \file   intf/http/sta/server.hpp
+/// \file   intf/http/server.hpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
 #pragma once
 
 #include <memory>
-#include "../endpoints.hpp"
+#include "endpoints.hpp"
 #include "utility.hpp"
 
-namespace intf::http::sta {
+namespace intf::http {
 
 ///
 class Server : public Endpoints {
@@ -56,4 +56,4 @@ private:
   esp_err_t wildcardGetHandler(httpd_req_t* req);
 };
 
-} // namespace intf::http::sta
+} // namespace intf::http

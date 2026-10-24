@@ -702,8 +702,8 @@
 /// interfaces with the outputs in the driver layer. An example of this is the
 /// mw::zimo::mdu::Service, which can accept a
 /// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
-/// intf::http::sta::Server and then processes commands for an update of the
-/// decoder software. The service then starts the corresponding \ref
+/// intf::http::Server and then processes commands for an update of the decoder
+/// software. The service then starts the corresponding \ref
 /// drv::out::track::zimo::mdu::task_function "MDU task" in the driver layer,
 /// which then generates the necessary signals on the track. The communication
 /// is bidirectional, received feedback is sent back to the server via service.

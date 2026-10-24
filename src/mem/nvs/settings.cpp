@@ -24,6 +24,46 @@
 
 namespace mem::nvs {
 
+/// Get access point SSID
+///
+/// \return Access point SSID
+std::string Settings::getAccessPointSSID() const { return getBlob("ap_ssid"); }
+
+/// Set access point SSID
+///
+/// \param  str                           Access point SSID
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAccessPointSSID(std::string_view str) {
+  return setBlob("ap_ssid", str);
+}
+
+/// Get access point password
+///
+/// \return Access point password
+std::string Settings::getAccessPointPassword() const {
+  return getBlob("ap_pass");
+}
+
+/// Set access point password
+///
+/// \param  str                           Access point password
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAccessPointPassword(std::string_view str) {
+  return setBlob("ap_pass", str);
+}
+
 /// Get station mDNS
 ///
 /// \return Station mDNS

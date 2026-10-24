@@ -65,6 +65,10 @@ esp_err_t init() {
   // Check if settings namespace contains keys, restore default values if not
   if (err == ESP_OK) {
     mem::nvs::Settings nvs;
+    if (nvs.find("ap_ssid") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setAccessPointSSID("OpenRemise");
+    if (nvs.find("ap_pass") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setAccessPointPassword("");
     if (nvs.find("sta_mdns") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setStationmDNS("remise");
     if (nvs.find("sta_ssid") == ESP_ERR_NVS_NOT_FOUND) nvs.setStationSSID("");

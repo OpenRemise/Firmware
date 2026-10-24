@@ -20,7 +20,6 @@
 /// \date   21/03/2025
 
 #include "init.hpp"
-#include <esp_wifi.h>
 #include <mdns.h>
 #include "mem/nvs/settings.hpp"
 
@@ -43,13 +42,8 @@ esp_err_t init() {
 
   mem::nvs::Settings nvs;
   auto const sta_mdns_str{nvs.getStationmDNS()};
-
-  // AP mode:  hostname fixed to "remise"
-  // STA mode: hostname is user setting
-  wifi_mode_t mode{WIFI_MODE_NULL};
-  esp_wifi_get_mode(&mode);
-  str = mode == WIFI_MODE_AP || empty(sta_mdns_str) ? "remise" : sta_mdns_str;
-  ESP_ERROR_CHECK(mdns_hostname_set(str.c_str()));
+  ESP_ERROR_CHECK(
+    mdns_hostname_set(empty(sta_mdns_str) ? "remise" : sta_mdns_str.c_str()));
 
   // Add services
   ESP_ERROR_CHECK(mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0));

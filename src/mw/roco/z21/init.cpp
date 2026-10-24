@@ -20,7 +20,7 @@
 /// \date   15/04/2024
 
 #include "init.hpp"
-#include "intf/http/sta/server.hpp"
+#include "intf/http/server.hpp"
 #include "mw/dcc/service.hpp"
 #include "service.hpp"
 
@@ -28,11 +28,11 @@ namespace mw::roco::z21 {
 
 /// \todo document
 esp_err_t init() {
-  if (intf::http::sta::server) {
+  if (intf::http::server) {
     service = std::make_shared<Service>();
     service->dcc(dcc::service);
     dcc::service->z21(service, service);
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe(
       {.uri = "/roco/z21/"}, service, &Service::socket);
   }
   return ESP_OK;

@@ -38,6 +38,12 @@ class Settings : public Base {
 public:
   Settings() : Base{"settings", NVS_READWRITE} {}
 
+  std::string getAccessPointSSID() const;
+  esp_err_t setAccessPointSSID(std::string_view str);
+
+  std::string getAccessPointPassword() const;
+  esp_err_t setAccessPointPassword(std::string_view str);
+
   std::string getStationmDNS() const;
   esp_err_t setStationmDNS(std::string_view str);
 

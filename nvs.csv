@@ -1,6 +1,8 @@
 # ESP-IDF NVS Partition
 key,type,encoding,value
 settings,namespace,,
+ap_ssid,data,binary,"OpenRemise"
+ap_pass,data,binary,""
 sta_mdns,data,binary,"remise"
 sta_ssid,data,binary,""
 sta_pass,data,binary,""
