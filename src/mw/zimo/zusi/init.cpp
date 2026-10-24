@@ -15,7 +15,7 @@
 
 #include "init.hpp"
 #include <memory>
-#include "intf/http/sta/server.hpp"
+#include "intf/http/server.hpp"
 #include "service.hpp"
 
 namespace mw::zimo::zusi {
@@ -30,9 +30,9 @@ std::shared_ptr<Service> service;
 ///
 /// Those are the init details
 esp_err_t init() {
-  if (intf::http::sta::server) {
+  if (intf::http::server) {
     service = std::make_shared<Service>();
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe(
       {.uri = "/zimo/zusi/"}, service, &Service::socket);
   }
   return ESP_OK;

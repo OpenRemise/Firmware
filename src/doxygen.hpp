@@ -702,8 +702,8 @@
 /// interfaces with the outputs in the driver layer. An example of this is the
 /// mw::zimo::mdu::Service, which can accept a
 /// [WebSocket](https://en.wikipedia.org/wiki/WebSocket) connection from the
-/// intf::http::sta::Server and then processes commands for an update of the
-/// decoder software. The service then starts the corresponding \ref
+/// intf::http::Server and then processes commands for an update of the decoder
+/// software. The service then starts the corresponding \ref
 /// drv::out::track::zimo::mdu::task_function "MDU task" in the driver layer,
 /// which then generates the necessary signals on the track. The communication
 /// is bidirectional, received feedback is sent back to the server via service.
@@ -797,16 +797,9 @@
 ///     interface DNS
 ///   }
 ///   package "http" as intf_http {
-///     package "ap" as intf_http_ap {
-///       interface "HTTP" as http_ap
-///       [Server] as intf_http_ap_server
-///       http_ap - intf_http_ap_server
-///     }
-///     package "sta" as intf_http_sta {
-///       interface "HTTP" as http_sta
-///       [Server] as intf_http_sta_server
-///       http_sta - intf_http_sta_server
-///     }
+///     interface "HTTP" as http_sta
+///     [Server] as intf_http_sta_server
+///     http_sta - intf_http_sta_server
 ///   }
 ///   package "mdns" as intf_mdns {
 ///     interface mDNS
@@ -916,8 +909,6 @@
 ///
 /// url of intf_dns is [[page_intf_dns.html]]
 /// url of intf_http is [[page_intf_http.html]]
-/// url of intf_http_ap is [[page_intf_http.html#section_http_ap]]
-/// url of intf_http_sta is [[page_intf_http.html#section_http_sta]]
 /// url of intf_mdns is [[page_intf_mdns.html]]
 /// url of intf_udp is [[page_intf_udp.html]]
 /// url of intf_usb is [[page_intf_usb.html]]

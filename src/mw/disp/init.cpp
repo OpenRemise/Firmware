@@ -23,7 +23,7 @@
 #include <driver/uart.h>
 #include <soc/uart_pins.h>
 #include <memory>
-#include "intf/http/sta/server.hpp"
+#include "intf/http/server.hpp"
 #include "task_function.hpp"
 
 namespace mw::disp {

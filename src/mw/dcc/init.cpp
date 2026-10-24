@@ -15,7 +15,7 @@
 
 #include "init.hpp"
 #include <memory>
-#include "intf/http/sta/server.hpp"
+#include "intf/http/server.hpp"
 #include "mw/roco/z21/service.hpp"
 #include "service.hpp"
 
@@ -23,35 +23,30 @@ namespace mw::dcc {
 
 /// \todo document
 esp_err_t init() {
-  if (intf::http::sta::server) {
+  if (intf::http::server) {
     service = std::make_shared<Service>();
-    intf::http::sta::server->subscribe(
-      {.uri = "/dcc/locos/", .method = HTTP_DELETE},
-      service,
-      &Service::locosDeleteRequest);
-    intf::http::sta::server->subscribe(
-      {.uri = "/dcc/locos/", .method = HTTP_GET},
-      service,
-      &Service::locosGetRequest);
-    intf::http::sta::server->subscribe(
-      {.uri = "/dcc/locos/", .method = HTTP_PUT},
-      service,
-      &Service::locosPutRequest);
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_DELETE},
+                                  service,
+                                  &Service::locosDeleteRequest);
+    intf::http::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_GET},
+                                  service,
+                                  &Service::locosGetRequest);
+    intf::http::server->subscribe({.uri = "/dcc/locos/", .method = HTTP_PUT},
+                                  service,
+                                  &Service::locosPutRequest);
+    intf::http::server->subscribe(
       {.uri = "/dcc/turnouts/", .method = HTTP_DELETE},
       service,
       &Service::turnoutsDeleteRequest);
-    intf::http::sta::server->subscribe(
-      {.uri = "/dcc/turnouts/", .method = HTTP_GET},
-      service,
-      &Service::turnoutsGetRequest);
-    intf::http::sta::server->subscribe(
-      {.uri = "/dcc/turnouts/", .method = HTTP_PUT},
-      service,
-      &Service::turnoutsPutRequest);
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe({.uri = "/dcc/turnouts/", .method = HTTP_GET},
+                                  service,
+                                  &Service::turnoutsGetRequest);
+    intf::http::server->subscribe({.uri = "/dcc/turnouts/", .method = HTTP_PUT},
+                                  service,
+                                  &Service::turnoutsPutRequest);
+    intf::http::server->subscribe(
       {.uri = "/dcc/", .method = HTTP_GET}, service, &Service::getRequest);
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe(
       {.uri = "/dcc/", .method = HTTP_POST}, service, &Service::postRequest);
   }
   return ESP_OK;

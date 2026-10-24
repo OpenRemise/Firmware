@@ -65,8 +65,15 @@ esp_err_t init() {
   // Check if settings namespace contains keys, restore default values if not
   if (err == ESP_OK) {
     mem::nvs::Settings nvs;
-    if (nvs.find("sta_mdns") == ESP_ERR_NVS_NOT_FOUND)
-      nvs.setStationmDNS("remise");
+    if (nvs.find("ap_ssid") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setAccessPointSSID("OpenRemise");
+    if (nvs.find("ap_pass") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setAccessPointPassword("");
+    if (nvs.find("ap_ip") == ESP_ERR_NVS_NOT_FOUND) nvs.setAccessPointIP("");
+    if (nvs.find("ap_netmask") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setAccessPointNetmask("");
+    if (nvs.find("ap_gateway") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setAccessPointGateway("");
     if (nvs.find("sta_ssid") == ESP_ERR_NVS_NOT_FOUND) nvs.setStationSSID("");
     if (nvs.find("sta_pass") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setStationPassword("");
@@ -79,6 +86,10 @@ esp_err_t init() {
       nvs.setStationNetmask("");
     if (nvs.find("sta_gateway") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setStationGateway("");
+    if (nvs.find("mdns") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setmDNS(nvs.find("sta_mdns") == ESP_ERR_NVS_NOT_FOUND
+                    ? "remise"
+                    : nvs.getStationmDNS());
     if (nvs.find("http_rx_timeout") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setHttpReceiveTimeout(5u);
     if (nvs.find("http_tx_timeout") == ESP_ERR_NVS_NOT_FOUND)

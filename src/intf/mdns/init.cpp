@@ -20,7 +20,6 @@
 /// \date   21/03/2025
 
 #include "init.hpp"
-#include <esp_wifi.h>
 #include <mdns.h>
 #include "mem/nvs/settings.hpp"
 
@@ -28,10 +27,8 @@ namespace intf::mdns {
 
 /// Initialize mDNS
 ///
-/// Initialization takes place in init(). This function sets the hostname based
-/// on the currently active WiFi mode. In station mode, the hostname is set to
-/// the \ref mem::nvs::Settings::getStationmDNS "user's preference"; in access
-/// point mode, it is set to "remise."
+/// Initialization takes place in init(). This function sets the mDNS hostname
+/// based on the value stored in mem::nvs::Settings::getmDNS().
 ///
 /// The following services are registered.
 /// | Type  | Protocol | Port  |
@@ -42,13 +39,8 @@ esp_err_t init() {
   ESP_ERROR_CHECK(mdns_init());
 
   mem::nvs::Settings nvs;
-  auto const sta_mdns_str{nvs.getStationmDNS()};
-
-  // AP mode:  hostname fixed to "remise"
-  // STA mode: hostname is user setting
-  wifi_mode_t mode{WIFI_MODE_NULL};
-  esp_wifi_get_mode(&mode);
-  str = mode == WIFI_MODE_AP || empty(sta_mdns_str) ? "remise" : sta_mdns_str;
+  auto const mdns_str{nvs.getmDNS()};
+  str = empty(mdns_str) ? "remise" : mdns_str.c_str();
   ESP_ERROR_CHECK(mdns_hostname_set(str.c_str()));
 
   // Add services

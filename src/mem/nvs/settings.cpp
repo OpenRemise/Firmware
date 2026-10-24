@@ -24,14 +24,14 @@
 
 namespace mem::nvs {
 
-/// Get station mDNS
+/// Get access point SSID
 ///
-/// \return Station mDNS
-std::string Settings::getStationmDNS() const { return getBlob("sta_mdns"); }
+/// \return Access point SSID
+std::string Settings::getAccessPointSSID() const { return getBlob("ap_ssid"); }
 
-/// Set station mDNS
+/// Set access point SSID
 ///
-/// \param  str                           Station mDNS
+/// \param  str                           Access point SSID
 /// \retval ESP_OK                        Value was set successfully
 /// \retval ESP_FAIL                      Internal error
 /// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
@@ -39,10 +39,94 @@ std::string Settings::getStationmDNS() const { return getBlob("sta_mdns"); }
 /// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
-/// \retval ESP_ERR_INVALID_ARG           Invalid mDNS
-esp_err_t Settings::setStationmDNS(std::string_view str) {
-  return str.ends_with("remise") ? setBlob("sta_mdns", str)
-                                 : ESP_ERR_INVALID_ARG;
+esp_err_t Settings::setAccessPointSSID(std::string_view str) {
+  return size(str) <= MAX_SSID_LEN ? setBlob("ap_ssid", str)
+                                   : ESP_ERR_INVALID_ARG;
+}
+
+/// Get access point password
+///
+/// \return Access point password
+std::string Settings::getAccessPointPassword() const {
+  return getBlob("ap_pass");
+}
+
+/// Set access point password
+///
+/// \param  str                           Access point password
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAccessPointPassword(std::string_view str) {
+  auto const length{size(str)};
+  return !length || (length >= 8uz && length < MAX_PASSPHRASE_LEN)
+           ? setBlob("ap_pass", str)
+           : ESP_ERR_INVALID_ARG;
+}
+
+/// Get access point IP
+///
+/// \return Access point IP
+std::string Settings::getAccessPointIP() const { return getBlob("ap_ip"); }
+
+/// Set access point IP
+///
+/// \param  str                           Access point IP
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAccessPointIP(std::string_view str) {
+  return setBlob("ap_ip", str);
+}
+
+/// Get access point netmask
+///
+/// \return Access point netmask
+std::string Settings::getAccessPointNetmask() const {
+  return getBlob("ap_netmask");
+}
+
+/// Set access point netmask
+///
+/// \param  str                           Access point netmask
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAccessPointNetmask(std::string_view str) {
+  return setBlob("ap_netmask", str);
+}
+
+/// Get access point gateway
+///
+/// \return Access point gateway
+std::string Settings::getAccessPointGateway() const {
+  return getBlob("ap_gateway");
+}
+
+/// Set access point gateway
+///
+/// \param  str                           Access point gateway
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+esp_err_t Settings::setAccessPointGateway(std::string_view str) {
+  return setBlob("ap_gateway", str);
 }
 
 /// Get station SSID
@@ -61,7 +145,8 @@ std::string Settings::getStationSSID() const { return getBlob("sta_ssid"); }
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Settings::setStationSSID(std::string_view str) {
-  return setBlob("sta_ssid", str);
+  return size(str) <= MAX_SSID_LEN ? setBlob("sta_ssid", str)
+                                   : ESP_ERR_INVALID_ARG;
 }
 
 /// Get station password
@@ -80,7 +165,10 @@ std::string Settings::getStationPassword() const { return getBlob("sta_pass"); }
 ///                                       write operation has failed
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Settings::setStationPassword(std::string_view str) {
-  return setBlob("sta_pass", str);
+  auto const length{size(str)};
+  return !length || (length >= 8uz && length < MAX_PASSPHRASE_LEN)
+           ? setBlob("sta_pass", str)
+           : ESP_ERR_INVALID_ARG;
 }
 
 /// Get alternative station SSID
@@ -184,6 +272,31 @@ std::string Settings::getStationGateway() const {
 /// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
 esp_err_t Settings::setStationGateway(std::string_view str) {
   return setBlob("sta_gateway", str);
+}
+
+/// Get station mDNS
+///
+/// \return Station mDNS
+std::string Settings::getStationmDNS() const { return getBlob("sta_mdns"); }
+
+/// Get mDNS
+///
+/// \return mDNS
+std::string Settings::getmDNS() const { return getBlob("mdns"); }
+
+/// Set mDNS
+///
+/// \param  str                           mDNS
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+/// \retval ESP_ERR_NVS_VALUE_TOO_LONG    String value is too long
+/// \retval ESP_ERR_INVALID_ARG           Invalid mDNS
+esp_err_t Settings::setmDNS(std::string_view str) {
+  return str.ends_with("remise") ? setBlob("mdns", str) : ESP_ERR_INVALID_ARG;
 }
 
 /// Get HTTP receive timeout

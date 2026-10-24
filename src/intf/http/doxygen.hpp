@@ -25,38 +25,14 @@ namespace intf::http {
 
 /// \page page_intf_http HTTP
 /// \details \tableofcontents
-/// The HTTP module contains the implementation of the web server. Depending on
-/// the operating mode (access point or station), either a server for the
-/// captive portal or one for the REST APIs is created. Which server is
-/// ultimately started depends on whether a network SSID is stored in the
-/// settings. If no settings are available yet, the access point server is
-/// started, otherwise the station server is started.
+/// The HTTP module contains the implementation of the web server. This web
+/// server is accessible in both access point and station modes.
 ///
-/// \section section_intf_http_ap Access Point
-/// The access point server provides the [captive
-/// portal](https://github.com/OpenRemise/Firmware/raw/master/src/intf/http/ap/captive_portal.html)
-/// for initial network configuration. Two endpoints are created for this
-/// purpose:
-/// - /save/
-///   - POST
-/// - /*
-///   - GET
+/// \section section_intf_http_server Server
+/// The server provides a whole range of different regular and websocket
+/// endpoints.
 ///
-/// \subsection subsection_intf_http_ap_wildcard /*
-/// The wildcard GET endpoint redirects all requests to the captive portal. The
-/// string containing the complete HTML code is generated at runtime using
-/// [std::format_to_n](https://en.cppreference.com/w/cpp/utility/format/format_to_n.html).
-/// In addition to a number of (pre)settings, it also contains a list of
-/// available WiFi networks.
-///
-/// \subsection subsection_intf_http_ap_save /save/
-/// The POST endpoint receives the settings of the captive portal when saving in
-/// the form of query parameters. The settings are stored in the NVS namespace
-/// `settings`. Afterwards the board reboots.
-///
-/// \section section_intf_http_sta Station
-/// The server for station mode provides a whole range of different endpoints
-/// that can be used in normal operation.
+/// \subsection subsection_intf_http_regular_endpoints Regular endpoints
 /// - /dcc/
 ///   - GET
 ///   - POST
@@ -76,9 +52,27 @@ namespace intf::http {
 /// - /*
 ///   - GET
 ///
-/// WebSockets?
+/// \todo Write proper regular endpoint docs
 ///
-/// \subsection subsection_intf_http_sta_endpoints Endpoints
+/// \subsection subsection_intf_http_websockets Websockets
+/// - /ota
+///   - GET
+/// - /roco/z21
+///   - GET
+/// - /zimo/decup/zpp
+///   - GET
+/// - /zimo/decup/zsu
+///   - GET
+/// - /zimo/mdu/zpp
+///   - GET
+/// - /zimo/mdu/zsu
+///   - GET
+/// - /zimo/zusi
+///   - GET
+///
+/// \todo Write proper websocket endpoint docs
+///
+/// \section section_intf_http_endpoints_class Endpoints class
 /// The Endpoints class allows you to set up subscriptions to different
 /// endpoints. For such a subscription, the request type and endpoint name must
 /// be specified. Furthermore, a distinction is made between synchronous (HTTP)

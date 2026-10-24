@@ -53,6 +53,8 @@
 #  define APP_CPU_NUM 0
 #  define PRO_CPU_NUM APP_CPU_NUM
 #  define WIFI_TASK_CORE_ID APP_CPU_NUM
+#  define MAX_SSID_LEN 32
+#  define MAX_PASSPHRASE_LEN 64
 #  define ADC_CHANNEL_0 0
 #  define ADC_CHANNEL_1 1
 #  define ADC_CHANNEL_2 2
@@ -498,12 +500,8 @@ inline httpd_handle_t handle{};
 ///
 inline constexpr auto stack_size{6144uz};
 
-namespace sta {
-
 class Server;
 inline std::shared_ptr<Server> server;
-
-} // namespace sta
 
 } // namespace http
 

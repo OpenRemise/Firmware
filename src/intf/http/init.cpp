@@ -13,25 +13,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initialize HTTP
+/// Initialize HTTP server
 ///
 /// \file   intf/http/init.cpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
 #include "init.hpp"
-#include <esp_wifi.h>
-#include "ap/init.hpp"
-#include "log.h"
-#include "sta/init.hpp"
+#include <memory>
+#include <span>
+#include "server.hpp"
 
 namespace intf::http {
 
 /// \todo document
 esp_err_t init() {
-  wifi_mode_t mode{WIFI_MODE_NULL};
-  esp_wifi_get_mode(&mode);
-  return mode == WIFI_MODE_AP ? ap::init() : sta::init();
+  server = std::make_shared<Server>();
+  server->subscribe({.uri = "/settings/", .method = HTTP_GET},
+                    server,
+                    &Server::settingsGetRequest);
+  server->subscribe({.uri = "/settings/", .method = HTTP_POST},
+                    server,
+                    &Server::settingsPostRequest);
+  server->subscribe(
+    {.uri = "/sys/", .method = HTTP_GET}, server, &Server::sysGetRequest);
+  server->subscribe(
+    {.uri = "/sys/", .method = HTTP_POST}, server, &Server::sysPostRequest);
+  return ESP_OK;
 }
 
 } // namespace intf::http
