@@ -33,7 +33,11 @@ namespace {
 /// \todo document
 void reset_sta_settings() {
   mem::nvs::Settings nvs;
-  nvs.setStationmDNS("remise");
+  nvs.setAccessPointSSID("OpenRemise");
+  nvs.setAccessPointPassword("");
+  nvs.setAccessPointIP("");
+  nvs.setAccessPointNetmask("");
+  nvs.setAccessPointGateway("");
   nvs.setStationSSID("");
   nvs.setStationPassword("");
   nvs.setStationAlternativeSSID("");
@@ -41,6 +45,7 @@ void reset_sta_settings() {
   nvs.setStationIP("");
   nvs.setStationNetmask("");
   nvs.setStationGateway("");
+  nvs.setmDNS("remise");
 }
 
 } // namespace

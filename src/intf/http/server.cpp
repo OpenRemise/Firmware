@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// HTTP server for station
+/// HTTP server
 ///
-/// \file   intf/http/sta/server.cpp
+/// \file   intf/http/server.cpp
 /// \author Vincent Hamp
 /// \date   01/03/2023
 
@@ -33,7 +33,7 @@
 #include "mem/nvs/settings.hpp"
 #include "utility.hpp"
 
-namespace intf::http::sta {
+namespace intf::http {
 
 using namespace std::literals;
 
@@ -199,6 +199,8 @@ Response Server::settingsGetRequest(Request const& req) {
   mem::nvs::Settings nvs;
 
   // Read passwords (and hide them)
+  auto ap_pass{nvs.getAccessPointPassword()};
+  std::ranges::fill(ap_pass, '*');
   auto sta_pass{nvs.getStationPassword()};
   std::ranges::fill(sta_pass, '*');
   auto sta_alt_pass{nvs.getStationAlternativePassword()};
@@ -206,7 +208,11 @@ Response Server::settingsGetRequest(Request const& req) {
 
   //
   JsonDocument doc;
-  doc["sta_mdns"] = nvs.getStationmDNS();
+  doc["ap_ssid"] = nvs.getAccessPointSSID();
+  doc["ap_pass"] = ap_pass;
+  doc["ap_ip"] = nvs.getAccessPointIP();
+  doc["ap_netmask"] = nvs.getAccessPointNetmask();
+  doc["ap_gateway"] = nvs.getAccessPointGateway();
   doc["sta_ssid"] = nvs.getStationSSID();
   doc["sta_pass"] = sta_pass;
   doc["sta_alt_ssid"] = nvs.getStationAlternativeSSID();
@@ -214,6 +220,7 @@ Response Server::settingsGetRequest(Request const& req) {
   doc["sta_ip"] = nvs.getStationIP();
   doc["sta_netmask"] = nvs.getStationNetmask();
   doc["sta_gateway"] = nvs.getStationGateway();
+  doc["mdns"] = nvs.getmDNS();
   doc["http_rx_timeout"] = nvs.getHttpReceiveTimeout();
   doc["http_tx_timeout"] = nvs.getHttpTransmitTimeout();
   doc["http_exit_msg"] = nvs.getHttpExitMessage();
@@ -264,8 +271,29 @@ Response Server::settingsPostRequest(Request const& req) {
 
   mem::nvs::Settings nvs;
 
-  if (JsonVariantConst v{doc["sta_mdns"]}; v.is<std::string>())
-    if (auto const str{v.as<std::string>()}; nvs.setStationmDNS(str) != ESP_OK)
+  if (JsonVariantConst v{doc["ap_ssid"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAccessPointSSID(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["ap_pass"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAccessPointPassword(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["ap_ip"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAccessPointIP(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["ap_netmask"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAccessPointNetmask(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["ap_gateway"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()};
+        nvs.setAccessPointGateway(str) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["sta_ssid"]}; v.is<std::string>())
@@ -299,6 +327,10 @@ Response Server::settingsPostRequest(Request const& req) {
   if (JsonVariantConst v{doc["sta_gateway"]}; v.is<std::string>())
     if (auto const str{v.as<std::string>()};
         nvs.setStationGateway(str) != ESP_OK)
+      return std::unexpected<std::string>{"422 Unprocessable Entity"};
+
+  if (JsonVariantConst v{doc["mdns"]}; v.is<std::string>())
+    if (auto const str{v.as<std::string>()}; nvs.setmDNS(str) != ESP_OK)
       return std::unexpected<std::string>{"422 Unprocessable Entity"};
 
   if (JsonVariantConst v{doc["http_rx_timeout"]}; v.is<uint8_t>())
@@ -552,7 +584,6 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
     httpd_resp_set_status(req, "308 Permanent Redirect");
     httpd_resp_set_hdr(req, "Location", "/index.html");
     httpd_resp_send(req, NULL, 0);
-    return ESP_OK;
   }
   // Frontend (embedded in firmware)
   else if (auto it{std::ranges::find_if(
@@ -586,14 +617,15 @@ esp_err_t Server::wildcardGetHandler(httpd_req_t* req) {
     // Send file
     auto const [_, start, end]{*it};
     httpd_resp_send(req, start, end - start);
-
-    return ESP_OK;
   }
-  // 404
+  // 302 (captive portal)
   else {
-    httpd_resp_send_404(req);
-    return ESP_FAIL;
+    httpd_resp_set_status(req, "302 Found");
+    httpd_resp_set_hdr(req, "Location", "/");
+    httpd_resp_send(req, NULL, 0);
   }
+
+  return ESP_OK;
 }
 
-} // namespace intf::http::sta
+} // namespace intf::http

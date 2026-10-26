@@ -15,7 +15,7 @@
 
 #include "init.hpp"
 #include <memory>
-#include "intf/http/sta/server.hpp"
+#include "intf/http/server.hpp"
 #include "service.hpp"
 
 namespace mw::zimo::decup {
@@ -28,11 +28,11 @@ std::shared_ptr<Service> service;
 
 /// \todo document
 esp_err_t init() {
-  if (intf::http::sta::server) {
+  if (intf::http::server) {
     service = std::make_shared<Service>();
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe(
       {.uri = "/zimo/decup/zpp/"}, service, &Service::zppSocket);
-    intf::http::sta::server->subscribe(
+    intf::http::server->subscribe(
       {.uri = "/zimo/decup/zsu/"}, service, &Service::zsuSocket);
   }
   return ESP_OK;

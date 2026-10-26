@@ -1,7 +1,11 @@
 # ESP-IDF NVS Partition
 key,type,encoding,value
 settings,namespace,,
-sta_mdns,data,binary,"remise"
+ap_ssid,data,binary,"OpenRemise"
+ap_pass,data,binary,""
+ap_ip,data,binary,""
+ap_netmask,data,binary,""
+ap_gateway,data,binary,""
 sta_ssid,data,binary,""
 sta_pass,data,binary,""
 sta_alt_ssid,data,binary,""
@@ -9,6 +13,7 @@ sta_alt_pass,data,binary,""
 sta_ip,data,binary,""
 sta_netmask,data,binary,""
 sta_gateway,data,binary,""
+mdns,data,binary,"remise"
 http_rx_timeout,data,u8,5
 http_tx_timeout,data,u8,5
 http_exit_msg,data,u8,1

@@ -2,6 +2,7 @@
 
 ##
 - Improve DCC generation for locos ([#29](https://github.com/OpenRemise/Firmware/issues/29))
+- Add access point mode ([#179](https://github.com/OpenRemise/Firmware/issues/179))
 
 ## 0.8.1
 - Add ᴡʟᴀɴMAUS export ([#164](https://github.com/OpenRemise/Firmware/issues/164))

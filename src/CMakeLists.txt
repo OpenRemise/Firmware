@@ -29,9 +29,7 @@ if(IDF_TARGET STREQUAL linux)
     driver
     esp_app_format
     esp_http_server
-    nvs_flash
-    EMBED_FILES
-    ${CMAKE_BINARY_DIR}/intf/http/ap/captive_portal.html)
+    nvs_flash)
 else()
   idf_component_register(
     SRCS
@@ -63,10 +61,8 @@ else()
     drv/trace/init.cpp
     drv/wifi/init.cpp
     intf/dns/init.cpp
-    intf/http/ap/init.cpp
-    intf/http/ap/server.cpp
-    intf/http/sta/init.cpp
-    intf/http/sta/server.cpp
+    intf/http/init.cpp
+    intf/http/server.cpp
     intf/http/init.cpp
     intf/mdns/init.cpp
     intf/udp/init.cpp
@@ -112,9 +108,7 @@ else()
     esp_timer
     esp_wifi
     nvs_flash
-    vfs
-    EMBED_FILES
-    ${CMAKE_BINARY_DIR}/intf/http/ap/captive_portal.html)
+    vfs)
 endif()
 
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_23)
@@ -126,21 +120,21 @@ target_compile_options(
     -Wfatal-errors -Wno-missing-field-initializers)
 
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_COM@0.1.2")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.1")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_DCC_EIN@0.5.2")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.2.1")
 cpmaddpackage("gh:ZIMO-Elektronik/ULF_MDU_EIN@0.2.0")
-cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.4")
+cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.6")
 cpmaddpackage("gh:ZIMO-Elektronik/ZUSI@0.9.5")
-cpmaddpackage("gh:microsoft/GSL@5.0.0")
+cpmaddpackage("gh:microsoft/GSL@5.0.1")
 cpmaddpackage(
   NAME
   Boost
   VERSION
-  1.90.0
+  1.92.0
   URL
-  https://github.com/boostorg/boost/releases/download/boost-1.90.0/boost-1.90.0-cmake.tar.gz
+  https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.xz
   URL_HASH
-  SHA256=913ca43d49e93d1b158c9862009add1518a4c665e7853b349a6492d158b036d4
+  SHA256=9bed76128d4e46755dbe818487788c6fceb6f72b378f4daa49b7e1e600d9088d
   OPTIONS
   "BOOST_ENABLE_CMAKE ON"
   "BOOST_SKIP_INSTALL_RULES ON"
@@ -181,10 +175,6 @@ target_link_libraries(
          ULF::SUSIV2
          Z21::Z21
          ZUSI::ZUSI)
-
-# Minify HTML shown by http::ap::Server
-minify_html(intf/http/ap/captive_portal.html
-            ${CMAKE_BINARY_DIR}/intf/http/ap/captive_portal.html)
 
 # Create NVS partition image
 if(NOT IDF_TARGET STREQUAL linux)

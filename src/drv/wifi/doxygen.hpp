@@ -27,10 +27,8 @@ namespace drv::wifi {
 /// \details \tableofcontents
 /// \todo document WiFi page
 ///
-/// This module handles the initialization of the WLAN peripherals and thus the
-/// LwIP stack. Depending on the operating mode, either an access point or a
-/// station is created. In the latter case, mDNS services for HTTP (\todo and
-/// UDP?) are also started.
+/// This module handles the initialization of the WiFi peripherals and thus the
+/// LwIP stack.
 ///
 /// <div class="section_buttons">
 /// | Previous            | Next          |

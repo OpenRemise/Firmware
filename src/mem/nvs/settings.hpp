@@ -38,8 +38,20 @@ class Settings : public Base {
 public:
   Settings() : Base{"settings", NVS_READWRITE} {}
 
-  std::string getStationmDNS() const;
-  esp_err_t setStationmDNS(std::string_view str);
+  std::string getAccessPointSSID() const;
+  esp_err_t setAccessPointSSID(std::string_view str);
+
+  std::string getAccessPointPassword() const;
+  esp_err_t setAccessPointPassword(std::string_view str);
+
+  std::string getAccessPointIP() const;
+  esp_err_t setAccessPointIP(std::string_view str);
+
+  std::string getAccessPointNetmask() const;
+  esp_err_t setAccessPointNetmask(std::string_view str);
+
+  std::string getAccessPointGateway() const;
+  esp_err_t setAccessPointGateway(std::string_view str);
 
   std::string getStationSSID() const;
   esp_err_t setStationSSID(std::string_view str);
@@ -61,6 +73,12 @@ public:
 
   std::string getStationGateway() const;
   esp_err_t setStationGateway(std::string_view str);
+
+  [[deprecated(
+    "This method will be removed in favor of `getmDNS`.")]] std::string
+  getStationmDNS() const;
+  std::string getmDNS() const;
+  esp_err_t setmDNS(std::string_view str);
 
   uint8_t getHttpReceiveTimeout() const;
   esp_err_t setHttpReceiveTimeout(uint8_t value);
