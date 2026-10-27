@@ -90,6 +90,8 @@ esp_err_t init() {
       nvs.setmDNS(nvs.find("sta_mdns") == ESP_ERR_NVS_NOT_FOUND
                     ? "remise"
                     : nvs.getStationmDNS());
+    if (nvs.find("dns_redirection") == ESP_ERR_NVS_NOT_FOUND)
+      nvs.setDNSRedirection(true);
     if (nvs.find("http_rx_timeout") == ESP_ERR_NVS_NOT_FOUND)
       nvs.setHttpReceiveTimeout(5u);
     if (nvs.find("http_tx_timeout") == ESP_ERR_NVS_NOT_FOUND)

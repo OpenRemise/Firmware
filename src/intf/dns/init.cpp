@@ -22,14 +22,15 @@
 #include "init.hpp"
 #include <dns_server.h>
 #include <esp_wifi.h>
+#include "mem/nvs/settings.hpp"
 
 namespace intf::dns {
 
 /// Initialize DNS
 ///
 /// Initialization takes place in init(). It creates a DNS server and responds
-/// to all queries with the address of the softAP. This "funnelling" of DNS and
-/// traffic triggers the captive portal (sign in) to appear.
+/// to all queries with the address of the softAP. This technique is often
+/// called DNS hijacking, DNS redirection, or DNS wildcard resolution.
 ///
 /// \warning
 /// The DNS server will **not** redirect HTTPS requests.
@@ -39,7 +40,7 @@ esp_err_t init() {
   esp_wifi_get_mode(&mode);
 
   // Start the DNS server that will redirect all queries to the softAP IP
-  if (mode & WIFI_MODE_AP) {
+  if (mem::nvs::Settings{}.getDNSRedirection() && (mode & WIFI_MODE_AP)) {
     dns_server_config_t cfg =
       DNS_SERVER_CONFIG_SINGLE("*",            // all A queries
                                "WIFI_AP_DEF"); // softAP netif ID

@@ -299,6 +299,26 @@ esp_err_t Settings::setmDNS(std::string_view str) {
   return str.ends_with("remise") ? setBlob("mdns", str) : ESP_ERR_INVALID_ARG;
 }
 
+/// Get DNS redirection
+///
+/// \return DNS redirection
+bool Settings::getDNSRedirection() const {
+  return static_cast<bool>(getU8("dns_redirection"));
+}
+
+/// Set DNS redirection
+///
+/// \param  value                         DNS redirection
+/// \retval ESP_OK                        Value was set successfully
+/// \retval ESP_FAIL                      Internal error
+/// \retval ESP_ERR_NVS_INVALID_NAME      Key name doesn't satisfy constraints
+/// \retval ESP_ERR_NVS_NOT_ENOUGH_SPACE  Not enough space
+/// \retval ESP_ERR_NVS_REMOVE_FAILED     Value wasn't updated because flash
+///                                       write operation has failed
+esp_err_t Settings::setDNSRedirection(bool value) {
+  return setU8("dns_redirection", value);
+}
+
 /// Get HTTP receive timeout
 ///
 /// \return HTTP receive timeout [s]

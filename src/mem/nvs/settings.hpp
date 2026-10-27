@@ -80,6 +80,9 @@ public:
   std::string getmDNS() const;
   esp_err_t setmDNS(std::string_view str);
 
+  bool getDNSRedirection() const;
+  esp_err_t setDNSRedirection(bool value);
+
   uint8_t getHttpReceiveTimeout() const;
   esp_err_t setHttpReceiveTimeout(uint8_t value);
 
