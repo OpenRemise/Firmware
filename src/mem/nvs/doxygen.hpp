@@ -68,6 +68,7 @@ namespace mem::nvs {
 /// | Range of IP addresses in the network                                                                                                                  | sta_netmask     | Binary | -   | -   | ""           |
 /// | IP address of the access point to connect to                                                                                                          | sta_gateway     | Binary | -   | -   | ""           |
 /// | [mDNS](https://en.wikipedia.org/wiki/Multicast_DNS) hostname under which the device appears (e.g. my-remise.local)                                    | mdns            | Binary | -   | -   | "remise"     |
+/// | Redirect all DNS queries to the access point IP address (triggers captive portal)                                                                     | dns_redirection | u8     | 0   | 1   | 1            |
 /// | Timeout for receiving [HTTP](https://en.wikipedia.org/wiki/HTTP) requests (also used for USB) [s]                                                     | http_rx_timeout | u8     | 5   | 60  | 5            |
 /// | Timeout for transmitting HTTP response [s]                                                                                                            | http_tx_timeout | u8     | 5   | 60  | 5            |
 /// | Display a query when leaving the page                                                                                                                 | http_exit_msg   | u8     | 0   | 1   | 1            |

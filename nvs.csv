@@ -14,6 +14,7 @@ sta_ip,data,binary,""
 sta_netmask,data,binary,""
 sta_gateway,data,binary,""
 mdns,data,binary,"remise"
+dns_redirection,data,u8,1
 http_rx_timeout,data,u8,5
 http_tx_timeout,data,u8,5
 http_exit_msg,data,u8,1

@@ -109,7 +109,7 @@ wifi_ap_config_t ap_config() {
   // Read password
   if (auto const pass{nvs.getAccessPointPassword()}; size(pass)) {
     memcpy(ap.password, data(pass), size(pass));
-    ap.authmode = WIFI_AUTH_WPA2_PSK;
+    ap.authmode = WIFI_AUTH_WPA2_WPA3_PSK;
   } else ap.authmode = WIFI_AUTH_OPEN;
 
   //
