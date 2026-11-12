@@ -38,14 +38,14 @@ esp_err_t init() {
   ESP_ERROR_CHECK(gpio_config(&gpio_cfg));
 
   static constexpr spi_bus_config_t bus_cfg{.mosi_io_num = data_gpio_num,
-                                            .miso_io_num = -1,
+                                            .miso_io_num = GPIO_NUM_NC,
                                             .sclk_io_num = clock_gpio_num,
-                                            .data2_io_num = -1,
-                                            .data3_io_num = -1,
-                                            .data4_io_num = -1,
-                                            .data5_io_num = -1,
-                                            .data6_io_num = -1,
-                                            .data7_io_num = -1};
+                                            .data2_io_num = GPIO_NUM_NC,
+                                            .data3_io_num = GPIO_NUM_NC,
+                                            .data4_io_num = GPIO_NUM_NC,
+                                            .data5_io_num = GPIO_NUM_NC,
+                                            .data6_io_num = GPIO_NUM_NC,
+                                            .data7_io_num = GPIO_NUM_NC};
 
   // Can't use SPI1
   ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CH_AUTO));
@@ -60,7 +60,7 @@ esp_err_t init() {
     .cs_ena_posttrans = 0u,
     .clock_speed_hz = static_cast<int>(1.0 / 10e-6),
     .input_delay_ns = 0,
-    .spics_io_num = -1,
+    .spics_io_num = GPIO_NUM_NC,
     .flags = SPI_DEVICE_BIT_LSBFIRST | SPI_DEVICE_HALFDUPLEX | SPI_DEVICE_3WIRE,
     .queue_size = 7};
   ESP_ERROR_CHECK(

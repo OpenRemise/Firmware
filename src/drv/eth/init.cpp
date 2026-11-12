@@ -88,12 +88,12 @@ esp_err_t init() {
   static constexpr spi_bus_config_t buf_cfg{.mosi_io_num = mosi_gpio_num,
                                             .miso_io_num = miso_gpio_num,
                                             .sclk_io_num = sclk_gpio_num,
-                                            .data2_io_num = -1,
-                                            .data3_io_num = -1,
-                                            .data4_io_num = -1,
-                                            .data5_io_num = -1,
-                                            .data6_io_num = -1,
-                                            .data7_io_num = -1};
+                                            .data2_io_num = GPIO_NUM_NC,
+                                            .data3_io_num = GPIO_NUM_NC,
+                                            .data4_io_num = GPIO_NUM_NC,
+                                            .data5_io_num = GPIO_NUM_NC,
+                                            .data6_io_num = GPIO_NUM_NC,
+                                            .data7_io_num = GPIO_NUM_NC};
 
   spi_bus_initialize(SPI3_HOST, &buf_cfg, SPI_DMA_CH_AUTO);
 
@@ -103,7 +103,7 @@ esp_err_t init() {
                                         .spics_io_num = cs_gpio_num,
                                         .queue_size = 20};
 
-  eth_w5500_config_t w5500_cfg{.base = {.int_gpio_num = -1,
+  eth_w5500_config_t w5500_cfg{.base = {.int_gpio_num = GPIO_NUM_NC,
                                         .poll_period_ms = 10u,
                                         .spi_host_id = SPI3_HOST,
                                         .spi_devcfg = &dev_cfg}};
@@ -116,7 +116,7 @@ esp_err_t init() {
   static constexpr eth_phy_config_t phy_cfg{.phy_addr = ESP_ETH_PHY_ADDR_AUTO,
                                             .reset_timeout_ms = 100u,
                                             .autonego_timeout_ms = 4000u,
-                                            .reset_gpio_num = -1,
+                                            .reset_gpio_num = GPIO_NUM_NC,
                                             .hw_reset_assert_time_us = 0,
                                             .post_hw_reset_delay_ms = 0};
 
