@@ -42,6 +42,56 @@
 #include "mw/zimo/zusi/init.hpp"
 #include "utility.hpp"
 
+#include <esp_twai.h>
+#include <esp_twai_onchip.h>
+
+// Transmission completion callback
+static IRAM_ATTR bool twai_tx_done_cb(twai_node_handle_t handle,
+                                      twai_tx_done_event_data_t const* edata,
+                                      void*) {
+  if (!edata->is_tx_success) {
+    DRAM_LOGW("Failed to transmit message, ID: 0x%X",
+              edata->done_tx_frame->header.id);
+  }
+  return false; // No task wake required
+}
+
+// Reception complete callback
+static bool twai_rx_cb(twai_node_handle_t handle,
+                       twai_rx_done_event_data_t const* edata,
+                       void*) {
+  std::array<uint8_t, 8uz> buffer{};
+  twai_frame_t rx_frame{.buffer = data(buffer), .buffer_len = size(buffer)};
+  if (ESP_OK == twai_node_receive_from_isr(handle, &rx_frame))
+    DRAM_LOGI("rx: %02X %02X %02X %02X %02X %02X %02X %02X\n",
+              buffer[0uz],
+              buffer[1uz],
+              buffer[2uz],
+              buffer[3uz],
+              buffer[4uz],
+              buffer[5uz],
+              buffer[6uz],
+              buffer[7uz]);
+  return false;
+}
+
+// Node state callback
+static bool IRAM_ATTR
+twai_state_change_cb(twai_node_handle_t handle,
+                     twai_state_change_event_data_t const* edata,
+                     void*) {
+  DRAM_LOGI("state changed: %d -> %d", edata->old_sta, edata->new_sta);
+  return false;
+}
+
+// Error callback
+static bool IRAM_ATTR twai_error_cb(twai_node_handle_t handle,
+                                    twai_error_event_data_t const* edata,
+                                    void*) {
+  DRAM_LOGW("bus error: 0x%x", edata->err_flags.val);
+  return false;
+}
+
 /// ESP-IDF application entry point
 extern "C" void app_main() {
   static_assert(PRO_CPU_NUM == 0 && WIFI_TASK_CORE_ID == 0);
@@ -98,6 +148,60 @@ extern "C" void app_main() {
   static_assert(APP_CPU_NUM == intf::usb::rx_task.core_id &&
                 APP_CPU_NUM == intf::usb::tx_task.core_id);
 #endif
+
+  //
+  // --
+  //
+
+  twai_node_handle_t node_hdl{};
+  static constexpr twai_onchip_node_config_t node_config{
+    .io_cfg = {.tx = GPIO_NUM_39,
+               .rx = GPIO_NUM_38,
+               .quanta_clk_out = GPIO_NUM_NC,
+               .bus_off_indicator = GPIO_NUM_NC},
+    .bit_timing = {.bitrate = 125000u},
+    .tx_queue_depth = 5u};
+
+  // Create a new TWAI controller driver instance
+  ESP_ERROR_CHECK(twai_new_node_onchip(&node_config, &node_hdl));
+
+  // Register transmission completion callback
+  static constexpr twai_event_callbacks_t callbacks{
+    .on_tx_done = twai_tx_done_cb,
+    .on_rx_done = twai_rx_cb,
+    .on_state_change = twai_state_change_cb,
+    .on_error = twai_error_cb};
+  ESP_ERROR_CHECK(
+    twai_node_register_event_callbacks(node_hdl, &callbacks, NULL));
+
+  // Start the TWAI controller
+  ESP_ERROR_CHECK(twai_node_enable(node_hdl));
+
+  for (;;) {
+    uint32_t const id{
+      1u << 28u |    // always 1
+      0x0Au << 24u | // group (network)
+      0x00u << 18u | // command (ping)
+      0b00u << 16u | // mode (request)
+      0u << 0u       // network id
+    };
+
+    std::array<uint8_t, 2uz> buffer{};
+
+    twai_frame_t tx_frame = {
+      .header =
+        {
+          .id = id,
+          .ide = true,
+        },
+      .buffer = data(buffer),
+      .buffer_len = size(buffer),
+      .tx_queue_priority = 0u,
+    };
+    ESP_ERROR_CHECK(twai_node_transmit(node_hdl, &tx_frame, 500));
+    ESP_ERROR_CHECK(twai_node_transmit_wait_all_done(node_hdl, -1));
+    vTaskDelay(pdMS_TO_TICKS(2000u));
+  }
 }
 
 // Assert that task names are unique and below max length
