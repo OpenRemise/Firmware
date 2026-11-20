@@ -1,14 +1,14 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs/DEBUGGING.md#using-nativedebug
+    // https://docs.espressif.com/projects/vscode-esp-idf-extension/en/latest/debugproject.html#other-extensions-debug-configuration
     {
+      "name": "Debug Firmware",
       "type": "gdb",
       "request": "attach",
-      "name": "Debug Firmware",
       "target": "extended-remote :3333",
       "executable": "${workspaceFolder}/build/Firmware.elf",
-      "gdbpath": "${userHome}/.espressif/tools/xtensa-esp-elf-gdb/16.3_20250913/xtensa-esp-elf-gdb/bin/xtensa-esp32-elf-gdb",
+      "gdbpath": "${userHome}/.espressif/tools/xtensa-esp-elf-gdb/17.1_20260402/xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
       "cwd": "${workspaceFolder}",
       "autorun": [
         "set pagination off",
@@ -23,19 +23,17 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/Firmware.elf",
-      "args": [],
-      "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
-      "environment": [],
-      "externalConsole": false,
       "MIMode": "gdb",
+      "miDebuggerPath": "${userHome}/.espressif/tools/xtensa-esp-elf-gdb/17.1_20260402/xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
+      "miDebuggerServerAddress": "localhost:3333",
       "setupCommands": [
         {
-          "description": "Enable pretty-printing for gdb",
           "text": "-enable-pretty-printing",
-          "ignoreFailures": false
+          "ignoreFailures": true
         }
-      ]
+      ],
+      "preLaunchTask": "Run esp-emu"
     }
   ]
 }

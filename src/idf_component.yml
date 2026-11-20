@@ -2,27 +2,28 @@ dependencies:
   idf: "6.1"
   bblanchon/arduinojson:
     version: "7.4.3"
+    require: public
   espressif/esp_tinyusb:
     version: "2.2.1"
-    rules:
-      - if: "target != linux"
+    require: public
   espressif/tinyusb:
     version: "0.19.0~3"
-    rules:
-      - if: "target != linux"
+    require: public
   espressif/mdns:
     version: "1.8.2"
-    rules:
-      - if: "target != linux"
+    require: public
   espressif/w5500:
     version: "2.0.0"
-    rules:
-      - if: target != linux
+    require: public
   zimo-elektronik/dcc:
     version: "0.50.1"
+    require: public
   zimo-elektronik/decup:
     version: "0.2.2"
+    require: public
   zimo-elektronik/mdu:
     version: "0.19.5"
+    require: public
   zimo-elektronik/z21:
     version: "0.4.3"
+    require: public

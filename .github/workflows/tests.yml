@@ -8,18 +8,33 @@ on:
 
 jobs:
   tests:
-    uses: ZIMO-Elektronik/.github-workflows/.github/workflows/esp-elf-gcc.yml@v0.4.0
-    with:
-      pre-build: |
-        sudo apt update -y
-        sudo apt install -y libbsd-dev ninja-build
-      esp_idf_version: v6.1
-      target: linux
-      command: |
-        cmake --preset "Tests"
-        cmake --build build --parallel
-      post-build: |
-        for i in {1..100}; do
-          ./build/Firmware.elf && exit 0
-        done
-        exit 1
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install ESP-IDF
+        run: |
+          mkdir -p ~/esp
+          cd ~/esp
+          git clone -b v6.1 --recursive https://github.com/espressif/esp-idf.git
+          cd ~/esp/esp-idf
+          ./install.sh esp32s3
+      - name: Build tests
+        run: |
+          . $HOME/esp/esp-idf/export.sh
+           idf.py --preset "Tests" merge-bin
+      - name: Run tests
+        run: |
+          if output=$(./build/_deps/esp-emulator-src/esp-emu --chip esp32s3 --firmware build/merged-binary.bin --elf build/Firmware.elf --exit-on TEST_RESULT: 2>&1); then
+            emulator_status=0
+          else
+            emulator_status=$?
+          fi
+
+          echo "$output"
+
+          if [[ $emulator_status -ne 0 ]] || ! grep -qxE $'TEST_RESULT:0\r?' <<< "$output"; then
+              echo "::error::ESP emulator tests failed"
+              exit 1
+          fi

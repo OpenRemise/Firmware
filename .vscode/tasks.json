@@ -72,9 +72,40 @@
       "type": "shell",
       "isBackground": true,
       "options": {
-        "cwd": "${userHome}/.espressif/tools/openocd-esp32/v0.12.0-esp32-20251215/openocd-esp32"
+        "cwd": "${userHome}/.espressif/tools/openocd-esp32/v0.12.0-esp32-20260703/openocd-esp32"
       },
-      "command": "bin/openocd -f board/esp32s3-builtin.cfg"
+      "command": "bin/openocd -f board/esp32s3-builtin.cfg",
+      "problemMatcher": {
+        "owner": "openocd",
+        "pattern": {
+          "regexp": "a^"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Open On-Chip Debugger\\b",
+          "endsPattern": "^.*Listening on port 3333 for gdb connections.*$"
+        }
+      }
+    },
+    {
+      "label": "Run esp-emu",
+      "type": "shell",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/build/_deps/esp-emulator-src"
+      },
+      "command": "./esp-emu --chip esp32s3 --firmware ${workspaceFolder}/build/merged-binary.bin --elf ${workspaceFolder}/build/Firmware.elf --gdb 3333 --gdb-halt",
+      "problemMatcher": {
+        "owner": "esp-emu",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*$",
+          "endsPattern": "^.*GDB stub listening on :3333.*$"
+        }
+      }
     },
     {
       "label": "Run Python http.server",
@@ -86,13 +117,10 @@
       "label": "Run Tests",
       "type": "shell",
       "isBackground": true,
-      "command": "./build/Firmware.elf"
-    },
-    {
-      "label": "Run Valgrind Tests",
-      "type": "shell",
-      "isBackground": true,
-      "command": "valgrind --error-exitcode=1 --leak-check=yes --errors-for-leak-kinds=definite,indirect ./build/Firmware.elf"
+      "options": {
+        "cwd": "${workspaceFolder}/build/_deps/esp-emulator-src"
+      },
+      "command": "./esp-emu --chip esp32s3 --firmware ${workspaceFolder}/build/merged-binary.bin --elf ${workspaceFolder}/build/Firmware.elf --exit-on TEST_RESULT:"
     },
   ]
 }
