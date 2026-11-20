@@ -21,12 +21,16 @@
 
 #pragma once
 
+#include <driver/gptimer.h>
+#include <driver/ledc.h>
 #include <driver/rmt_tx.h>
 #include <driver/spi_master.h>
 #include <esp_http_server.h>
+#include <esp_wifi.h>
 #include <freertos/message_buffer.h>
 #include <freertos/queue.h>
 #include <freertos/stream_buffer.h>
+#include <hal/adc_types.h>
 #include <hal/gpio_types.h>
 #include <static_math/static_math.h>
 #include <atomic>
@@ -43,95 +47,6 @@
 #include <ztl/moving_average.hpp>
 #include <ztl/string.hpp>
 #include "task.hpp"
-
-#if CONFIG_IDF_TARGET_ESP32S3
-#  include <driver/gptimer.h>
-#  include <driver/ledc.h>
-#  include <esp_wifi.h>
-#  include <hal/adc_types.h>
-#elif CONFIG_IDF_TARGET_LINUX
-#  define APP_CPU_NUM 0
-#  define PRO_CPU_NUM APP_CPU_NUM
-#  define WIFI_TASK_CORE_ID APP_CPU_NUM
-#  define MAX_SSID_LEN 32
-#  define MAX_PASSPHRASE_LEN 64
-#  define ADC_CHANNEL_0 0
-#  define ADC_CHANNEL_1 1
-#  define ADC_CHANNEL_2 2
-#  define ADC_CHANNEL_3 3
-#  define ADC_CHANNEL_4 4
-#  define ADC_CHANNEL_5 5
-#  define ADC_CHANNEL_6 6
-#  define ADC_CHANNEL_7 7
-#  define ADC_CHANNEL_8 8
-#  define ADC_CHANNEL_9 9
-#  define ADC_ATTEN_DB_0 0
-#  define ADC_ATTEN_DB_2_5 1
-#  define ADC_ATTEN_DB_6 2
-#  define ADC_ATTEN_DB_11 3
-#  define LEDC_CHANNEL_0 0
-#  define LEDC_CHANNEL_1 1
-#  define LEDC_CHANNEL_2 2
-#  define LEDC_CHANNEL_3 3
-#  define LEDC_CHANNEL_4 4
-#  define LEDC_CHANNEL_5 5
-#  define LEDC_CHANNEL_6 6
-#  define LEDC_CHANNEL_7 7
-#  define SOC_ADC_PATT_LEN_MAX 24
-#  define SOC_ADC_DIGI_MAX_BITWIDTH 12
-#  define SOC_ADC_DIGI_DATA_BYTES_PER_CONV 4
-#  define SOC_ADC_SAMPLE_FREQ_THRES_HIGH 83333
-#  define GPIO_NUM_1 static_cast<gpio_num_t>(1)
-#  define GPIO_NUM_2 static_cast<gpio_num_t>(2)
-#  define GPIO_NUM_3 static_cast<gpio_num_t>(3)
-#  define GPIO_NUM_4 static_cast<gpio_num_t>(4)
-#  define GPIO_NUM_5 static_cast<gpio_num_t>(5)
-#  define GPIO_NUM_6 static_cast<gpio_num_t>(6)
-#  define GPIO_NUM_7 static_cast<gpio_num_t>(7)
-#  define GPIO_NUM_8 static_cast<gpio_num_t>(8)
-#  define GPIO_NUM_9 static_cast<gpio_num_t>(9)
-#  define GPIO_NUM_10 static_cast<gpio_num_t>(10)
-#  define GPIO_NUM_11 static_cast<gpio_num_t>(11)
-#  define GPIO_NUM_12 static_cast<gpio_num_t>(12)
-#  define GPIO_NUM_13 static_cast<gpio_num_t>(13)
-#  define GPIO_NUM_14 static_cast<gpio_num_t>(14)
-#  define GPIO_NUM_15 static_cast<gpio_num_t>(15)
-#  define GPIO_NUM_16 static_cast<gpio_num_t>(16)
-#  define GPIO_NUM_17 static_cast<gpio_num_t>(17)
-#  define GPIO_NUM_18 static_cast<gpio_num_t>(18)
-#  define GPIO_NUM_19 static_cast<gpio_num_t>(19)
-#  define GPIO_NUM_20 static_cast<gpio_num_t>(20)
-#  define GPIO_NUM_21 static_cast<gpio_num_t>(21)
-#  define GPIO_NUM_22 static_cast<gpio_num_t>(22)
-#  define GPIO_NUM_23 static_cast<gpio_num_t>(23)
-#  define GPIO_NUM_24 static_cast<gpio_num_t>(24)
-#  define GPIO_NUM_25 static_cast<gpio_num_t>(25)
-#  define GPIO_NUM_26 static_cast<gpio_num_t>(26)
-#  define GPIO_NUM_27 static_cast<gpio_num_t>(27)
-#  define GPIO_NUM_28 static_cast<gpio_num_t>(28)
-#  define GPIO_NUM_29 static_cast<gpio_num_t>(29)
-#  define GPIO_NUM_30 static_cast<gpio_num_t>(30)
-#  define GPIO_NUM_31 static_cast<gpio_num_t>(31)
-#  define GPIO_NUM_32 static_cast<gpio_num_t>(32)
-#  define GPIO_NUM_33 static_cast<gpio_num_t>(33)
-#  define GPIO_NUM_34 static_cast<gpio_num_t>(34)
-#  define GPIO_NUM_35 static_cast<gpio_num_t>(35)
-#  define GPIO_NUM_36 static_cast<gpio_num_t>(36)
-#  define GPIO_NUM_37 static_cast<gpio_num_t>(37)
-#  define GPIO_NUM_38 static_cast<gpio_num_t>(38)
-#  define GPIO_NUM_39 static_cast<gpio_num_t>(39)
-#  define GPIO_NUM_40 static_cast<gpio_num_t>(40)
-#  define GPIO_NUM_41 static_cast<gpio_num_t>(41)
-#  define GPIO_NUM_42 static_cast<gpio_num_t>(42)
-#  define GPIO_NUM_43 static_cast<gpio_num_t>(43)
-#  define GPIO_NUM_44 static_cast<gpio_num_t>(44)
-#  define GPIO_NUM_45 static_cast<gpio_num_t>(45)
-#  define GPIO_NUM_46 static_cast<gpio_num_t>(46)
-#  define GPIO_NUM_47 static_cast<gpio_num_t>(47)
-#  define GPIO_NUM_48 static_cast<gpio_num_t>(48)
-#else
-#  error "Unsupported SOC"
-#endif
 
 /// Default task notification index
 ///
@@ -360,9 +275,7 @@ namespace out {
 ///
 inline std::array<StackType_t, 4096uz> stack{};
 
-#if !CONFIG_IDF_TARGET_LINUX
 inline gptimer_handle_t gptimer{};
-#endif
 
 ///
 inline struct RxMessageBuffer {

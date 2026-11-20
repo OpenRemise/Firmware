@@ -18,10 +18,8 @@ list(
   src
   $ENV{IDF_PATH}/examples/protocols/http_server/captive_portal/components/dns_server
 )
-if(IDF_TARGET STREQUAL linux)
-  # Don't change COMPONENTS on ESP32* targets, it removes a shit ton of defaults
-  list(APPEND COMPONENTS src tests)
-  list(APPEND EXTRA_COMPONENT_DIRS tests $ENV{IDF_PATH}/tools/mocks/driver)
+if(BUILD_TESTING)
+  list(APPEND EXTRA_COMPONENT_DIRS tests)
 endif()
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
@@ -33,13 +31,10 @@ project(
   LANGUAGES ASM C CXX)
 
 # Frontend
-if(ESP_PLATFORM
-   AND NOT IDF_TARGET STREQUAL linux
-   AND NOT EXISTS ${Frontend_BINARY_DIR})
-
+if(ESP_PLATFORM AND NOT EXISTS ${Frontend_BINARY_DIR})
   # Build from local repo or dev branch at config time
-  if(NOT ${OPENREMISE_FRONTEND_SOURCE_DIR} STREQUAL "" OR CMAKE_BUILD_TYPE
-                                                          STREQUAL Debug)
+  if(OPENREMISE_FRONTEND_SOURCE_DIR OR (CMAKE_BUILD_TYPE STREQUAL Debug
+                                        AND NOT BUILD_TESTING))
     if(OPENREMISE_FRONTEND_SOURCE_DIR)
       cpmaddpackage(NAME Frontend SOURCE_DIR ${OPENREMISE_FRONTEND_SOURCE_DIR}
                     DOWNLOAD_ONLY TRUE)
@@ -65,7 +60,7 @@ if(ESP_PLATFORM
     set(FRONTEND_WEB_DIR ${Frontend_BINARY_DIR}/web)
 
     # ... or use pre-built official release
-  elseif(CMAKE_BUILD_TYPE STREQUAL Release)
+  else()
     cpmaddpackage(
       NAME
       Frontend
@@ -127,22 +122,19 @@ if(ESP_PLATFORM
 endif()
 
 # Custom release target to create .zip
-if(ESP_PLATFORM AND NOT IDF_TARGET STREQUAL linux)
-  add_custom_target(
-    FirmwareRelease
-    COMMAND
-      ${CMAKE_COMMAND} -E tar "cf"
-      ${PROJECT_NAME}-${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip
-      --format=zip #
-      flasher_args.json #
-      bootloader/bootloader.bin #
-      Firmware.bin #
-      partition_table/partition-table.bin #
-      ota_data_initial.bin #
-      nvs.bin #
-    DEPENDS all
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-endif()
+add_custom_target(
+  FirmwareRelease
+  COMMAND
+    ${CMAKE_COMMAND} -E tar "cf"
+    ${PROJECT_NAME}-${PROJECT_VERSION}${IDENTIFIERS_FROM_GIT}.zip --format=zip #
+    flasher_args.json #
+    bootloader/bootloader.bin #
+    Firmware.bin #
+    partition_table/partition-table.bin #
+    ota_data_initial.bin #
+    nvs.bin #
+  DEPENDS all
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_subdirectory(docs)
 

@@ -3,10 +3,10 @@
 using namespace testing;
 
 TEST_F(EndpointsTest, uri_without_slash_triggers_assertion) {
-  ASSERT_DEATH(subscribe({.uri = "no_slash", .method = HTTP_GET},
-                         _subscriber,
-                         &SubscriberMock::request0),
-               "");
+  ASSERT_DEATH_IF_SUPPORTED(subscribe({.uri = "no_slash", .method = HTTP_GET},
+                                      _subscriber,
+                                      &SubscriberMock::request0),
+                            "");
 }
 
 TEST_F(EndpointsTest, same_method_different_uri) {
