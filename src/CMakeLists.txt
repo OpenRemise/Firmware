@@ -1,29 +1,9 @@
-set(COMMON_SRC
-    drv/out/track/current_limit.cpp
-    intf/usb/rx_task_function.cpp
-    mem/nvs/accessories.cpp
-    mem/nvs/base.cpp
-    mem/nvs/init.cpp
-    mem/nvs/locos.cpp
-    mem/nvs/settings.cpp
-    mem/nvs/task_function.cpp
-    mem/nvs/turnouts.cpp
-    mem/nvs/utility.cpp
-    mw/dcc/accessory.cpp
-    mw/dcc/loco.cpp
-    mw/dcc/service.cpp
-    mw/dcc/system_state.cpp
-    mw/dcc/turnout.cpp
-    mw/zimo/ulf/dcc_ein/task_function.cpp
-    utility.cpp)
-
 if(NOT BUILD_TESTING)
   set(APP_MAIN "app_main.cpp")
 endif()
 
 idf_component_register(
   SRCS
-  ${COMMON_SRC}
   drv/anlg/adc_task_function.cpp
   drv/anlg/convert.cpp
   drv/anlg/init.cpp
@@ -45,6 +25,7 @@ idf_component_register(
   drv/out/track/zimo/mdu/resume.cpp
   drv/out/track/zimo/mdu/suspend.cpp
   drv/out/track/zimo/mdu/task_function.cpp
+  drv/out/track/current_limit.cpp
   drv/out/track/init.cpp
   drv/out/init.cpp
   drv/out/suspend.cpp
@@ -59,7 +40,20 @@ idf_component_register(
   intf/usb/init.cpp
   intf/usb/rx_task_function.cpp
   intf/usb/tx_task_function.cpp
+  mem/nvs/accessories.cpp
+  mem/nvs/base.cpp
+  mem/nvs/init.cpp
+  mem/nvs/locos.cpp
+  mem/nvs/settings.cpp
+  mem/nvs/task_function.cpp
+  mem/nvs/turnouts.cpp
+  mem/nvs/utility.cpp
+  mw/dcc/accessory.cpp
   mw/dcc/init.cpp
+  mw/dcc/loco.cpp
+  mw/dcc/service.cpp
+  mw/dcc/system_state.cpp
+  mw/dcc/turnout.cpp
   mw/disp/init.cpp
   mw/disp/task_function.cpp
   mw/ota/init.cpp
@@ -70,12 +64,14 @@ idf_component_register(
   mw/zimo/decup/service.cpp
   mw/zimo/mdu/init.cpp
   mw/zimo/mdu/service.cpp
+  mw/zimo/ulf/dcc_ein/task_function.cpp
   mw/zimo/ulf/susiv2/task_function.cpp
   mw/zimo/ulf/init.cpp
   mw/zimo/zusi/init.cpp
   mw/zimo/zusi/service.cpp
   ${APP_MAIN}
   drv8328_test.cpp
+  utility.cpp
   INCLUDE_DIRS
   .
   ${CMAKE_BINARY_DIR}
@@ -91,6 +87,7 @@ idf_component_register(
   esp_driver_rmt
   esp_driver_spi
   esp_driver_tsens
+  esp_driver_twai
   esp_driver_uart
   esp_eth
   esp_http_server

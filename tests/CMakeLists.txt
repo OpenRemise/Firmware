@@ -26,8 +26,8 @@ cpmaddpackage(
   NAME
   esp-emulator
   URL
-  "https://github.com/espressif/esp-emulator/releases/download/v1.1.0/esp-emu-1.1.0-x86_64-unknown-linux-gnu.tar.gz"
+  "https://github.com/espressif/esp-emulator/releases/download/v1.2.0/esp-emu-1.2.0-x86_64-unknown-linux-gnu.tar.gz"
   VERSION
-  1.1.0
+  1.2.0
   DOWNLOAD_ONLY
   ON)
